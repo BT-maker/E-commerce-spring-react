@@ -1,0 +1,68 @@
+.footer {
+  background: #ffffff; /* Arka planı beyaz yap */
+  color: #18181b; /* Ana metin rengini koyu yap */
+  margin-top: 4rem;
+  padding: 2.5rem 1rem 1.2rem 1rem;
+  border-top: 1px solid #e5e7eb; /* Üste ayıran çizgi ekle */
+}
+.footer-content {
+  max-width: 1120px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2rem;
+  padding-bottom: 2rem;
+  border-bottom: 1px solid #e5e7eb; /* Çizgi rengini açık gri yap */
+}
+@media (min-width: 768px) {
+  .footer-content {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+@media (max-width: 900px) {
+  .footer-content { grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 600px) {
+  .footer-content { grid-template-columns: 1fr; padding: 1.2rem 0.5rem; }
+  .footer-title { font-size: 1rem; }
+}
+.footer-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin-bottom: 0.75rem;
+  color: #18181b; /* Başlık rengini koyu yap */
+}
+.footer-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.footer-link {
+  color: #3f3f46; /* Link rengini biraz daha yumuşak yap */
+  font-size: 0.97rem;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+.footer-link:hover {
+  color: #22c55e; /* Hover rengini yeşil tonu yap */
+  text-decoration: underline;
+}
+.footer-social {
+  display: flex;
+  gap: 1.1rem;
+  margin-top: 0.5rem;
+}
+.footer-social a {
+  color: #3f3f46; /* İkon rengini yumuşak yap */
+  font-size: 1.5rem;
+  transition: color 0.2s;
+}
+.footer-social a:hover {
+  color: #22c55e; /* Hover rengini yeşil tonu yap */
+}
+.footer-copyright {
+  text-align: center;
+  font-size: 0.85rem;
+  color: #71717a; /* Copyright metin rengini ayarla */
+  margin-top: 2rem;
+} 
