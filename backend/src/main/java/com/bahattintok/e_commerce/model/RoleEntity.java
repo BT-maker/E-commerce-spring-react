@@ -37,4 +37,16 @@ public class RoleEntity {
      */
     @Column(nullable = false)
     private boolean isSeller = false;
+    
+    /**
+     * Bu entity şu işlevleri sağlar:
+     * 
+     * 1. Rol Yönetimi: Veritabanında kullanıcı rollerinin saklanması
+     * 2. Dinamik Roller: Yeni rollerin sistem yöneticisi tarafından eklenebilmesi
+     * 3. Satıcı Kontrolü: Rolün satıcı yetkisine sahip olup olmadığının kontrolü
+     * 4. Benzersiz İsim: Her rolün benzersiz adı
+     * 5. Veritabanı İlişkisi: Kullanıcılar ile many-to-one ilişki
+     * 
+     * Bu entity sayesinde kullanıcı rolleri esnek ve dinamik şekilde yönetilebilir!
+     */
 } 

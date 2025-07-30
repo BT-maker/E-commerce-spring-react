@@ -31,4 +31,15 @@ public class Category {
      */
     @Column(nullable = false, unique = true)
     private String name;
+    
+    /**
+     * Bu entity şu işlevleri sağlar:
+     * 
+     * 1. Kategori Yönetimi: Ürün kategorilerinin tanımlanması
+     * 2. Benzersiz İsim: Her kategorinin benzersiz adı
+     * 3. Ürün Sınıflandırma: Ürünlerin kategorilere göre gruplandırılması
+     * 4. Veritabanı İlişkisi: Ürünler ile many-to-one ilişki
+     * 
+     * Bu entity sayesinde ürünler kategorilere göre organize edilebilir!
+     */
 } 

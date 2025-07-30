@@ -33,4 +33,12 @@ public class StoreController {
         );
         return ResponseEntity.ok(dto);
     }
+    
+    /**
+     * Bu controller şu işlevleri sağlar:
+     * 
+     * 1. Mağaza Bilgisi: Mağaza adına göre mağaza bilgisini getirir (GET /api/stores/{name})
+     * 
+     * Bu controller sayesinde kullanıcılar mağaza bilgilerine erişebilir!
+     */
 } 

@@ -64,4 +64,24 @@ public interface ProductService {
      * Mağaza adına göre ürünleri sayfalı getirir.
      */
     Page<Product> getProductsByStoreName(String storeName, Pageable pageable);
+    
+    /**
+     * En popüler ürünleri getirir (en çok satılan).
+     */
+    Page<Product> getMostPopularProducts(Pageable pageable);
+    
+    /**
+     * Bu interface şu işlevleri sağlar:
+     * 
+     * 1. Ürün CRUD İşlemleri: Ürün oluşturma, okuma, güncelleme ve silme
+     * 2. Ürün Arama: İsme ve açıklamaya göre arama yapma
+     * 3. Kategori Filtreleme: Kategoriye göre ürün listeleme
+     * 4. Fiyat Filtreleme: Fiyat aralığına göre ürün filtreleme
+     * 5. Mağaza Filtreleme: Mağazaya göre ürün listeleme
+     * 6. Popülerlik Sıralaması: En çok satan ürünleri getirme
+     * 7. Sayfalama Desteği: Büyük veri setleri için sayfalama
+     * 8. Interface Tasarımı: Servis implementasyonları için sözleşme tanımlama
+     * 
+     * Bu interface sayesinde ürün yönetimi standart ve kapsamlı şekilde yapılabilir!
+     */
 } 

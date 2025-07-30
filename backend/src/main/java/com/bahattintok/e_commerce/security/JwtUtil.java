@@ -77,17 +77,15 @@ public class JwtUtil {
     }
     
     /**
-     * Kullanıcı için yeni bir JWT token üretir.
+     * Kullanıcı için JWT token üretir (email ile).
      */
     public String generateToken(UserDetails userDetails) {
         Map<String, Object> claims = new HashMap<>();
         claims.put("roles", userDetails.getAuthorities());
-        // userDetails.getUsername() yerine getEmail() kullanılmalı, ancak UserDetails interface'inde getEmail() yok.
-        // Bizim User entity'mizden email'i almak için UserDetails'i User'a cast etmemiz gerekir.
-        String email = userDetails.getUsername(); // Eğer UserDetailsService'de withUsername(email) ile oluşturduysak, bu zaten email olur.
+        String email = userDetails.getUsername();
         return createToken(claims, email);
     }
-    
+
     /**
      * Token'ı oluşturur ve imzalar.
      */
@@ -116,4 +114,18 @@ public class JwtUtil {
     public String getSecret() {
         return secret;
     }
+    
+    /**
+     * Bu utility sınıfı şu işlevleri sağlar:
+     * 
+     * 1. JWT Token Üretme: Kullanıcı bilgileri ile JWT token oluşturma
+     * 2. Token Çözme: JWT token'ından kullanıcı bilgilerini çıkarma
+     * 3. Token Doğrulama: Token'ın geçerliliğini ve süresini kontrol etme
+     * 4. Rol Yönetimi: JWT içinde kullanıcı rollerini saklama ve okuma
+     * 5. Güvenli İmzalama: HMAC-SHA256 algoritması ile token imzalama
+     * 6. Süre Yönetimi: Token'ın geçerlilik süresini ayarlama ve kontrol etme
+     * 7. Konfigürasyon: Application properties'den secret ve expiration değerlerini alma
+     * 
+     * Bu utility sayesinde JWT token işlemleri güvenli ve standart şekilde yapılabilir!
+     */
 } 

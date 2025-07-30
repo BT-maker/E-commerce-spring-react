@@ -55,7 +55,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         final String authHeader = request.getHeader("Authorization");
         String jwt = null;
-        String username = null;
 
         // Önce Authorization header'ı kontrol et
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
@@ -71,36 +70,54 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
 
         if (jwt != null) {
-            username = jwtUtil.extractUsername(jwt);
-        }
-
-        // Eğer kullanıcı authenticate edilmemişse ve token geçerliyse SecurityContext'e yerleştir
-        if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-            UserDetails userDetails = this.userDetailsService.loadUserByUsername(username);
-            if (jwtUtil.validateToken(jwt, userDetails)) {
-                // JWT içindeki rolleri oku
-                Claims claims = Jwts.parser()
-                        .setSigningKey(jwtUtil.getSecret().getBytes())
-                        .build()
-                        .parseClaimsJws(jwt)
-                        .getBody();
-                @SuppressWarnings("unchecked")
-                List<Map<String, String>> roles = (List<Map<String, String>>) claims.get("roles");
-                List<SimpleGrantedAuthority> authorities = roles != null ?
-                        roles.stream().map(role -> {
-                            String auth = role.get("authority");
-                            return new SimpleGrantedAuthority(auth.startsWith("ROLE_") ? auth : "ROLE_" + auth);
-                        }).collect(Collectors.toList()) :
-                        userDetails.getAuthorities().stream().map(a -> new SimpleGrantedAuthority(a.getAuthority())).collect(Collectors.toList());
-                UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
-                    userDetails,
-                    null,
-                    authorities
-                );
-                authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                SecurityContextHolder.getContext().setAuthentication(authToken);
+            try {
+                String username = jwtUtil.extractUsername(jwt);
+                if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+                    UserDetails userDetails = this.userDetailsService.loadUserByUsername(username);
+                    if (jwtUtil.validateToken(jwt, userDetails)) {
+                        // JWT içindeki rolleri oku
+                        Claims claims = Jwts.parser()
+                                .setSigningKey(jwtUtil.getSecret().getBytes())
+                                .build()
+                                .parseClaimsJws(jwt)
+                                .getBody();
+                        @SuppressWarnings("unchecked")
+                        List<Map<String, String>> roles = (List<Map<String, String>>) claims.get("roles");
+                        List<SimpleGrantedAuthority> authorities = roles != null ?
+                                roles.stream().map(role -> {
+                                    String auth = role.get("authority");
+                                    return new SimpleGrantedAuthority(auth.startsWith("ROLE_") ? auth : "ROLE_" + auth);
+                                }).collect(Collectors.toList()) :
+                                userDetails.getAuthorities().stream().map(a -> new SimpleGrantedAuthority(a.getAuthority())).collect(Collectors.toList());
+                        UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
+                            userDetails,
+                            null,
+                            authorities
+                        );
+                        
+                        authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                        SecurityContextHolder.getContext().setAuthentication(authToken);
+                    }
+                }
+            } catch (Exception e) {
+                // Hatalı token
             }
         }
+        
         filterChain.doFilter(request, response);
     }
+    
+    /**
+     * Bu filter şu işlevleri sağlar:
+     * 
+     * 1. JWT Token Doğrulama: Her istekte JWT token'ının geçerliliğini kontrol etme
+     * 2. Çoklu Token Kaynağı: Hem Authorization header hem de cookie'den token okuma
+     * 3. Kullanıcı Kimlik Doğrulama: Token geçerliyse kullanıcıyı authenticate etme
+     * 4. Rol Yönetimi: JWT içindeki roller ile kullanıcı yetkilerini belirleme
+     * 5. SecurityContext Yönetimi: Kimlik doğrulanmış kullanıcıyı SecurityContext'e yerleştirme
+     * 6. Endpoint Filtreleme: Giriş/kayıt endpoint'lerinde filtreyi atlama
+     * 7. Hata Toleransı: Geçersiz token durumunda sessizce devam etme
+     * 
+     * Bu filter sayesinde JWT tabanlı stateless authentication sistemi güvenli şekilde çalışır!
+     */
 } 

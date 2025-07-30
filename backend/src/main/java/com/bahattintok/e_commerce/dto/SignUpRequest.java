@@ -40,4 +40,31 @@ public class SignUpRequest {
      * Kullanıcı rolü (opsiyonel, default USER atanabilir)
      */
     private Long roleId; // opsiyonel, default USER atanabilir
+    
+    /**
+     * Kullanıcı tipi (customer veya seller)
+     */
+    private String userType;
+    
+    /**
+     * Mağaza adı (sadece seller için)
+     */
+    private String storeName;
+    
+    /**
+     * Telefon numarası (sadece seller için)
+     */
+    private String phone;
+    
+    /**
+     * Bu DTO şu işlevleri sağlar:
+     * 
+     * 1. Kullanıcı Kaydı: Yeni kullanıcı oluşturma için gerekli temel bilgiler
+     * 2. Rol Yönetimi: Kullanıcı tipine göre rol atanması (customer/seller)
+     * 3. Mağaza Bilgileri: Seller tipi kullanıcılar için mağaza ve iletişim bilgileri
+     * 4. Veri Doğrulama: Email formatı, şifre uzunluğu ve kullanıcı adı kuralları
+     * 5. Esnek Yapı: Farklı kullanıcı tipleri için opsiyonel alanlar
+     * 
+     * Bu DTO sayesinde kullanıcı kayıt işlemlerinde tutarlı ve güvenli veri yapısı sağlanır!
+     */
 } 

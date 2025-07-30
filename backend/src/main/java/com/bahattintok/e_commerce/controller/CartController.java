@@ -121,4 +121,16 @@ public class CartController {
         cartService.clearCart(user);
         return ResponseEntity.noContent().build();
     }
+    
+    /**
+     * Bu controller şu işlevleri sağlar:
+     * 
+     * 1. Sepet Görüntüleme: Kullanıcının sepetindeki ürünleri listeler (GET /api/cart)
+     * 2. Ürün Ekleme: Sepete yeni ürün ekler (POST /api/cart)
+     * 3. Ürün Silme: Sepetten belirli ürünü kaldırır (DELETE /api/cart/{productId})
+     * 4. Miktar Güncelleme: Ürün miktarını değiştirir (PUT /api/cart/{productId}/quantity)
+     * 5. Sepet Temizleme: Tüm sepeti boşaltır (DELETE /api/cart)
+     * 
+     * Bu controller sayesinde kullanıcılar alışveriş sepetlerini tam olarak yönetebilir!
+     */
 } 

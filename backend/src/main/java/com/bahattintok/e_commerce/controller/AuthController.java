@@ -61,7 +61,7 @@ public class AuthController {
 
         Cookie cookie = new Cookie("token", authResponse.getToken());
         cookie.setHttpOnly(true);
-        cookie.setSecure(true); // localde test için gerekirse false yapabilirsin
+        cookie.setSecure(false); // localde HTTP için false olmalı!
         cookie.setPath("/");
         cookie.setMaxAge(7 * 24 * 60 * 60); // 7 gün
         response.addCookie(cookie);
@@ -102,7 +102,6 @@ public class AuthController {
             "username", user.getUsername(),
             "role", user.getRole().getName()
         ));
-
     }
 
     /**
@@ -140,7 +139,20 @@ public class AuthController {
             return ResponseEntity.ok("Profil başarıyla güncellendi");
         } catch (Exception ex) {
             ex.printStackTrace();
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Beklenmeyen hata: " + ex.getMessage());
-        }
+                    return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Beklenmeyen hata: " + ex.getMessage());
     }
-} 
+}
+    
+    /**
+     * Bu controller şu işlevleri sağlar:
+     * 
+     * 1. Kullanıcı Kaydı: Yeni kullanıcı oluşturma (/signup)
+     * 2. Kullanıcı Girişi: JWT token ile authentication (/signin)
+     * 3. Kullanıcı Çıkışı: Güvenli logout (/logout)
+     * 4. Profil Bilgileri: Giriş yapan kullanıcının bilgilerini alma (/me - GET)
+     * 5. Profil Güncelleme: Kullanıcı bilgilerini değiştirme (/me - PUT)
+     * 
+     * Bu controller sayesinde kullanıcılar güvenli şekilde kayıt olabilir, 
+     * giriş yapabilir ve profil bilgilerini yönetebilir!
+     */
+}

@@ -93,3 +93,17 @@ const Banner = () => {
 };
 
 export default Banner;
+
+/**
+ * Bu component şu işlevleri sağlar:
+ * 
+ * 1. Slider Banner: Ana sayfa için otomatik geçişli banner
+ * 2. Otomatik Geçiş: 5 saniyede bir slide değişimi
+ * 3. Manuel Kontrol: Ok tuşları ile manuel geçiş
+ * 4. Dot Navigation: Alt kısımda nokta navigasyonu
+ * 5. Responsive Design: Mobil ve desktop uyumlu tasarım
+ * 6. Call-to-Action: Her slide için aksiyon butonları
+ * 7. Dark Overlay: Metin okunabilirliği için karanlık katman
+ * 
+ * Bu component sayesinde ana sayfa etkileyici ve kullanıcı dostu bir görünüme sahip olur!
+ */

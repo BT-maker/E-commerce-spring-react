@@ -1,9 +1,9 @@
 .footer {
-  background: #ffffff; /* Arka planı beyaz yap */
-  color: #18181b; /* Ana metin rengini koyu yap */
+  background: var(--bg-primary); /* Soft beyaz arka plan */
+  color: var(--text-primary); /* Koyu gri metin */
   margin-top: 4rem;
   padding: 2.5rem 1rem 1.2rem 1rem;
-  border-top: 1px solid #e5e7eb; /* Üste ayıran çizgi ekle */
+  border-top: 1px solid var(--border-color); /* Üste ayıran çizgi */
 }
 .footer-content {
   max-width: 1120px;
@@ -12,7 +12,7 @@
   grid-template-columns: 1fr;
   gap: 2rem;
   padding-bottom: 2rem;
-  border-bottom: 1px solid #e5e7eb; /* Çizgi rengini açık gri yap */
+  border-bottom: 1px solid var(--border-color); /* Çizgi rengini açık gri yap */
 }
 @media (min-width: 768px) {
   .footer-content {
@@ -30,7 +30,7 @@
   font-size: 1.1rem;
   font-weight: 700;
   margin-bottom: 0.75rem;
-  color: #18181b; /* Başlık rengini koyu yap */
+  color: var(--text-primary); /* Koyu gri başlık */
 }
 .footer-list {
   list-style: none;
@@ -38,13 +38,13 @@
   margin: 0;
 }
 .footer-link {
-  color: #3f3f46; /* Link rengini biraz daha yumuşak yap */
+  color: var(--text-secondary); /* Pastel mavi tonu link */
   font-size: 0.97rem;
   text-decoration: none;
   transition: color 0.2s;
 }
 .footer-link:hover {
-  color: #22c55e; /* Hover rengini yeşil tonu yap */
+  color: var(--accent-color); /* Mercan pembesi hover */
   text-decoration: underline;
 }
 .footer-social {
@@ -53,12 +53,12 @@
   margin-top: 0.5rem;
 }
 .footer-social a {
-  color: #3f3f46; /* İkon rengini yumuşak yap */
+  color: var(--text-secondary); /* Pastel mavi tonu ikon */
   font-size: 1.5rem;
   transition: color 0.2s;
 }
 .footer-social a:hover {
-  color: #22c55e; /* Hover rengini yeşil tonu yap */
+  color: var(--accent-color); /* Mercan pembesi hover */
 }
 .footer-copyright {
   text-align: center;

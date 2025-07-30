@@ -77,4 +77,16 @@ public class CategoryController {
             .orElseThrow(() -> new RuntimeException("Category not found"));
         return ResponseEntity.ok(category);
     }
+    
+    /**
+     * Bu controller şu işlevleri sağlar:
+     * 
+     * 1. Kategori Listeleme: Tüm kategorileri getirir (GET /api/categories)
+     * 2. Kategori Oluşturma: Yeni kategori ekler (POST /api/categories) - Sadece ADMIN
+     * 3. Kategori Güncelleme: Mevcut kategoriyi düzenler (PUT /api/categories/{id}) - Sadece ADMIN
+     * 4. Kategori Silme: Kategoriyi kaldırır (DELETE /api/categories/{id}) - Sadece ADMIN
+     * 5. Kategori Detayı: ID'ye göre kategori bilgilerini getirir (GET /api/categories/{id})
+     * 
+     * Bu controller sayesinde ürün kategorileri yönetilebilir ve kullanıcılar kategorileri görüntüleyebilir!
+     */
 } 

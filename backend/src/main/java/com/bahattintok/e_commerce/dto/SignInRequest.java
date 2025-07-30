@@ -24,4 +24,14 @@ public class SignInRequest {
      */
     @NotBlank(message = "Password is required")
     private String password;
+    
+    /**
+     * Bu DTO şu işlevleri sağlar:
+     * 
+     * 1. Kimlik Doğrulama: Kullanıcı girişi için gerekli email ve şifre bilgileri
+     * 2. Veri Doğrulama: Email ve şifre alanlarının boş olmamasının kontrolü
+     * 3. Güvenli Giriş: Kullanıcı kimlik bilgilerinin güvenli şekilde alınması
+     * 
+     * Bu DTO sayesinde kullanıcı giriş işlemlerinde tutarlı ve güvenli veri yapısı sağlanır!
+     */
 } 

@@ -94,7 +94,7 @@ const ProductModal = ({ show, onClose, onSave, categories, initial }) => {
             className="border rounded px-3 py-2"
             required
           />
-          <button type="submit" className="bg-yellow-600 text-white px-4 py-2 rounded font-semibold mt-2">
+          <button type="submit" className="bg-green-600 text-white px-4 py-2 rounded font-semibold mt-2">
             Kaydet
           </button>
         </form>
@@ -103,4 +103,18 @@ const ProductModal = ({ show, onClose, onSave, categories, initial }) => {
   );
 };
 
-export default ProductModal; 
+export default ProductModal;
+
+/**
+ * Bu component şu işlevleri sağlar:
+ * 
+ * 1. Ürün Modal: Ürün ekleme/düzenleme için popup modal
+ * 2. Form Yönetimi: Ürün bilgilerini form formatında toplama
+ * 3. Kategori Seçimi: Ürün kategorisi seçme dropdown'u
+ * 4. Form Validation: Gerekli alanların doğrulaması
+ * 5. Edit Mode: Mevcut ürün bilgilerini düzenleme
+ * 6. Add Mode: Yeni ürün oluşturma
+ * 7. Responsive Design: Mobil ve desktop uyumlu tasarım
+ * 
+ * Bu component sayesinde admin kullanıcıları ürün ekleme ve düzenleme işlemlerini kolayca yapabilir!
+ */ 

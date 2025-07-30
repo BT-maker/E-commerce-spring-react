@@ -52,4 +52,15 @@ public class ProductRequest {
      */
     @NotNull(message = "Category is required")
     private Long categoryId;
+    
+    /**
+     * Bu DTO şu işlevleri sağlar:
+     * 
+     * 1. Ürün Bilgileri: Ürün adı, fiyatı, açıklaması ve stok bilgileri
+     * 2. Görsel Desteği: Ürün görselinin URL formatında saklanması
+     * 3. Kategori Bağlantısı: Ürünün hangi kategoriye ait olduğunun belirtilmesi
+     * 4. Veri Doğrulama: Tüm gerekli alanların ve pozitif değerlerin kontrolü
+     * 
+     * Bu DTO sayesinde ürün oluşturma ve güncelleme işlemlerinde tutarlı veri yapısı sağlanır!
+     */
 } 

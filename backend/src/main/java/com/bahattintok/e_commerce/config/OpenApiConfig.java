@@ -41,4 +41,19 @@ public class OpenApiConfig {
                                 .scheme("bearer")
                                 .bearerFormat("JWT")));
     }
+    
+    /**
+     * Bu sınıf şu işlevleri sağlar:
+     * 
+     * 1. API Dokümantasyonu: Swagger UI'da görünecek API bilgilerini tanımlar
+     * 2. Güvenlik Şeması: JWT authentication'ın nasıl kullanılacağını belirtir
+     * 3. Test Arayüzü: Geliştiricilerin API'yi test edebilmesi için arayüz sağlar
+     * 4. Dokümantasyon: API endpoint'lerinin otomatik dokümantasyonunu oluşturur
+     * 
+     * Bu konfigürasyon sayesinde:
+     * - http://localhost:8080/swagger-ui/index.html adresinden API dokümantasyonuna erişebilirsiniz
+     * - Tüm endpoint'leri test edebilirsiniz
+     * - JWT token ile authentication yapabilirsiniz
+     * - API'nizin nasıl kullanılacağını görebilirsiniz
+     */
 } 

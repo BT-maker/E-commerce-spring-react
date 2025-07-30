@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.bahattintok.e_commerce.dto.ProductRequest;
 import com.bahattintok.e_commerce.model.Product;
+import com.bahattintok.e_commerce.model.Store;
 import com.bahattintok.e_commerce.repository.StoreRepository;
 import com.bahattintok.e_commerce.service.ProductService;
 
@@ -51,6 +52,7 @@ public class ProductController {
         @RequestParam(value = "minPrice", required = false) Double minPrice,
         @RequestParam(value = "maxPrice", required = false) Double maxPrice,
         @RequestParam(value = "storeName", required = false) String storeName,
+        @RequestParam(value = "sort", required = false) String sort,
         @PageableDefault(size = 12) Pageable pageable
     ) {
         Page<Product> products;
@@ -63,6 +65,9 @@ public class ProductController {
             products = productService.getProductsByPriceRange(minPrice, maxPrice, pageable);
         } else if (categoryId != null) {
             products = productService.getProductsByCategoryId(categoryId, pageable);
+        } else if ("popular".equals(sort)) {
+            // Popüler ürünler
+            products = productService.getMostPopularProducts(pageable);
         } else {
             products = productService.getAllProducts(pageable);
         }
@@ -143,4 +148,35 @@ public class ProductController {
         List<Product> products = productService.getProductsByPriceRange(minPrice, maxPrice);
         return ResponseEntity.ok(products);
     }
+    
+    /**
+     * Tüm mağazaları getirir.
+     */
+    @GetMapping("/stores")
+    @Operation(summary = "Get all stores", description = "Retrieve all available stores")
+    public ResponseEntity<List<Map<String, Object>>> getAllStores() {
+        List<Store> stores = storeRepository.findAll();
+        List<Map<String, Object>> storeDtos = stores.stream()
+            .map(store -> Map.of(
+                "id", (Object) store.getId(),
+                "name", (Object) store.getName()
+            ))
+            .toList();
+        return ResponseEntity.ok(storeDtos);
+    }
+    
+    /**
+     * Bu controller şu işlevleri sağlar:
+     * 
+     * 1. Ürün Listeleme: Tüm ürünleri getirir (GET /api/products) - Arama, filtreleme ve sayfalama destekler
+     * 2. Ürün Detayı: ID'ye göre ürün bilgilerini getirir (GET /api/products/{id})
+     * 3. Ürün Oluşturma: Yeni ürün ekler (POST /api/products) - Sadece ADMIN
+     * 4. Ürün Güncelleme: Mevcut ürünü düzenler (PUT /api/products/{id}) - Sadece ADMIN
+     * 5. Ürün Silme: Ürünü kaldırır (DELETE /api/products/{id}) - Sadece ADMIN
+     * 6. Kategori Filtreleme: Kategoriye göre ürünleri getirir (GET /api/products/category/{category})
+     * 7. Fiyat Filtreleme: Fiyat aralığına göre ürünleri getirir (GET /api/products/price-range)
+     * 8. Mağaza Listesi: Tüm mağazaları getirir (GET /api/products/stores)
+     * 
+     * Bu controller sayesinde ürünler yönetilebilir, aranabilir ve filtrelenebilir!
+     */
 } 

@@ -36,4 +36,16 @@ public class CustomUserDetailsService implements UserDetailsService {
                 .authorities(user.getRole().getName())
                 .build();
     }
+    
+    /**
+     * Bu servis şu işlevleri sağlar:
+     * 
+     * 1. Kullanıcı Yükleme: Email ile kullanıcıyı veritabanından bulma
+     * 2. Spring Security Entegrasyonu: UserDetailsService interface implementasyonu
+     * 3. Kimlik Doğrulama: Kullanıcı bilgilerini Spring Security formatına çevirme
+     * 4. Rol Yönetimi: Kullanıcının rollerini Spring Security authorities formatına dönüştürme
+     * 5. Hata Yönetimi: Kullanıcı bulunamadığında uygun exception fırlatma
+     * 
+     * Bu servis sayesinde Spring Security ile kullanıcı kimlik doğrulama sistemi entegre edilir!
+     */
 } 

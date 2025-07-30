@@ -26,4 +26,14 @@ public class CartItemRequest {
     @NotNull(message = "Quantity is required")
     @Positive(message = "Quantity must be positive")
     private Integer quantity;
+    
+    /**
+     * Bu DTO şu işlevleri sağlar:
+     * 
+     * 1. Ürün Tanımlama: Sepete eklenecek ürünün benzersiz kimliği
+     * 2. Miktar Kontrolü: Eklenecek ürün miktarının doğrulanması
+     * 3. Veri Doğrulama: Gerekli alanların ve pozitif değerlerin kontrolü
+     * 
+     * Bu DTO sayesinde sepet işlemlerinde güvenli ve doğrulanmış veriler kullanılır!
+     */
 } 

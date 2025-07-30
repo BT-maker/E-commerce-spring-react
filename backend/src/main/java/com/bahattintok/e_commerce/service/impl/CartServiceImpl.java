@@ -102,4 +102,18 @@ public class CartServiceImpl implements CartService {
         cart.getItems().clear();
         cartRepository.save(cart);
     }
+    
+    /**
+     * Bu servis şu işlevleri sağlar:
+     * 
+     * 1. Sepet Yönetimi: Kullanıcı sepetlerinin oluşturulması ve yönetimi
+     * 2. Ürün Ekleme: Sepete ürün ekleme ve miktar güncelleme
+     * 3. Ürün Çıkarma: Sepetten ürün kaldırma işlemi
+     * 4. Miktar Güncelleme: Sepetteki ürün miktarını değiştirme
+     * 5. Sepet Temizleme: Tüm sepet içeriğini silme
+     * 6. Otomatik Sepet Oluşturma: Kullanıcı için otomatik sepet oluşturma
+     * 7. Transaction Yönetimi: Veritabanı işlemlerinin atomik yapılması
+     * 
+     * Bu servis sayesinde kullanıcı sepetleri güvenli ve tutarlı şekilde yönetilebilir!
+     */
 } 

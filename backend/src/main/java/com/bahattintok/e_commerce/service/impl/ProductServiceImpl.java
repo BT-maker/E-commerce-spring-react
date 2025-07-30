@@ -154,4 +154,24 @@ public class ProductServiceImpl implements ProductService {
         if (storeOpt.isEmpty()) return Page.empty(pageable);
         return productRepository.findByStore(storeOpt.get(), pageable);
     }
+    
+    @Override
+    public Page<Product> getMostPopularProducts(Pageable pageable) {
+        return productRepository.findMostPopularProducts(pageable);
+    }
+    
+    /**
+     * Bu servis şu işlevleri sağlar:
+     * 
+     * 1. Ürün CRUD İşlemleri: Ürün oluşturma, okuma, güncelleme ve silme
+     * 2. Ürün Arama: İsme ve açıklamaya göre arama yapma
+     * 3. Kategori Filtreleme: Kategoriye göre ürün listeleme
+     * 4. Fiyat Filtreleme: Fiyat aralığına göre ürün filtreleme
+     * 5. Mağaza Filtreleme: Mağazaya göre ürün listeleme
+     * 6. Popülerlik Sıralaması: En çok satan ürünleri getirme
+     * 7. Sayfalama Desteği: Büyük veri setleri için sayfalama
+     * 8. Hata Yönetimi: Ürün bulunamadığında uygun exception fırlatma
+     * 
+     * Bu servis sayesinde ürün yönetimi kapsamlı ve güvenli şekilde yapılabilir!
+     */
 } 

@@ -1,0 +1,310 @@
+.return-exchange-page {
+  min-height: 70vh;
+  background: var(--bg-secondary);
+  padding: 2rem 0;
+}
+
+.return-exchange-header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.return-exchange-title {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 0.5rem;
+}
+
+.return-exchange-subtitle {
+  font-size: 1.1rem;
+  color: var(--text-secondary);
+}
+
+.return-exchange-title::after {
+  content: '';
+  display: block;
+  width: 80px;
+  height: 4px;
+  background: linear-gradient(90deg, var(--accent-color), var(--accent-hover));
+  margin: 1rem auto 0;
+  border-radius: 2px;
+}
+
+.return-exchange-content {
+  background: var(--bg-primary);
+  border-radius: 12px;
+  padding: 2rem;
+  box-shadow: var(--shadow);
+  border: 1px solid var(--border-color);
+}
+
+.return-exchange-section {
+  margin-bottom: 2rem;
+  padding-bottom: 1rem;
+  border-bottom: 2px solid var(--border-color);
+}
+
+.return-exchange-section:last-child {
+  border-bottom: none;
+  margin-bottom: 0;
+}
+
+.return-exchange-section h3 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 1rem;
+}
+
+.return-exchange-section p {
+  color: var(--text-secondary);
+  line-height: 1.6;
+  margin-bottom: 1rem;
+}
+
+.return-exchange-btn {
+  background: linear-gradient(135deg, var(--accent-color), var(--accent-hover));
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-decoration: none;
+  display: inline-block;
+}
+
+.return-exchange-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+}
+
+.return-exchange-form {
+  background: var(--bg-primary);
+  border-radius: 8px;
+  padding: 1.5rem;
+  border: 1px solid var(--border-color);
+  margin-bottom: 1rem;
+}
+
+.return-exchange-form:focus-within {
+  border-color: var(--accent-color);
+}
+
+.return-exchange-form h4 {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 1rem;
+}
+
+.return-exchange-form label {
+  display: block;
+  color: var(--text-secondary);
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+}
+
+.return-exchange-form input,
+.return-exchange-form textarea,
+.return-exchange-form select {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  font-size: 1rem;
+  transition: border-color 0.3s ease;
+}
+
+.return-exchange-form input:focus,
+.return-exchange-form textarea:focus,
+.return-exchange-form select:focus {
+  outline: none;
+  border-color: var(--accent-color);
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+}
+
+.return-exchange-form textarea {
+  resize: vertical;
+  min-height: 100px;
+}
+
+.return-exchange-form button {
+  background: linear-gradient(135deg, var(--accent-color), var(--accent-hover));
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-top: 1rem;
+}
+
+.return-exchange-form button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+}
+
+.return-exchange-info {
+  background: var(--bg-primary);
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+.return-exchange-info h4 {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 1rem;
+  border-left: 4px solid var(--accent-color);
+  padding-left: 1rem;
+}
+
+.return-exchange-info ul {
+  list-style: none;
+  padding: 0;
+}
+
+.return-exchange-info li {
+  color: var(--text-secondary);
+  margin-bottom: 0.5rem;
+  padding-left: 1.5rem;
+  position: relative;
+}
+
+.return-exchange-info li::before {
+  content: '✓';
+  position: absolute;
+  left: 0;
+  color: var(--accent-color);
+  font-weight: bold;
+}
+
+.return-exchange-contact {
+  background: var(--bg-primary);
+  border-radius: 8px;
+  padding: 1.5rem;
+  border: 2px solid var(--border-color);
+  margin-bottom: 1rem;
+}
+
+.return-exchange-contact:focus-within {
+  border-color: var(--accent-color);
+}
+
+.return-exchange-contact h4 {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 1rem;
+}
+
+.return-exchange-contact p {
+  color: var(--text-secondary);
+  margin-bottom: 1rem;
+}
+
+.return-exchange-contact a {
+  color: var(--accent-color);
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.return-exchange-contact a:hover {
+  text-decoration: underline;
+}
+
+.return-exchange-status {
+  background: var(--bg-primary);
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+.return-exchange-status h4 {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 1rem;
+}
+
+.return-exchange-status p {
+  color: var(--text-secondary);
+  margin-bottom: 1rem;
+}
+
+.return-exchange-status .status-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.return-exchange-status .status-item:last-child {
+  border-bottom: none;
+}
+
+.return-exchange-status .status-label {
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.return-exchange-status .status-value {
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+.return-exchange-status .status-pending {
+  color: var(--text-secondary);
+}
+
+.return-exchange-status .status-processing {
+  color: var(--primary-color);
+}
+
+.return-exchange-status .status-completed {
+  color: var(--accent-color);
+}
+
+.return-exchange-status .status-cancelled {
+  color: var(--error-color);
+}
+
+/* Dark mode styles */
+.dark .return-exchange-page {
+  background: var(--bg-secondary);
+}
+
+.dark .return-exchange-content,
+.dark .return-exchange-form,
+.dark .return-exchange-info,
+.dark .return-exchange-contact,
+.dark .return-exchange-status {
+  background: var(--bg-primary);
+  border-color: var(--border-color);
+}
+
+.dark .return-exchange-form input,
+.dark .return-exchange-form textarea,
+.dark .return-exchange-form select {
+  background: var(--bg-primary);
+  border-color: var(--border-color);
+  color: var(--text-primary);
+}
+
+.dark .return-exchange-form input:focus,
+.dark .return-exchange-form textarea:focus,
+.dark .return-exchange-form select:focus {
+  border-color: var(--accent-color);
+}
+
+.dark .return-exchange-contact:focus-within {
+  border-color: var(--accent-color);
+} 

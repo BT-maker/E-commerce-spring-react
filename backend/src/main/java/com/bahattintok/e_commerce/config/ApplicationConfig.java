@@ -59,4 +59,19 @@ public class ApplicationConfig {
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
+    
+    /**
+     * Bu sınıf şu işlevleri sağlar:
+     * 
+     * 1. Kullanıcı Detayları: Kullanıcı bilgilerinin yüklenmesi için servis tanımlar
+     * 2. Şifre Doğrulama: Güvenli şifre hash'leme ve karşılaştırma
+     * 3. Kimlik Doğrulama: Authentication işlemlerinin yönetimi
+     * 4. Güvenli Şifre Hash'leme: BCrypt algoritması ile şifre güvenliği
+     * 
+     * Bu konfigürasyon sayesinde:
+     * - Kullanıcı bilgileri güvenli şekilde yüklenir
+     * - Şifreler veritabanında hash'lenmiş olarak saklanır
+     * - Login sırasında şifre güvenli şekilde doğrulanır
+     * - Authentication sistemi düzgün çalışır
+     */
 } 

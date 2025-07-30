@@ -75,4 +75,16 @@ public class SecurityConfig {
         source.registerCorsConfiguration("/**", configuration);
         return source;
     }
+    
+    /**
+     * Bu sınıf şu güvenlik özelliklerini sağlar:
+     * 
+     * 1. Endpoint Güvenliği: Hangi endpoint'lere kimlerin erişebileceğini belirler
+     * 2. JWT Authentication: Token tabanlı kimlik doğrulama
+     * 3. CORS Desteği: Frontend'den güvenli erişim
+     * 4. Role-Based Access: Rol tabanlı erişim kontrolü
+     * 5. Stateless Session: Oturum bilgisi tutmaz (JWT kullanır)
+     * 
+     * Bu konfigürasyon sayesinde API'niz güvenli ve frontend ile uyumlu çalışır!
+     */
 } 

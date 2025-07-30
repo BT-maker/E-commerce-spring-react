@@ -10,13 +10,17 @@ const api = axios.create({
   withCredentials: true // Tüm isteklerde cookie gönderilsin
 });
 
-// Request interceptor to add auth token
+// Request interceptor to add auth token and check backend status
 api.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem('token');
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
+    // Backend offline ise isteği engelle
+    if (window.BACKEND_OFFLINE) {
+      console.log('Backend offline, istek engellendi:', config.url);
+      return Promise.reject(new Error('Backend offline'));
     }
+    
+    // Cookie tabanlı authentication kullandığımız için Authorization header'ı eklemeye gerek yok
+    // withCredentials: true zaten cookie'leri otomatik gönderiyor
     return config;
   },
   (error) => {
@@ -28,13 +32,24 @@ api.interceptors.request.use(
 api.interceptors.response.use(
   (response) => response,
   (error) => {
+    // Backend offline hatası ise sessizce geç
+    if (error.message === 'Backend offline') {
+      return Promise.reject(error);
+    }
+    
+    // Sadece belirli sayfalarda 401 hatası alındığında yönlendirme yap
     if (error.response?.status === 401) {
-      localStorage.removeItem('token');
-      localStorage.removeItem('user');
-      window.location.href = '/login';
+      const currentPath = window.location.pathname;
+      const protectedRoutes = ['/profile', '/orders', '/admin', '/seller-panel'];
+      
+      // Eğer korumalı bir sayfadaysa yönlendirme yap
+      if (protectedRoutes.some(route => currentPath.startsWith(route))) {
+        window.location.href = '/login';
+      }
     }
     return Promise.reject(error);
   }
 );
 
+export { api };
 export default api; 

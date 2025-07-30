@@ -1,5 +1,9 @@
-import React, { useContext, useState } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { AuthContext } from "../context/AuthContext";
+import "./Profile.css";
+import toast from 'react-hot-toast';
+import PageTitle from '../components/PageTitle/PageTitle';
+import MetaTags from '../components/MetaTags/MetaTags';
 import { FaEdit } from "react-icons/fa";
 import EditProfileModal from "../components/EditProfileModal/EditProfileModal";
 import Skeleton from 'react-loading-skeleton';
@@ -17,8 +21,14 @@ const Profile = () => {
   );
 
   return (
-    <div className="max-w-xl mx-auto mt-8 sm:mt-16 bg-white p-4 sm:p-8 rounded shadow">
-      <div className="flex flex-col sm:flex-row justify-between items-center mb-4 sm:mb-6 gap-2 sm:gap-0">
+          <div className="max-w-xl mx-auto mt-8 sm:mt-16 bg-white p-4 sm:p-8 rounded shadow">
+        <PageTitle title="Profilim" />
+        <MetaTags 
+          title="Profilim"
+          description="Hesap bilgilerinizi görüntüleyin ve düzenleyin. Kişisel bilgilerinizi güncelleyin."
+          keywords="profil, hesap bilgileri, kullanıcı profili"
+        />
+        <div className="flex flex-col sm:flex-row justify-between items-center mb-4 sm:mb-6 gap-2 sm:gap-0">
         <h2 className="text-xl sm:text-2xl font-bold text-gray-800">Profil Bilgileri</h2>
         <button
           className="text-gray-500 hover:text-yellow-600 focus:outline-none"

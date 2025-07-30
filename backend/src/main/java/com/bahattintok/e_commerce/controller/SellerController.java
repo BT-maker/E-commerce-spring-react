@@ -96,6 +96,47 @@ public class SellerController {
         return ResponseEntity.noContent().build();
     }
 
+    @PostMapping("/products/{productId}/discount")
+    @Operation(summary = "Ürün indirimi ekle", description = "Satıcı mağazasındaki ürün için indirim ekler")
+    public ResponseEntity<Product> addDiscount(Authentication authentication, @PathVariable Long productId, @RequestBody Map<String, Object> discountRequest) {
+        String email = authentication.getName();
+        User seller = userRepository.findByEmail(email).orElse(null);
+        if (seller == null) return ResponseEntity.status(401).build();
+        
+        // discountPercentage'yi güvenli şekilde Integer'a çevir
+        Integer discountPercentage = null;
+        Object discountObj = discountRequest.get("discountPercentage");
+        if (discountObj != null) {
+            if (discountObj instanceof Integer) {
+                discountPercentage = (Integer) discountObj;
+            } else if (discountObj instanceof Number) {
+                discountPercentage = ((Number) discountObj).intValue();
+            } else if (discountObj instanceof String) {
+                try {
+                    discountPercentage = Integer.parseInt((String) discountObj);
+                } catch (NumberFormatException e) {
+                    return ResponseEntity.badRequest().build();
+                }
+            }
+        }
+        
+        String endDateStr = (String) discountRequest.get("endDate");
+        
+        Product updated = sellerService.addDiscount(seller, productId, discountPercentage, endDateStr);
+        return ResponseEntity.ok(updated);
+    }
+
+    @DeleteMapping("/products/{productId}/discount")
+    @Operation(summary = "Ürün indirimini kaldır", description = "Satıcı mağazasındaki ürünün indirimini kaldırır")
+    public ResponseEntity<Product> removeDiscount(Authentication authentication, @PathVariable Long productId) {
+        String email = authentication.getName();
+        User seller = userRepository.findByEmail(email).orElse(null);
+        if (seller == null) return ResponseEntity.status(401).build();
+        
+        Product updated = sellerService.removeDiscount(seller, productId);
+        return ResponseEntity.ok(updated);
+    }
+
     @GetMapping("/stats")
     @Operation(summary = "Satıcı istatistikleri", description = "Satıcının mağazasına ait satış istatistiklerini döner")
     public ResponseEntity<?> getSellerStats(Authentication authentication) {
@@ -112,4 +153,18 @@ public class SellerController {
         stats.put("bestSellers", sellerService.getBestSellingProductsByStore(storeId));
         return ResponseEntity.ok(stats);
     }
+    
+    /**
+     * Bu controller şu işlevleri sağlar:
+     * 
+     * 1. Mağaza Bilgisi: Satıcının mağaza bilgisini getirir (GET /api/seller/store)
+     * 2. Mağaza Oluşturma: Satıcı için mağaza oluşturur (POST /api/seller/store)
+     * 3. Mağaza Ürünleri: Satıcının mağazasındaki ürünleri getirir (GET /api/seller/products)
+     * 4. Ürün Ekleme: Mağazaya yeni ürün ekler (POST /api/seller/products)
+     * 5. Ürün Güncelleme: Mağazadaki ürünü günceller (PUT /api/seller/products/{productId})
+     * 6. Ürün Silme: Mağazadaki ürünü siler (DELETE /api/seller/products/{productId})
+     * 7. Satıcı İstatistikleri: Mağaza satış istatistiklerini getirir (GET /api/seller/stats)
+     * 
+     * Bu controller sayesinde satıcılar mağazalarını ve ürünlerini yönetebilir!
+     */
 } 

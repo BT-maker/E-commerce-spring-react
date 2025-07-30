@@ -16,4 +16,15 @@ public interface AuthService {
      * Kullanıcı girişi (signin) işlemi.
      */
     AuthResponse signIn(SignInRequest request);
+    
+    /**
+     * Bu interface şu işlevleri sağlar:
+     * 
+     * 1. Kullanıcı Kaydı: Yeni kullanıcı oluşturma ve JWT token üretme
+     * 2. Kullanıcı Girişi: Kimlik doğrulama ve JWT token üretme
+     * 3. Güvenli Yanıt: Authentication işlemleri için standart yanıt formatı
+     * 4. Interface Tasarımı: Servis implementasyonları için sözleşme tanımlama
+     * 
+     * Bu interface sayesinde authentication işlemleri standart ve güvenli şekilde yapılabilir!
+     */
 } 

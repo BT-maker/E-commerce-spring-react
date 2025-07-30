@@ -1,15 +1,12 @@
 package com.bahattintok.e_commerce.model;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
-
-import com.vladmihalcea.hibernate.type.json.JsonBinaryType;
-import org.hibernate.annotations.Type;
-import java.util.ArrayList;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -19,6 +16,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -67,8 +65,16 @@ public class User implements UserDetails {
     private RoleEntity role;
     
     /**
-     * Kullanıcının sepeti kaldırıldı (artık ayrı bir tablo olacak)
+     * Kullanıcının favorileri
      */
+    @OneToMany(mappedBy = "user", cascade = jakarta.persistence.CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<Favorite> favorites = new ArrayList<>();
+    
+    /**
+     * Kullanıcının yorumları
+     */
+    @OneToMany(mappedBy = "user", cascade = jakarta.persistence.CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<Review> reviews = new ArrayList<>();
     
     /**
      * Kullanıcının rollerini Spring Security'ye uygun şekilde döner.
@@ -97,4 +103,18 @@ public class User implements UserDetails {
     public boolean isEnabled() {
         return true;
     }
+    
+    /**
+     * Bu entity şu işlevleri sağlar:
+     * 
+     * 1. Kullanıcı Yönetimi: Sistem kullanıcılarının temel bilgileri
+     * 2. Spring Security Entegrasyonu: UserDetails interface implementasyonu
+     * 3. Rol Yönetimi: Kullanıcının rolü ve yetkileri
+     * 4. Güvenlik Kontrolü: Hesap durumu kontrolleri (aktif, kilitli vs.)
+     * 5. İlişki Yönetimi: Favori, review ve diğer kullanıcı verileri
+     * 6. Benzersiz Bilgiler: Email ve kullanıcı adının benzersiz olması
+     * 7. Şifre Güvenliği: Hash'lenmiş şifre saklama
+     * 
+     * Bu entity sayesinde kullanıcı yönetimi güvenli ve kapsamlı şekilde yapılabilir!
+     */
 } 

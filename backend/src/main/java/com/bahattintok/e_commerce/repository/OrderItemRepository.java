@@ -27,4 +27,18 @@ public interface OrderItemRepository extends JpaRepository<OrderItem, Long> {
     // Belirli bir mağazanın en çok satan ürünleri (top N)
     @Query("SELECT oi.product.name, SUM(oi.quantity) as totalSold FROM OrderItem oi WHERE oi.product.store.id = :storeId GROUP BY oi.product.id, oi.product.name ORDER BY totalSold DESC")
     List<Object[]> getBestSellingProductsByStore(@Param("storeId") Long storeId);
+    
+    /**
+     * Bu repository şu işlevleri sağlar:
+     * 
+     * 1. Temel CRUD İşlemleri: OrderItem entity'si için standart veritabanı işlemleri
+     * 2. Satış İstatistikleri: Mağaza bazında satış verilerini hesaplama
+     * 3. Toplam Satış: Mağazanın toplam satılan ürün adedi
+     * 4. Toplam Gelir: Mağazanın toplam gelir hesaplama
+     * 5. Günlük Satışlar: Mağazanın günlük satış raporları
+     * 6. En Çok Satanlar: Mağazanın en popüler ürünleri
+     * 7. JPA Desteği: Spring Data JPA ile özel sorgular
+     * 
+     * Bu repository sayesinde satış istatistikleri ve sipariş detayları veritabanında güvenli şekilde yönetilebilir!
+     */
 } 

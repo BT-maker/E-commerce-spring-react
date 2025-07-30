@@ -52,4 +52,25 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
      */
     @Query("SELECT p FROM Product p WHERE p.store = :store")
     Page<Product> findByStore(Store store, Pageable pageable);
+    
+    /**
+     * En çok satılan ürünleri getirir (popülerlik sıralaması için).
+     */
+    @Query("SELECT p FROM Product p LEFT JOIN OrderItem oi ON p.id = oi.product.id GROUP BY p.id ORDER BY COALESCE(SUM(oi.quantity), 0) DESC")
+    Page<Product> findMostPopularProducts(Pageable pageable);
+    
+    /**
+     * Bu repository şu işlevleri sağlar:
+     * 
+     * 1. Temel CRUD İşlemleri: Product entity'si için standart veritabanı işlemleri
+     * 2. Ürün Arama: İsim ve açıklamaya göre arama yapma
+     * 3. Kategori Filtreleme: Kategoriye göre ürün listeleme
+     * 4. Fiyat Filtreleme: Fiyat aralığına göre ürün filtreleme
+     * 5. Mağaza Filtreleme: Mağazaya göre ürün listeleme
+     * 6. Popülerlik Sıralaması: En çok satan ürünleri getirme
+     * 7. Sayfalama Desteği: Büyük veri setleri için sayfalama
+     * 8. JPA Desteği: Spring Data JPA ile özel sorgular
+     * 
+     * Bu repository sayesinde ürün arama ve filtreleme işlemleri veritabanında güvenli şekilde yönetilebilir!
+     */
 }

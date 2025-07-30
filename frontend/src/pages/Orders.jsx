@@ -1,7 +1,12 @@
-import React, { useEffect, useState } from "react";
+import React, { useState, useEffect, useContext } from "react";
+import { AuthContext } from "../context/AuthContext";
 import api from "../services/api";
+import "./Orders.css";
+import toast from 'react-hot-toast';
 import Skeleton from 'react-loading-skeleton';
 import 'react-loading-skeleton/dist/skeleton.css';
+import PageTitle from '../components/PageTitle/PageTitle';
+import MetaTags from '../components/MetaTags/MetaTags';
 
 const Orders = () => {
   const [orders, setOrders] = useState([]);
@@ -51,8 +56,14 @@ const Orders = () => {
   );
 
   return (
-    <div className="max-w-3xl mx-auto mt-6 sm:mt-10 bg-white rounded-xl shadow p-4 sm:p-8">
-      <h2 className="text-xl sm:text-2xl font-bold mb-4 sm:mb-6 text-center">Siparişlerim</h2>
+          <div className="max-w-3xl mx-auto mt-6 sm:mt-10 bg-white rounded-xl shadow p-4 sm:p-8">
+        <PageTitle title="Siparişlerim" />
+        <MetaTags 
+          title="Siparişlerim"
+          description="Geçmiş siparişlerinizi görüntüleyin. Sipariş durumlarını takip edin ve sipariş geçmişinizi inceleyin."
+          keywords="siparişler, sipariş geçmişi, sipariş takibi"
+        />
+        <h2 className="text-xl sm:text-2xl font-bold mb-4 sm:mb-6 text-center">Siparişlerim</h2>
       {error ? (
         <div style={{ color: "#d32f2f" }} className="text-center">{error}</div>
       ) : orders.length === 0 ? (

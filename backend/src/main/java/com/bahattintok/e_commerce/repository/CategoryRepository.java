@@ -16,4 +16,16 @@ public interface CategoryRepository extends JpaRepository<Category, Long> {
      * Kategori adına göre kategori bulur.
      */
     Optional<Category> findByName(String name);
+    
+    /**
+     * Bu repository şu işlevleri sağlar:
+     * 
+     * 1. Temel CRUD İşlemleri: Category entity'si için standart veritabanı işlemleri
+     * 2. Kategori Arama: İsme göre kategori bulma işlemi
+     * 3. JPA Desteği: Spring Data JPA ile otomatik metod oluşturma
+     * 4. Ürün Sınıflandırma: Kategorilerin ürün organizasyonu için kullanımı
+     * 5. Performans Optimizasyonu: Lazy loading ve caching desteği
+     * 
+     * Bu repository sayesinde ürün kategorileri veritabanında güvenli şekilde yönetilebilir!
+     */
 } 

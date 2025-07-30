@@ -2,6 +2,8 @@
 
 import React, { useEffect, useState } from "react";
 import ProductModal from "../ProductModal/ProductModal";
+import Skeleton from 'react-loading-skeleton';
+import 'react-loading-skeleton/dist/skeleton.css';
 
 const PAGE_SIZE = 12;
 
@@ -146,7 +148,22 @@ const AdminProducts = () => {
       />
       {/* Ürünler tablosu */}
       {loading ? (
-        <div className="text-gray-400">Yükleniyor...</div>
+        <div className="space-y-4">
+          <div className="flex items-center mb-6 space-x-4">
+            <Skeleton height={40} width={120} />
+            <div className="flex items-center space-x-2">
+              <Skeleton height={40} width={250} />
+              <Skeleton height={40} width={60} />
+            </div>
+          </div>
+          <div className="space-y-2">
+            <Skeleton height={50} width="100%" />
+            <Skeleton height={50} width="100%" />
+            <Skeleton height={50} width="100%" />
+            <Skeleton height={50} width="100%" />
+            <Skeleton height={50} width="100%" />
+          </div>
+        </div>
       ) : error ? (
         <div className="text-red-500">{error}</div>
       ) : (
@@ -200,4 +217,19 @@ const AdminProducts = () => {
   );
 };
 
-export default AdminProducts; 
+export default AdminProducts;
+
+/**
+ * Bu component şu işlevleri sağlar:
+ * 
+ * 1. Ürün Yönetimi: Admin panelinde ürün CRUD işlemleri
+ * 2. Ürün Listeleme: Tüm ürünleri tablo formatında görüntüleme
+ * 3. Ürün Arama: İsme göre ürün arama fonksiyonu
+ * 4. Ürün Ekleme: Yeni ürün oluşturma modalı
+ * 5. Ürün Düzenleme: Mevcut ürünleri güncelleme
+ * 6. Ürün Silme: Ürünleri kaldırma işlemi
+ * 7. Sayfalama: Büyük veri setleri için sayfalama
+ * 8. Loading States: Yükleme durumları için skeleton animasyonları
+ * 
+ * Bu component sayesinde admin kullanıcıları ürün yönetimini kapsamlı şekilde yapabilir!
+ */ 

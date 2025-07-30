@@ -1,4 +1,6 @@
 import React, { useEffect, useState } from "react";
+import Skeleton from 'react-loading-skeleton';
+import 'react-loading-skeleton/dist/skeleton.css';
 
 const CategoryModal = ({ show, onClose, onSave, initial }) => {
   const [name, setName] = useState("");
@@ -110,7 +112,16 @@ const AdminCategories = () => {
         initial={modalInitial}
       />
       {loading ? (
-        <div className="text-gray-400">Yükleniyor...</div>
+        <div className="space-y-4">
+          <Skeleton height={40} width={150} className="mb-6" />
+          <div className="space-y-2">
+            <Skeleton height={50} width="100%" />
+            <Skeleton height={50} width="100%" />
+            <Skeleton height={50} width="100%" />
+            <Skeleton height={50} width="100%" />
+            <Skeleton height={50} width="100%" />
+          </div>
+        </div>
       ) : error ? (
         <div className="text-red-500">{error}</div>
       ) : (
@@ -140,4 +151,18 @@ const AdminCategories = () => {
   );
 };
 
-export default AdminCategories; 
+export default AdminCategories;
+
+/**
+ * Bu component şu işlevleri sağlar:
+ * 
+ * 1. Kategori Yönetimi: Admin panelinde kategori CRUD işlemleri
+ * 2. Kategori Listeleme: Tüm kategorileri tablo formatında görüntüleme
+ * 3. Kategori Ekleme: Yeni kategori oluşturma modalı
+ * 4. Kategori Düzenleme: Mevcut kategorileri güncelleme
+ * 5. Kategori Silme: Kategorileri kaldırma işlemi
+ * 6. Loading States: Yükleme durumları için skeleton animasyonları
+ * 7. Error Handling: Hata durumlarının yönetimi
+ * 
+ * Bu component sayesinde admin kullanıcıları ürün kategorilerini tam olarak yönetebilir!
+ */ 

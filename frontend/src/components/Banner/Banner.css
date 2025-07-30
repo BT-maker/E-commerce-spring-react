@@ -126,7 +126,7 @@
   cursor: pointer;
 }
 .banner-dot.active {
-  background: #b8860b;
+  background: #10b981;
   transform: scale(1.2);
 }
 

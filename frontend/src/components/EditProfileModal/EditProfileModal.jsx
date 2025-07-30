@@ -136,4 +136,18 @@ const EditProfileModal = ({ user, onClose }) => {
   );
 };
 
-export default EditProfileModal; 
+export default EditProfileModal;
+
+/**
+ * Bu component şu işlevleri sağlar:
+ * 
+ * 1. Profil Düzenleme: Kullanıcı profil bilgilerini güncelleme
+ * 2. Modal Interface: Popup modal arayüzü
+ * 3. Form Validation: Form doğrulama ve hata kontrolü
+ * 4. Şifre Değiştirme: Güvenli şifre güncelleme
+ * 5. Loading States: İşlem durumları için loading göstergeleri
+ * 6. Success/Error Messages: Başarı ve hata mesajları
+ * 7. Responsive Design: Mobil ve desktop uyumlu tasarım
+ * 
+ * Bu component sayesinde kullanıcılar profil bilgilerini güvenli şekilde güncelleyebilir!
+ */ 

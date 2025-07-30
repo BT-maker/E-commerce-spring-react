@@ -2,8 +2,10 @@ import React, { useEffect, useState, useContext } from "react";
 import ProductCard from "../ProductCard/ProductCard";
 import Skeleton from 'react-loading-skeleton';
 import 'react-loading-skeleton/dist/skeleton.css';
-import { toast } from 'react-toastify';
 import { CartContext } from '../../context/CartContext';
+import toast from 'react-hot-toast';
+import PageTitle from '../PageTitle/PageTitle';
+import MetaTags from '../MetaTags/MetaTags';
 
 const PAGE_SIZE = 12;
 
@@ -17,6 +19,9 @@ const ProductList = () => {
   const [sort, setSort] = useState("");
   const [minPrice, setMinPrice] = useState("");
   const [maxPrice, setMaxPrice] = useState("");
+  const [selectedStore, setSelectedStore] = useState("");
+  const [stores, setStores] = useState([]);
+  const [storesLoading, setStoresLoading] = useState(true);
 
   useEffect(() => {
     setLoading(true);
@@ -24,6 +29,7 @@ const ProductList = () => {
     if (sort) url += `&sort=${sort}`;
     if (minPrice) url += `&minPrice=${minPrice}`;
     if (maxPrice) url += `&maxPrice=${maxPrice}`;
+    if (selectedStore) url += `&storeName=${encodeURIComponent(selectedStore)}`;
     fetch(url)
       .then((res) => {
         if (!res.ok) throw new Error("Ürünler alınamadı");
@@ -38,7 +44,25 @@ const ProductList = () => {
         setError(err.message);
         setLoading(false);
       });
-  }, [page, sort, minPrice, maxPrice]);
+  }, [page, sort, minPrice, maxPrice, selectedStore]);
+
+  // Mağazaları getir
+  useEffect(() => {
+    setStoresLoading(true);
+    fetch("http://localhost:8080/api/products/stores")
+      .then((res) => {
+        if (!res.ok) throw new Error("Mağazalar alınamadı");
+        return res.json();
+      })
+      .then((data) => {
+        setStores(data);
+        setStoresLoading(false);
+      })
+      .catch((err) => {
+        console.error("Mağaza yükleme hatası:", err);
+        setStoresLoading(false);
+      });
+  }, []);
 
   const handleSortChange = (e) => {
     setSort(e.target.value);
@@ -52,18 +76,30 @@ const ProductList = () => {
     setMaxPrice(e.target.value);
     setPage(0);
   };
+  const handleStoreChange = (e) => {
+    setSelectedStore(e.target.value);
+    setPage(0);
+  };
 
   const handleAddToCart = async (productId) => {
+    console.log("addToCart fonksiyonu:", addToCart);
     try {
       await addToCart(productId, 1);
       toast.success('Ürün sepete eklendi!');
-    } catch {
+    } catch (err) {
+      console.error("Sepete ekle hatası:", err);
       toast.error('Ürün sepete eklenemedi!');
     }
   };
 
   return (
     <section className="max-w-7xl mx-auto px-2 sm:px-4 md:px-8 mt-16">
+      <PageTitle title="Öne Çıkan Ürünler" />
+      <MetaTags 
+        title="Öne Çıkan Ürünler"
+        description="En kaliteli ürünleri keşfedin. Binlerce ürün arasından size en uygun olanını bulun. Hızlı teslimat ve güvenli alışveriş garantisi."
+        keywords="e-ticaret, online alışveriş, ürünler, kaliteli ürünler, güvenli alışveriş"
+      />
       <h2 className="text-2xl md:text-3xl font-bold mb-8 text-gray-800 text-center">Öne Çıkan Ürünler</h2>
       {/* Filtre barı */}
       <div className="flex flex-col sm:flex-row gap-2 sm:gap-4 items-center justify-center mb-8">
@@ -71,6 +107,7 @@ const ProductList = () => {
           <option value="">Varsayılan Sıralama</option>
           <option value="price,asc">Fiyat: Artan</option>
           <option value="price,desc">Fiyat: Azalan</option>
+          <option value="popular">Popüler</option>
         </select>
         <input
           type="number"
@@ -86,6 +123,19 @@ const ProductList = () => {
           onChange={handleMaxPriceChange}
           className="border px-3 py-2 rounded w-32"
         />
+        <select 
+          value={selectedStore} 
+          onChange={handleStoreChange} 
+          className="border px-3 py-2 rounded min-w-[150px]"
+          disabled={storesLoading}
+        >
+          <option value="">Tüm Mağazalar</option>
+          {stores.map((store) => (
+            <option key={store.id} value={store.name}>
+              {store.name}
+            </option>
+          ))}
+        </select>
       </div>
       {loading ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5 sm:gap-7 py-8">
@@ -102,18 +152,27 @@ const ProductList = () => {
         <div className="text-center text-red-500 py-8">{error}</div>
       ) : (
         <>
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-7">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5 sm:gap-7 py-8">
             {products.map((product) => (
-              <ProductCard key={product.id} product={product} onAddToCart={handleAddToCart} />
+              <ProductCard
+                key={product.id}
+                product={product}
+                onAddToCart={handleAddToCart}
+              />
             ))}
           </div>
+          {/* Sayfalama */}
           {totalPages > 1 && (
             <div className="flex justify-center mt-8 space-x-2">
               {Array.from({ length: totalPages }, (_, i) => (
                 <button
                   key={i}
                   onClick={() => setPage(i)}
-                  className={`px-3 py-1 rounded font-semibold border ${page === i ? "bg-green-600 text-white border-green-600" : "bg-white text-gray-700 border-gray-300 hover:bg-green-50"}`}
+                  className={`px-3 py-2 rounded ${
+                    page === i
+                      ? "bg-green-600 text-white"
+                      : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                  }`}
                 >
                   {i + 1}
                 </button>
@@ -126,4 +185,19 @@ const ProductList = () => {
   );
 };
 
-export default ProductList; 
+export default ProductList;
+
+/**
+ * Bu component şu işlevleri sağlar:
+ * 
+ * 1. Ürün Listesi: Tüm ürünleri grid formatında listeleme
+ * 2. Filtreleme: Fiyat, mağaza ve sıralama filtreleri
+ * 3. Sayfalama: Büyük veri setleri için sayfalama sistemi
+ * 4. Sepete Ekleme: Ürünleri sepete ekleme fonksiyonu
+ * 5. Loading States: Yükleme durumları için skeleton animasyonları
+ * 6. Error Handling: Hata durumlarının yönetimi
+ * 7. SEO Optimizasyonu: Sayfa başlığı ve meta etiketleri
+ * 8. Responsive Design: Mobil ve desktop uyumlu tasarım
+ * 
+ * Bu component sayesinde kullanıcılar ürünleri kolayca keşfedebilir ve filtreleyebilir!
+ */
