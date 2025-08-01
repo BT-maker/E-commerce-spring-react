@@ -3,6 +3,8 @@ package com.bahattintok.e_commerce.model;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.hibernate.annotations.GenericGenerator;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
@@ -11,7 +13,6 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToMany;
@@ -28,8 +29,10 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class Store {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @GeneratedValue(generator = "uuid2")
+    @GenericGenerator(name = "uuid2", strategy = "uuid2")
+    @Column(columnDefinition = "VARCHAR(36)")
+    private String id;
 
     @Column(nullable = false, unique = true)
     private String name;
@@ -52,6 +55,7 @@ public class Store {
      * 4. Benzersiz İsim: Her mağazanın benzersiz adı
      * 5. Otomatik Temizlik: Mağaza silindiğinde ürünlerin de silinmesi
      * 6. JSON Kontrolü: Sonsuz döngüyü önlemek için JsonIgnore
+     * 7. UUID ID: Performans için String UUID kullanımı
      * 
      * Bu entity sayesinde satıcı mağazaları ve ürünleri kapsamlı şekilde yönetilebilir!
      */

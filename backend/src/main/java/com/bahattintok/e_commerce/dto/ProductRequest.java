@@ -51,7 +51,7 @@ public class ProductRequest {
      * Kategori ID'si
      */
     @NotNull(message = "Category is required")
-    private Long categoryId;
+    private String categoryId;
     
     /**
      * Bu DTO şu işlevleri sağlar:

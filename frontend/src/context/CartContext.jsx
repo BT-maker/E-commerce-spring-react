@@ -41,11 +41,11 @@ export const CartProvider = ({ children }) => {
 
   const addToCart = async (productId, quantity = 1) => {
     try {
-      await api.post(
-        "/cart",
-        { productId, quantity },
-        { withCredentials: true }
-      );
+    await api.post(
+      "/cart",
+      { productId, quantity },
+      { withCredentials: true }
+    );
       // Cart'ı yeniden yükle
       setCartLoaded(false);
       await fetchCart();
@@ -56,7 +56,7 @@ export const CartProvider = ({ children }) => {
 
   const removeFromCart = async (productId) => {
     try {
-      await api.delete(`/cart/${productId}`, { withCredentials: true });
+    await api.delete(`/cart/${productId}`, { withCredentials: true });
       // Cart'ı yeniden yükle
       setCartLoaded(false);
       await fetchCart();
@@ -68,11 +68,11 @@ export const CartProvider = ({ children }) => {
   const changeQuantity = async (productId, quantity) => {
     if (quantity < 1) return;
     try {
-      await api.put(
-        `/cart/${productId}/quantity?quantity=${quantity}`,
-        {},
-        { withCredentials: true }
-      );
+    await api.put(
+      `/cart/${productId}/quantity?quantity=${quantity}`,
+      {},
+      { withCredentials: true }
+    );
       // Cart'ı yeniden yükle
       setCartLoaded(false);
       await fetchCart();
@@ -83,7 +83,7 @@ export const CartProvider = ({ children }) => {
 
   const clearCart = async () => {
     try {
-      await api.delete("/cart", { withCredentials: true });
+    await api.delete("/cart", { withCredentials: true });
       // Cart'ı yeniden yükle
       setCartLoaded(false);
       await fetchCart();

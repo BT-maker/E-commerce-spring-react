@@ -4,6 +4,8 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.hibernate.annotations.GenericGenerator;
+
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -15,7 +17,6 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
@@ -37,11 +38,13 @@ import lombok.NoArgsConstructor;
 public class Product {
     
     /**
-     * Ürün ID'si (otomatik artan)
+     * Ürün ID'si (UUID)
      */
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @GeneratedValue(generator = "uuid2")
+    @GenericGenerator(name = "uuid2", strategy = "uuid2")
+    @Column(columnDefinition = "VARCHAR(36)")
+    private String id;
     
     /**
      * Ürün adı
@@ -91,18 +94,31 @@ public class Product {
     @Column(name = "discount_end_date")
     private java.time.LocalDateTime discountEndDate;
     
-
-    
     /**
-     * Ürünün ait olduğu kategori
+     * Ürünün ait olduğu kategori ID'si (String)
      */
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "category_id", nullable = false)
+    @Column(name = "category_id", nullable = false)
+    private String categoryId;
+
+    /**
+     * Ürünün ait olduğu mağaza ID'si (String)
+     */
+    @Column(name = "store_id")
+    private String storeId;
+
+    /**
+     * Ürünün ait olduğu kategori (lazy loading)
+     */
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "category_id", insertable = false, updatable = false)
     @JsonIgnoreProperties({"hibernateLazyInitializer", "handler", "products"})
     private Category category;
 
+    /**
+     * Ürünün ait olduğu mağaza (lazy loading)
+     */
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "store_id")
+    @JoinColumn(name = "store_id", insertable = false, updatable = false)
     @JsonIgnore
     private Store store;
 
@@ -136,12 +152,13 @@ public class Product {
      * Bu entity şu işlevleri sağlar:
      * 
      * 1. Ürün Yönetimi: E-ticaret ürünlerinin detaylı bilgileri
-     * 2. Kategori İlişkisi: Ürünün hangi kategoriye ait olduğu
-     * 3. Mağaza İlişkisi: Ürünün hangi mağazaya ait olduğu
+     * 2. Kategori İlişkisi: Ürünün hangi kategoriye ait olduğu (String ID)
+     * 3. Mağaza İlişkisi: Ürünün hangi mağazaya ait olduğu (String ID)
      * 4. Stok Takibi: Ürün stok miktarının kontrolü
      * 5. Görsel Desteği: Ürün görselinin URL formatında saklanması
      * 6. Review Sistemi: Ürün değerlendirmelerinin yönetimi
      * 7. Fiyat Yönetimi: Ürün fiyatının BigDecimal ile hassas hesaplama
+     * 8. UUID ID: Performans için String UUID kullanımı
      * 
      * Bu entity sayesinde e-ticaret ürünleri detaylı şekilde yönetilebilir!
      */

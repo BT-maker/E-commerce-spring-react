@@ -30,21 +30,21 @@ public class ReviewController {
     
     @GetMapping("/product/{productId}")
     @Operation(summary = "Ürün review'larını getir", description = "Belirtilen ürünün tüm review'larını listeler")
-    public ResponseEntity<List<Review>> getProductReviews(@PathVariable Long productId) {
+    public ResponseEntity<List<Review>> getProductReviews(@PathVariable String productId) {
         List<Review> reviews = reviewService.getProductReviews(productId);
         return ResponseEntity.ok(reviews);
     }
     
     @GetMapping("/product/{productId}/stats")
     @Operation(summary = "Ürün review istatistiklerini getir", description = "Ürünün ortalama puanı ve review sayısını döner")
-    public ResponseEntity<Map<String, Object>> getProductReviewStats(@PathVariable Long productId) {
+    public ResponseEntity<Map<String, Object>> getProductReviewStats(@PathVariable String productId) {
         Map<String, Object> stats = reviewService.getReviewStats(productId);
         return ResponseEntity.ok(stats);
     }
     
     @GetMapping("/product/{productId}/user")
     @Operation(summary = "Kullanıcının ürün review'ını getir", description = "Giriş yapmış kullanıcının belirtilen ürün için review'ını getirir")
-    public ResponseEntity<Review> getUserReview(@PathVariable Long productId, Authentication authentication) {
+    public ResponseEntity<Review> getUserReview(@PathVariable String productId, Authentication authentication) {
         if (authentication == null || !authentication.isAuthenticated()) {
             return ResponseEntity.status(401).build();
         }
@@ -62,7 +62,7 @@ public class ReviewController {
     @PostMapping("/product/{productId}")
     @Operation(summary = "Review ekle/güncelle", description = "Ürün için review ekler veya mevcut review'ı günceller")
     public ResponseEntity<Review> addOrUpdateReview(
-            @PathVariable Long productId,
+            @PathVariable String productId,
             @RequestBody ReviewRequest request,
             Authentication authentication) {
         
@@ -81,7 +81,7 @@ public class ReviewController {
     
     @DeleteMapping("/product/{productId}")
     @Operation(summary = "Review sil", description = "Kullanıcının ürün için review'ını siler")
-    public ResponseEntity<?> deleteReview(@PathVariable Long productId, Authentication authentication) {
+    public ResponseEntity<?> deleteReview(@PathVariable String productId, Authentication authentication) {
         if (authentication == null || !authentication.isAuthenticated()) {
             return ResponseEntity.status(401).build();
         }

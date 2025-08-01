@@ -79,7 +79,7 @@ public class CartController {
     @Operation(summary = "Remove item from cart", description = "Remove a product from user's cart")
     public ResponseEntity<Void> removeFromCart(
             Authentication authentication,
-            @PathVariable Long productId) {
+            @PathVariable String productId) {
         String email = authentication.getName();
         User user = userRepository.findByEmail(email).orElse(null);
         if (user == null) {
@@ -96,7 +96,7 @@ public class CartController {
     @Operation(summary = "Update item quantity", description = "Update quantity of a product in cart")
     public ResponseEntity<Void> updateCartItemQuantity(
             Authentication authentication,
-            @PathVariable Long productId,
+            @PathVariable String productId,
             @RequestParam Integer quantity) {
         String email = authentication.getName();
         User user = userRepository.findByEmail(email).orElse(null);

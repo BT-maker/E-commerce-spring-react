@@ -41,7 +41,7 @@ public class CartServiceImpl implements CartService {
 
     @Override
     @Transactional
-    public void addToCart(User user, Long productId, int quantity) {
+    public void addToCart(User user, String productId, int quantity) {
         Cart cart = getOrCreateCart(user);
         Optional<CartItem> existing = cart.getItems().stream()
             .filter(item -> item.getProduct().getId().equals(productId)).findFirst();
@@ -64,7 +64,7 @@ public class CartServiceImpl implements CartService {
 
     @Override
     @Transactional
-    public void removeFromCart(User user, Long productId) {
+    public void removeFromCart(User user, String productId) {
         Cart cart = getOrCreateCart(user);
         cart.getItems().removeIf(item -> item.getProduct().getId().equals(productId));
         cartRepository.save(cart);
@@ -78,7 +78,7 @@ public class CartServiceImpl implements CartService {
 
     @Override
     @Transactional
-    public void updateCartItemQuantity(User user, Long productId, int quantity) {
+    public void updateCartItemQuantity(User user, String productId, int quantity) {
         Cart cart = getOrCreateCart(user);
         for (CartItem item : cart.getItems()) {
             if (item.getProduct().getId().equals(productId)) {

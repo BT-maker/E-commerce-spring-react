@@ -1,9 +1,10 @@
 package com.bahattintok.e_commerce.model;
 
+import org.hibernate.annotations.GenericGenerator;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
@@ -20,11 +21,13 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class Category {
     /**
-     * Kategori ID'si (otomatik artan)
+     * Kategori ID'si (UUID)
      */
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @GeneratedValue(generator = "uuid2")
+    @GenericGenerator(name = "uuid2", strategy = "uuid2")
+    @Column(columnDefinition = "VARCHAR(36)")
+    private String id;
 
     /**
      * Kategori adı (benzersiz ve zorunlu)
@@ -39,6 +42,7 @@ public class Category {
      * 2. Benzersiz İsim: Her kategorinin benzersiz adı
      * 3. Ürün Sınıflandırma: Ürünlerin kategorilere göre gruplandırılması
      * 4. Veritabanı İlişkisi: Ürünler ile many-to-one ilişki
+     * 5. UUID ID: Performans için String UUID kullanımı
      * 
      * Bu entity sayesinde ürünler kategorilere göre organize edilebilir!
      */

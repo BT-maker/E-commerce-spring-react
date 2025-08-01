@@ -27,12 +27,12 @@ public class ReviewServiceImpl implements ReviewService {
     private final ProductRepository productRepository;
     
     @Override
-    public List<Review> getProductReviews(Long productId) {
+    public List<Review> getProductReviews(String productId) {
         return reviewRepository.findByProductIdOrderByCreatedAtDesc(productId);
     }
     
     @Override
-    public Review getUserReview(String email, Long productId) {
+    public Review getUserReview(String email, String productId) {
         User user = userRepository.findByEmail(email)
             .orElseThrow(() -> new RuntimeException("Kullanıcı bulunamadı"));
         
@@ -41,7 +41,7 @@ public class ReviewServiceImpl implements ReviewService {
     }
     
     @Override
-    public Review addOrUpdateReview(String email, Long productId, int rating, String comment) {
+    public Review addOrUpdateReview(String email, String productId, int rating, String comment) {
         // Kullanıcı ve ürün kontrolü
         User user = userRepository.findByEmail(email)
             .orElseThrow(() -> new RuntimeException("Kullanıcı bulunamadı"));
@@ -76,7 +76,7 @@ public class ReviewServiceImpl implements ReviewService {
     }
     
     @Override
-    public void deleteReview(String email, Long productId) {
+    public void deleteReview(String email, String productId) {
         User user = userRepository.findByEmail(email)
             .orElseThrow(() -> new RuntimeException("Kullanıcı bulunamadı"));
         
@@ -87,18 +87,18 @@ public class ReviewServiceImpl implements ReviewService {
     }
     
     @Override
-    public Double getAverageRating(Long productId) {
+    public Double getAverageRating(String productId) {
         Double avgRating = reviewRepository.getAverageRatingByProductId(productId);
         return avgRating != null ? avgRating : 0.0;
     }
     
     @Override
-    public Long getReviewCount(Long productId) {
+    public Long getReviewCount(String productId) {
         return reviewRepository.getReviewCountByProductId(productId);
     }
     
     @Override
-    public Map<String, Object> getReviewStats(Long productId) {
+    public Map<String, Object> getReviewStats(String productId) {
         Map<String, Object> stats = new HashMap<>();
         stats.put("averageRating", getAverageRating(productId));
         stats.put("reviewCount", getReviewCount(productId));
@@ -106,7 +106,7 @@ public class ReviewServiceImpl implements ReviewService {
     }
     
     @Override
-    public boolean hasUserReviewed(String email, Long productId) {
+    public boolean hasUserReviewed(String email, String productId) {
         User user = userRepository.findByEmail(email)
             .orElseThrow(() -> new RuntimeException("Kullanıcı bulunamadı"));
         

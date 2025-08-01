@@ -47,7 +47,7 @@ public class FavoriteServiceImpl implements FavoriteService {
     }
     
     @Override
-    public Favorite addToFavorites(String email, Long productId) {
+    public Favorite addToFavorites(String email, String productId) {
         try {
             System.out.println("=== FAVORİ EKLEME SERVİSİ ===");
             System.out.println("Email: " + email);
@@ -87,7 +87,7 @@ public class FavoriteServiceImpl implements FavoriteService {
     }
     
     @Override
-    public void removeFromFavorites(String email, Long productId) {
+    public void removeFromFavorites(String email, String productId) {
         try {
             System.out.println("=== FAVORİ ÇIKARMA SERVİSİ ===");
             System.out.println("Email: " + email);
@@ -113,7 +113,7 @@ public class FavoriteServiceImpl implements FavoriteService {
     }
     
     @Override
-    public boolean isFavorite(String email, Long productId) {
+    public boolean isFavorite(String email, String productId) {
         try {
             User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("Kullanıcı bulunamadı: " + email));

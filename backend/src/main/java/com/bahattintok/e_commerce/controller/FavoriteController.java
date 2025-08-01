@@ -93,7 +93,7 @@ public class FavoriteController {
     
     @PostMapping("/{productId}")
     @Operation(summary = "Ürünü favorilere ekle", description = "Belirtilen ürünü kullanıcının favorilerine ekler")
-    public ResponseEntity<Map<String, Object>> addToFavorites(@PathVariable Long productId) {
+    public ResponseEntity<Map<String, Object>> addToFavorites(@PathVariable String productId) {
         try {
             Authentication auth = SecurityContextHolder.getContext().getAuthentication();
             String email = auth.getName();
@@ -147,7 +147,7 @@ public class FavoriteController {
     
     @DeleteMapping("/{productId}")
     @Operation(summary = "Ürünü favorilerden çıkar", description = "Belirtilen ürünü kullanıcının favorilerinden çıkarır")
-    public ResponseEntity<?> removeFromFavorites(@PathVariable Long productId) {
+    public ResponseEntity<?> removeFromFavorites(@PathVariable String productId) {
         try {
             Authentication auth = SecurityContextHolder.getContext().getAuthentication();
             String email = auth.getName();
@@ -175,7 +175,7 @@ public class FavoriteController {
     
     @GetMapping("/check/{productId}")
     @Operation(summary = "Ürünün favorilerde olup olmadığını kontrol et", description = "Belirtilen ürünün kullanıcının favorilerinde olup olmadığını kontrol eder")
-    public ResponseEntity<Map<String, Boolean>> checkFavorite(@PathVariable Long productId) {
+    public ResponseEntity<Map<String, Boolean>> checkFavorite(@PathVariable String productId) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         String email = auth.getName();
         

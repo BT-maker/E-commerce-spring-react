@@ -19,7 +19,7 @@ public interface ProductService {
     /**
      * ID'ye göre ürün getirir.
      */
-    Product getProductById(Long id);
+    Product getProductById(String id);
     /**
      * Yeni ürün oluşturur.
      */
@@ -27,11 +27,11 @@ public interface ProductService {
     /**
      * Ürünü günceller.
      */
-    Product updateProduct(Long id, ProductRequest request);
+    Product updateProduct(String id, ProductRequest request);
     /**
      * Ürünü siler.
      */
-    void deleteProduct(Long id);
+    void deleteProduct(String id);
     /**
      * Kategori adına göre ürünleri getirir.
      */
@@ -47,7 +47,7 @@ public interface ProductService {
     /**
      * Kategori ID'sine göre ürünleri getirir.
      */
-    List<Product> getProductsByCategoryId(Long categoryId);
+    List<Product> getProductsByCategoryId(String categoryId);
     /**
      * Tüm ürünleri sayfalı getirir.
      */
@@ -55,7 +55,7 @@ public interface ProductService {
     /**
      * Kategori ID'sine göre ürünleri sayfalı getirir.
      */
-    Page<Product> getProductsByCategoryId(Long categoryId, Pageable pageable);
+    Page<Product> getProductsByCategoryId(String categoryId, Pageable pageable);
     /**
      * İsme göre arama yapar (sayfalı).
      */
@@ -81,6 +81,7 @@ public interface ProductService {
      * 6. Popülerlik Sıralaması: En çok satan ürünleri getirme
      * 7. Sayfalama Desteği: Büyük veri setleri için sayfalama
      * 8. Interface Tasarımı: Servis implementasyonları için sözleşme tanımlama
+     * 9. String ID Desteği: Performans için String UUID kullanımı
      * 
      * Bu interface sayesinde ürün yönetimi standart ve kapsamlı şekilde yapılabilir!
      */

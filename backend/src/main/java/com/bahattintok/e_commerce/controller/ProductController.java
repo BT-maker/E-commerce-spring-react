@@ -22,6 +22,7 @@ import com.bahattintok.e_commerce.dto.ProductRequest;
 import com.bahattintok.e_commerce.model.Product;
 import com.bahattintok.e_commerce.model.Store;
 import com.bahattintok.e_commerce.repository.StoreRepository;
+import com.bahattintok.e_commerce.service.ProductSearchService;
 import com.bahattintok.e_commerce.service.ProductService;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -40,6 +41,7 @@ public class ProductController {
     
     private final ProductService productService;
     private final StoreRepository storeRepository;
+    private final ProductSearchService productSearchService;
     
     /**
      * Ürünleri getirir (arama, kategori ve sayfalama destekler).
@@ -47,7 +49,7 @@ public class ProductController {
     @GetMapping
     @Operation(summary = "Get all products", description = "Retrieve all available products")
     public ResponseEntity<Page<Product>> getAllProducts(
-        @RequestParam(value = "categoryId", required = false) Long categoryId,
+        @RequestParam(value = "categoryId", required = false) String categoryId,
         @RequestParam(value = "search", required = false) String search,
         @RequestParam(value = "minPrice", required = false) Double minPrice,
         @RequestParam(value = "maxPrice", required = false) Double maxPrice,
@@ -79,7 +81,7 @@ public class ProductController {
      */
     @GetMapping("/{id}")
     @Operation(summary = "Get product by ID", description = "Retrieve a specific product by its ID")
-    public ResponseEntity<Map<String, Object>> getProductById(@PathVariable Long id) {
+    public ResponseEntity<Map<String, Object>> getProductById(@PathVariable String id) {
         Product product = productService.getProductById(id);
         Map<String, Object> dto = Map.of(
             "id", product.getId(),
@@ -92,6 +94,41 @@ public class ProductController {
             "storeName", product.getStore() != null ? product.getStore().getName() : null
         );
         return ResponseEntity.ok(dto);
+    }
+    
+    /**
+     * Elasticsearch'te arama yapar.
+     */
+    @GetMapping("/search/elastic")
+    @Operation(summary = "Search products with Elasticsearch", description = "Search products using Elasticsearch")
+    public ResponseEntity<List<Product>> searchWithElasticsearch(@RequestParam String keyword) {
+        List<Product> products = productSearchService.searchProducts(keyword);
+        return ResponseEntity.ok(products);
+    }
+    
+    /**
+     * Tüm ürünleri Elasticsearch'e indexler.
+     */
+    @PostMapping("/index-all")
+    @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "Index all products to Elasticsearch", description = "Index all products to Elasticsearch (Admin only)")
+    public ResponseEntity<String> indexAllProducts() {
+        productSearchService.indexAllProducts();
+        return ResponseEntity.ok("Tüm ürünler Elasticsearch'e indexlendi");
+    }
+    
+    /**
+     * Elasticsearch durumunu kontrol eder.
+     */
+    @GetMapping("/elasticsearch/status")
+    @Operation(summary = "Check Elasticsearch status", description = "Check if Elasticsearch is available")
+    public ResponseEntity<Map<String, Object>> checkElasticsearchStatus() {
+        boolean isAvailable = productSearchService.isElasticsearchAvailable();
+        Map<String, Object> status = Map.of(
+            "available", isAvailable,
+            "message", isAvailable ? "Elasticsearch çalışıyor" : "Elasticsearch çalışmıyor"
+        );
+        return ResponseEntity.ok(status);
     }
     
     /**
@@ -111,7 +148,7 @@ public class ProductController {
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Update product", description = "Update an existing product (Admin only)")
-    public ResponseEntity<Product> updateProduct(@PathVariable Long id, @Valid @RequestBody ProductRequest request) {
+    public ResponseEntity<Product> updateProduct(@PathVariable String id, @Valid @RequestBody ProductRequest request) {
         Product product = productService.updateProduct(id, request);
         return ResponseEntity.ok(product);
     }
@@ -122,7 +159,7 @@ public class ProductController {
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Delete product", description = "Delete a product (Admin only)")
-    public ResponseEntity<Void> deleteProduct(@PathVariable Long id) {
+    public ResponseEntity<Void> deleteProduct(@PathVariable String id) {
         productService.deleteProduct(id);
         return ResponseEntity.noContent().build();
     }

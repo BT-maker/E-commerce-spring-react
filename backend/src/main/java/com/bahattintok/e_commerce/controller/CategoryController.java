@@ -51,7 +51,7 @@ public class CategoryController {
      */
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<Category> updateCategory(@PathVariable Long id, @RequestBody Category categoryDetails) {
+    public ResponseEntity<Category> updateCategory(@PathVariable String id, @RequestBody Category categoryDetails) {
         Category category = categoryRepository.findById(id).orElseThrow(() -> new RuntimeException("Category not found"));
         category.setName(categoryDetails.getName());
         Category updatedCategory = categoryRepository.save(category);
@@ -63,7 +63,7 @@ public class CategoryController {
      */
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<Void> deleteCategory(@PathVariable Long id) {
+    public ResponseEntity<Void> deleteCategory(@PathVariable String id) {
         categoryRepository.deleteById(id);
         return ResponseEntity.noContent().build();
     }
@@ -72,7 +72,7 @@ public class CategoryController {
      * ID'ye göre kategori getirir.
      */
     @GetMapping("/{id}")
-    public ResponseEntity<Category> getCategoryById(@PathVariable Long id) {
+    public ResponseEntity<Category> getCategoryById(@PathVariable String id) {
         Category category = categoryRepository.findById(id)
             .orElseThrow(() -> new RuntimeException("Category not found"));
         return ResponseEntity.ok(category);

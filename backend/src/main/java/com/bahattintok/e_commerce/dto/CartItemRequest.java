@@ -18,7 +18,7 @@ public class CartItemRequest {
      * Sepete eklenecek ürünün ID'si
      */
     @NotNull(message = "Product ID is required")
-    private Long productId;
+    private String productId;
     
     /**
      * Eklenecek miktar

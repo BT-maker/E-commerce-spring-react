@@ -11,18 +11,18 @@ public interface SellerService {
     Store getStoreBySeller(User seller);
     List<Product> getStoreProducts(User seller);
     Product addProduct(User seller, Product product);
-    Product updateProduct(User seller, Long productId, Product product);
-    void deleteProduct(User seller, Long productId);
+    Product updateProduct(User seller, String productId, Product product);
+    void deleteProduct(User seller, String productId);
     
     // İndirim işlemleri
-    Product addDiscount(User seller, Long productId, Integer discountPercentage, String endDateStr);
-    Product removeDiscount(User seller, Long productId);
+    Product addDiscount(User seller, String productId, Integer discountPercentage, String endDateStr);
+    Product removeDiscount(User seller, String productId);
 
     // İstatistikler
-    Integer getTotalSoldQuantityByStore(Long storeId);
-    Double getTotalRevenueByStore(Long storeId);
-    List<Object[]> getDailySalesByStore(Long storeId);
-    List<Object[]> getBestSellingProductsByStore(Long storeId);
+    Integer getTotalSoldQuantityByStore(String storeId);
+    Double getTotalRevenueByStore(String storeId);
+    List<Object[]> getDailySalesByStore(String storeId);
+    List<Object[]> getBestSellingProductsByStore(String storeId);
     
     /**
      * Bu interface şu işlevleri sağlar:
@@ -35,6 +35,7 @@ public interface SellerService {
      * 6. Günlük Satışlar: Mağazanın günlük satış raporları
      * 7. En Çok Satanlar: Mağazanın en popüler ürünleri
      * 8. Interface Tasarımı: Servis implementasyonları için sözleşme tanımlama
+     * 9. String ID Desteği: Performans için String UUID kullanımı
      * 
      * Bu interface sayesinde satıcı mağaza yönetimi standart ve kapsamlı şekilde yapılabilir!
      */

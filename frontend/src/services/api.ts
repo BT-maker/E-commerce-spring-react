@@ -44,7 +44,7 @@ api.interceptors.response.use(
       
       // Eğer korumalı bir sayfadaysa yönlendirme yap
       if (protectedRoutes.some(route => currentPath.startsWith(route))) {
-        window.location.href = '/login';
+      window.location.href = '/login';
       }
     }
     return Promise.reject(error);

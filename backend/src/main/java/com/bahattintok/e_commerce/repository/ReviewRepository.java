@@ -16,34 +16,34 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
     /**
      * Ürüne ait tüm review'ları getirir (tarihe göre sıralı)
      */
-    List<Review> findByProductIdOrderByCreatedAtDesc(Long productId);
+    List<Review> findByProductIdOrderByCreatedAtDesc(String productId);
     
     /**
      * Kullanıcının belirli bir ürün için review'ını getirir
      */
-    Optional<Review> findByUserIdAndProductId(Long userId, Long productId);
+    Optional<Review> findByUserIdAndProductId(String userId, String productId);
     
     /**
      * Kullanıcının belirli bir ürün için review'ı var mı kontrol eder
      */
-    boolean existsByUserIdAndProductId(Long userId, Long productId);
+    boolean existsByUserIdAndProductId(String userId, String productId);
     
     /**
      * Ürünün ortalama puanını hesaplar
      */
     @Query("SELECT AVG(r.rating) FROM Review r WHERE r.product.id = :productId")
-    Double getAverageRatingByProductId(@Param("productId") Long productId);
+    Double getAverageRatingByProductId(@Param("productId") String productId);
     
     /**
      * Ürünün toplam review sayısını getirir
      */
     @Query("SELECT COUNT(r) FROM Review r WHERE r.product.id = :productId")
-    Long getReviewCountByProductId(@Param("productId") Long productId);
+    Long getReviewCountByProductId(@Param("productId") String productId);
     
     /**
      * Kullanıcının tüm review'larını getirir
      */
-    List<Review> findByUserIdOrderByCreatedAtDesc(Long userId);
+    List<Review> findByUserIdOrderByCreatedAtDesc(String userId);
     
     /**
      * Bu repository şu işlevleri sağlar:

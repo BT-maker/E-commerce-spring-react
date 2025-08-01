@@ -306,7 +306,7 @@
 .product-card-btn:disabled {
   opacity: 0.7;
   cursor: not-allowed;
-}
+} 
 
 /* Puanlama Yıldızları */
 .product-info .flex {

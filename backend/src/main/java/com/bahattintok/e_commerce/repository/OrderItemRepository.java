@@ -14,19 +14,19 @@ public interface OrderItemRepository extends JpaRepository<OrderItem, Long> {
 
     // Belirli bir mağazanın toplam satılan ürün adedi
     @Query("SELECT SUM(oi.quantity) FROM OrderItem oi WHERE oi.product.store.id = :storeId")
-    Integer getTotalSoldQuantityByStore(@Param("storeId") Long storeId);
+    Integer getTotalSoldQuantityByStore(@Param("storeId") String storeId);
 
     // Belirli bir mağazanın toplam geliri
     @Query("SELECT SUM(oi.price * oi.quantity) FROM OrderItem oi WHERE oi.product.store.id = :storeId")
-    Double getTotalRevenueByStore(@Param("storeId") Long storeId);
+    Double getTotalRevenueByStore(@Param("storeId") String storeId);
 
     // Belirli bir mağazanın günlük satışları (tarihe göre gruplanmış)
     @Query("SELECT DATE(o.createdAt), SUM(oi.quantity), SUM(oi.price * oi.quantity) FROM OrderItem oi JOIN oi.order o WHERE oi.product.store.id = :storeId GROUP BY DATE(o.createdAt) ORDER BY DATE(o.createdAt) DESC")
-    List<Object[]> getDailySalesByStore(@Param("storeId") Long storeId);
+    List<Object[]> getDailySalesByStore(@Param("storeId") String storeId);
 
     // Belirli bir mağazanın en çok satan ürünleri (top N)
     @Query("SELECT oi.product.name, SUM(oi.quantity) as totalSold FROM OrderItem oi WHERE oi.product.store.id = :storeId GROUP BY oi.product.id, oi.product.name ORDER BY totalSold DESC")
-    List<Object[]> getBestSellingProductsByStore(@Param("storeId") Long storeId);
+    List<Object[]> getBestSellingProductsByStore(@Param("storeId") String storeId);
     
     /**
      * Bu repository şu işlevleri sağlar:

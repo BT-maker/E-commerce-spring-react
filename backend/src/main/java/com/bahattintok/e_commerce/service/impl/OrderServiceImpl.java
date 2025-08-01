@@ -85,7 +85,7 @@ public class OrderServiceImpl implements OrderService {
         order.setTotalPrice(BigDecimal.valueOf(total));
 
         for (Map<String, Object> itemData : items) {
-            Long productId = ((Number) itemData.get("productId")).longValue();
+            String productId = itemData.get("productId").toString();
             Integer quantity = ((Number) itemData.get("quantity")).intValue();
             BigDecimal price = BigDecimal.valueOf(((Number) itemData.get("price")).doubleValue());
 

@@ -8,6 +8,8 @@ import { Heart } from "lucide-react";
 import Skeleton from 'react-loading-skeleton';
 import 'react-loading-skeleton/dist/skeleton.css';
 import ThemeToggle from '../ThemeToggle/ThemeToggle';
+import NotificationBell from '../NotificationBell/NotificationBell';
+import SearchSuggestions from '../SearchSuggestions/SearchSuggestions';
 
 const Header = () => {
   const { cartItems } = useContext(CartContext);
@@ -17,7 +19,6 @@ const Header = () => {
   // Debug için user bilgilerini logla
   console.log('Header - User:', user, 'Role:', user?.role, 'isLoggedIn:', isLoggedIn);
   const navigate = useNavigate();
-  const [searchQuery, setSearchQuery] = useState("");
   const [userMenuOpen, setUserMenuOpen] = useState(false);
 
   // Kategoriler
@@ -56,9 +57,9 @@ const Header = () => {
       });
   }, [categoriesLoaded]);
 
-  const handleSearch = (e) => {
-    if (e.key === 'Enter' && searchQuery.trim() !== '') {
-      navigate(`/search?q=${searchQuery}`);
+  const handleSearch = (query) => {
+    if (query.trim() !== '') {
+      navigate(`/search?q=${encodeURIComponent(query)}`);
     }
   };
 
@@ -101,14 +102,11 @@ const Header = () => {
           <span className="text-3xl font-bold italic tracking-wide group-hover:text-accent-400 transition-colors dark:text-white">Shopping</span>
         </Link>
         {/* Arama kutusu */}
-        <div className="flex-1 mx-8">
-          <input
-            type="text"
-            placeholder="Ürün , kategori veya marka girin"
-            className="w-full px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-accent-400 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-400 bg-background-primary"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            onKeyDown={handleSearch}
+        <div className="flex-1 mx-8 flex justify-center items-start mt-9">
+          <SearchSuggestions
+            onSearch={handleSearch}
+            placeholder="Ürün, kategori veya mağaza ara..."
+            compact={true}
           />
         </div>
         {/* Giriş/Kayıt/Sepet */}
@@ -131,6 +129,7 @@ const Header = () => {
               {user && user.role === "ADMIN" && (
                 <Link to="/admin" className="text-sm font-semibold hover:text-accent-400 transition-colors no-underline dark:text-gray-300 dark:hover:text-accent-400">Panel</Link>
               )}
+
               <Link to="/favorites" className="text-sm font-semibold relative flex items-center gap-1 dark:text-gray-300 dark:hover:text-accent-400">
                 <Heart size={16} />
                 Favorilerim
@@ -148,6 +147,7 @@ const Header = () => {
                   </span>
                 )}
               </Link>
+              {isLoggedIn && <NotificationBell />}
               <div className="relative">
                 <button
                   onClick={() => setUserMenuOpen((v) => !v)}

@@ -14,22 +14,22 @@ public interface FavoriteRepository extends JpaRepository<Favorite, Long> {
     /**
      * Kullanıcının favorilerini getirir
      */
-    List<Favorite> findByUserIdOrderByCreatedAtDesc(Long userId);
+    List<Favorite> findByUserIdOrderByCreatedAtDesc(String userId);
     
     /**
      * Kullanıcının belirli bir ürünü favorilerinde olup olmadığını kontrol eder
      */
-    Optional<Favorite> findByUserIdAndProductId(Long userId, Long productId);
+    Optional<Favorite> findByUserIdAndProductId(String userId, String productId);
     
     /**
      * Kullanıcının favorilerinde belirli bir ürün var mı kontrol eder
      */
-    boolean existsByUserIdAndProductId(Long userId, Long productId);
+    boolean existsByUserIdAndProductId(String userId, String productId);
     
     /**
      * Kullanıcının favorilerini sayar
      */
-    long countByUserId(Long userId);
+    long countByUserId(String userId);
     
     /**
      * Bu repository şu işlevleri sağlar:

@@ -11,7 +11,9 @@ import ProductDetail from './components/ProductDetail/ProductDetail.jsx';
 import CategoryProducts from './components/CategoryProducts/CategoryProducts.jsx';
 import AdminPanel from './components/AdminPanel/AdminPanel.jsx';
 import SearchResults from './components/SearchResults/SearchResults.jsx';
+import ElasticSearch from './components/ElasticSearch/ElasticSearch.jsx';
 import AdminRoute from './components/AdminRoute/AdminRoute.jsx';
+import SellerRoute from './components/SellerRoute/SellerRoute.jsx';
 import Profile from './pages/Profile.jsx';
 import Orders from './pages/Orders.jsx';
 import SellerPanel from './pages/SellerPanel.jsx';
@@ -27,6 +29,7 @@ import { CartProvider } from './context/CartContext.jsx';
 import { AuthProvider } from './context/AuthContext.jsx';
 import { FavoritesProvider } from './context/FavoritesContext.jsx';
 import { ThemeProvider } from './context/ThemeContext.jsx';
+import { NotificationProvider } from './context/NotificationContext.jsx';
 import { Toaster } from 'react-hot-toast';
 
 // Global backend offline flag'ini tanımla
@@ -137,48 +140,55 @@ function App() {
       <AuthProvider>
         <FavoritesProvider>
           <CartProvider>
+            <NotificationProvider>
             <BackendStatus>
-              <BrowserRouter>
-                <Header />
+            <BrowserRouter>
+              <Header />
                 <main className="min-h-screen bg-background-primary">
                   <div className="container mx-auto px-12 sm:px-16 lg:px-24 py-8">
-                    <Routes>
-                      <Route path="/" element={
-                        <>
+                <Routes>
+                  <Route path="/" element={
+                    <>
                           <div className="mt-0">
-                            <Banner />
-                          </div>
-                          <ProductList />
-                        </>
-                      } />
-                      <Route path="/register" element={<Register />} />
-                      <Route path="/login" element={<Login />} />
-                      <Route path="/cart" element={<CartPage />} />
-                      <Route path="/product/:id" element={<ProductDetail />} />
-                      <Route path="/category/:id" element={<CategoryProducts />} />
-                      <Route path="/admin" element={
-                        <AdminRoute>
-                          <AdminPanel />
-                        </AdminRoute>
-                      } />
-                      <Route path="/search" element={<SearchResults />} />
-                      <Route path="/profile" element={<Profile />} />
-                      <Route path="/orders" element={<Orders />} />
-                      <Route path="/seller-panel" element={<SellerPanel />} />
-                      <Route path="/store/:name" element={<StorePage />} />
-                      <Route path="/favorites" element={<Favorites />} />
-                      <Route path="/about" element={<AboutUs />} />
-                      <Route path="/contact" element={<Contact />} />
-                      <Route path="/order-tracking" element={<OrderTracking />} />
-                      <Route path="/return-exchange" element={<ReturnExchange />} />
-                      <Route path="/faq" element={<FAQ />} />
-                    </Routes>
+                        <Banner />
+                      </div>
+                      <ProductList />
+                    </>
+                  } />
+                  <Route path="/register" element={<Register />} />
+                  <Route path="/login" element={<Login />} />
+                  <Route path="/cart" element={<CartPage />} />
+                  <Route path="/product/:id" element={<ProductDetail />} />
+                  <Route path="/category/:id" element={<CategoryProducts />} />
+                  <Route path="/admin" element={
+                    <AdminRoute>
+                      <AdminPanel />
+                    </AdminRoute>
+                  } />
+                  <Route path="/search" element={<SearchResults />} />
+                  <Route path="/elastic-search" element={<ElasticSearch />} />
+                  <Route path="/profile" element={<Profile />} />
+                  <Route path="/orders" element={<Orders />} />
+                  <Route path="/seller-panel" element={
+                    <SellerRoute>
+                      <SellerPanel />
+                    </SellerRoute>
+                  } />
+                  <Route path="/store/:name" element={<StorePage />} />
+                  <Route path="/favorites" element={<Favorites />} />
+                  <Route path="/about" element={<AboutUs />} />
+                  <Route path="/contact" element={<Contact />} />
+                  <Route path="/order-tracking" element={<OrderTracking />} />
+                  <Route path="/return-exchange" element={<ReturnExchange />} />
+                  <Route path="/faq" element={<FAQ />} />
+                </Routes>
                   </div>
-                </main>
-                <Footer />
-                <Toaster position="top-right" />
-              </BrowserRouter>
+              </main>
+              <Footer />
+              <Toaster position="top-right" />
+            </BrowserRouter>
             </BackendStatus>
+            </NotificationProvider>
           </CartProvider>
         </FavoritesProvider>
       </AuthProvider>

@@ -275,8 +275,8 @@
 
 .dark .quantity-btn:hover {
   background: var(--bg-secondary);
-}
-
+  }
+  
 .dark .quantity-input {
   color: var(--text-primary);
 } 

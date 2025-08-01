@@ -11,7 +11,7 @@ import com.bahattintok.e_commerce.model.Category;
  * Category (kategori) ile ilgili veritabanı işlemlerini yapan repository.
  */
 @Repository
-public interface CategoryRepository extends JpaRepository<Category, Long> {
+public interface CategoryRepository extends JpaRepository<Category, String> {
     /**
      * Kategori adına göre kategori bulur.
      */
@@ -25,6 +25,7 @@ public interface CategoryRepository extends JpaRepository<Category, Long> {
      * 3. JPA Desteği: Spring Data JPA ile otomatik metod oluşturma
      * 4. Ürün Sınıflandırma: Kategorilerin ürün organizasyonu için kullanımı
      * 5. Performans Optimizasyonu: Lazy loading ve caching desteği
+     * 6. String ID Desteği: Performans için String UUID kullanımı
      * 
      * Bu repository sayesinde ürün kategorileri veritabanında güvenli şekilde yönetilebilir!
      */

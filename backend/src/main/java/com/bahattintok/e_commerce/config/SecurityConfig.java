@@ -42,7 +42,7 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/api/admin/**").hasRole("ADMIN") // Sadece admin erişebilir
                 .requestMatchers(
-                    "/api/products/**", "/api/categories/**", "/api/auth/**", "/api/stores/**",
+                    "/api/products/**", "/api/categories/**", "/api/auth/**", "/api/stores/**", "/api/elasticsearch/**", "/api/search-suggestions/**",
                     "/swagger-ui/**", "/swagger-ui.html", "/v3/api-docs/**", "/v3/api-docs.yaml",
                     "/swagger-resources/**", "/webjars/**",
                     "/v3/api-docs/swagger-config", "/api-docs/swagger-config",

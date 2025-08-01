@@ -58,7 +58,7 @@ public class SellerServiceImpl implements SellerService {
 
     @Override
     @Transactional
-    public Product updateProduct(User seller, Long productId, Product updatedProduct) {
+    public Product updateProduct(User seller, String productId, Product updatedProduct) {
         Store store = getStoreBySeller(seller);
         if (store == null) throw new RuntimeException("Mağaza bulunamadı!");
         Product product = productRepository.findById(productId)
@@ -75,7 +75,7 @@ public class SellerServiceImpl implements SellerService {
 
     @Override
     @Transactional
-    public void deleteProduct(User seller, Long productId) {
+    public void deleteProduct(User seller, String productId) {
         Store store = getStoreBySeller(seller);
         if (store == null) throw new RuntimeException("Mağaza bulunamadı!");
         Product product = productRepository.findById(productId)
@@ -86,28 +86,28 @@ public class SellerServiceImpl implements SellerService {
 
     // İstatistikler
     @Override
-    public Integer getTotalSoldQuantityByStore(Long storeId) {
+    public Integer getTotalSoldQuantityByStore(String storeId) {
         return orderItemRepository.getTotalSoldQuantityByStore(storeId);
     }
 
     @Override
-    public Double getTotalRevenueByStore(Long storeId) {
+    public Double getTotalRevenueByStore(String storeId) {
         return orderItemRepository.getTotalRevenueByStore(storeId);
     }
 
     @Override
-    public List<Object[]> getDailySalesByStore(Long storeId) {
+    public List<Object[]> getDailySalesByStore(String storeId) {
         return orderItemRepository.getDailySalesByStore(storeId);
     }
 
     @Override
-    public List<Object[]> getBestSellingProductsByStore(Long storeId) {
+    public List<Object[]> getBestSellingProductsByStore(String storeId) {
         return orderItemRepository.getBestSellingProductsByStore(storeId);
     }
 
     @Override
     @Transactional
-    public Product addDiscount(User seller, Long productId, Integer discountPercentage, String endDateStr) {
+    public Product addDiscount(User seller, String productId, Integer discountPercentage, String endDateStr) {
         System.out.println("=== İNDİRİM EKLEME BAŞLADI ===");
         System.out.println("Ürün ID: " + productId);
         System.out.println("İndirim Yüzdesi: " + discountPercentage);
@@ -170,7 +170,7 @@ public class SellerServiceImpl implements SellerService {
 
     @Override
     @Transactional
-    public Product removeDiscount(User seller, Long productId) {
+    public Product removeDiscount(User seller, String productId) {
         Store store = getStoreBySeller(seller);
         if (store == null) throw new RuntimeException("Mağaza bulunamadı!");
         

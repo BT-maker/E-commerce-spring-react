@@ -9,7 +9,7 @@ import com.bahattintok.e_commerce.model.Store;
 import com.bahattintok.e_commerce.model.User;
 
 @Repository
-public interface StoreRepository extends JpaRepository<Store, Long> {
+public interface StoreRepository extends JpaRepository<Store, String> {
     Optional<Store> findBySeller(User seller);
     Optional<Store> findByNameIgnoreCase(String name);
     boolean existsByNameIgnoreCase(String name);
@@ -23,6 +23,7 @@ public interface StoreRepository extends JpaRepository<Store, Long> {
      * 4. Mağaza Kontrolü: Mağaza adının var olup olmadığını kontrol etme
      * 5. JPA Desteği: Spring Data JPA ile otomatik metod oluşturma
      * 6. Performans Optimizasyonu: Lazy loading ve caching desteği
+     * 7. String ID Desteği: Performans için String UUID kullanımı
      * 
      * Bu repository sayesinde satıcı mağazaları veritabanında güvenli şekilde yönetilebilir!
      */

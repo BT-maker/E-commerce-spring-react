@@ -78,7 +78,7 @@ public class SellerController {
 
     @PutMapping("/products/{productId}")
     @Operation(summary = "Ürün güncelle", description = "Satıcı mağazasındaki ürünü günceller")
-    public ResponseEntity<Product> updateProduct(Authentication authentication, @PathVariable Long productId, @RequestBody Product product) {
+    public ResponseEntity<Product> updateProduct(Authentication authentication, @PathVariable String productId, @RequestBody Product product) {
         String email = authentication.getName();
         User seller = userRepository.findByEmail(email).orElse(null);
         if (seller == null) return ResponseEntity.status(401).build();
@@ -88,7 +88,7 @@ public class SellerController {
 
     @DeleteMapping("/products/{productId}")
     @Operation(summary = "Ürün sil", description = "Satıcı mağazasındaki ürünü siler")
-    public ResponseEntity<Void> deleteProduct(Authentication authentication, @PathVariable Long productId) {
+    public ResponseEntity<Void> deleteProduct(Authentication authentication, @PathVariable String productId) {
         String email = authentication.getName();
         User seller = userRepository.findByEmail(email).orElse(null);
         if (seller == null) return ResponseEntity.status(401).build();
@@ -98,7 +98,7 @@ public class SellerController {
 
     @PostMapping("/products/{productId}/discount")
     @Operation(summary = "Ürün indirimi ekle", description = "Satıcı mağazasındaki ürün için indirim ekler")
-    public ResponseEntity<Product> addDiscount(Authentication authentication, @PathVariable Long productId, @RequestBody Map<String, Object> discountRequest) {
+    public ResponseEntity<Product> addDiscount(Authentication authentication, @PathVariable String productId, @RequestBody Map<String, Object> discountRequest) {
         String email = authentication.getName();
         User seller = userRepository.findByEmail(email).orElse(null);
         if (seller == null) return ResponseEntity.status(401).build();
@@ -128,7 +128,7 @@ public class SellerController {
 
     @DeleteMapping("/products/{productId}/discount")
     @Operation(summary = "Ürün indirimini kaldır", description = "Satıcı mağazasındaki ürünün indirimini kaldırır")
-    public ResponseEntity<Product> removeDiscount(Authentication authentication, @PathVariable Long productId) {
+    public ResponseEntity<Product> removeDiscount(Authentication authentication, @PathVariable String productId) {
         String email = authentication.getName();
         User seller = userRepository.findByEmail(email).orElse(null);
         if (seller == null) return ResponseEntity.status(401).build();
@@ -145,7 +145,7 @@ public class SellerController {
         if (seller == null) return ResponseEntity.status(401).build();
         Store store = sellerService.getStoreBySeller(seller);
         if (store == null) return ResponseEntity.ok(Map.of("message", "Mağaza bulunamadı"));
-        Long storeId = store.getId();
+        String storeId = store.getId();
         Map<String, Object> stats = new HashMap<>();
         stats.put("totalSold", sellerService.getTotalSoldQuantityByStore(storeId));
         stats.put("totalRevenue", sellerService.getTotalRevenueByStore(storeId));

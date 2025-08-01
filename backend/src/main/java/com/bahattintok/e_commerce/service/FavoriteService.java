@@ -14,17 +14,17 @@ public interface FavoriteService {
     /**
      * Ürünü favorilere ekler
      */
-    Favorite addToFavorites(String email, Long productId);
+    Favorite addToFavorites(String email, String productId);
     
     /**
      * Ürünü favorilerden çıkarır
      */
-    void removeFromFavorites(String email, Long productId);
+    void removeFromFavorites(String email, String productId);
     
     /**
      * Ürünün favorilerde olup olmadığını kontrol eder
      */
-    boolean isFavorite(String email, Long productId);
+    boolean isFavorite(String email, String productId);
     
     /**
      * Kullanıcının favori sayısını getirir

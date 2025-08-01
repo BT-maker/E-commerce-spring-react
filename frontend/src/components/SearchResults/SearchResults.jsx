@@ -35,17 +35,30 @@ const SearchResults = () => {
     if (!query) return;
 
     setLoading(true);
-    let url = `http://localhost:8080/api/products?search=${query}`;
+    
+    // Önce Elasticsearch'te arama yapmayı dene
+    let url = `http://localhost:8080/api/products/search/elastic?keyword=${encodeURIComponent(query)}`;
+    
+    fetch(url)
+      .then(res => {
+        if (res.ok) {
+          return res.json();
+        } else {
+          // Elasticsearch çalışmıyorsa normal SQL araması yap
+          console.log('Elasticsearch çalışmıyor, normal arama yapılıyor...');
+          url = `http://localhost:8080/api/products?search=${query}`;
     if (sort) url += `&sort=${sort}`;
     if (minPrice) url += `&minPrice=${minPrice}`;
     if (maxPrice) url += `&maxPrice=${maxPrice}`;
     if (selectedStore) url += `&storeName=${encodeURIComponent(selectedStore)}`;
-    fetch(url)
-      .then(res => {
+          
+          return fetch(url).then(res => {
         if (!res.ok) {
           throw new Error("Arama sonuçları alınamadı");
         }
         return res.json();
+          });
+        }
       })
       .then(data => {
         // Eğer backend Page objesi döndürüyorsa, ürünler data.content içinde olur

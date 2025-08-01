@@ -9,9 +9,9 @@ import com.bahattintok.e_commerce.model.User;
 public interface CartService {
     Cart getOrCreateCart(User user);
     List<CartItem> getCartItems(User user);
-    void addToCart(User user, Long productId, int quantity);
-    void removeFromCart(User user, Long productId);
-    void updateCartItemQuantity(User user, Long productId, int quantity);
+    void addToCart(User user, String productId, int quantity);
+    void removeFromCart(User user, String productId);
+    void updateCartItemQuantity(User user, String productId, int quantity);
     void clearCart(User user);
     
     /**
@@ -23,6 +23,7 @@ public interface CartService {
      * 4. Miktar Güncelleme: Sepetteki ürün miktarını değiştirme
      * 5. Sepet Temizleme: Tüm sepet içeriğini silme
      * 6. Interface Tasarımı: Servis implementasyonları için sözleşme tanımlama
+     * 7. String ID Desteği: Performans için String UUID kullanımı
      * 
      * Bu interface sayesinde sepet işlemleri standart ve tutarlı şekilde yapılabilir!
      */

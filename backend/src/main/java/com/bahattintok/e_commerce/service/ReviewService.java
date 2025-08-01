@@ -10,42 +10,42 @@ public interface ReviewService {
     /**
      * Ürüne ait tüm review'ları getirir
      */
-    List<Review> getProductReviews(Long productId);
+    List<Review> getProductReviews(String productId);
     
     /**
      * Kullanıcının ürün için review'ını getirir
      */
-    Review getUserReview(String email, Long productId);
+    Review getUserReview(String email, String productId);
     
     /**
      * Review ekler veya günceller
      */
-    Review addOrUpdateReview(String email, Long productId, int rating, String comment);
+    Review addOrUpdateReview(String email, String productId, int rating, String comment);
     
     /**
      * Review siler
      */
-    void deleteReview(String email, Long productId);
+    void deleteReview(String email, String productId);
     
     /**
      * Ürünün ortalama puanını getirir
      */
-    Double getAverageRating(Long productId);
+    Double getAverageRating(String productId);
     
     /**
      * Ürünün review sayısını getirir
      */
-    Long getReviewCount(Long productId);
+    Long getReviewCount(String productId);
     
     /**
      * Ürünün review istatistiklerini getirir (ortalama puan + review sayısı)
      */
-    Map<String, Object> getReviewStats(Long productId);
+    Map<String, Object> getReviewStats(String productId);
     
     /**
      * Kullanıcının belirli bir ürün için review'ı var mı kontrol eder
      */
-    boolean hasUserReviewed(String email, Long productId);
+    boolean hasUserReviewed(String email, String productId);
     
     /**
      * Bu interface şu işlevleri sağlar:

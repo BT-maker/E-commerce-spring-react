@@ -8,8 +8,8 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  const checkAuth = async () => {
-    console.log('Auth kontrol ediliyor...');
+      const checkAuth = async () => {
+        console.log('Auth kontrol ediliyor...');
     
     // Backend offline ise auth kontrolü yapma
     if (window.BACKEND_OFFLINE) {
@@ -21,18 +21,18 @@ export const AuthProvider = ({ children }) => {
     }
     
     try {
-      const response = await api.get('/auth/me', { withCredentials: true });
+        const response = await api.get('/auth/me', { withCredentials: true });
       console.log('Auth başarılı:', response.data);
-      setIsLoggedIn(true);
-      setUser(response.data);
-    } catch (error) {
+        setIsLoggedIn(true);
+        setUser(response.data);
+      } catch (error) {
       console.log('Auth hatası:', error.response?.status, error.response?.data);
-      setIsLoggedIn(false);
-      setUser(null);
-    } finally {
-      setLoading(false);
-    }
-  };
+        setIsLoggedIn(false);
+        setUser(null);
+      } finally {
+        setLoading(false);
+      }
+    };
 
   useEffect(() => {
     checkAuth();
@@ -52,7 +52,7 @@ export const AuthProvider = ({ children }) => {
       console.log('User data yok, auth kontrolü yapılıyor');
       await checkAuth();
     }
-  };
+    };
 
   const logout = async () => {
     try {
