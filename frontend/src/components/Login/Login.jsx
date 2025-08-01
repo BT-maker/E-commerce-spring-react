@@ -7,6 +7,16 @@ import toast from 'react-hot-toast';
 import PageTitle from '../PageTitle/PageTitle';
 import MetaTags from '../MetaTags/MetaTags';
 
+// SHA-256 hash fonksiyonu
+const hashPassword = async (password) => {
+  const encoder = new TextEncoder();
+  const data = encoder.encode(password);
+  const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+  return hashHex;
+};
+
 const Login = () => {
   const [form, setForm] = useState({
     email: "",
@@ -31,9 +41,14 @@ const Login = () => {
     setLoading(true);
     try {
       console.log('Login denemesi:', form.email);
+      
+      // Şifreyi hash'le
+      const hashedPassword = await hashPassword(form.password);
+      console.log('Şifre hash\'lendi:', hashedPassword.substring(0, 10) + '...');
+      
       const response = await api.post('/auth/signin', {
         email: form.email,
-        password: form.password
+        password: hashedPassword // Hash'lenmiş şifreyi gönder
       }, { withCredentials: true });
       
       console.log('Login başarılı:', response.data);

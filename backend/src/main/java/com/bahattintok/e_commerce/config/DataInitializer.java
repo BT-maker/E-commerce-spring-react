@@ -18,6 +18,7 @@ import com.bahattintok.e_commerce.repository.ProductRepository;
 import com.bahattintok.e_commerce.repository.RoleRepository;
 import com.bahattintok.e_commerce.repository.StoreRepository;
 import com.bahattintok.e_commerce.repository.UserRepository;
+import com.bahattintok.e_commerce.util.PasswordUtil;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -86,19 +87,29 @@ public class DataInitializer implements CommandLineRunner {
         ev.setName("Ev & Yaşam");
         categoryRepository.save(ev);
 
-        // Test kullanıcısı ekle
+        // Test kullanıcısı ekle (şifre: password)
         User testUser = new User();
         testUser.setUsername("testuser");
         testUser.setEmail("test@example.com");
-        testUser.setPassword("$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi"); // password
+        
+        // "password" şifresini SHA-256 ile hash'le, sonra BCrypt ile tekrar hash'le
+        String hashedPassword = PasswordUtil.hashPassword("password");
+        String encodedPassword = PasswordUtil.encodeHashedPassword(hashedPassword);
+        testUser.setPassword(encodedPassword);
+        
         testUser.setRole(userRole);
         userRepository.save(testUser);
 
-        // Test satıcısı ekle
+        // Test satıcısı ekle (şifre: password)
         User testSeller = new User();
         testSeller.setUsername("testseller");
         testSeller.setEmail("seller@example.com");
-        testSeller.setPassword("$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi"); // password
+        
+        // "password" şifresini SHA-256 ile hash'le, sonra BCrypt ile tekrar hash'le
+        String hashedSellerPassword = PasswordUtil.hashPassword("password");
+        String encodedSellerPassword = PasswordUtil.encodeHashedPassword(hashedSellerPassword);
+        testSeller.setPassword(encodedSellerPassword);
+        
         testSeller.setRole(sellerRole);
         userRepository.save(testSeller);
 
@@ -127,6 +138,7 @@ public class DataInitializer implements CommandLineRunner {
         log.info("Test verileri başarıyla eklendi!");
         log.info("Eklenen veriler: {} kategori, {} ürün, {} kullanıcı, {} mağaza", 
                 categoryRepository.count(), productRepository.count(), userRepository.count(), storeRepository.count());
+        log.info("Test kullanıcıları: testuser@example.com / password, testseller@example.com / password");
     }
 
     private Product createProduct(String name, String description, BigDecimal price, int stock, String categoryId, String storeId) {

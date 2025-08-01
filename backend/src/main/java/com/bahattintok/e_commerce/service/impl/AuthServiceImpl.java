@@ -1,7 +1,6 @@
 package com.bahattintok.e_commerce.service.impl;
 
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -19,6 +18,7 @@ import com.bahattintok.e_commerce.repository.UserRepository;
 import com.bahattintok.e_commerce.security.CustomUserDetailsService;
 import com.bahattintok.e_commerce.security.JwtUtil;
 import com.bahattintok.e_commerce.service.AuthService;
+import com.bahattintok.e_commerce.util.PasswordUtil;
 
 import lombok.RequiredArgsConstructor;
 
@@ -64,7 +64,12 @@ public class AuthServiceImpl implements AuthService {
         User user = new User();
         user.setUsername(request.getUsername());
         user.setEmail(request.getEmail());
-        user.setPassword(passwordEncoder.encode(request.getPassword()));
+        
+        // Frontend'den gelen hash'lenmiş şifreyi BCrypt ile tekrar hash'le
+        String hashedPassword = request.getPassword(); // Frontend'den gelen SHA-256 hash
+        String encodedPassword = PasswordUtil.encodeHashedPassword(hashedPassword);
+        user.setPassword(encodedPassword);
+        
         user.setRole(role);
         
         User savedUser = userRepository.save(user);
@@ -97,17 +102,43 @@ public class AuthServiceImpl implements AuthService {
      */
     @Override
     public AuthResponse signIn(SignInRequest request) {
-        authenticationManager.authenticate(
-            new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword())
-        );
+        // Frontend'den gelen hash'lenmiş şifreyi kullan
+        String hashedPassword = request.getPassword(); // Frontend'den gelen SHA-256 hash
         
+        // DEBUG: Hash'leri logla
+        System.out.println("=== DEBUG: SIGNIN ===");
+        System.out.println("Email: " + request.getEmail());
+        System.out.println("Frontend'den gelen hash: " + hashedPassword);
+        
+        // Kullanıcıyı email ile bul
         User user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new RuntimeException("User not found"));
         
+        System.out.println("Veritabanındaki hash: " + user.getPassword());
+        
+        // Hash'lenmiş şifreyi veritabanındaki hash ile karşılaştır
+        boolean passwordMatches = PasswordUtil.matchesHashedPassword(hashedPassword, user.getPassword());
+        System.out.println("Şifre eşleşiyor mu: " + passwordMatches);
+        
+        if (!passwordMatches) {
+            System.out.println("Şifre eşleşmedi! Hata fırlatılıyor...");
+            throw new RuntimeException("Invalid credentials");
+        }
+        
+        System.out.println("Şifre doğru! Token oluşturuluyor...");
+        
+        // UserDetails oluştur (rolleri doğru şekilde yükle)
         UserDetails userDetails = customUserDetailsService.loadUserByUsername(user.getEmail());
         String token = jwtUtil.generateToken(userDetails);
         
-        return new AuthResponse(token, user.getUsername(), user.getRole().getName());
+        // Role adını doğru şekilde al
+        String roleName = user.getRole().getName();
+        
+        System.out.println("Token oluşturuldu: " + token.substring(0, 20) + "...");
+        System.out.println("Role: " + roleName);
+        System.out.println("=== DEBUG END ===");
+        
+        return new AuthResponse(token, user.getUsername(), roleName);
     }
     
     /**
@@ -118,7 +149,7 @@ public class AuthServiceImpl implements AuthService {
      * 3. Rol Yönetimi: Kullanıcı tipine göre rol atama (USER/SELLER)
      * 4. Mağaza Oluşturma: Seller tipi kullanıcılar için otomatik mağaza oluşturma
      * 5. Benzersizlik Kontrolü: Kullanıcı adı ve email benzersizlik kontrolü
-     * 6. Şifre Güvenliği: BCrypt ile şifre hash'leme
+     * 6. Şifre Güvenliği: Frontend'den gelen SHA-256 hash'lerini BCrypt ile işleme
      * 7. Transaction Yönetimi: Veritabanı işlemlerinin atomik yapılması
      * 
      * Bu servis sayesinde kullanıcı kayıt ve giriş işlemleri güvenli şekilde yapılabilir!

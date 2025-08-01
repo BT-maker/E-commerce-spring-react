@@ -1,5 +1,6 @@
 package com.bahattintok.e_commerce.security;
 
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -30,10 +31,15 @@ public class CustomUserDetailsService implements UserDetailsService {
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + email));
+        
+        // Role'ü "ROLE_" prefix'i ile oluştur
+        String roleName = user.getRole().getName();
+        String authority = roleName.startsWith("ROLE_") ? roleName : "ROLE_" + roleName;
+        
         return org.springframework.security.core.userdetails.User
                 .withUsername(user.getEmail())
                 .password(user.getPassword())
-                .authorities(user.getRole().getName())
+                .authorities(new SimpleGrantedAuthority(authority))
                 .build();
     }
     

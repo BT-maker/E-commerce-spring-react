@@ -7,6 +7,16 @@ import toast from 'react-hot-toast';
 import PageTitle from '../PageTitle/PageTitle';
 import MetaTags from '../MetaTags/MetaTags';
 
+// SHA-256 hash fonksiyonu
+const hashPassword = async (password) => {
+  const encoder = new TextEncoder();
+  const data = encoder.encode(password);
+  const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+  return hashHex;
+};
+
 const Register = () => {
   const [form, setForm] = useState({
     firstName: "",
@@ -48,10 +58,14 @@ const Register = () => {
     try {
       const roleId = form.userType === "seller" ? 3 : 2; // 2: USER, 3: SELLER
       
+      // Şifreyi hash'le
+      const hashedPassword = await hashPassword(form.password);
+      console.log('Şifre hash\'lendi:', hashedPassword.substring(0, 10) + '...');
+      
       const requestBody = {
         username: form.firstName + " " + form.lastName,
         email: form.email,
-        password: form.password,
+        password: hashedPassword, // Hash'lenmiş şifreyi gönder
         roleId: roleId,
         userType: form.userType
       };
