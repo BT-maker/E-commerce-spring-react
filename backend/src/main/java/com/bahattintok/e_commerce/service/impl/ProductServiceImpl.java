@@ -5,15 +5,20 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.bahattintok.e_commerce.dto.ProductRequest;
 import com.bahattintok.e_commerce.model.Category;
 import com.bahattintok.e_commerce.model.Product;
+import com.bahattintok.e_commerce.model.Store;
+import com.bahattintok.e_commerce.model.User;
 import com.bahattintok.e_commerce.repository.CategoryRepository;
 import com.bahattintok.e_commerce.repository.ProductRepository;
 import com.bahattintok.e_commerce.repository.StoreRepository;
+import com.bahattintok.e_commerce.repository.UserRepository;
 import com.bahattintok.e_commerce.service.ElasticsearchService;
 import com.bahattintok.e_commerce.service.ProductService;
 
@@ -30,6 +35,7 @@ public class ProductServiceImpl implements ProductService {
     private final ProductRepository productRepository;
     private final CategoryRepository categoryRepository;
     private final StoreRepository storeRepository;
+    private final UserRepository userRepository;
     
     @Autowired(required = false)
     private ElasticsearchService elasticsearchService;
@@ -202,6 +208,43 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public Page<Product> getMostPopularProducts(Pageable pageable) {
         return productRepository.findMostPopularProducts(pageable);
+    }
+
+    /**
+     * Mevcut satıcının ürünlerini getirir.
+     */
+    @Override
+    public List<Product> getProductsByCurrentSeller() {
+        try {
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            if (authentication == null || !authentication.isAuthenticated()) {
+                throw new RuntimeException("User not authenticated");
+            }
+            
+            String username = authentication.getName();
+            System.out.println("Current user: " + username);
+            
+            User currentUser = userRepository.findByUsername(username)
+                    .orElseThrow(() -> new RuntimeException("User not found: " + username));
+            
+            System.out.println("Found user: " + currentUser.getUsername() + ", Role: " + currentUser.getRole());
+            
+            // Satıcının mağazasını bul
+            Store sellerStore = storeRepository.findBySeller(currentUser)
+                    .orElseThrow(() -> new RuntimeException("Store not found for seller: " + username));
+            
+            System.out.println("Found store: " + sellerStore.getName() + " for seller: " + username);
+            
+            // Mağazaya ait ürünleri getir (tümünü almak için Pageable.unpaged() kullan)
+            List<Product> products = productRepository.findByStore(sellerStore, Pageable.unpaged()).getContent();
+            System.out.println("Found " + products.size() + " products for store: " + sellerStore.getName());
+            
+            return products;
+        } catch (Exception e) {
+            System.err.println("Error in getProductsByCurrentSeller: " + e.getMessage());
+            e.printStackTrace();
+            throw e;
+        }
     }
     
     /**

@@ -3,15 +3,17 @@ package com.bahattintok.e_commerce.repository;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import com.bahattintok.e_commerce.model.Review;
+import com.bahattintok.e_commerce.model.Store;
 
 @Repository
-public interface ReviewRepository extends JpaRepository<Review, Long> {
+public interface ReviewRepository extends JpaRepository<Review, String> {
     
     /**
      * Ürüne ait tüm review'ları getirir (tarihe göre sıralı)
@@ -44,6 +46,16 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
      * Kullanıcının tüm review'larını getirir
      */
     List<Review> findByUserIdOrderByCreatedAtDesc(String userId);
+    
+    /**
+     * Mağazaya ait ürünlerin son review'larını getirir
+     */
+    @Query("SELECT r FROM Review r WHERE r.product.store = :store ORDER BY r.createdAt DESC")
+    List<Review> findTop3ByProductStoreOrderByCreatedAtDesc(Store store, Pageable pageable);
+    
+    default List<Review> findTop3ByProductStoreOrderByCreatedAtDesc(Store store) {
+        return findTop3ByProductStoreOrderByCreatedAtDesc(store, Pageable.ofSize(3));
+    }
     
     /**
      * Bu repository şu işlevleri sağlar:

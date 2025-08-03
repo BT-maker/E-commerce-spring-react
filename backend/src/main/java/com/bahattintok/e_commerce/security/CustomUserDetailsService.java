@@ -29,12 +29,21 @@ public class CustomUserDetailsService implements UserDetailsService {
      */
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+        System.out.println("=== CustomUserDetailsService.loadUserByUsername ===");
+        System.out.println("Email: " + email);
+        
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + email));
+        
+        System.out.println("User found: " + user.getUsername());
+        System.out.println("User role: " + user.getRole().getName());
         
         // Role'ü "ROLE_" prefix'i ile oluştur
         String roleName = user.getRole().getName();
         String authority = roleName.startsWith("ROLE_") ? roleName : "ROLE_" + roleName;
+        
+        System.out.println("Authority: " + authority);
+        System.out.println("=== CustomUserDetailsService tamamlandı ===");
         
         return org.springframework.security.core.userdetails.User
                 .withUsername(user.getEmail())

@@ -102,13 +102,13 @@ public class AuthServiceImpl implements AuthService {
      */
     @Override
     public AuthResponse signIn(SignInRequest request) {
-        // Frontend'den gelen hash'lenmiş şifreyi kullan
-        String hashedPassword = request.getPassword(); // Frontend'den gelen SHA-256 hash
+        // Frontend'den gelen plain password'ü kullan
+        String plainPassword = request.getPassword();
         
-        // DEBUG: Hash'leri logla
+        // DEBUG: Password'ü logla
         System.out.println("=== DEBUG: SIGNIN ===");
         System.out.println("Email: " + request.getEmail());
-        System.out.println("Frontend'den gelen hash: " + hashedPassword);
+        System.out.println("Frontend'den gelen password: " + plainPassword);
         
         // Kullanıcıyı email ile bul
         User user = userRepository.findByEmail(request.getEmail())
@@ -116,8 +116,8 @@ public class AuthServiceImpl implements AuthService {
         
         System.out.println("Veritabanındaki hash: " + user.getPassword());
         
-        // Hash'lenmiş şifreyi veritabanındaki hash ile karşılaştır
-        boolean passwordMatches = PasswordUtil.matchesHashedPassword(hashedPassword, user.getPassword());
+        // Plain password'ü veritabanındaki BCrypt hash ile karşılaştır
+        boolean passwordMatches = passwordEncoder.matches(plainPassword, user.getPassword());
         System.out.println("Şifre eşleşiyor mu: " + passwordMatches);
         
         if (!passwordMatches) {

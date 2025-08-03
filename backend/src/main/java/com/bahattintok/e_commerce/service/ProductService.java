@@ -71,6 +71,11 @@ public interface ProductService {
     Page<Product> getMostPopularProducts(Pageable pageable);
     
     /**
+     * Giriş yapmış satıcının ürünlerini getirir.
+     */
+    List<Product> getProductsByCurrentSeller();
+    
+    /**
      * Bu interface şu işlevleri sağlar:
      * 
      * 1. Ürün CRUD İşlemleri: Ürün oluşturma, okuma, güncelleme ve silme

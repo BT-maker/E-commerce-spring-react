@@ -11,7 +11,7 @@ import com.bahattintok.e_commerce.model.User;
  * User (kullanıcı) ile ilgili veritabanı işlemlerini yapan repository.
  */
 @Repository
-public interface UserRepository extends JpaRepository<User, Long> {
+public interface UserRepository extends JpaRepository<User, String> {
     /**
      * Kullanıcı adından kullanıcı bulur.
      */

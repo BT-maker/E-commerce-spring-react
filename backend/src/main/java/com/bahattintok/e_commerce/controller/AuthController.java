@@ -85,23 +85,67 @@ public class AuthController {
     }
 
     /**
+     * Test endpoint - authentication durumunu kontrol eder.
+     */
+    @GetMapping("/test")
+    public ResponseEntity<?> testAuth(Authentication authentication) {
+        System.out.println("=== /test endpoint çağrıldı ===");
+        System.out.println("Authentication: " + authentication);
+        
+        if (authentication != null) {
+            System.out.println("Authentication name: " + authentication.getName());
+            System.out.println("Authentication authorities: " + authentication.getAuthorities());
+            System.out.println("Authentication is authenticated: " + authentication.isAuthenticated());
+        }
+        
+        return ResponseEntity.ok(Map.of(
+            "message", "Test endpoint",
+            "authenticated", authentication != null && authentication.isAuthenticated(),
+            "username", authentication != null ? authentication.getName() : "null",
+            "authorities", authentication != null ? authentication.getAuthorities().toString() : "null"
+        ));
+    }
+
+    /**
      * Giriş yapan kullanıcının bilgilerini döner.
      */
     @GetMapping("/me")
     public ResponseEntity<?> getCurrentUser(Authentication authentication) {
-        if (authentication == null || !authentication.isAuthenticated()) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Not authenticated");
+        try {
+            System.out.println("=== /me endpoint çağrıldı ===");
+            System.out.println("Authentication: " + authentication);
+            
+            if (authentication == null || !authentication.isAuthenticated()) {
+                System.out.println("Authentication null veya authenticated değil");
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Not authenticated");
+            }
+            
+            String email = authentication.getName();
+            System.out.println("Email: " + email);
+            
+            User user = userRepository.findByEmail(email).orElse(null);
+            System.out.println("User: " + user);
+            
+            if (user == null) {
+                System.out.println("User bulunamadı");
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Not authenticated");
+            }
+            
+            System.out.println("User role: " + user.getRole().getName());
+            System.out.println("=== /me endpoint tamamlandı ===");
+            
+            return ResponseEntity.ok(Map.of(
+                "email", user.getEmail(),
+                "username", user.getUsername(),
+                "role", user.getRole().getName()
+            ));
+        } catch (Exception e) {
+            System.out.println("=== /me endpoint hatası ===");
+            System.out.println("Hata: " + e.getMessage());
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(Map.of("error", "An unexpected error occurred", "message", e.getMessage()));
         }
-        String email = authentication.getName();
-        User user = userRepository.findByEmail(email).orElse(null);
-        if (user == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Not authenticated");
-        }
-        return ResponseEntity.ok(Map.of(
-            "email", user.getEmail(),
-            "username", user.getUsername(),
-            "role", user.getRole().getName()
-        ));
     }
 
     /**

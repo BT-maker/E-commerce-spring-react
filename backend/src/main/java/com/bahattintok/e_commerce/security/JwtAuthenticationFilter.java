@@ -2,7 +2,6 @@ package com.bahattintok.e_commerce.security;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.springframework.lang.NonNull;
@@ -15,8 +14,6 @@ import org.springframework.security.web.authentication.WebAuthenticationDetailsS
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jwts;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
@@ -71,24 +68,37 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         if (jwt != null) {
             try {
+                System.out.println("=== JWT Filter - Token bulundu ===");
                 String username = jwtUtil.extractUsername(jwt);
+                System.out.println("Extracted username: " + username);
+                
                 if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+                    System.out.println("Username null değil ve authentication yok");
                     UserDetails userDetails = this.userDetailsService.loadUserByUsername(username);
+                    System.out.println("UserDetails loaded: " + userDetails.getUsername());
+                    
                     if (jwtUtil.validateToken(jwt, userDetails)) {
-                        // JWT içindeki rolleri oku
-                        Claims claims = Jwts.parser()
-                                .setSigningKey(jwtUtil.getSecret().getBytes())
-                                .build()
-                                .parseClaimsJws(jwt)
-                                .getBody();
-                        @SuppressWarnings("unchecked")
-                        List<Map<String, String>> roles = (List<Map<String, String>>) claims.get("roles");
-                        List<SimpleGrantedAuthority> authorities = roles != null ?
-                                roles.stream().map(role -> {
-                                    String auth = role.get("authority");
-                                    return new SimpleGrantedAuthority(auth.startsWith("ROLE_") ? auth : "ROLE_" + auth);
-                                }).collect(Collectors.toList()) :
-                                userDetails.getAuthorities().stream().map(a -> new SimpleGrantedAuthority(a.getAuthority())).collect(Collectors.toList());
+                        System.out.println("Token geçerli");
+                        
+                        // JWT içindeki rolü oku
+                        String role = jwtUtil.extractRole(jwt);
+                        System.out.println("Token'dan çıkarılan rol: " + role);
+                        
+                        List<SimpleGrantedAuthority> authorities;
+                        
+                        if (role != null) {
+                            // Token'dan gelen rolü kullan, ROLE_ prefix'i ekle
+                            String formattedRole = role.startsWith("ROLE_") ? role : "ROLE_" + role;
+                            authorities = List.of(new SimpleGrantedAuthority(formattedRole));
+                            System.out.println("Token'dan gelen rol kullanılıyor: " + formattedRole);
+                        } else {
+                            // UserDetails'dan rolleri al
+                            authorities = userDetails.getAuthorities().stream()
+                                    .map(a -> new SimpleGrantedAuthority(a.getAuthority()))
+                                    .collect(Collectors.toList());
+                            System.out.println("UserDetails'dan roller alınıyor: " + authorities);
+                        }
+                        
                         UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
                             userDetails,
                             null,
@@ -97,11 +107,23 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                         
                         authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                         SecurityContextHolder.getContext().setAuthentication(authToken);
+                        System.out.println("Authentication SecurityContext'e yerleştirildi");
+                    } else {
+                        System.out.println("Token geçersiz");
                     }
+                } else {
+                    System.out.println("Username null veya zaten authentication var");
                 }
+                System.out.println("=== JWT Filter tamamlandı ===");
             } catch (Exception e) {
                 // Hatalı token
+                System.out.println("JWT Filter hatası: " + e.getMessage());
+                e.printStackTrace();
+                // Hata durumunda authentication'ı temizle
+                SecurityContextHolder.clearContext();
             }
+        } else {
+            System.out.println("JWT token bulunamadı");
         }
         
         filterChain.doFilter(request, response);

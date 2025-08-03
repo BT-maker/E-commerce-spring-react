@@ -10,7 +10,7 @@ import org.springframework.stereotype.Repository;
 import com.bahattintok.e_commerce.model.OrderItem;
 
 @Repository
-public interface OrderItemRepository extends JpaRepository<OrderItem, Long> {
+public interface OrderItemRepository extends JpaRepository<OrderItem, String> {
 
     // Belirli bir mağazanın toplam satılan ürün adedi
     @Query("SELECT SUM(oi.quantity) FROM OrderItem oi WHERE oi.product.store.id = :storeId")

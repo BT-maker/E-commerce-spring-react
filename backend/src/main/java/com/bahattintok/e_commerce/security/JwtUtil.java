@@ -31,6 +31,9 @@ public class JwtUtil {
      * JWT imzalama anahtarını döner.
      */
     private Key getSigningKey() {
+        if (secret == null || secret.trim().isEmpty()) {
+            throw new IllegalStateException("JWT secret key is not configured properly");
+        }
         byte[] keyBytes = secret.getBytes();
         return Keys.hmacShaKeyFor(keyBytes);
     }
@@ -81,7 +84,16 @@ public class JwtUtil {
      */
     public String generateToken(UserDetails userDetails) {
         Map<String, Object> claims = new HashMap<>();
-        claims.put("roles", userDetails.getAuthorities());
+        
+        // İlk rolü al ve ekle (genelde tek rol var)
+        if (!userDetails.getAuthorities().isEmpty()) {
+            String role = userDetails.getAuthorities().iterator().next().getAuthority();
+            // ROLE_ prefix'i varsa kaldır, yoksa ekle
+            String cleanRole = role.startsWith("ROLE_") ? role.substring(5) : role;
+            claims.put("role", cleanRole);
+            System.out.println("JWT Token'a rol eklendi: " + cleanRole);
+        }
+        
         String email = userDetails.getUsername();
         return createToken(claims, email);
     }
@@ -106,6 +118,13 @@ public class JwtUtil {
     public Boolean validateToken(String token, UserDetails userDetails) {
         final String email = extractUsername(token);
         return (email.equals(userDetails.getUsername()) && !isTokenExpired(token));
+    }
+
+    /**
+     * Token'dan rol bilgisini çıkarır.
+     */
+    public String extractRole(String token) {
+        return extractClaim(token, claims -> claims.get("role", String.class));
     }
 
     /**

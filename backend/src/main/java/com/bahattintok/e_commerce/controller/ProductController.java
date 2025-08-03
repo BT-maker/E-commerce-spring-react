@@ -97,6 +97,17 @@ public class ProductController {
     }
     
     /**
+     * Satıcının kendi ürünlerini getirir.
+     */
+    @GetMapping("/my-products")
+    @PreAuthorize("hasRole('SELLER')")
+    @Operation(summary = "Get seller's own products", description = "Retrieve products belonging to the authenticated seller")
+    public ResponseEntity<List<Product>> getMyProducts() {
+        List<Product> products = productService.getProductsByCurrentSeller();
+        return ResponseEntity.ok(products);
+    }
+
+    /**
      * Elasticsearch'te arama yapar.
      */
     @GetMapping("/search/elastic")

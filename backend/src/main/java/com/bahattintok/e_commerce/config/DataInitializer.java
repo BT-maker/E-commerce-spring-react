@@ -9,16 +9,21 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
 import com.bahattintok.e_commerce.model.Category;
+import com.bahattintok.e_commerce.model.Order;
+import com.bahattintok.e_commerce.model.OrderItem;
 import com.bahattintok.e_commerce.model.Product;
+import com.bahattintok.e_commerce.model.Review;
 import com.bahattintok.e_commerce.model.RoleEntity;
 import com.bahattintok.e_commerce.model.Store;
 import com.bahattintok.e_commerce.model.User;
 import com.bahattintok.e_commerce.repository.CategoryRepository;
+import com.bahattintok.e_commerce.repository.OrderItemRepository;
+import com.bahattintok.e_commerce.repository.OrderRepository;
 import com.bahattintok.e_commerce.repository.ProductRepository;
+import com.bahattintok.e_commerce.repository.ReviewRepository;
 import com.bahattintok.e_commerce.repository.RoleRepository;
 import com.bahattintok.e_commerce.repository.StoreRepository;
 import com.bahattintok.e_commerce.repository.UserRepository;
-import com.bahattintok.e_commerce.util.PasswordUtil;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -43,6 +48,15 @@ public class DataInitializer implements CommandLineRunner {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private OrderRepository orderRepository;
+
+    @Autowired
+    private OrderItemRepository orderItemRepository;
+
+    @Autowired
+    private ReviewRepository reviewRepository;
 
     @Override
     public void run(String... args) throws Exception {
@@ -92,9 +106,8 @@ public class DataInitializer implements CommandLineRunner {
         testUser.setUsername("testuser");
         testUser.setEmail("test@example.com");
         
-        // "password" şifresini SHA-256 ile hash'le, sonra BCrypt ile tekrar hash'le
-        String hashedPassword = PasswordUtil.hashPassword("password");
-        String encodedPassword = PasswordUtil.encodeHashedPassword(hashedPassword);
+        // "password" şifresini direkt BCrypt ile hash'le
+        String encodedPassword = new org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder().encode("password");
         testUser.setPassword(encodedPassword);
         
         testUser.setRole(userRole);
@@ -105,9 +118,8 @@ public class DataInitializer implements CommandLineRunner {
         testSeller.setUsername("testseller");
         testSeller.setEmail("seller@example.com");
         
-        // "password" şifresini SHA-256 ile hash'le, sonra BCrypt ile tekrar hash'le
-        String hashedSellerPassword = PasswordUtil.hashPassword("password");
-        String encodedSellerPassword = PasswordUtil.encodeHashedPassword(hashedSellerPassword);
+        // "password" şifresini direkt BCrypt ile hash'le
+        String encodedSellerPassword = new org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder().encode("password");
         testSeller.setPassword(encodedSellerPassword);
         
         testSeller.setRole(sellerRole);
@@ -135,9 +147,79 @@ public class DataInitializer implements CommandLineRunner {
 
         productRepository.saveAll(products);
 
+        // Test siparişleri ekle
+        Order testOrder1 = new Order();
+        testOrder1.setUser(testUser);
+        testOrder1.setStatus("COMPLETED");
+        testOrder1.setTotalPrice(new BigDecimal("29999.99"));
+        testOrder1.setCreatedAt(java.time.LocalDateTime.now().minusDays(2));
+        orderRepository.save(testOrder1);
+
+        Order testOrder2 = new Order();
+        testOrder2.setUser(testUser);
+        testOrder2.setStatus("PENDING");
+        testOrder2.setTotalPrice(new BigDecimal("24999.99"));
+        testOrder2.setCreatedAt(java.time.LocalDateTime.now().minusDays(1));
+        orderRepository.save(testOrder2);
+
+        Order testOrder3 = new Order();
+        testOrder3.setUser(testUser);
+        testOrder3.setStatus("COMPLETED");
+        testOrder3.setTotalPrice(new BigDecimal("39999.99"));
+        testOrder3.setCreatedAt(java.time.LocalDateTime.now());
+        orderRepository.save(testOrder3);
+
+        // Test sipariş ürünleri ekle
+        OrderItem orderItem1 = new OrderItem();
+        orderItem1.setOrder(testOrder1);
+        orderItem1.setProduct(products.get(0)); // iPhone 15
+        orderItem1.setQuantity(1);
+        orderItem1.setPrice(new BigDecimal("29999.99"));
+        orderItemRepository.save(orderItem1);
+
+        OrderItem orderItem2 = new OrderItem();
+        orderItem2.setOrder(testOrder2);
+        orderItem2.setProduct(products.get(1)); // Samsung Galaxy S24
+        orderItem2.setQuantity(1);
+        orderItem2.setPrice(new BigDecimal("24999.99"));
+        orderItemRepository.save(orderItem2);
+
+        OrderItem orderItem3 = new OrderItem();
+        orderItem3.setOrder(testOrder3);
+        orderItem3.setProduct(products.get(2)); // MacBook Air M2
+        orderItem3.setQuantity(1);
+        orderItem3.setPrice(new BigDecimal("39999.99"));
+        orderItemRepository.save(orderItem3);
+
+        // Test yorumları ekle
+        Review review1 = new Review();
+        review1.setUser(testUser);
+        review1.setProduct(products.get(0)); // iPhone 15
+        review1.setRating(5);
+        review1.setComment("Harika bir telefon! Çok memnunum.");
+        review1.setCreatedAt(java.time.LocalDateTime.now().minusDays(1));
+        reviewRepository.save(review1);
+
+        Review review2 = new Review();
+        review2.setUser(testUser);
+        review2.setProduct(products.get(1)); // Samsung Galaxy S24
+        review2.setRating(4);
+        review2.setComment("Güzel telefon ama biraz pahalı.");
+        review2.setCreatedAt(java.time.LocalDateTime.now().minusDays(2));
+        reviewRepository.save(review2);
+
+        Review review3 = new Review();
+        review3.setUser(testUser);
+        review3.setProduct(products.get(2)); // MacBook Air M2
+        review3.setRating(5);
+        review3.setComment("Mükemmel performans! Tavsiye ederim.");
+        review3.setCreatedAt(java.time.LocalDateTime.now().minusDays(3));
+        reviewRepository.save(review3);
+
         log.info("Test verileri başarıyla eklendi!");
-        log.info("Eklenen veriler: {} kategori, {} ürün, {} kullanıcı, {} mağaza", 
-                categoryRepository.count(), productRepository.count(), userRepository.count(), storeRepository.count());
+        log.info("Eklenen veriler: {} kategori, {} ürün, {} kullanıcı, {} mağaza, {} sipariş, {} yorum", 
+                categoryRepository.count(), productRepository.count(), userRepository.count(), 
+                storeRepository.count(), orderRepository.count(), reviewRepository.count());
         log.info("Test kullanıcıları: testuser@example.com / password, testseller@example.com / password");
     }
 

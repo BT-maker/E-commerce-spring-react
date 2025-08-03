@@ -72,6 +72,12 @@ public interface ProductRepository extends JpaRepository<Product, String> {
     Page<Product> findByStore(Store store, Pageable pageable);
     
     /**
+     * Mağazaya göre düşük stoklu ürünleri getirir.
+     */
+    @Query("SELECT p FROM Product p WHERE p.store = :store AND p.stock < :stockThreshold")
+    List<Product> findByStoreAndStockLessThan(Store store, int stockThreshold);
+    
+    /**
      * En çok satılan ürünleri getirir (popülerlik sıralaması için).
      */
     @Query("SELECT p FROM Product p LEFT JOIN OrderItem oi ON p.id = oi.product.id GROUP BY p.id ORDER BY COALESCE(SUM(oi.quantity), 0) DESC")
