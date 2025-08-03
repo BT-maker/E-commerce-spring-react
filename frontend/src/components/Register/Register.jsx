@@ -1,7 +1,7 @@
 import React, { useState, useContext } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { AuthContext } from "../../context/AuthContext";
-import { User, Store } from "lucide-react";
+import { User } from "lucide-react";
 import "./Register.css";
 import toast from 'react-hot-toast';
 import PageTitle from '../PageTitle/PageTitle';
@@ -23,10 +23,7 @@ const Register = () => {
     lastName: "",
     email: "",
     password: "",
-    password2: "",
-    userType: "customer", // customer veya seller
-    storeName: "", // Sadece seller için
-    phone: "" // Sadece seller için
+    password2: ""
   });
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
@@ -49,15 +46,8 @@ const Register = () => {
       return;
     }
 
-    if (form.userType === "seller" && !form.storeName.trim()) {
-      setError("Mağaza adı gereklidir.");
-      return;
-    }
-
     setLoading(true);
     try {
-      const roleId = form.userType === "seller" ? 3 : 2; // 2: USER, 3: SELLER
-      
       // Şifreyi hash'le
       const hashedPassword = await hashPassword(form.password);
       console.log('Şifre hash\'lendi:', hashedPassword.substring(0, 10) + '...');
@@ -66,19 +56,14 @@ const Register = () => {
         username: form.firstName + " " + form.lastName,
         email: form.email,
         password: hashedPassword, // Hash'lenmiş şifreyi gönder
-        roleId: roleId,
-        userType: form.userType
+        roleId: 1, // USER role ID
+        userType: 'USER'
       };
-
-      // Seller için ek bilgiler
-      if (form.userType === "seller") {
-        requestBody.storeName = form.storeName;
-        requestBody.phone = form.phone;
-      }
 
       const res = await fetch("http://localhost:8080/api/auth/signup", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        credentials: 'include',
         body: JSON.stringify(requestBody)
       });
       
@@ -86,10 +71,7 @@ const Register = () => {
         const data = await res.json().catch(() => ({}));
         setError(data.message || "Kayıt başarısız. Lütfen tekrar deneyin.");
       } else {
-        const message = form.userType === "seller" 
-          ? "Satıcı kaydınız başarılı! Giriş sayfasına yönlendiriliyorsunuz..." 
-          : "Kayıt başarılı! Giriş sayfasına yönlendiriliyorsunuz...";
-        setSuccess(message);
+        setSuccess("Kayıt başarılı! Giriş sayfasına yönlendiriliyorsunuz...");
         setTimeout(() => navigate("/login"), 1500);
       }
     } catch (err) {
@@ -101,59 +83,18 @@ const Register = () => {
 
   return (
     <div className="register-container">
-      <PageTitle title="Kayıt Ol" />
+      <PageTitle title="Kayıt" />
       <MetaTags 
-        title="Kayıt Ol"
-        description="E-Ticaret platformuna ücretsiz üye olun. Müşteri veya satıcı olarak kayıt olabilirsiniz."
-        keywords="kayıt, üyelik, üye ol, e-ticaret üyelik, satıcı kaydı"
+        title="Kayıt"
+        description="E-Ticaret platformuna ücretsiz müşteri üyeliği oluşturun."
+        keywords="kayıt, üyelik, üye ol, e-ticaret üyelik, müşteri kaydı"
       />
       
       <form className="register-form" onSubmit={handleSubmit}>
-        <h2 className="register-title">Kayıt Ol</h2>
+        <h2 className="register-title">Kayıt</h2>
         {error && <div className="error-message">{error}</div>}
         {success && <div className="success-message">{success}</div>}
-        
-        {/* Kullanıcı Tipi Seçimi */}
-        <div className="user-type-selection">
-          <h3>Hesap Türünü Seçin</h3>
-          <div className="user-type-options">
-            <label className={`user-type-option ${form.userType === 'customer' ? 'selected' : ''}`}>
-              <input
-                type="radio"
-                name="userType"
-                value="customer"
-                checked={form.userType === "customer"}
-                onChange={handleChange}
-                disabled={loading}
-              />
-              <div className="option-content">
-                <User size={24} />
-                <div>
-                  <h4>Müşteri</h4>
-                  <p>Alışveriş yapmak için kayıt olun</p>
-                </div>
-              </div>
-            </label>
-            
-            <label className={`user-type-option ${form.userType === 'seller' ? 'selected' : ''}`}>
-              <input
-                type="radio"
-                name="userType"
-                value="seller"
-                checked={form.userType === "seller"}
-                onChange={handleChange}
-                disabled={loading}
-              />
-              <div className="option-content">
-                <Store size={24} />
-                <div>
-                  <h4>Satıcı</h4>
-                  <p>Ürün satmak için mağaza açın</p>
-                </div>
-              </div>
-            </label>
-          </div>
-        </div>
+
 
         {/* Temel Bilgiler */}
         <div className="form-section">
@@ -212,34 +153,8 @@ const Register = () => {
           />
         </div>
 
-        {/* Satıcı Bilgileri (Sadece seller seçildiğinde) */}
-        {form.userType === "seller" && (
-          <div className="form-section">
-            <h3>Mağaza Bilgileri</h3>
-            <input
-              type="text"
-              name="storeName"
-              placeholder="Mağaza Adı *"
-              value={form.storeName}
-              onChange={handleChange}
-              required
-              className="register-input"
-              disabled={loading}
-            />
-            <input
-              type="tel"
-              name="phone"
-              placeholder="Telefon Numarası"
-              value={form.phone}
-              onChange={handleChange}
-              className="register-input"
-              disabled={loading}
-            />
-          </div>
-        )}
-
         <button type="submit" className="register-btn" disabled={loading}>
-          {loading ? "Kayıt Olunuyor..." : `Kayıt Ol (${form.userType === 'seller' ? 'Satıcı' : 'Müşteri'})`}
+          {loading ? "Kayıt Olunuyor..." : "Kayıt Ol"}
         </button>
         
         <div className="login-link-row">

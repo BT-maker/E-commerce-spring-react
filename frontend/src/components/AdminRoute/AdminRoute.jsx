@@ -5,6 +5,8 @@ import { Navigate } from 'react-router-dom';
 const AdminRoute = ({ children }) => {
   const { isLoggedIn, user, loading } = useContext(AuthContext);
 
+  console.log('AdminRoute - isLoggedIn:', isLoggedIn, 'user:', user, 'role:', user?.role);
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background-primary">
@@ -20,8 +22,9 @@ const AdminRoute = ({ children }) => {
     return <Navigate to="/login" replace />;
   }
 
-  // Admin rolü kontrolü
-  if (!user || user.role?.name !== 'ADMIN') {
+  // Admin rolü kontrolü - role string olarak geliyor
+  if (!user || user.role !== 'ADMIN') {
+    console.log('AdminRoute - Yetkisiz erişim. User role:', user?.role);
     return (
       <div className="min-h-screen flex items-center justify-center bg-background-primary">
         <div className="text-center max-w-md mx-auto p-6">
@@ -41,6 +44,7 @@ const AdminRoute = ({ children }) => {
     );
   }
 
+  console.log('AdminRoute - Erişim izni verildi');
   return children;
 };
 

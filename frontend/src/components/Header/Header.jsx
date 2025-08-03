@@ -99,7 +99,7 @@ const Header = () => {
         {/* Logo */}
         <Link to="/" className="flex items-center space-x-3 group">
           <img src="/img/mascot2.png" alt="Logo" className="h-14 w-14 object-contain group-hover:opacity-80 transition" />
-          <span className="text-3xl font-bold italic tracking-wide group-hover:text-accent-400 transition-colors dark:text-white">Shopping</span>
+          <span className="text-3xl font-bold italic tracking-wide group-hover:text-orange-500 transition-colors dark:text-white">Shopping</span>
         </Link>
         {/* Arama kutusu */}
         <div className="flex-1 mx-8 flex justify-center items-start mt-9">
@@ -121,16 +121,16 @@ const Header = () => {
             </div>
           ) : !isLoggedIn ? (
             <>
-              <Link to="/login" className="text-sm font-semibold hover:text-accent-400 transition-colors no-underline dark:text-gray-300 dark:hover:text-accent-400">Giriş Yap</Link>
-              <Link to="/register" className="text-sm font-semibold hover:text-accent-400 transition-colors no-underline dark:text-gray-300 dark:hover:text-accent-400">Kayıt Ol</Link>
+                        <Link to="/login" className="text-sm font-semibold hover:text-orange-500 transition-colors no-underline dark:text-gray-300 dark:hover:text-orange-500">Giriş Yap</Link>
+          <Link to="/register" className="text-sm font-semibold hover:text-orange-500 transition-colors no-underline dark:text-gray-300 dark:hover:text-orange-500">Kayıt Ol</Link>
             </>
           ) : (
             <>
               {user && user.role === "ADMIN" && (
-                <Link to="/admin" className="text-sm font-semibold hover:text-accent-400 transition-colors no-underline dark:text-gray-300 dark:hover:text-accent-400">Panel</Link>
+                <Link to="/admin" className="text-sm font-semibold hover:text-orange-500 transition-colors no-underline dark:text-gray-300 dark:hover:text-orange-500">Panel</Link>
               )}
 
-              <Link to="/favorites" className="text-sm font-semibold relative flex items-center gap-1 dark:text-gray-300 dark:hover:text-accent-400">
+              <Link to="/favorites" className="text-sm font-semibold relative flex items-center gap-1 dark:text-gray-300 dark:hover:text-orange-500">
                 <Heart size={16} />
                 Favorilerim
                 {getFavoriteCount() > 0 && (
@@ -139,7 +139,7 @@ const Header = () => {
                   </span>
                 )}
               </Link>
-              <Link to="/cart" className="text-sm font-semibold relative dark:text-gray-300 dark:hover:text-accent-400">
+              <Link to="/cart" className="text-sm font-semibold relative dark:text-gray-300 dark:hover:text-orange-500">
                 Sepetim
                 {cartItems.length > 0 && (
                   <span className="absolute -top-2 -right-4 bg-secondary-400 text-white text-xs rounded-full px-2 py-0.5 font-bold">
@@ -151,7 +151,7 @@ const Header = () => {
               <div className="relative">
                 <button
                   onClick={() => setUserMenuOpen((v) => !v)}
-                  className="flex items-center text-sm font-semibold hover:text-accent-400 transition-colors no-underline focus:outline-none dark:text-gray-300 dark:hover:text-accent-400"
+                  className="flex items-center text-sm font-semibold hover:text-orange-500 transition-colors no-underline focus:outline-none dark:text-gray-300 dark:hover:text-orange-500"
                 >
                   <FaUserCircle className="text-2xl mr-1" />
                   {user?.username || "Hesabım"}
@@ -182,7 +182,7 @@ const Header = () => {
                           setUserMenuOpen(false);
                           navigate("/admin");
                         }}
-                        className="block w-full text-left px-4 py-2 text-accent-400 hover:bg-background-secondary dark:text-accent-400 dark:hover:bg-gray-700"
+                        className="block w-full text-left px-4 py-2 text-orange-500 hover:bg-background-secondary dark:text-orange-500 dark:hover:bg-gray-700"
                       >
                         Admin Paneli
                       </button>
@@ -190,7 +190,7 @@ const Header = () => {
                     {user && user.role === "SELLER" && (
                       <button
                         onClick={handleSellerPanel}
-                        className="block w-full text-left px-4 py-2 text-accent-400 hover:bg-background-secondary dark:text-accent-400 dark:hover:bg-gray-700"
+                        className="block w-full text-left px-4 py-2 text-orange-500 hover:bg-background-secondary dark:text-orange-500 dark:hover:bg-gray-700"
                       >
                         Mağaza Paneli
                       </button>
@@ -223,7 +223,7 @@ const Header = () => {
             {categories.map((cat) => (
               <li
                 key={cat.id}
-                className="hover:text-accent-400 cursor-pointer transition-colors dark:hover:text-accent-400"
+                className="hover:text-orange-500 cursor-pointer transition-colors dark:hover:text-orange-500"
                 onClick={() => handleCategoryClick(cat.id)}
               >
                 {cat.name}

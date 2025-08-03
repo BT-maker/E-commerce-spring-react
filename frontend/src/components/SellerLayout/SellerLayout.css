@@ -1,0 +1,70 @@
+.seller-layout {
+  min-height: 100vh;
+  background: #f8f9fa;
+}
+
+/* Seller Banner */
+.seller-banner {
+  background: linear-gradient(135deg, #ff6000 0%, #ff8c00 100%);
+  color: white;
+  padding: 2rem 0;
+  text-align: center;
+}
+
+.banner-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 2rem;
+}
+
+.banner-content h1 {
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+  color: white;
+}
+
+.banner-content p {
+  font-size: 1rem;
+  opacity: 0.9;
+  max-width: 400px;
+  margin: 0 auto;
+  color: white;
+}
+
+/* Seller Main Layout */
+.seller-main {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+/* Main Content */
+.seller-content {
+  background: white;
+  border-radius: 12px;
+  padding: 2rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  min-height: 600px;
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+  .seller-main {
+    padding: 1rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .banner-content {
+    padding: 0 1rem;
+  }
+  
+  .banner-content h1 {
+    font-size: 1.75rem;
+  }
+  
+  .seller-content {
+    padding: 1rem;
+  }
+} 

@@ -73,6 +73,25 @@
   color: var(--accent-hover);
   text-decoration: underline;
 }
+.seller-link-row {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.4rem;
+  margin-top: 0.5rem;
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+}
+.seller-link {
+  color: var(--primary-color);
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.2s;
+}
+.seller-link:hover {
+  color: var(--primary-hover);
+  text-decoration: underline;
+}
 @media (max-width: 600px) {
   .login-form { padding: 1.2rem 0.5rem; }
 } 

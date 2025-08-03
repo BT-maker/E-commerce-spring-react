@@ -5,6 +5,8 @@ import { Navigate } from 'react-router-dom';
 const SellerRoute = ({ children }) => {
   const { isLoggedIn, user, loading } = useContext(AuthContext);
 
+  console.log('SellerRoute - isLoggedIn:', isLoggedIn, 'user:', user, 'role:', user?.role);
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background-primary">
@@ -20,8 +22,9 @@ const SellerRoute = ({ children }) => {
     return <Navigate to="/login" replace />;
   }
 
-  // Seller rolü kontrolü
-  if (!user || !user.role?.isSeller) {
+  // Seller rolü kontrolü - role string olarak geliyor
+  if (!user || user.role !== 'SELLER') {
+    console.log('SellerRoute - Yetkisiz erişim. User role:', user?.role);
     return (
       <div className="min-h-screen flex items-center justify-center bg-background-primary">
         <div className="text-center max-w-md mx-auto p-6">
@@ -38,7 +41,7 @@ const SellerRoute = ({ children }) => {
               Geri Dön
             </button>
             <button 
-              onClick={() => window.location.href = '/register'}
+              onClick={() => window.location.href = '/seller/register'}
               className="bg-primary-500 hover:bg-primary-600 text-white px-4 py-2 rounded-lg transition-colors ml-2"
             >
               Satıcı Ol
@@ -49,6 +52,7 @@ const SellerRoute = ({ children }) => {
     );
   }
 
+  console.log('SellerRoute - Erişim izni verildi');
   return children;
 };
 

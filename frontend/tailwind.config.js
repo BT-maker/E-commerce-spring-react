@@ -8,76 +8,101 @@ export default {
   theme: {
     extend: {
       colors: {
+        // Ana Renkler
         primary: {
-          50: '#eff6ff',
-          100: '#dbeafe',
-          200: '#bfdbfe',
-          300: '#93c5fd',
-          400: '#60a5fa',
-          500: '#3B82F6', // Modern pastel mavi birincil
-          600: '#2563EB',
-          700: '#1d4ed8',
-          800: '#1e40af',
-          900: '#1e3a8a',
+          50: '#fff7ed',
+          100: '#ffedd5',
+          200: '#fed7aa',
+          300: '#fdba74',
+          400: '#fb923c',
+          500: '#f97316',
+          600: '#ea580c',
+          700: '#c2410c',
+          800: '#9a3412',
+          900: '#7c2d12',
         },
+        // Turuncu Renkler (Seller Panel için)
+        orange: {
+          50: '#fff7ed',
+          100: '#ffedd5',
+          200: '#fed7aa',
+          300: '#fdba74',
+          400: '#fb923c',
+          500: '#ff6000',
+          600: '#ff8c00',
+          700: '#ea580c',
+          800: '#c2410c',
+          900: '#9a3412',
+        },
+        // İkincil Renkler
         secondary: {
-          50: '#ecfdf5',
-          100: '#d1fae5',
-          200: '#a7f3d0',
-          300: '#6ee7b7',
-          400: '#6EE7B7', // Soft zümrüt yeşili ikincil
-          500: '#34D399',
-          600: '#16a34a',
-          700: '#15803d',
-          800: '#166534',
-          900: '#14532d',
+          50: '#f8fafc',
+          100: '#f1f5f9',
+          200: '#e2e8f0',
+          300: '#cbd5e1',
+          400: '#94a3b8',
+          500: '#64748b',
+          600: '#475569',
+          700: '#334155',
+          800: '#1e293b',
+          900: '#0f172a',
         },
+        // Accent Renkler (Yeşil)
         accent: {
           50: '#ecfdf5',
           100: '#d1fae5',
           200: '#a7f3d0',
           300: '#6ee7b7',
-          400: '#10B981', // Canlı ama soft yeşil vurgu
-          500: '#059669', // Vurgu için daha koyu yeşil
-          600: '#047857',
-          700: '#065f46',
-          800: '#064e3b',
+          400: '#34d399',
+          500: '#10b981',
+          600: '#059669',
+          700: '#047857',
+          800: '#065f46',
           900: '#064e3b',
         },
+        // Hata Renkleri
         error: {
           50: '#fef2f2',
           100: '#fee2e2',
           200: '#fecaca',
           300: '#fca5a5',
-          400: '#EF4444', // Canlı ama yumuşak kırmızı hata
-          500: '#DC2626', // Hata için daha koyu kırmızı
+          400: '#f87171',
+          500: '#ef4444',
           600: '#dc2626',
           700: '#b91c1c',
           800: '#991b1b',
           900: '#7f1d1d',
         },
+        // Uyarı Renkleri
         warning: {
           50: '#fffbeb',
           100: '#fef3c7',
           200: '#fde68a',
           300: '#fcd34d',
-          400: '#F59E0B', // Yumuşak sarı uyarı
-          500: '#D97706', // Uyarı için daha koyu sarı
-          600: '#b45309',
-          700: '#92400e',
-          800: '#78350f',
-          900: '#451a03',
+          400: '#fbbf24',
+          500: '#f59e0b',
+          600: '#d97706',
+          700: '#b45309',
+          800: '#92400e',
+          900: '#78350f',
         },
+        // Arka Plan Renkleri
         background: {
-          primary: '#F7F9FC', // Daha ferah soft beyaz arka plan
-          secondary: '#EDEFF2', // Hafif grimsi beyaz, alternatif
-          tertiary: '#F1F5F9', // Daha açık bir gri ton
+          primary: '#f5f7fa',
+          secondary: '#ffffff',
+          tertiary: '#f8f9fa',
         },
+        // Text Renkleri
         text: {
-          primary: '#2D3748', // Daha yumuşak koyu gri metin
-          secondary: '#4B5563', // Hafif mavimsi gri, okunabilir
-          tertiary: '#6B7280', // Daha açık gri, ikincil metin
-        }
+          primary: '#1f2937',
+          secondary: '#6b7280',
+          tertiary: '#9ca3af',
+        },
+        // Border Renkleri
+        border: {
+          color: '#e5e7eb',
+          focus: '#ff6000',
+        },
       },
       fontFamily: {
         sans: ['Inter', 'system-ui', 'sans-serif'],

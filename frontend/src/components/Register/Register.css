@@ -36,75 +36,35 @@
   border-radius: 2px;
 }
 
-/* Kullanıcı Tipi Seçimi */
-.user-type-selection {
+/* Hesap Türü Bilgisi */
+.user-type-info {
   margin-bottom: 2rem;
 }
 
-.user-type-selection h3 {
-  font-size: 1.3rem;
-  font-weight: 600;
-  color: var(--text-primary);
-  margin-bottom: 1rem;
-  text-align: center;
-}
-
-.user-type-options {
-  display: flex;
-  gap: 1rem;
-  margin-bottom: 2rem;
-}
-
-.user-type-option {
-  flex: 1;
-  position: relative;
-  cursor: pointer;
-  border: 2px solid var(--border-color);
-  border-radius: 12px;
-  padding: 1.5rem;
-  transition: all 0.3s ease;
-  background: var(--bg-primary);
-}
-
-.user-type-option:hover {
-  border-color: var(--accent-color);
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(244, 114, 182, 0.1);
-}
-
-.user-type-option.selected {
-  border-color: var(--accent-color);
-  background: var(--bg-primary);
-  box-shadow: 0 4px 12px rgba(244, 114, 182, 0.2);
-}
-
-.user-type-option input[type="radio"] {
-  position: absolute;
-  opacity: 0;
-  width: 0;
-  height: 0;
-}
-
-.option-content {
+.user-type-display {
   display: flex;
   align-items: center;
   gap: 1rem;
-  text-align: center;
+  padding: 1.5rem;
+  border: 2px solid var(--accent-color);
+  border-radius: 12px;
+  background: var(--bg-primary);
+  box-shadow: 0 4px 12px rgba(244, 114, 182, 0.1);
 }
 
-.option-content svg {
+.user-type-display svg {
   color: var(--accent-color);
   flex-shrink: 0;
 }
 
-.option-content h4 {
+.user-type-display h4 {
   font-size: 1.1rem;
   font-weight: 600;
   color: var(--text-primary);
   margin: 0 0 0.25rem 0;
 }
 
-.option-content p {
+.user-type-display p {
   font-size: 0.9rem;
   color: var(--text-secondary);
   margin: 0;
@@ -196,6 +156,23 @@
   text-decoration: underline;
 }
 
+.seller-link-row {
+  text-align: center;
+  margin-top: 1rem;
+  color: var(--text-secondary);
+}
+
+.seller-link {
+  color: var(--primary-color);
+  text-decoration: none;
+  font-weight: 600;
+  margin-left: 0.5rem;
+}
+
+.seller-link:hover {
+  text-decoration: underline;
+}
+
 /* Mesaj Stilleri */
 .error-message {
   background: var(--error-color);
@@ -233,30 +210,20 @@
   color: #f1f5f9;
 }
 
-.dark .user-type-selection h3,
 .dark .form-section h3 {
   color: #f1f5f9;
 }
 
-.dark .user-type-option {
+.dark .user-type-display {
   background: #334155;
-  border-color: #475569;
-}
-
-.dark .user-type-option:hover {
   border-color: #10b981;
 }
 
-.dark .user-type-option.selected {
-  background: #064e3b;
-  border-color: #10b981;
-}
-
-.dark .option-content h4 {
+.dark .user-type-display h4 {
   color: #f1f5f9;
 }
 
-.dark .option-content p {
+.dark .user-type-display p {
   color: #cbd5e1;
 }
 
@@ -274,7 +241,8 @@
   background: #475569;
 }
 
-.dark .login-link-row {
+.dark .login-link-row,
+.dark .seller-link-row {
   color: #cbd5e1;
 }
 
@@ -304,27 +272,22 @@
     font-size: 2rem;
   }
   
-  .user-type-options {
-    flex-direction: column;
-    gap: 0.75rem;
-  }
-  
   .register-row {
     grid-template-columns: 1fr;
     gap: 0.75rem;
   }
   
-  .option-content {
+  .user-type-display {
     flex-direction: column;
     text-align: center;
     gap: 0.5rem;
   }
   
-  .option-content h4 {
+  .user-type-display h4 {
     font-size: 1rem;
   }
   
-  .option-content p {
+  .user-type-display p {
     font-size: 0.85rem;
   }
 }
@@ -334,12 +297,11 @@
     font-size: 1.8rem;
   }
   
-  .user-type-selection h3,
   .form-section h3 {
     font-size: 1.1rem;
   }
   
-  .user-type-option {
+  .user-type-display {
     padding: 1rem;
   }
 } 

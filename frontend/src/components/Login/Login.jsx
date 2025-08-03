@@ -40,7 +40,7 @@ const Login = () => {
     setSuccess("");
     setLoading(true);
     try {
-      console.log('Login denemesi:', form.email);
+      console.log('Customer login denemesi:', form.email);
       
       // Şifreyi hash'le
       const hashedPassword = await hashPassword(form.password);
@@ -52,9 +52,15 @@ const Login = () => {
       }, { withCredentials: true });
       
       console.log('Login başarılı:', response.data);
-      setSuccess("Giriş başarılı! Yönlendiriliyorsunuz...");
-      await login(response.data); // User data'yı direkt geç
-      setTimeout(() => navigate("/"), 1200);
+      
+      // Sadece USER rolündeki kullanıcılar giriş yapabilir
+      if (response.data.role === 'USER') {
+        setSuccess("Giriş başarılı! Yönlendiriliyorsunuz...");
+        await login(response.data); // User data'yı direkt geç
+        setTimeout(() => navigate("/"), 1200);
+      } else {
+        setError("Bu hesap müşteri hesabı değil. Lütfen doğru giriş sayfasını kullanın.");
+      }
     } catch (error) {
       console.error('Login hatası:', error);
       const errorMessage = error.response?.data?.message || "Giriş başarısız. Bilgilerinizi kontrol edin.";
@@ -65,17 +71,17 @@ const Login = () => {
   };
 
   return (
-          <div className="login-container">
-        <PageTitle title="Giriş Yap" />
-        <MetaTags 
-          title="Giriş Yap"
-          description="E-Ticaret platformuna güvenli giriş yapın. Hesabınıza erişin ve alışverişe başlayın."
-          keywords="giriş, login, hesap, e-ticaret giriş"
-        />
-        <form className="login-form" onSubmit={handleSubmit}>
-          <h2 className="login-title">Giriş Yap</h2>
-          {error && <div style={{ color: "#d32f2f", textAlign: "center", fontSize: "1rem", marginBottom: 8 }}>{error}</div>}
-          {success && <div style={{ color: "#388e3c", textAlign: "center", fontSize: "1rem", marginBottom: 8 }}>{success}</div>}
+    <div className="login-container">
+      <PageTitle title="Giriş" />
+      <MetaTags 
+        title="Giriş"
+        description="E-Ticaret platformuna güvenli  giriş yapın. Hesabınıza erişin ve alışverişe başlayın."
+        keywords="giriş, login, hesap, e-ticaret giriş,  giriş"
+      />
+      <form className="login-form" onSubmit={handleSubmit}>
+        <h2 className="login-title">Giriş</h2>
+        {error && <div style={{ color: "#d32f2f", textAlign: "center", fontSize: "1rem", marginBottom: 8 }}>{error}</div>}
+        {success && <div style={{ color: "#388e3c", textAlign: "center", fontSize: "1rem", marginBottom: 8 }}>{success}</div>}
         <input
           type="email"
           name="email"
@@ -101,24 +107,10 @@ const Login = () => {
           <span>Hesabınız yok mu?</span>
           <Link to="/register" className="login-link">Kayıt olun</Link>
         </div>
+        
       </form>
     </div>
   );
 };
 
-export default Login;
-
-/**
- * Bu component şu işlevleri sağlar:
- * 
- * 1. Kullanıcı Girişi: Kullanıcı authentication sistemi
- * 2. Form Validation: Giriş formu doğrulama
- * 3. Error Handling: Hata durumlarının yönetimi
- * 4. Loading States: Giriş işlemi sırasında loading göstergesi
- * 5. Success Messages: Başarılı giriş mesajları
- * 6. SEO Optimizasyonu: Sayfa başlığı ve meta etiketleri
- * 7. Responsive Design: Mobil ve desktop uyumlu tasarım
- * 8. Redirect: Başarılı giriş sonrası yönlendirme
- * 
- * Bu component sayesinde kullanıcılar güvenli şekilde sisteme giriş yapabilir!
- */ 
+export default Login; 
