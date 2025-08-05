@@ -70,10 +70,13 @@ public class GlobalExceptionHandler {
         System.err.println("=== GENERIC EXCEPTION YAKALANDI ===");
         System.err.println("Hata mesajı: " + ex.getMessage());
         System.err.println("Hata türü: " + ex.getClass().getSimpleName());
+        System.err.println("Hata nedeni: " + (ex.getCause() != null ? ex.getCause().getMessage() : "Nedeni yok"));
         ex.printStackTrace();
         
         Map<String, String> error = new HashMap<>();
-        error.put("error", "An unexpected error occurred");
+        error.put("error", "An unexpected error occurred: " + ex.getMessage());
+        error.put("details", ex.getClass().getSimpleName());
+        error.put("cause", ex.getCause() != null ? ex.getCause().getMessage() : "No cause");
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
     }
     

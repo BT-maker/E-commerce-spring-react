@@ -7,7 +7,7 @@ import { FaUserCircle } from "react-icons/fa";
 import { Heart } from "lucide-react";
 import Skeleton from 'react-loading-skeleton';
 import 'react-loading-skeleton/dist/skeleton.css';
-import ThemeToggle from '../ThemeToggle/ThemeToggle';
+
 import NotificationBell from '../NotificationBell/NotificationBell';
 import SearchSuggestions from '../SearchSuggestions/SearchSuggestions';
 
@@ -93,16 +93,16 @@ const Header = () => {
   };
 
   return (
-    <header className="w-full border-b border-gray-200 bg-background-primary dark:bg-gray-800 dark:border-gray-700">
+    <header className="w-full border-b border-gray-200 bg-background-primary">
       {/* Üst kısım */}
-      <div className="flex items-center justify-between px-12 sm:px-16 lg:px-24 py-4 sm:py-6 max-w-8xl mx-auto">
+      <div className="flex items-center justify-between px-12 sm:px-16 lg:px-24 py-2 sm:py-3 max-w-8xl mx-auto">
         {/* Logo */}
         <Link to="/" className="flex items-center space-x-3 group">
-          <img src="/img/mascot2.png" alt="Logo" className="h-14 w-14 object-contain group-hover:opacity-80 transition" />
-          <span className="text-3xl font-bold italic tracking-wide group-hover:text-orange-500 transition-colors dark:text-white">Shopping</span>
+          <img src="/img/mascot2.png" alt="Logo" className="h-10 w-10 object-contain group-hover:opacity-80 transition" />
+          <span className="text-2xl font-bold italic tracking-wide group-hover:text-accent-500 transition-colors text-accent-500">Shopping</span>
         </Link>
         {/* Arama kutusu */}
-        <div className="flex-1 mx-8 flex justify-center items-start mt-9">
+        <div className="flex-1 mx-8 flex justify-center items-start mt-6">
           <SearchSuggestions
             onSearch={handleSearch}
             placeholder="Ürün, kategori veya mağaza ara..."
@@ -111,8 +111,6 @@ const Header = () => {
         </div>
         {/* Giriş/Kayıt/Sepet */}
         <div className="flex items-center space-x-6">
-          {/* Tema Toggle */}
-          <ThemeToggle />
           {loading ? (
             <div className="flex items-center space-x-6">
               <Skeleton height={20} width={60} />
@@ -121,16 +119,16 @@ const Header = () => {
             </div>
           ) : !isLoggedIn ? (
             <>
-                        <Link to="/login" className="text-sm font-semibold hover:text-orange-500 transition-colors no-underline dark:text-gray-300 dark:hover:text-orange-500">Giriş Yap</Link>
-          <Link to="/register" className="text-sm font-semibold hover:text-orange-500 transition-colors no-underline dark:text-gray-300 dark:hover:text-orange-500">Kayıt Ol</Link>
+                        <Link to="/login" className="text-sm font-semibold hover:text-accent-500 transition-colors no-underline text-accent-500">Giriş Yap</Link>
+          <Link to="/register" className="text-sm font-semibold hover:text-accent-500 transition-colors no-underline text-accent-500">Kayıt Ol</Link>
             </>
           ) : (
             <>
               {user && user.role === "ADMIN" && (
-                <Link to="/admin" className="text-sm font-semibold hover:text-orange-500 transition-colors no-underline dark:text-gray-300 dark:hover:text-orange-500">Panel</Link>
+                <Link to="/admin" className="text-sm font-semibold hover:text-accent-500 transition-colors no-underline text-accent-500">Panel</Link>
               )}
 
-              <Link to="/favorites" className="text-sm font-semibold relative flex items-center gap-1 dark:text-gray-300 dark:hover:text-orange-500">
+              <Link to="/favorites" className="text-sm font-semibold relative flex items-center gap-1 text-accent-500 hover:text-accent-500">
                 <Heart size={16} />
                 Favorilerim
                 {getFavoriteCount() > 0 && (
@@ -139,7 +137,7 @@ const Header = () => {
                   </span>
                 )}
               </Link>
-              <Link to="/cart" className="text-sm font-semibold relative dark:text-gray-300 dark:hover:text-orange-500">
+              <Link to="/cart" className="text-sm font-semibold relative text-accent-500 hover:text-accent-500">
                 Sepetim
                 {cartItems.length > 0 && (
                   <span className="absolute -top-2 -right-4 bg-secondary-400 text-white text-xs rounded-full px-2 py-0.5 font-bold">
@@ -151,28 +149,28 @@ const Header = () => {
               <div className="relative">
                 <button
                   onClick={() => setUserMenuOpen((v) => !v)}
-                  className="flex items-center text-sm font-semibold hover:text-orange-500 transition-colors no-underline focus:outline-none dark:text-gray-300 dark:hover:text-orange-500"
+                  className="flex items-center text-sm font-semibold hover:text-accent-500 transition-colors no-underline focus:outline-none text-accent-500"
                 >
                   <FaUserCircle className="text-2xl mr-1" />
                   {user?.username || "Hesabım"}
                 </button>
                 {userMenuOpen && (
-                  <div className="absolute right-0 mt-2 w-36 bg-background-primary border border-gray-200 rounded shadow-lg z-50 dark:bg-gray-800 dark:border-gray-700">
+                  <div className="absolute right-0 mt-2 w-36 bg-background-primary border border-gray-200 rounded shadow-lg z-50 dark:bg-dark-background-secondary dark:border-dark-border-color">
                     <button
                       onClick={handleProfile}
-                      className="block w-full text-left px-4 py-2 text-gray-700 hover:bg-background-secondary dark:text-gray-300 dark:hover:bg-gray-700"
+                      className="block w-full text-left px-4 py-2 text-text-primary hover:bg-background-secondary dark:text-dark-text-primary dark:hover:bg-dark-background-tertiary"
                     >
                       Profil
                     </button>
                     <button
                       onClick={handleFavorites}
-                      className="block w-full text-left px-4 py-2 text-gray-700 hover:bg-background-secondary dark:text-gray-300 dark:hover:bg-gray-700"
+                      className="block w-full text-left px-4 py-2 text-text-primary hover:bg-background-secondary dark:text-dark-text-primary dark:hover:bg-dark-background-tertiary"
                     >
                       Favorilerim
                     </button>
                     <button
                       onClick={handleOrders}
-                      className="block w-full text-left px-4 py-2 text-gray-700 hover:bg-background-secondary dark:text-gray-300 dark:hover:bg-gray-700"
+                      className="block w-full text-left px-4 py-2 text-text-primary hover:bg-background-secondary dark:text-dark-text-primary dark:hover:bg-dark-background-tertiary"
                     >
                       Siparişlerim
                     </button>
@@ -182,7 +180,7 @@ const Header = () => {
                           setUserMenuOpen(false);
                           navigate("/admin");
                         }}
-                        className="block w-full text-left px-4 py-2 text-orange-500 hover:bg-background-secondary dark:text-orange-500 dark:hover:bg-gray-700"
+                        className="block w-full text-left px-4 py-2 text-accent-500 hover:bg-background-secondary dark:text-accent-500 dark:hover:bg-dark-background-tertiary"
                       >
                         Admin Paneli
                       </button>
@@ -190,14 +188,14 @@ const Header = () => {
                     {user && user.role === "SELLER" && (
                       <button
                         onClick={handleSellerPanel}
-                        className="block w-full text-left px-4 py-2 text-orange-500 hover:bg-background-secondary dark:text-orange-500 dark:hover:bg-gray-700"
+                        className="block w-full text-left px-4 py-2 text-accent-500 hover:bg-background-secondary dark:text-accent-500 dark:hover:bg-dark-background-tertiary"
                       >
                         Mağaza Paneli
                       </button>
                     )}
                     <button
                       onClick={handleLogout}
-                      className="block w-full text-left px-4 py-2 text-error-400 hover:bg-background-secondary dark:text-error-400 dark:hover:bg-gray-700"
+                      className="block w-full text-left px-4 py-2 text-error-500 hover:bg-background-secondary dark:text-error-400 dark:hover:bg-dark-background-tertiary"
                     >
                       Çıkış Yap
                     </button>
@@ -209,7 +207,7 @@ const Header = () => {
         </div>
       </div>
       {/* Kategori menüsü */}
-      <nav className="bg-background-primary border-t border-b border-gray-100 dark:bg-gray-800 dark:border-gray-700">
+      <nav className="bg-background-primary border-t-2 border-accent-500 border-b border-gray-100">
         {catLoading ? (
           <div className="flex justify-center gap-4 py-2">
             {Array.from({ length: 6 }).map((_, i) => (
@@ -219,11 +217,11 @@ const Header = () => {
         ) : catError ? (
           <div className="text-center py-2 text-error-400 text-sm">{catError}</div>
         ) : (
-          <ul className="flex flex-wrap justify-center gap-4 py-1 text-sm font-medium text-gray-700 dark:text-gray-300">
+          <ul className="flex flex-wrap justify-center gap-4 py-1 text-sm font-medium text-accent-500">
             {categories.map((cat) => (
               <li
                 key={cat.id}
-                className="hover:text-orange-500 cursor-pointer transition-colors dark:hover:text-orange-500"
+                className="hover:text-accent-500 cursor-pointer transition-colors"
                 onClick={() => handleCategoryClick(cat.id)}
               >
                 {cat.name}

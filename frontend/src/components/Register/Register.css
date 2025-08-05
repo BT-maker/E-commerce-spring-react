@@ -32,7 +32,7 @@
   transform: translateX(-50%);
   width: 80px;
   height: 4px;
-  background: linear-gradient(90deg, var(--accent-color), var(--accent-hover));
+  background: linear-gradient(90deg, var(--accent-color), #ff8c00);
   border-radius: 2px;
 }
 
@@ -49,7 +49,7 @@
   border: 2px solid var(--accent-color);
   border-radius: 12px;
   background: var(--bg-primary);
-  box-shadow: 0 4px 12px rgba(244, 114, 182, 0.1);
+  box-shadow: 0 4px 12px rgba(255, 96, 0, 0.1);
 }
 
 .user-type-display svg {
@@ -107,7 +107,7 @@
 .register-input:focus {
   outline: none;
   border-color: var(--accent-color);
-  box-shadow: 0 0 0 3px rgba(244, 114, 182, 0.1);
+  box-shadow: 0 0 0 3px rgba(255, 96, 0, 0.1);
 }
 
 .register-input:disabled {
@@ -117,7 +117,7 @@
 
 .register-btn {
   width: 100%;
-  background: linear-gradient(135deg, var(--accent-color), var(--accent-hover));
+  background: linear-gradient(135deg, var(--accent-color), #ff8c00);
   color: white;
   border: none;
   padding: 1rem 2rem;
@@ -131,7 +131,7 @@
 
 .register-btn:hover:not(:disabled) {
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(244, 114, 182, 0.3);
+  box-shadow: 0 4px 12px rgba(255, 96, 0, 0.3);
 }
 
 .register-btn:disabled {
@@ -163,7 +163,7 @@
 }
 
 .seller-link {
-  color: var(--primary-color);
+  color: var(--accent-color);
   text-decoration: none;
   font-weight: 600;
   margin-left: 0.5rem;
@@ -216,7 +216,7 @@
 
 .dark .user-type-display {
   background: #334155;
-  border-color: #10b981;
+  border-color: var(--accent-color);
 }
 
 .dark .user-type-display h4 {
@@ -234,7 +234,7 @@
 }
 
 .dark .register-input:focus {
-  border-color: #10b981;
+  border-color: var(--accent-color);
 }
 
 .dark .register-input:disabled {

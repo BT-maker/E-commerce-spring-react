@@ -101,6 +101,7 @@ public class DataInitializer implements CommandLineRunner {
         ev.setName("Ev & Yaşam");
         categoryRepository.save(ev);
 
+
         // Test kullanıcısı ekle (şifre: password)
         User testUser = new User();
         testUser.setUsername("testuser");

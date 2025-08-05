@@ -1,7 +1,7 @@
 import React, { useState, useContext } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { AuthContext } from '../../context/AuthContext';
-import { FaStore, FaSignOutAlt, FaBell, FaCog, FaUser, FaHome, FaBox, FaChartBar, FaGift } from 'react-icons/fa';
+import { FaStore, FaSignOutAlt, FaBell, FaCog, FaUser, FaHome, FaBox, FaChartBar, FaGift, FaExclamationTriangle, FaClipboardList } from 'react-icons/fa';
 import './SellerHeader.css';
 
 const SellerHeader = () => {
@@ -22,6 +22,8 @@ const SellerHeader = () => {
   const menuItems = [
     { path: '/seller-panel', icon: <FaHome />, label: 'Ana Sayfa' },
     { path: '/seller-panel/products', icon: <FaBox />, label: 'Ürünlerim' },
+    { path: '/seller-panel/orders', icon: <FaClipboardList />, label: 'Siparişler' },
+    { path: '/seller-panel/stock', icon: <FaExclamationTriangle />, label: 'Stok' },
     { path: '/seller-panel/statistics', icon: <FaChartBar />, label: 'İstatistikler' },
     { path: '/seller-panel/campaigns', icon: <FaGift />, label: 'Kampanyalar' },
     { path: '/seller-panel/settings', icon: <FaCog />, label: 'Ayarlar' }

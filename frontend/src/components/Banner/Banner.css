@@ -69,20 +69,21 @@
 }
 
 .banner-btn {
-  background: #fff;
-  color: #020202;
+  background: var(--accent-color);
+  color: #fff;
   font-size: 1.15rem;
   font-weight: 600;
   padding: 0.75rem 2.5rem;
   border-radius: 0.75rem;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.10);
-  transition: background 0.2s;
+  box-shadow: 0 2px 8px rgba(255, 96, 0, 0.3);
+  transition: all 0.2s;
   border: none;
   cursor: pointer;
 }
 .banner-btn:hover {
-  background: #020202;
-  color: #fff;
+  background: #ff8c00;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(255, 96, 0, 0.4);
 }
 
 .banner-arrow {
@@ -126,7 +127,7 @@
   cursor: pointer;
 }
 .banner-dot.active {
-  background: #10b981;
+  background: var(--accent-color);
   transform: scale(1.2);
 }
 

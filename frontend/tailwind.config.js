@@ -4,21 +4,21 @@ export default {
     "./index.html",
     "./src/**/*.{js,ts,jsx,tsx}",
   ],
-  darkMode: 'class',
+
   theme: {
     extend: {
       colors: {
-        // Ana Renkler
+        // Ana Turuncu Renkler (Her iki tema için)
         primary: {
           50: '#fff7ed',
           100: '#ffedd5',
           200: '#fed7aa',
           300: '#fdba74',
           400: '#fb923c',
-          500: '#f97316',
-          600: '#ea580c',
-          700: '#c2410c',
-          800: '#9a3412',
+          500: '#ff6000', // Ana turuncu
+          600: '#ff8c00',
+          700: '#ea580c',
+          800: '#c2410c',
           900: '#7c2d12',
         },
         // Turuncu Renkler (Seller Panel için)
@@ -28,37 +28,37 @@ export default {
           200: '#fed7aa',
           300: '#fdba74',
           400: '#fb923c',
-          500: '#ff6000',
+          500: '#ff6000', // Ana turuncu
           600: '#ff8c00',
           700: '#ea580c',
           800: '#c2410c',
-          900: '#9a3412',
+          900: '#7c2d12',
         },
-        // İkincil Renkler
+        // Light Mode İkincil Renkler (Beyaz tonları)
         secondary: {
-          50: '#f8fafc',
-          100: '#f1f5f9',
-          200: '#e2e8f0',
-          300: '#cbd5e1',
-          400: '#94a3b8',
-          500: '#64748b',
-          600: '#475569',
-          700: '#334155',
-          800: '#1e293b',
-          900: '#0f172a',
+          50: '#ffffff',
+          100: '#fafafa',
+          200: '#f5f5f5',
+          300: '#e5e5e5',
+          400: '#d4d4d4',
+          500: '#a3a3a3',
+          600: '#737373',
+          700: '#525252',
+          800: '#404040',
+          900: '#262626',
         },
-        // Accent Renkler (Yeşil)
+        // Accent Renkler (Turuncu)
         accent: {
-          50: '#ecfdf5',
-          100: '#d1fae5',
-          200: '#a7f3d0',
-          300: '#6ee7b7',
-          400: '#34d399',
-          500: '#10b981',
-          600: '#059669',
-          700: '#047857',
-          800: '#065f46',
-          900: '#064e3b',
+          50: '#fff7ed',
+          100: '#ffedd5',
+          200: '#fed7aa',
+          300: '#fdba74',
+          400: '#fb923c',
+          500: '#ff6000', // Ana turuncu
+          600: '#ff8c00',
+          700: '#ea580c',
+          800: '#c2410c',
+          900: '#7c2d12',
         },
         // Hata Renkleri
         error: {
@@ -86,13 +86,13 @@ export default {
           800: '#92400e',
           900: '#78350f',
         },
-        // Arka Plan Renkleri
+        // Light Mode Arka Plan Renkleri
         background: {
-          primary: '#f5f7fa',
-          secondary: '#ffffff',
-          tertiary: '#f8f9fa',
+          primary: '#ffffff',
+          secondary: '#fafafa',
+          tertiary: '#f5f5f5',
         },
-        // Text Renkleri
+        // Light Mode Text Renkleri
         text: {
           primary: '#1f2937',
           secondary: '#6b7280',
@@ -103,6 +103,7 @@ export default {
           color: '#e5e7eb',
           focus: '#ff6000',
         },
+
       },
       fontFamily: {
         sans: ['Inter', 'system-ui', 'sans-serif'],

@@ -45,6 +45,9 @@ public class ProductDocument {
     @Field(type = FieldType.Keyword)
     private String storeName;
     
+    @Field(type = FieldType.Keyword)
+    private String storeId;
+    
     @Field(type = FieldType.Double)
     private BigDecimal discountedPrice;
     
@@ -77,6 +80,7 @@ public class ProductDocument {
         
         if (product.getStore() != null) {
             doc.setStoreName(product.getStore().getName());
+            doc.setStoreId(product.getStore().getId());
         }
         
         return doc;

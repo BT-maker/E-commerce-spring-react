@@ -1,9 +1,12 @@
 package com.bahattintok.e_commerce.controller;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -11,20 +14,31 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
+import com.bahattintok.e_commerce.model.Campaign;
 import com.bahattintok.e_commerce.model.Order;
+import com.bahattintok.e_commerce.model.OrderItem;
 import com.bahattintok.e_commerce.model.Product;
 import com.bahattintok.e_commerce.model.Review;
 import com.bahattintok.e_commerce.model.Store;
 import com.bahattintok.e_commerce.model.User;
+import com.bahattintok.e_commerce.repository.CampaignRepository;
 import com.bahattintok.e_commerce.repository.OrderRepository;
 import com.bahattintok.e_commerce.repository.ProductRepository;
 import com.bahattintok.e_commerce.repository.ReviewRepository;
 import com.bahattintok.e_commerce.repository.StoreRepository;
 import com.bahattintok.e_commerce.repository.UserRepository;
+import com.bahattintok.e_commerce.service.ElasticsearchService;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -50,23 +64,378 @@ public class SellerController {
     @Autowired
     private ReviewRepository reviewRepository;
 
-    @GetMapping("/stats")
+    @Autowired
+    private CampaignRepository campaignRepository;
+    
+    @Autowired(required = false)
+    private ElasticsearchService elasticsearchService;
+
+    // Ürün CRUD Endpoint'leri
+
+    @GetMapping("/test")
+    @Operation(summary = "Test endpoint", description = "Simple test endpoint to check if API is working")
+    public ResponseEntity<Map<String, String>> testEndpoint() {
+        Map<String, String> response = new HashMap<>();
+        response.put("message", "Seller API is working!");
+        response.put("timestamp", java.time.LocalDateTime.now().toString());
+        return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/fix-store-ids")
     @PreAuthorize("hasRole('SELLER') or hasRole('ROLE_SELLER')")
-    @Operation(summary = "Get seller statistics", description = "Retrieve statistics for the authenticated seller")
-    public ResponseEntity<Map<String, Object>> getSellerStats() {
+    @Operation(summary = "Fix store IDs", description = "Fix null store IDs for seller's products")
+    public ResponseEntity<Map<String, Object>> fixStoreIds() {
         try {
+            System.out.println("=== FIX STORE IDS DEBUG ===");
+            
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
             String email = authentication.getName();
-            
-            System.out.println("Current user email: " + email); // Debug log
-            System.out.println("Current user authorities: " + authentication.getAuthorities()); // Debug log
+            System.out.println("Current user email: " + email);
             
             User currentUser = userRepository.findByEmail(email)
                     .orElseThrow(() -> new RuntimeException("User not found: " + email));
             
-            System.out.println("Found user: " + currentUser.getEmail() + ", Role: " + currentUser.getRole().getName()); // Debug log
+            Store sellerStore = storeRepository.findBySeller(currentUser)
+                    .orElseThrow(() -> new RuntimeException("Store not found for seller: " + email));
             
-            // Check if user is a seller
+            System.out.println("Seller store ID: " + sellerStore.getId());
+            
+            // Tüm ürünleri çek
+            List<Product> allProducts = productRepository.findAll();
+            System.out.println("Total products in DB: " + allProducts.size());
+            
+            int fixedCount = 0;
+            List<String> fixedProducts = new ArrayList<>();
+            
+            for (Product product : allProducts) {
+                if (product.getStoreId() == null) {
+                    System.out.println("Fixing product: " + product.getName() + " (ID: " + product.getId() + ")");
+                    product.setStoreId(sellerStore.getId());
+                    product.setStore(sellerStore);
+                    productRepository.save(product);
+                    fixedCount++;
+                    fixedProducts.add(product.getName());
+                }
+            }
+            
+            System.out.println("Fixed " + fixedCount + " products");
+            System.out.println("=== END FIX STORE IDS DEBUG ===");
+            
+            Map<String, Object> response = new HashMap<>();
+            response.put("message", "Store IDs fixed successfully");
+            response.put("fixedCount", fixedCount);
+            response.put("fixedProducts", fixedProducts);
+            response.put("sellerStoreId", sellerStore.getId());
+            
+            return ResponseEntity.ok(response);
+            
+        } catch (Exception e) {
+            System.err.println("Error in fixStoreIds: " + e.getMessage());
+            e.printStackTrace();
+            
+            Map<String, Object> errorResponse = new HashMap<>();
+            errorResponse.put("error", "Store ID'leri düzeltilirken hata oluştu");
+            errorResponse.put("message", e.getMessage());
+            
+            return ResponseEntity.badRequest().body(errorResponse);
+        }
+    }
+
+    @GetMapping("/products")
+    @PreAuthorize("hasRole('SELLER') or hasRole('ROLE_SELLER')")
+    @Operation(summary = "Get seller's products", description = "Retrieve all products belonging to the authenticated seller with pagination")
+    public ResponseEntity<Map<String, Object>> getSellerProducts(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        try {
+            System.out.println("=== GET SELLER PRODUCTS DEBUG ===");
+            System.out.println("Page: " + page + ", Size: " + size);
+            
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            String email = authentication.getName();
+            System.out.println("Current user email: " + email);
+            
+            User currentUser = userRepository.findByEmail(email)
+                    .orElseThrow(() -> new RuntimeException("User not found: " + email));
+            System.out.println("Found user: " + currentUser.getEmail() + ", Role: " + currentUser.getRole().getName());
+            
+            if (!currentUser.getRole().getName().equals("SELLER")) {
+                System.out.println("User is not a seller, returning 403");
+                return ResponseEntity.status(403).build();
+            }
+            
+            Store sellerStore = storeRepository.findBySeller(currentUser)
+                    .orElseThrow(() -> new RuntimeException("Store not found for seller: " + email));
+            System.out.println("Found store: " + sellerStore.getName() + " (ID: " + sellerStore.getId() + ")");
+            
+            // Tüm ürünleri çek ve debug et
+            List<Product> allProducts = productRepository.findAll();
+            System.out.println("Total products in DB: " + allProducts.size());
+            
+            // Her ürünün store ID'sini kontrol et
+            System.out.println("=== STORE ID DEBUG ===");
+            for (Product p : allProducts) {
+                System.out.println("Product: " + p.getName() + " | Store ID: " + p.getStoreId() + " | Looking for: " + sellerStore.getId());
+            }
+            System.out.println("=== END STORE ID DEBUG ===");
+            
+            // Store ID'sine göre ürünleri filtrele
+            List<Product> sellerProducts = allProducts.stream()
+                .filter(p -> p.getStoreId() != null && p.getStoreId().equals(sellerStore.getId()))
+                .collect(java.util.stream.Collectors.toList());
+            
+            System.out.println("Found " + sellerProducts.size() + " products for seller");
+            System.out.println("Seller store ID: " + sellerStore.getId());
+            
+            // Sayfalama hesaplamaları
+            int totalProducts = sellerProducts.size();
+            int totalPages = (int) Math.ceil((double) totalProducts / size);
+            int startIndex = page * size;
+            int endIndex = Math.min(startIndex + size, totalProducts);
+            
+            // Sayfa için ürünleri al
+            List<Product> productsForPage = sellerProducts.subList(startIndex, endIndex);
+            
+            System.out.println("Returning " + productsForPage.size() + " products for page " + page);
+            System.out.println("Total pages: " + totalPages);
+            System.out.println("=== END GET SELLER PRODUCTS DEBUG ===");
+            
+            Map<String, Object> response = new HashMap<>();
+            response.put("products", productsForPage);
+            response.put("currentPage", page);
+            response.put("totalPages", totalPages);
+            response.put("totalProducts", totalProducts);
+            response.put("pageSize", size);
+            
+            return ResponseEntity.ok(response);
+            
+        } catch (Exception e) {
+            System.err.println("Error in getSellerProducts: " + e.getMessage());
+            e.printStackTrace();
+            
+            Map<String, Object> errorResponse = new HashMap<>();
+            errorResponse.put("error", "Ürünler çekilirken hata oluştu");
+            errorResponse.put("message", e.getMessage());
+            errorResponse.put("timestamp", java.time.LocalDateTime.now().toString());
+            
+            return ResponseEntity.badRequest().body(errorResponse);
+        }
+    }
+
+    @PostMapping("/products")
+    @PreAuthorize("hasRole('SELLER') or hasRole('ROLE_SELLER')")
+    @Operation(summary = "Add new product", description = "Add a new product to the seller's store")
+    public ResponseEntity<?> addProduct(@RequestBody Product product) {
+        try {
+            System.out.println("=== ADD PRODUCT DEBUG ===");
+            System.out.println("Received product data: " + product);
+            
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            String email = authentication.getName();
+            System.out.println("Current user email: " + email);
+            
+            User currentUser = userRepository.findByEmail(email)
+                    .orElseThrow(() -> new RuntimeException("User not found: " + email));
+            System.out.println("Found user: " + currentUser.getEmail() + ", Role: " + currentUser.getRole().getName());
+            
+            if (!currentUser.getRole().getName().equals("SELLER")) {
+                System.out.println("User is not a seller, returning 403");
+                return ResponseEntity.status(403).build();
+            }
+            
+            Store sellerStore = storeRepository.findBySeller(currentUser)
+                    .orElseThrow(() -> new RuntimeException("Store not found for seller: " + email));
+            System.out.println("Found store: " + sellerStore.getName() + " (ID: " + sellerStore.getId() + ")");
+            
+            product.setStore(sellerStore);
+            
+            // Category ID'yi doğru şekilde set et
+            if (product.getCategory() != null && product.getCategory().getId() != null) {
+                product.setCategoryId(product.getCategory().getId());
+                System.out.println("Category ID set to: " + product.getCategory().getId());
+            } else {
+                System.out.println("WARNING: Category is null or has no ID!");
+            }
+            
+            // Store ID'yi de set et
+            product.setStoreId(sellerStore.getId());
+            System.out.println("Store ID set to: " + sellerStore.getId());
+            
+            System.out.println("Product before save: " + product);
+            
+            Product savedProduct = productRepository.save(product);
+            System.out.println("Product saved successfully: " + savedProduct);
+            
+            // Elasticsearch'e indexle (eğer varsa)
+            if (elasticsearchService != null) {
+                try {
+                    elasticsearchService.indexProduct(savedProduct);
+                    System.out.println("Product indexed to Elasticsearch successfully");
+                } catch (Exception e) {
+                    System.err.println("Elasticsearch indexing failed: " + e.getMessage());
+                    // Elasticsearch hatası ürün oluşturmayı engellemez
+                }
+            } else {
+                System.out.println("Elasticsearch service not available, skipping indexing");
+            }
+            
+            System.out.println("=== END ADD PRODUCT DEBUG ===");
+            
+            return ResponseEntity.ok(savedProduct);
+            
+        } catch (Exception e) {
+            System.err.println("=== ERROR IN ADD PRODUCT ===");
+            System.err.println("Error message: " + e.getMessage());
+            System.err.println("Error type: " + e.getClass().getSimpleName());
+            System.err.println("Error cause: " + (e.getCause() != null ? e.getCause().getMessage() : "No cause"));
+            e.printStackTrace();
+            
+            // Daha detaylı hata mesajı döndür
+            Map<String, Object> errorResponse = new HashMap<>();
+            errorResponse.put("error", "Failed to add product: " + e.getMessage());
+            errorResponse.put("message", e.getMessage());
+            errorResponse.put("timestamp", java.time.LocalDateTime.now().toString());
+            errorResponse.put("details", e.getClass().getSimpleName());
+            errorResponse.put("cause", e.getCause() != null ? e.getCause().getMessage() : "No cause");
+            
+            System.err.println("Sending error response: " + errorResponse);
+            return ResponseEntity.status(500).body(errorResponse);
+        }
+    }
+
+    @PutMapping("/products/{id}")
+    @PreAuthorize("hasRole('SELLER') or hasRole('ROLE_SELLER')")
+    @Operation(summary = "Update product", description = "Update an existing product")
+    public ResponseEntity<Product> updateProduct(@PathVariable String id, @RequestBody Product product) {
+        try {
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            String email = authentication.getName();
+            
+            User currentUser = userRepository.findByEmail(email)
+                    .orElseThrow(() -> new RuntimeException("User not found: " + email));
+            
+            if (!currentUser.getRole().getName().equals("SELLER")) {
+                return ResponseEntity.status(403).build();
+            }
+            
+            Store sellerStore = storeRepository.findBySeller(currentUser)
+                    .orElseThrow(() -> new RuntimeException("Store not found for seller: " + email));
+            
+            Product existingProduct = productRepository.findById(id)
+                    .orElseThrow(() -> new RuntimeException("Product not found: " + id));
+            
+            // Ürünün bu satıcıya ait olduğunu kontrol et
+            if (!existingProduct.getStore().getId().equals(sellerStore.getId())) {
+                return ResponseEntity.status(403).build();
+            }
+            
+            // Ürün bilgilerini güncelle
+            existingProduct.setName(product.getName());
+            existingProduct.setPrice(product.getPrice());
+            existingProduct.setDescription(product.getDescription());
+            existingProduct.setStock(product.getStock());
+            existingProduct.setImageUrl(product.getImageUrl());
+            existingProduct.setCategory(product.getCategory());
+            
+            // Category ID'yi doğru şekilde set et
+            if (product.getCategory() != null && product.getCategory().getId() != null) {
+                existingProduct.setCategoryId(product.getCategory().getId());
+                System.out.println("Category ID updated to: " + product.getCategory().getId());
+            } else {
+                System.out.println("WARNING: Category is null or has no ID!");
+            }
+            
+            // Store ID'yi de güncelle
+            existingProduct.setStoreId(sellerStore.getId());
+            System.out.println("Store ID updated to: " + sellerStore.getId());
+            
+            Product updatedProduct = productRepository.save(existingProduct);
+            
+            // Elasticsearch'i güncelle (eğer varsa)
+            if (elasticsearchService != null) {
+                try {
+                    elasticsearchService.updateProduct(updatedProduct);
+                    System.out.println("Product updated in Elasticsearch successfully");
+                } catch (Exception e) {
+                    System.err.println("Elasticsearch update failed: " + e.getMessage());
+                    // Elasticsearch hatası ürün güncellemeyi engellemez
+                }
+            } else {
+                System.out.println("Elasticsearch service not available, skipping update");
+            }
+            
+            return ResponseEntity.ok(updatedProduct);
+            
+        } catch (Exception e) {
+            System.err.println("Error in updateProduct: " + e.getMessage());
+            e.printStackTrace();
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
+    @DeleteMapping("/products/{id}")
+    @PreAuthorize("hasRole('SELLER') or hasRole('ROLE_SELLER')")
+    @Operation(summary = "Delete product", description = "Delete a product from the seller's store")
+    public ResponseEntity<Void> deleteProduct(@PathVariable String id) {
+        try {
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            String email = authentication.getName();
+            
+            User currentUser = userRepository.findByEmail(email)
+                    .orElseThrow(() -> new RuntimeException("User not found: " + email));
+            
+            if (!currentUser.getRole().getName().equals("SELLER")) {
+                return ResponseEntity.status(403).build();
+            }
+            
+            Store sellerStore = storeRepository.findBySeller(currentUser)
+                    .orElseThrow(() -> new RuntimeException("Store not found for seller: " + email));
+            
+            Product existingProduct = productRepository.findById(id)
+                    .orElseThrow(() -> new RuntimeException("Product not found: " + id));
+            
+            // Ürünün bu satıcıya ait olduğunu kontrol et
+            if (!existingProduct.getStore().getId().equals(sellerStore.getId())) {
+                return ResponseEntity.status(403).build();
+            }
+            
+            // Önce Elasticsearch'ten sil (eğer varsa)
+            if (elasticsearchService != null) {
+                try {
+                    elasticsearchService.deleteProduct(id);
+                    System.out.println("Product deleted from Elasticsearch successfully");
+                } catch (Exception e) {
+                    System.err.println("Elasticsearch delete failed: " + e.getMessage());
+                    // Elasticsearch hatası ürün silmeyi engellemez
+                }
+            } else {
+                System.out.println("Elasticsearch service not available, skipping delete");
+            }
+            
+            productRepository.delete(existingProduct);
+            return ResponseEntity.ok().build();
+            
+        } catch (Exception e) {
+            System.err.println("Error in deleteProduct: " + e.getMessage());
+            e.printStackTrace();
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
+    // Mevcut Dashboard Endpoint'leri
+
+    @GetMapping("/stats")
+    @PreAuthorize("hasRole('SELLER') or hasRole('ROLE_SELLER')")
+    @Operation(summary = "Get seller statistics", description = "Retrieve statistics for the authenticated seller")
+    public ResponseEntity<Map<String, Object>> getSellerStats(
+            @RequestParam(defaultValue = "week") String period) {
+        try {
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            String email = authentication.getName();
+            
+            User currentUser = userRepository.findByEmail(email)
+                    .orElseThrow(() -> new RuntimeException("User not found: " + email));
+            
             if (!currentUser.getRole().getName().equals("SELLER")) {
                 Map<String, Object> error = new HashMap<>();
                 error.put("error", "Access denied. User is not a seller.");
@@ -76,23 +445,54 @@ public class SellerController {
             Store sellerStore = storeRepository.findBySeller(currentUser)
                     .orElseThrow(() -> new RuntimeException("Store not found for seller: " + email));
             
-            System.out.println("Found store: " + sellerStore.getName() + " for seller: " + email); // Debug log
+            // Get seller's products
+            List<Product> sellerProducts = productRepository.findByStore(sellerStore, org.springframework.data.domain.Pageable.unpaged()).getContent();
+            int totalProducts = sellerProducts.size();
             
-            // Get products count
-            List<Product> products = productRepository.findByStore(sellerStore, org.springframework.data.domain.Pageable.unpaged()).getContent();
-            int totalProducts = products.size();
-            
-            System.out.println("Found " + totalProducts + " products for store: " + sellerStore.getName()); // Debug log
-            
-            // Get orders count (simplified - in real app you'd have order-store relationship)
+            // Get all orders and filter by seller's products
             List<Order> allOrders = orderRepository.findAll();
-            int totalOrders = allOrders.size();
+            List<Order> sellerOrders = new ArrayList<>();
+            Set<String> uniqueCustomers = new HashSet<>();
+            double totalRevenue = 0.0;
+            int totalSales = 0;
             
-            // Calculate other stats (simplified for demo)
-            int totalSales = totalOrders * 2; // Simplified calculation
-            int totalCustomers = Math.max(1, totalOrders / 2); // Simplified calculation
-            double totalRevenue = totalOrders * 1500.0; // Simplified calculation
-            double averageRating = 4.2 + (Math.random() * 0.8); // Random between 4.2-5.0
+            for (Order order : allOrders) {
+                boolean hasSellerProduct = false;
+                double orderRevenue = 0.0;
+                
+                for (OrderItem item : order.getItems()) {
+                    if (item.getProduct().getStore() != null && 
+                        item.getProduct().getStore().getId().equals(sellerStore.getId())) {
+                        hasSellerProduct = true;
+                        orderRevenue += item.getPrice().doubleValue() * item.getQuantity();
+                        totalSales += item.getQuantity();
+                    }
+                }
+                
+                if (hasSellerProduct) {
+                    sellerOrders.add(order);
+                    totalRevenue += orderRevenue;
+                    uniqueCustomers.add(order.getUser().getId());
+                }
+            }
+            
+            int totalOrders = sellerOrders.size();
+            int totalCustomers = uniqueCustomers.size();
+            
+            // Calculate average order value
+            double averageOrderValue = totalOrders > 0 ? totalRevenue / totalOrders : 0.0;
+            
+            // Calculate average rating for seller's products
+            double averageRating = calculateAverageRating(sellerProducts);
+            
+            // Generate real chart data based on period
+            List<Map<String, Object>> salesData = generateRealSalesData(sellerOrders, period);
+            List<Map<String, Object>> revenueData = generateRealRevenueData(sellerOrders, period);
+            List<Map<String, Object>> categoryData = generateRealCategoryData(sellerProducts, sellerOrders);
+            
+            // Get top product and category
+            Map<String, Object> topProduct = getTopProduct(sellerProducts, sellerOrders);
+            Map<String, Object> topCategory = getTopCategory(categoryData);
             
             Map<String, Object> stats = new HashMap<>();
             stats.put("totalProducts", totalProducts);
@@ -101,8 +501,16 @@ public class SellerController {
             stats.put("totalRevenue", Math.round(totalRevenue * 100.0) / 100.0);
             stats.put("totalOrders", totalOrders);
             stats.put("averageRating", Math.round(averageRating * 10.0) / 10.0);
+            stats.put("averageOrderValue", Math.round(averageOrderValue * 100.0) / 100.0);
             
-            System.out.println("Returning stats: " + stats); // Debug log
+            // Chart data
+            stats.put("salesData", salesData);
+            stats.put("revenueData", revenueData);
+            stats.put("categoryData", categoryData);
+            
+            // Top performers
+            stats.put("topProduct", topProduct);
+            stats.put("topCategory", topCategory);
             
             return ResponseEntity.ok(stats);
             
@@ -113,6 +521,181 @@ public class SellerController {
             error.put("error", "Failed to get seller statistics: " + e.getMessage());
             return ResponseEntity.badRequest().body(error);
         }
+    }
+
+    // Helper methods for generating real chart data
+    private double calculateAverageRating(List<Product> products) {
+        if (products.isEmpty()) return 0.0;
+        
+        double totalRating = 0.0;
+        int reviewCount = 0;
+        
+        for (Product product : products) {
+            List<Review> reviews = reviewRepository.findByProductIdOrderByCreatedAtDesc(product.getId());
+            for (Review review : reviews) {
+                totalRating += review.getRating();
+                reviewCount++;
+            }
+        }
+        
+        return reviewCount > 0 ? totalRating / reviewCount : 0.0;
+    }
+
+    private List<Map<String, Object>> generateRealSalesData(List<Order> orders, String period) {
+        List<Map<String, Object>> data = new ArrayList<>();
+        int days = period.equals("week") ? 7 : period.equals("month") ? 30 : 365;
+        
+        // Group orders by date
+        Map<String, Integer> dailySales = new HashMap<>();
+        
+        for (Order order : orders) {
+            String dateKey = getDateLabel(period, order.getCreatedAt());
+            int salesCount = order.getItems().size();
+            dailySales.put(dateKey, dailySales.getOrDefault(dateKey, 0) + salesCount);
+        }
+        
+        // Fill in missing dates with 0
+        for (int i = days - 1; i >= 0; i--) {
+            String dateLabel = getDateLabel(period, i);
+            Map<String, Object> dayData = new HashMap<>();
+            dayData.put("date", dateLabel);
+            dayData.put("count", dailySales.getOrDefault(dateLabel, 0));
+            data.add(dayData);
+        }
+        
+        return data;
+    }
+
+    private List<Map<String, Object>> generateRealRevenueData(List<Order> orders, String period) {
+        List<Map<String, Object>> data = new ArrayList<>();
+        int days = period.equals("week") ? 7 : period.equals("month") ? 30 : 365;
+        
+        // Group orders by date
+        Map<String, Double> dailyRevenue = new HashMap<>();
+        
+        for (Order order : orders) {
+            String dateKey = getDateLabel(period, order.getCreatedAt());
+            double orderRevenue = order.getTotalPrice().doubleValue();
+            dailyRevenue.put(dateKey, dailyRevenue.getOrDefault(dateKey, 0.0) + orderRevenue);
+        }
+        
+        // Fill in missing dates with 0
+        for (int i = days - 1; i >= 0; i--) {
+            String dateLabel = getDateLabel(period, i);
+            Map<String, Object> dayData = new HashMap<>();
+            dayData.put("date", dateLabel);
+            dayData.put("amount", Math.round(dailyRevenue.getOrDefault(dateLabel, 0.0) * 100.0) / 100.0);
+            data.add(dayData);
+        }
+        
+        return data;
+    }
+
+    private List<Map<String, Object>> generateRealCategoryData(List<Product> products, List<Order> orders) {
+        List<Map<String, Object>> data = new ArrayList<>();
+        
+        // Count sales by category from orders
+        Map<String, Integer> categorySales = new HashMap<>();
+        
+        for (Order order : orders) {
+            for (OrderItem item : order.getItems()) {
+                Product product = item.getProduct();
+                if (product.getCategory() != null) {
+                    String categoryName = product.getCategory().getName();
+                    categorySales.put(categoryName, categorySales.getOrDefault(categoryName, 0) + item.getQuantity());
+                }
+            }
+        }
+        
+        // Convert to list format
+        for (Map.Entry<String, Integer> entry : categorySales.entrySet()) {
+            Map<String, Object> categoryData = new HashMap<>();
+            categoryData.put("categoryName", entry.getKey());
+            categoryData.put("salesCount", entry.getValue());
+            data.add(categoryData);
+        }
+        
+        return data;
+    }
+
+    private String getDateLabel(String period, int daysAgo) {
+        java.time.LocalDate date = java.time.LocalDate.now().minusDays(daysAgo);
+        
+        if (period.equals("week")) {
+            return date.getDayOfWeek().getDisplayName(java.time.format.TextStyle.SHORT, java.util.Locale.forLanguageTag("tr"));
+        } else if (period.equals("month")) {
+            return date.getDayOfMonth() + "/" + date.getMonthValue();
+        } else {
+            return date.getMonth().getDisplayName(java.time.format.TextStyle.SHORT, java.util.Locale.forLanguageTag("tr"));
+        }
+    }
+
+    private String getDateLabel(String period, java.time.LocalDateTime dateTime) {
+        java.time.LocalDate date = dateTime.toLocalDate();
+        
+        if (period.equals("week")) {
+            return date.getDayOfWeek().getDisplayName(java.time.format.TextStyle.SHORT, java.util.Locale.forLanguageTag("tr"));
+        } else if (period.equals("month")) {
+            return date.getDayOfMonth() + "/" + date.getMonthValue();
+        } else {
+            return date.getMonth().getDisplayName(java.time.format.TextStyle.SHORT, java.util.Locale.forLanguageTag("tr"));
+        }
+    }
+
+    private Map<String, Object> getTopProduct(List<Product> products, List<Order> orders) {
+        if (products.isEmpty()) {
+            Map<String, Object> empty = new HashMap<>();
+            empty.put("name", "Veri yok");
+            empty.put("salesCount", 0);
+            return empty;
+        }
+        
+        // Count sales for each product
+        Map<String, Integer> productSales = new HashMap<>();
+        
+        for (Order order : orders) {
+            for (OrderItem item : order.getItems()) {
+                String productId = item.getProduct().getId();
+                productSales.put(productId, productSales.getOrDefault(productId, 0) + item.getQuantity());
+            }
+        }
+        
+        // Find top selling product
+        String topProductId = productSales.entrySet().stream()
+            .max(Map.Entry.comparingByValue())
+            .map(Map.Entry::getKey)
+            .orElse(null);
+        
+        if (topProductId != null) {
+            Product topProduct = products.stream()
+                .filter(p -> p.getId().equals(topProductId))
+                .findFirst()
+                .orElse(products.get(0));
+            
+            Map<String, Object> result = new HashMap<>();
+            result.put("name", topProduct.getName());
+            result.put("salesCount", productSales.get(topProductId));
+            return result;
+        } else {
+            Product topProduct = products.get(0);
+            Map<String, Object> result = new HashMap<>();
+            result.put("name", topProduct.getName());
+            result.put("salesCount", 0);
+            return result;
+        }
+    }
+
+    private Map<String, Object> getTopCategory(List<Map<String, Object>> categoryData) {
+        if (categoryData.isEmpty()) {
+            Map<String, Object> empty = new HashMap<>();
+            empty.put("name", "Veri yok");
+            empty.put("salesCount", 0);
+            return empty;
+        }
+        
+        return categoryData.stream()
+            .max((a, b) -> Integer.compare((Integer) a.get("salesCount"), (Integer) b.get("salesCount")))
+            .orElse(categoryData.get(0));
     }
 
     @GetMapping("/recent-orders")
@@ -159,29 +742,52 @@ public class SellerController {
             java.time.LocalDate today = java.time.LocalDate.now();
             java.time.LocalDate weekStart = today.minusDays(7);
             
-            // Get recent orders (last 5)
-            List<Order> recentOrders = orderRepository.findTop5ByOrderByCreatedAtDesc();
+            // Get recent orders for this seller's store (last 5)
+            List<Order> allOrders = orderRepository.findAll();
+            List<Order> sellerOrders = allOrders.stream()
+                .filter(order -> order.getItems().stream()
+                    .anyMatch(item -> item.getProduct().getStore().getId().equals(sellerStore.getId())))
+                .collect(java.util.stream.Collectors.toList());
             
-            // Get today's sales
-            List<Order> todayOrders = orderRepository.findByCreatedAtBetween(
+            List<Order> recentOrders = sellerOrders.stream()
+                .sorted((a, b) -> b.getCreatedAt().compareTo(a.getCreatedAt()))
+                .limit(5)
+                .collect(java.util.stream.Collectors.toList());
+            
+            // Get today's sales for this seller's store
+            List<Order> allTodayOrders = orderRepository.findByCreatedAtBetween(
                 today.atStartOfDay(), 
                 today.atTime(23, 59, 59)
             );
+            List<Order> todayOrders = allTodayOrders.stream()
+                .filter(order -> order.getItems().stream()
+                    .anyMatch(item -> item.getProduct().getStore().getId().equals(sellerStore.getId())))
+                .collect(java.util.stream.Collectors.toList());
             
-            // Get this week's sales
-            List<Order> weekOrders = orderRepository.findByCreatedAtBetween(
+            // Get this week's sales for this seller's store
+            List<Order> allWeekOrders = orderRepository.findByCreatedAtBetween(
                 weekStart.atStartOfDay(),
                 today.atTime(23, 59, 59)
             );
+            List<Order> weekOrders = allWeekOrders.stream()
+                .filter(order -> order.getItems().stream()
+                    .anyMatch(item -> item.getProduct().getStore().getId().equals(sellerStore.getId())))
+                .collect(java.util.stream.Collectors.toList());
             
-            // Calculate today's revenue
+            // Calculate today's revenue for this seller's products only
             double todayRevenue = todayOrders.stream()
-                .mapToDouble(order -> order.getTotalPrice().doubleValue())
+                .mapToDouble(order -> order.getItems().stream()
+                    .filter(item -> item.getProduct().getStore().getId().equals(sellerStore.getId()))
+                    .mapToDouble(item -> item.getPrice().doubleValue() * item.getQuantity())
+                    .sum())
                 .sum();
             
-            // Calculate this week's revenue
+            // Calculate this week's revenue for this seller's products only
             double weekRevenue = weekOrders.stream()
-                .mapToDouble(order -> order.getTotalPrice().doubleValue())
+                .mapToDouble(order -> order.getItems().stream()
+                    .filter(item -> item.getProduct().getStore().getId().equals(sellerStore.getId()))
+                    .mapToDouble(item -> item.getPrice().doubleValue() * item.getQuantity())
+                    .sum())
                 .sum();
             
             // Get low stock products (stock < 10)
@@ -210,13 +816,23 @@ public class SellerController {
             // Recent orders
             List<Map<String, Object>> recentOrdersData = recentOrders.stream()
                 .map(order -> {
+                    // Sadece seller'ın ürünlerini filtrele
+                    List<OrderItem> sellerItems = order.getItems().stream()
+                        .filter(item -> item.getProduct().getStore().getId().equals(sellerStore.getId()))
+                        .collect(java.util.stream.Collectors.toList());
+                    
+                    // Seller'ın ürünlerinin toplam tutarını hesapla
+                    double sellerTotal = sellerItems.stream()
+                        .mapToDouble(item -> item.getPrice().doubleValue() * item.getQuantity())
+                        .sum();
+                    
                     Map<String, Object> orderData = new HashMap<>();
                     orderData.put("id", order.getId());
                     orderData.put("customerName", order.getUser().getUsername());
-                    orderData.put("totalAmount", order.getTotalPrice());
+                    orderData.put("totalAmount", sellerTotal);
                     orderData.put("status", order.getStatus());
                     orderData.put("createdAt", order.getCreatedAt());
-                    orderData.put("itemCount", order.getItems().size());
+                    orderData.put("itemCount", sellerItems.size());
                     return orderData;
                 })
                 .collect(java.util.stream.Collectors.toList());
@@ -279,6 +895,1023 @@ public class SellerController {
             error.put("details", e.getClass().getSimpleName());
             
             return ResponseEntity.status(500).body(error);
+        }
+    }
+
+    // Seller Siparişleri Endpoint'leri
+
+    @GetMapping("/orders")
+    @PreAuthorize("hasRole('SELLER') or hasRole('ROLE_SELLER')")
+    @Operation(summary = "Get seller orders", description = "Retrieve all orders for the authenticated seller with pagination and filtering")
+    public ResponseEntity<Map<String, Object>> getSellerOrders(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "all") String status) {
+        try {
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            String email = authentication.getName();
+            
+            User currentUser = userRepository.findByEmail(email)
+                    .orElseThrow(() -> new RuntimeException("User not found: " + email));
+            
+            Store sellerStore = storeRepository.findBySeller(currentUser)
+                    .orElseThrow(() -> new RuntimeException("Store not found for seller: " + email));
+            
+            // Seller'ın ürünlerini çek
+            List<Product> sellerProducts = productRepository.findByStore(sellerStore, org.springframework.data.domain.Pageable.unpaged()).getContent();
+            Set<String> sellerProductIds = new HashSet<>();
+            for (Product product : sellerProducts) {
+                sellerProductIds.add(product.getId());
+            }
+            
+            // Tüm siparişleri çek
+            List<Order> allOrders = orderRepository.findAll();
+            
+            // Seller'ın ürünlerini içeren siparişleri filtrele
+            List<Order> sellerOrders = new ArrayList<>();
+            for (Order order : allOrders) {
+                boolean hasSellerProduct = false;
+                for (OrderItem item : order.getItems()) {
+                    if (sellerProductIds.contains(item.getProduct().getId())) {
+                        hasSellerProduct = true;
+                        break;
+                    }
+                }
+                if (hasSellerProduct) {
+                    sellerOrders.add(order);
+                }
+            }
+            
+            // Status filtresi uygula
+            if (!"all".equals(status)) {
+                sellerOrders = sellerOrders.stream()
+                    .filter(order -> status.equalsIgnoreCase(order.getStatus()))
+                    .collect(java.util.stream.Collectors.toList());
+            }
+            
+            // Toplam sipariş sayısı
+            int totalOrders = sellerOrders.size();
+            
+            // Pagination uygula
+            int startIndex = page * size;
+            int endIndex = Math.min(startIndex + size, totalOrders);
+            
+            List<Order> paginatedOrders = new ArrayList<>();
+            if (startIndex < totalOrders) {
+                paginatedOrders = sellerOrders.subList(startIndex, endIndex);
+            }
+            
+            // Toplam sayfa sayısı
+            int totalPages = (int) Math.ceil((double) totalOrders / size);
+            
+            // Order objelerini Map'lere dönüştür
+            List<Map<String, Object>> orderMaps = new ArrayList<>();
+            for (Order order : paginatedOrders) {
+                Map<String, Object> orderMap = new HashMap<>();
+                orderMap.put("id", order.getId());
+                orderMap.put("createdAt", order.getCreatedAt());
+                orderMap.put("status", order.getStatus());
+                orderMap.put("totalPrice", order.getTotalPrice());
+                
+                // User bilgilerini ekle
+                Map<String, Object> userMap = new HashMap<>();
+                if (order.getUser() != null) {
+                    userMap.put("id", order.getUser().getId());
+                    userMap.put("username", order.getUser().getUsername());
+                    userMap.put("email", order.getUser().getEmail());
+                }
+                orderMap.put("user", userMap);
+                
+                // Order items'ları ekle
+                List<Map<String, Object>> itemMaps = new ArrayList<>();
+                for (OrderItem item : order.getItems()) {
+                    Map<String, Object> itemMap = new HashMap<>();
+                    itemMap.put("id", item.getId());
+                    itemMap.put("quantity", item.getQuantity());
+                    itemMap.put("price", item.getPrice());
+                    
+                    // Product bilgilerini ekle
+                    Map<String, Object> productMap = new HashMap<>();
+                    if (item.getProduct() != null) {
+                        productMap.put("id", item.getProduct().getId());
+                        productMap.put("name", item.getProduct().getName());
+                        productMap.put("imageUrl", item.getProduct().getImageUrl());
+                        
+                        // Category bilgilerini ekle
+                        Map<String, Object> categoryMap = new HashMap<>();
+                        if (item.getProduct().getCategory() != null) {
+                            categoryMap.put("id", item.getProduct().getCategory().getId());
+                            categoryMap.put("name", item.getProduct().getCategory().getName());
+                        }
+                        productMap.put("category", categoryMap);
+                    }
+                    itemMap.put("product", productMap);
+                    
+                    itemMaps.add(itemMap);
+                }
+                orderMap.put("items", itemMaps);
+                
+                orderMaps.add(orderMap);
+            }
+            
+            Map<String, Object> response = new HashMap<>();
+            response.put("orders", orderMaps);
+            response.put("totalOrders", totalOrders);
+            response.put("totalPages", totalPages);
+            response.put("currentPage", page);
+            response.put("pageSize", size);
+            
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            System.err.println("Get seller orders error: " + e.getMessage());
+            e.printStackTrace();
+            return ResponseEntity.internalServerError().build();
+        }
+    }
+
+    @PutMapping("/orders/{orderId}/status")
+    @PreAuthorize("hasRole('SELLER') or hasRole('ROLE_SELLER')")
+    @Operation(summary = "Update order status", description = "Update the status of a specific order")
+    public ResponseEntity<Map<String, Object>> updateOrderStatus(
+            @PathVariable String orderId,
+            @RequestBody Map<String, String> request) {
+        try {
+            String newStatus = request.get("status");
+            if (newStatus == null || newStatus.trim().isEmpty()) {
+                return ResponseEntity.badRequest().body(Map.of("error", "Status is required"));
+            }
+            
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            String email = authentication.getName();
+            
+            User currentUser = userRepository.findByEmail(email)
+                    .orElseThrow(() -> new RuntimeException("User not found: " + email));
+            
+            Store sellerStore = storeRepository.findBySeller(currentUser)
+                    .orElseThrow(() -> new RuntimeException("Store not found for seller: " + email));
+            
+            // Siparişi bul
+            Order order = orderRepository.findById(orderId)
+                    .orElseThrow(() -> new RuntimeException("Order not found: " + orderId));
+            
+            // Seller'ın bu siparişte ürünü olup olmadığını kontrol et
+            List<Product> sellerProducts = productRepository.findByStore(sellerStore, org.springframework.data.domain.Pageable.unpaged()).getContent();
+            Set<String> sellerProductIds = new HashSet<>();
+            for (Product product : sellerProducts) {
+                sellerProductIds.add(product.getId());
+            }
+            
+            boolean hasSellerProduct = false;
+            for (OrderItem item : order.getItems()) {
+                if (sellerProductIds.contains(item.getProduct().getId())) {
+                    hasSellerProduct = true;
+                    break;
+                }
+            }
+            
+            if (!hasSellerProduct) {
+                return ResponseEntity.badRequest().body(Map.of("error", "You can only update orders that contain your products"));
+            }
+            
+            // Sipariş durumunu güncelle
+            order.setStatus(newStatus);
+            orderRepository.save(order);
+            
+            Map<String, Object> response = new HashMap<>();
+            response.put("message", "Order status updated successfully");
+            response.put("orderId", orderId);
+            response.put("newStatus", newStatus);
+            
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            System.err.println("Update order status error: " + e.getMessage());
+            e.printStackTrace();
+            return ResponseEntity.internalServerError().build();
+        }
+    }
+
+    // Stok Yönetimi Endpoint'i
+
+    @GetMapping("/stock")
+    @PreAuthorize("hasRole('SELLER') or hasRole('ROLE_SELLER')")
+    @Operation(summary = "Get low stock products", description = "Retrieve products with low stock for the authenticated seller")
+    public ResponseEntity<Map<String, Object>> getLowStockProducts(
+            @RequestParam(defaultValue = "10") int threshold) {
+        try {
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            String email = authentication.getName();
+            
+            User currentUser = userRepository.findByEmail(email)
+                    .orElseThrow(() -> new RuntimeException("User not found: " + email));
+            
+            Store sellerStore = storeRepository.findBySeller(currentUser)
+                    .orElseThrow(() -> new RuntimeException("Store not found for seller: " + email));
+            
+            // Seller'ın düşük stoklu ürünlerini çek
+            List<Product> lowStockProducts = productRepository.findByStoreAndStockLessThan(
+                sellerStore, 
+                threshold + 1
+            );
+            
+            // Product objelerini Map'lere dönüştür
+            List<Map<String, Object>> productMaps = new ArrayList<>();
+            for (Product product : lowStockProducts) {
+                Map<String, Object> productMap = new HashMap<>();
+                productMap.put("id", product.getId());
+                productMap.put("name", product.getName());
+                productMap.put("description", product.getDescription());
+                productMap.put("price", product.getPrice());
+                productMap.put("stock", product.getStock());
+                productMap.put("imageUrl", product.getImageUrl());
+                
+                // Category bilgilerini ekle
+                Map<String, Object> categoryMap = new HashMap<>();
+                if (product.getCategory() != null) {
+                    categoryMap.put("id", product.getCategory().getId());
+                    categoryMap.put("name", product.getCategory().getName());
+                }
+                productMap.put("category", categoryMap);
+                
+                productMaps.add(productMap);
+            }
+            
+            Map<String, Object> response = new HashMap<>();
+            response.put("products", productMaps);
+            response.put("totalProducts", productMaps.size());
+            response.put("threshold", threshold);
+            
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            System.err.println("Get low stock products error: " + e.getMessage());
+            e.printStackTrace();
+            return ResponseEntity.internalServerError().build();
+        }
+    }
+
+    // Kampanya Yönetimi Endpoint'leri
+
+    @GetMapping("/campaigns")
+    @PreAuthorize("hasRole('SELLER') or hasRole('ROLE_SELLER')")
+    @Operation(summary = "Get seller campaigns", description = "Retrieve all campaigns for the authenticated seller")
+    public ResponseEntity<Map<String, Object>> getSellerCampaigns() {
+        try {
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            String email = authentication.getName();
+            
+            User currentUser = userRepository.findByEmail(email)
+                    .orElseThrow(() -> new RuntimeException("User not found: " + email));
+            
+            Store sellerStore = storeRepository.findBySeller(currentUser)
+                    .orElseThrow(() -> new RuntimeException("Store not found for seller: " + email));
+            
+            // Seller'ın kampanyalarını çek
+            List<Campaign> campaigns = campaignRepository.findByStore(sellerStore);
+            
+            // Campaign objelerini Map'lere dönüştür
+            List<Map<String, Object>> campaignMaps = new ArrayList<>();
+            for (Campaign campaign : campaigns) {
+                Map<String, Object> campaignMap = new HashMap<>();
+                campaignMap.put("id", campaign.getId());
+                campaignMap.put("name", campaign.getName());
+                campaignMap.put("description", campaign.getDescription());
+                campaignMap.put("campaignType", campaign.getCampaignType());
+                campaignMap.put("targetId", campaign.getTargetId());
+                campaignMap.put("discountType", campaign.getDiscountType());
+                campaignMap.put("discountValue", campaign.getDiscountValue());
+                campaignMap.put("startDate", campaign.getStartDate());
+                campaignMap.put("endDate", campaign.getEndDate());
+                campaignMap.put("isActive", campaign.isActive());
+                campaignMap.put("createdAt", campaign.getCreatedAt());
+                campaignMap.put("updatedAt", campaign.getUpdatedAt());
+                
+                campaignMaps.add(campaignMap);
+            }
+            
+            Map<String, Object> response = new HashMap<>();
+            response.put("campaigns", campaignMaps);
+            response.put("totalCampaigns", campaignMaps.size());
+            
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            System.err.println("Get seller campaigns error: " + e.getMessage());
+            e.printStackTrace();
+            return ResponseEntity.internalServerError().build();
+        }
+    }
+
+    @PostMapping("/campaigns")
+    @PreAuthorize("hasRole('SELLER') or hasRole('ROLE_SELLER')")
+    @Operation(summary = "Create campaign", description = "Create a new campaign for the authenticated seller")
+    public ResponseEntity<Map<String, Object>> createCampaign(@RequestBody Map<String, Object> request) {
+        try {
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            String email = authentication.getName();
+            
+            User currentUser = userRepository.findByEmail(email)
+                    .orElseThrow(() -> new RuntimeException("User not found: " + email));
+            
+            Store sellerStore = storeRepository.findBySeller(currentUser)
+                    .orElseThrow(() -> new RuntimeException("Store not found for seller: " + email));
+            
+            // Kampanya oluştur
+            Campaign campaign = new Campaign();
+            campaign.setName((String) request.get("name"));
+            campaign.setDescription((String) request.get("description"));
+            campaign.setCampaignType((String) request.get("campaignType"));
+            campaign.setTargetId((String) request.get("targetId"));
+            campaign.setDiscountType((String) request.get("discountType"));
+            campaign.setDiscountValue(new java.math.BigDecimal(request.get("discountValue").toString()));
+            campaign.setStartDate(java.time.LocalDateTime.parse((String) request.get("startDate") + "T00:00:00"));
+            campaign.setEndDate(java.time.LocalDateTime.parse((String) request.get("endDate") + "T23:59:59"));
+            campaign.setActive((Boolean) request.get("isActive"));
+            campaign.setStore(sellerStore);
+            campaign.setCreatedAt(java.time.LocalDateTime.now());
+            campaign.setUpdatedAt(java.time.LocalDateTime.now());
+            
+            Campaign savedCampaign = campaignRepository.save(campaign);
+            
+            Map<String, Object> response = new HashMap<>();
+            response.put("message", "Kampanya başarıyla oluşturuldu");
+            response.put("campaignId", savedCampaign.getId());
+            
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            System.err.println("Create campaign error: " + e.getMessage());
+            e.printStackTrace();
+            return ResponseEntity.internalServerError().build();
+        }
+    }
+
+    @PutMapping("/campaigns/{campaignId}")
+    @PreAuthorize("hasRole('SELLER') or hasRole('ROLE_SELLER')")
+    @Operation(summary = "Update campaign", description = "Update an existing campaign")
+    public ResponseEntity<Map<String, Object>> updateCampaign(
+            @PathVariable String campaignId,
+            @RequestBody Map<String, Object> request) {
+        try {
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            String email = authentication.getName();
+            
+            User currentUser = userRepository.findByEmail(email)
+                    .orElseThrow(() -> new RuntimeException("User not found: " + email));
+            
+            Store sellerStore = storeRepository.findBySeller(currentUser)
+                    .orElseThrow(() -> new RuntimeException("Store not found for seller: " + email));
+            
+            // Kampanyayı bul
+            Campaign campaign = campaignRepository.findById(campaignId)
+                    .orElseThrow(() -> new RuntimeException("Campaign not found: " + campaignId));
+            
+            // Seller'ın bu kampanyaya sahip olup olmadığını kontrol et
+            if (!campaign.getStore().getId().equals(sellerStore.getId())) {
+                return ResponseEntity.badRequest().body(Map.of("error", "Bu kampanyayı düzenleme yetkiniz yok"));
+            }
+            
+            // Kampanyayı güncelle
+            campaign.setName((String) request.get("name"));
+            campaign.setDescription((String) request.get("description"));
+            campaign.setCampaignType((String) request.get("campaignType"));
+            campaign.setTargetId((String) request.get("targetId"));
+            campaign.setDiscountType((String) request.get("discountType"));
+            campaign.setDiscountValue(new java.math.BigDecimal(request.get("discountValue").toString()));
+            campaign.setStartDate(java.time.LocalDateTime.parse((String) request.get("startDate") + "T00:00:00"));
+            campaign.setEndDate(java.time.LocalDateTime.parse((String) request.get("endDate") + "T23:59:59"));
+            campaign.setActive((Boolean) request.get("isActive"));
+            campaign.setUpdatedAt(java.time.LocalDateTime.now());
+            
+            campaignRepository.save(campaign);
+            
+            Map<String, Object> response = new HashMap<>();
+            response.put("message", "Kampanya başarıyla güncellendi");
+            response.put("campaignId", campaignId);
+            
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            System.err.println("Update campaign error: " + e.getMessage());
+            e.printStackTrace();
+            return ResponseEntity.internalServerError().build();
+        }
+    }
+
+    @DeleteMapping("/campaigns/{campaignId}")
+    @PreAuthorize("hasRole('SELLER') or hasRole('ROLE_SELLER')")
+    @Operation(summary = "Delete campaign", description = "Delete a campaign")
+    public ResponseEntity<Map<String, Object>> deleteCampaign(@PathVariable String campaignId) {
+        try {
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            String email = authentication.getName();
+            
+            User currentUser = userRepository.findByEmail(email)
+                    .orElseThrow(() -> new RuntimeException("User not found: " + email));
+            
+            Store sellerStore = storeRepository.findBySeller(currentUser)
+                    .orElseThrow(() -> new RuntimeException("Store not found for seller: " + email));
+            
+            // Kampanyayı bul
+            Campaign campaign = campaignRepository.findById(campaignId)
+                    .orElseThrow(() -> new RuntimeException("Campaign not found: " + campaignId));
+            
+            // Seller'ın bu kampanyaya sahip olup olmadığını kontrol et
+            if (!campaign.getStore().getId().equals(sellerStore.getId())) {
+                return ResponseEntity.badRequest().body(Map.of("error", "Bu kampanyayı silme yetkiniz yok"));
+            }
+            
+            campaignRepository.delete(campaign);
+            
+            Map<String, Object> response = new HashMap<>();
+            response.put("message", "Kampanya başarıyla silindi");
+            response.put("campaignId", campaignId);
+            
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            System.err.println("Delete campaign error: " + e.getMessage());
+            e.printStackTrace();
+            return ResponseEntity.internalServerError().build();
+        }
+    }
+
+    // Mağaza Ayarları Endpoint'leri
+
+    @GetMapping("/store")
+    @PreAuthorize("hasRole('SELLER') or hasRole('ROLE_SELLER')")
+    @Operation(summary = "Get store information", description = "Retrieve store information for the authenticated seller")
+    public ResponseEntity<Map<String, Object>> getStoreInfo() {
+        try {
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            String email = authentication.getName();
+            
+            User currentUser = userRepository.findByEmail(email)
+                    .orElseThrow(() -> new RuntimeException("User not found: " + email));
+            
+            Store sellerStore = storeRepository.findBySeller(currentUser)
+                    .orElseThrow(() -> new RuntimeException("Store not found for seller: " + email));
+            
+            Map<String, Object> response = new HashMap<>();
+            response.put("id", sellerStore.getId());
+            response.put("name", sellerStore.getName());
+            
+            // Yeni alanları güvenli şekilde ekle
+            try {
+                response.put("description", sellerStore.getDescription());
+            } catch (Exception e) {
+                response.put("description", "");
+            }
+            
+            try {
+                response.put("address", sellerStore.getAddress());
+            } catch (Exception e) {
+                response.put("address", "");
+            }
+            
+            try {
+                response.put("phone", sellerStore.getPhone());
+            } catch (Exception e) {
+                response.put("phone", "");
+            }
+            
+            try {
+                response.put("email", sellerStore.getEmail());
+            } catch (Exception e) {
+                response.put("email", "");
+            }
+            
+            try {
+                response.put("website", sellerStore.getWebsite());
+            } catch (Exception e) {
+                response.put("website", "");
+            }
+            
+            try {
+                response.put("workingHours", sellerStore.getWorkingHours());
+            } catch (Exception e) {
+                response.put("workingHours", "");
+            }
+            
+            try {
+                response.put("logo", sellerStore.getLogo());
+            } catch (Exception e) {
+                response.put("logo", "");
+            }
+            
+            try {
+                response.put("banner", sellerStore.getBanner());
+            } catch (Exception e) {
+                response.put("banner", "");
+            }
+            
+            // Zaman damgaları için varsayılan değerler
+            response.put("createdAt", java.time.LocalDateTime.now());
+            response.put("updatedAt", java.time.LocalDateTime.now());
+            
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            System.err.println("Get store info error: " + e.getMessage());
+            e.printStackTrace();
+            return ResponseEntity.internalServerError().build();
+        }
+    }
+
+    @PutMapping("/store")
+    @PreAuthorize("hasRole('SELLER') or hasRole('ROLE_SELLER')")
+    @Operation(summary = "Update store information", description = "Update store information for the authenticated seller")
+    public ResponseEntity<Map<String, Object>> updateStoreInfo(@RequestBody Map<String, Object> request) {
+        try {
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            String email = authentication.getName();
+            
+            User currentUser = userRepository.findByEmail(email)
+                    .orElseThrow(() -> new RuntimeException("User not found: " + email));
+            
+            Store sellerStore = storeRepository.findBySeller(currentUser)
+                    .orElseThrow(() -> new RuntimeException("Store not found for seller: " + email));
+            
+            // Mağaza bilgilerini güvenli şekilde güncelle
+            sellerStore.setName((String) request.get("name"));
+            
+            try {
+                sellerStore.setDescription((String) request.get("description"));
+            } catch (Exception e) {
+                // Alan yoksa atla
+            }
+            
+            try {
+                sellerStore.setAddress((String) request.get("address"));
+            } catch (Exception e) {
+                // Alan yoksa atla
+            }
+            
+            try {
+                sellerStore.setPhone((String) request.get("phone"));
+            } catch (Exception e) {
+                // Alan yoksa atla
+            }
+            
+            try {
+                sellerStore.setEmail((String) request.get("email"));
+            } catch (Exception e) {
+                // Alan yoksa atla
+            }
+            
+            try {
+                sellerStore.setWebsite((String) request.get("website"));
+            } catch (Exception e) {
+                // Alan yoksa atla
+            }
+            
+            try {
+                sellerStore.setWorkingHours((String) request.get("workingHours"));
+            } catch (Exception e) {
+                // Alan yoksa atla
+            }
+            
+            try {
+                sellerStore.setLogo((String) request.get("logo"));
+            } catch (Exception e) {
+                // Alan yoksa atla
+            }
+            
+            try {
+                sellerStore.setBanner((String) request.get("banner"));
+            } catch (Exception e) {
+                // Alan yoksa atla
+            }
+            
+            try {
+                sellerStore.setUpdatedAt(java.time.LocalDateTime.now());
+            } catch (Exception e) {
+                // Alan yoksa atla
+            }
+            
+            try {
+                if (sellerStore.getCreatedAt() == null) {
+                    sellerStore.setCreatedAt(java.time.LocalDateTime.now());
+                }
+            } catch (Exception e) {
+                // Alan yoksa atla
+            }
+            
+            storeRepository.save(sellerStore);
+            
+            Map<String, Object> response = new HashMap<>();
+            response.put("message", "Mağaza bilgileri başarıyla güncellendi");
+            response.put("storeId", sellerStore.getId());
+            
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            System.err.println("Update store info error: " + e.getMessage());
+            e.printStackTrace();
+            return ResponseEntity.internalServerError().build();
+        }
+    }
+
+    @PostMapping("/upload-image")
+    @PreAuthorize("hasRole('SELLER') or hasRole('ROLE_SELLER')")
+    @Operation(summary = "Upload store image", description = "Upload logo or banner image for the store")
+    public ResponseEntity<Map<String, Object>> uploadImage(
+            @RequestParam("image") MultipartFile file,
+            @RequestParam("type") String type) {
+        try {
+            if (file.isEmpty()) {
+                return ResponseEntity.badRequest().body(Map.of("error", "Dosya seçilmedi"));
+            }
+
+            // Dosya boyutu kontrolü (5MB)
+            if (file.getSize() > 5 * 1024 * 1024) {
+                return ResponseEntity.badRequest().body(Map.of("error", "Dosya boyutu 5MB'dan küçük olmalıdır"));
+            }
+
+            // Dosya türü kontrolü
+            String contentType = file.getContentType();
+            if (contentType == null || !contentType.startsWith("image/")) {
+                return ResponseEntity.badRequest().body(Map.of("error", "Sadece resim dosyaları kabul edilir"));
+            }
+
+            // Dosya adını oluştur
+            String originalFilename = file.getOriginalFilename();
+            String fileExtension = originalFilename != null ? 
+                originalFilename.substring(originalFilename.lastIndexOf(".")) : ".jpg";
+            String fileName = type + "_" + System.currentTimeMillis() + fileExtension;
+
+            // Dosyayı kaydet (gerçek uygulamada cloud storage kullanılır)
+            String uploadDir = "uploads/store-images/";
+            java.io.File dir = new java.io.File(uploadDir);
+            if (!dir.exists()) {
+                dir.mkdirs();
+            }
+
+            java.io.File destFile = new java.io.File(uploadDir + fileName);
+            file.transferTo(destFile);
+
+            // URL oluştur
+            String imageUrl = "/api/images/store/" + fileName;
+
+            Map<String, Object> response = new HashMap<>();
+            response.put("message", "Resim başarıyla yüklendi");
+            response.put("imageUrl", imageUrl);
+            response.put("fileName", fileName);
+
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            System.err.println("Upload image error: " + e.getMessage());
+            e.printStackTrace();
+            return ResponseEntity.internalServerError().build();
+        }
+    }
+
+    @PutMapping("/settings")
+    @PreAuthorize("hasRole('SELLER') or hasRole('ROLE_SELLER')")
+    @Operation(summary = "Update seller settings", description = "Update notification and appearance settings")
+    public ResponseEntity<Map<String, Object>> updateSettings(@RequestBody Map<String, Object> request) {
+        try {
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            String email = authentication.getName();
+            
+            User currentUser = userRepository.findByEmail(email)
+                    .orElseThrow(() -> new RuntimeException("User not found: " + email));
+            
+            Map<String, Object> response = new HashMap<>();
+            response.put("message", "Ayarlar başarıyla güncellendi");
+            
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            System.err.println("Update settings error: " + e.getMessage());
+            e.printStackTrace();
+            return ResponseEntity.internalServerError().build();
+        }
+    }
+    
+    // Elasticsearch Arama Endpoint'leri
+    
+    @GetMapping("/search/products")
+    @PreAuthorize("hasRole('SELLER') or hasRole('ROLE_SELLER')")
+    @Operation(summary = "Search seller products with Elasticsearch", description = "Search products using Elasticsearch with filters")
+    public ResponseEntity<Map<String, Object>> searchProducts(
+            @RequestParam(defaultValue = "") String query,
+            @RequestParam(defaultValue = "") String category,
+            @RequestParam(defaultValue = "0") Double minPrice,
+            @RequestParam(defaultValue = "999999") Double maxPrice,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        try {
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            String email = authentication.getName();
+            
+            User currentUser = userRepository.findByEmail(email)
+                    .orElseThrow(() -> new RuntimeException("User not found: " + email));
+            
+            Store sellerStore = storeRepository.findBySeller(currentUser)
+                    .orElseThrow(() -> new RuntimeException("Store not found for seller: " + email));
+            
+            // Elasticsearch servisi kontrol et
+            if (elasticsearchService == null) {
+                return ResponseEntity.badRequest().body(Map.of("error", "Elasticsearch servisi mevcut değil"));
+            }
+            
+            // Elasticsearch ile arama yap
+            List<com.bahattintok.e_commerce.model.ProductDocument> searchResults = 
+                elasticsearchService.advancedSearch(query, category, minPrice, maxPrice, sellerStore.getName());
+            
+            // Sadece bu seller'ın ürünlerini filtrele
+            List<com.bahattintok.e_commerce.model.ProductDocument> filteredResults = searchResults.stream()
+                .filter(doc -> doc.getStoreId().equals(sellerStore.getId()))
+                .toList();
+            
+            // Pagination uygula
+            int startIndex = page * size;
+            int endIndex = Math.min(startIndex + size, filteredResults.size());
+            List<com.bahattintok.e_commerce.model.ProductDocument> paginatedResults = 
+                filteredResults.subList(startIndex, endIndex);
+            
+            Map<String, Object> response = new HashMap<>();
+            response.put("products", paginatedResults);
+            response.put("totalElements", filteredResults.size());
+            response.put("totalPages", (int) Math.ceil((double) filteredResults.size() / size));
+            response.put("currentPage", page);
+            response.put("size", size);
+            
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            System.err.println("Search products error: " + e.getMessage());
+            e.printStackTrace();
+            return ResponseEntity.internalServerError().build();
+        }
+    }
+    
+    @GetMapping("/search/orders")
+    @PreAuthorize("hasRole('SELLER') or hasRole('ROLE_SELLER')")
+    @Operation(summary = "Search seller orders with Elasticsearch", description = "Search orders using Elasticsearch with filters")
+    public ResponseEntity<Map<String, Object>> searchOrders(
+            @RequestParam(defaultValue = "") String query,
+            @RequestParam(defaultValue = "all") String status,
+            @RequestParam(defaultValue = "") String customerName,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        try {
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            String email = authentication.getName();
+            
+            User currentUser = userRepository.findByEmail(email)
+                    .orElseThrow(() -> new RuntimeException("User not found: " + email));
+            
+            Store sellerStore = storeRepository.findBySeller(currentUser)
+                    .orElseThrow(() -> new RuntimeException("Store not found for seller: " + email));
+            
+            // Tüm siparişleri getir
+            List<Order> allOrders = orderRepository.findAll();
+            
+            // Bu seller'ın ürünlerini içeren siparişleri filtrele
+            List<Order> sellerOrders = allOrders.stream()
+                .filter(order -> order.getOrderItems().stream()
+                    .anyMatch(item -> item.getProduct().getStore().getId().equals(sellerStore.getId())))
+                .toList();
+            
+            // Elasticsearch benzeri filtreleme
+            List<Order> filteredOrders = sellerOrders.stream()
+                .filter(order -> {
+                    // Status filtresi
+                    if (!status.equals("all") && !order.getStatus().equals(status)) {
+                        return false;
+                    }
+                    
+                    // Customer name filtresi
+                    if (!customerName.isEmpty() && 
+                        !order.getUser().getFirstName().toLowerCase().contains(customerName.toLowerCase()) &&
+                        !order.getUser().getLastName().toLowerCase().contains(customerName.toLowerCase())) {
+                        return false;
+                    }
+                    
+                    // Query filtresi (order ID veya ürün adı)
+                    if (!query.isEmpty()) {
+                        boolean matchesQuery = order.getId().toLowerCase().contains(query.toLowerCase()) ||
+                            order.getOrderItems().stream()
+                                .anyMatch(item -> item.getProduct().getName().toLowerCase().contains(query.toLowerCase()));
+                        if (!matchesQuery) {
+                            return false;
+                        }
+                    }
+                    
+                    return true;
+                })
+                .toList();
+            
+            // Pagination uygula
+            int startIndex = page * size;
+            int endIndex = Math.min(startIndex + size, filteredOrders.size());
+            List<Order> paginatedOrders = filteredOrders.subList(startIndex, endIndex);
+            
+            // Order'ları Map'e dönüştür
+            List<Map<String, Object>> orderMaps = new ArrayList<>();
+            for (Order order : paginatedOrders) {
+                Map<String, Object> orderMap = new HashMap<>();
+                orderMap.put("id", order.getId());
+                orderMap.put("createdAt", order.getCreatedAt());
+                orderMap.put("status", order.getStatus());
+                orderMap.put("totalPrice", order.getTotalPrice());
+                
+                // User bilgileri
+                Map<String, Object> userMap = new HashMap<>();
+                userMap.put("id", order.getUser().getId());
+                userMap.put("firstName", order.getUser().getFirstName());
+                userMap.put("lastName", order.getUser().getLastName());
+                userMap.put("email", order.getUser().getEmail());
+                userMap.put("phone", order.getUser().getPhone());
+                orderMap.put("user", userMap);
+                
+                // Order items
+                List<Map<String, Object>> itemMaps = new ArrayList<>();
+                for (OrderItem item : order.getOrderItems()) {
+                    // Sadece bu seller'ın ürünlerini dahil et
+                    if (item.getProduct().getStore().getId().equals(sellerStore.getId())) {
+                        Map<String, Object> itemMap = new HashMap<>();
+                        itemMap.put("id", item.getId());
+                        itemMap.put("quantity", item.getQuantity());
+                        itemMap.put("price", item.getPrice());
+                        
+                        // Product bilgileri
+                        Map<String, Object> productMap = new HashMap<>();
+                        productMap.put("id", item.getProduct().getId());
+                        productMap.put("name", item.getProduct().getName());
+                        productMap.put("image", item.getProduct().getImage());
+                        productMap.put("price", item.getProduct().getPrice());
+                        
+                        // Category bilgileri
+                        Map<String, Object> categoryMap = new HashMap<>();
+                        categoryMap.put("id", item.getProduct().getCategory().getId());
+                        categoryMap.put("name", item.getProduct().getCategory().getName());
+                        productMap.put("category", categoryMap);
+                        
+                        itemMap.put("product", productMap);
+                        itemMaps.add(itemMap);
+                    }
+                }
+                orderMap.put("orderItems", itemMaps);
+                
+                orderMaps.add(orderMap);
+            }
+            
+            Map<String, Object> response = new HashMap<>();
+            response.put("orders", orderMaps);
+            response.put("totalElements", filteredOrders.size());
+            response.put("totalPages", (int) Math.ceil((double) filteredOrders.size() / size));
+            response.put("currentPage", page);
+            response.put("size", size);
+            
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            System.err.println("Search orders error: " + e.getMessage());
+            e.printStackTrace();
+            return ResponseEntity.internalServerError().build();
+        }
+    }
+    
+    @GetMapping("/search/stock")
+    @PreAuthorize("hasRole('SELLER') or hasRole('ROLE_SELLER')")
+    @Operation(summary = "Search seller stock with Elasticsearch", description = "Search stock using Elasticsearch with filters")
+    public ResponseEntity<Map<String, Object>> searchStock(
+            @RequestParam(defaultValue = "") String query,
+            @RequestParam(defaultValue = "") String category,
+            @RequestParam(defaultValue = "0") int minStock,
+            @RequestParam(defaultValue = "999999") int maxStock,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        try {
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            String email = authentication.getName();
+            
+            User currentUser = userRepository.findByEmail(email)
+                    .orElseThrow(() -> new RuntimeException("User not found: " + email));
+            
+            Store sellerStore = storeRepository.findBySeller(currentUser)
+                    .orElseThrow(() -> new RuntimeException("Store not found for seller: " + email));
+            
+            // Elasticsearch servisi kontrol et
+            if (elasticsearchService == null) {
+                return ResponseEntity.badRequest().body(Map.of("error", "Elasticsearch servisi mevcut değil"));
+            }
+            
+            // Elasticsearch ile arama yap
+            List<com.bahattintok.e_commerce.model.ProductDocument> searchResults = 
+                elasticsearchService.advancedSearch(query, category, 0.0, 999999.0, sellerStore.getName());
+            
+            // Sadece bu seller'ın ürünlerini filtrele ve stok kriterlerini uygula
+            List<com.bahattintok.e_commerce.model.ProductDocument> filteredResults = searchResults.stream()
+                .filter(doc -> doc.getStoreId().equals(sellerStore.getId()))
+                .filter(doc -> doc.getStock() >= minStock && doc.getStock() <= maxStock)
+                .toList();
+            
+            // Pagination uygula
+            int startIndex = page * size;
+            int endIndex = Math.min(startIndex + size, filteredResults.size());
+            List<com.bahattintok.e_commerce.model.ProductDocument> paginatedResults = 
+                filteredResults.subList(startIndex, endIndex);
+            
+            Map<String, Object> response = new HashMap<>();
+            response.put("products", paginatedResults);
+            response.put("totalElements", filteredResults.size());
+            response.put("totalPages", (int) Math.ceil((double) filteredResults.size() / size));
+            response.put("currentPage", page);
+            response.put("size", size);
+            
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            System.err.println("Search stock error: " + e.getMessage());
+            e.printStackTrace();
+            return ResponseEntity.internalServerError().build();
+        }
+    }
+    
+    @GetMapping("/search/campaigns")
+    @PreAuthorize("hasRole('SELLER') or hasRole('ROLE_SELLER')")
+    @Operation(summary = "Search seller campaigns with Elasticsearch", description = "Search campaigns using Elasticsearch with filters")
+    public ResponseEntity<Map<String, Object>> searchCampaigns(
+            @RequestParam(defaultValue = "") String query,
+            @RequestParam(defaultValue = "all") String campaignType,
+            @RequestParam(defaultValue = "all") String status,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        try {
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            String email = authentication.getName();
+            
+            User currentUser = userRepository.findByEmail(email)
+                    .orElseThrow(() -> new RuntimeException("User not found: " + email));
+            
+            Store sellerStore = storeRepository.findBySeller(currentUser)
+                    .orElseThrow(() -> new RuntimeException("Store not found for seller: " + email));
+            
+            // Tüm kampanyaları getir
+            List<Campaign> allCampaigns = campaignRepository.findByStore(sellerStore);
+            
+            // Elasticsearch benzeri filtreleme
+            List<Campaign> filteredCampaigns = allCampaigns.stream()
+                .filter(campaign -> {
+                    // Campaign type filtresi
+                    if (!campaignType.equals("all") && !campaign.getCampaignType().equals(campaignType)) {
+                        return false;
+                    }
+                    
+                    // Status filtresi
+                    if (!status.equals("all")) {
+                        boolean isActive = campaign.isActive();
+                        if (status.equals("active") && !isActive) {
+                            return false;
+                        }
+                        if (status.equals("inactive") && isActive) {
+                            return false;
+                        }
+                    }
+                    
+                    // Query filtresi (kampanya adı veya açıklaması)
+                    if (!query.isEmpty()) {
+                        boolean matchesQuery = campaign.getName().toLowerCase().contains(query.toLowerCase()) ||
+                            (campaign.getDescription() != null && 
+                             campaign.getDescription().toLowerCase().contains(query.toLowerCase()));
+                        if (!matchesQuery) {
+                            return false;
+                        }
+                    }
+                    
+                    return true;
+                })
+                .toList();
+            
+            // Pagination uygula
+            int startIndex = page * size;
+            int endIndex = Math.min(startIndex + size, filteredCampaigns.size());
+            List<Campaign> paginatedCampaigns = filteredCampaigns.subList(startIndex, endIndex);
+            
+            // Campaign'ları Map'e dönüştür
+            List<Map<String, Object>> campaignMaps = new ArrayList<>();
+            for (Campaign campaign : paginatedCampaigns) {
+                Map<String, Object> campaignMap = new HashMap<>();
+                campaignMap.put("id", campaign.getId());
+                campaignMap.put("name", campaign.getName());
+                campaignMap.put("description", campaign.getDescription());
+                campaignMap.put("campaignType", campaign.getCampaignType());
+                campaignMap.put("targetId", campaign.getTargetId());
+                campaignMap.put("discountType", campaign.getDiscountType());
+                campaignMap.put("discountValue", campaign.getDiscountValue());
+                campaignMap.put("startDate", campaign.getStartDate());
+                campaignMap.put("endDate", campaign.getEndDate());
+                campaignMap.put("isActive", campaign.isActive());
+                campaignMap.put("createdAt", campaign.getCreatedAt());
+                campaignMap.put("updatedAt", campaign.getUpdatedAt());
+                
+                campaignMaps.add(campaignMap);
+            }
+            
+            Map<String, Object> response = new HashMap<>();
+            response.put("campaigns", campaignMaps);
+            response.put("totalElements", filteredCampaigns.size());
+            response.put("totalPages", (int) Math.ceil((double) filteredCampaigns.size() / size));
+            response.put("currentPage", page);
+            response.put("size", size);
+            
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            System.err.println("Search campaigns error: " + e.getMessage());
+            e.printStackTrace();
+            return ResponseEntity.internalServerError().build();
         }
     }
 } 

@@ -15,8 +15,9 @@ export const NotificationProvider = ({ children }) => {
     setLoading(true);
     try {
       const response = await api.get('/notifications', { withCredentials: true });
-      setNotifications(response.data || []);
-      setUnreadCount(response.data?.filter(n => !n.read).length || 0);
+      const notificationsData = Array.isArray(response.data) ? response.data : [];
+      setNotifications(notificationsData);
+      setUnreadCount(notificationsData.filter(n => !n.read).length || 0);
     } catch (error) {
       console.log('Bildirimler alınamadı:', error);
     } finally {

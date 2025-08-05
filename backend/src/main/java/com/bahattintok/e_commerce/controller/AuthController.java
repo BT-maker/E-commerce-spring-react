@@ -188,6 +188,55 @@ public class AuthController {
 }
     
     /**
+     * Şifre değiştirme
+     */
+    @PostMapping("/change-password")
+    @Operation(summary = "Change password", description = "Change user password")
+    public ResponseEntity<?> changePassword(
+            @RequestBody Map<String, String> request,
+            Authentication authentication) {
+        try {
+            if (authentication == null) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(Map.of("error", "Kimlik doğrulama gerekli"));
+            }
+
+            String currentPassword = request.get("currentPassword");
+            String newPassword = request.get("newPassword");
+
+            if (currentPassword == null || newPassword == null) {
+                return ResponseEntity.badRequest()
+                    .body(Map.of("error", "Mevcut şifre ve yeni şifre gerekli"));
+            }
+
+            if (newPassword.length() < 6) {
+                return ResponseEntity.badRequest()
+                    .body(Map.of("error", "Yeni şifre en az 6 karakter olmalıdır"));
+            }
+
+            User user = userRepository.findByEmail(authentication.getName())
+                    .orElseThrow(() -> new RuntimeException("Kullanıcı bulunamadı"));
+
+            // Mevcut şifreyi kontrol et
+            if (!passwordEncoder.matches(currentPassword, user.getPassword())) {
+                return ResponseEntity.badRequest()
+                    .body(Map.of("error", "Mevcut şifre yanlış"));
+            }
+
+            // Yeni şifreyi hashle ve kaydet
+            user.setPassword(passwordEncoder.encode(newPassword));
+            userRepository.save(user);
+
+            return ResponseEntity.ok(Map.of("message", "Şifre başarıyla değiştirildi"));
+        } catch (Exception e) {
+            System.err.println("Change password error: " + e.getMessage());
+            e.printStackTrace();
+            return ResponseEntity.internalServerError()
+                .body(Map.of("error", "Şifre değiştirilirken bir hata oluştu"));
+        }
+    }
+    
+    /**
      * Bu controller şu işlevleri sağlar:
      * 
      * 1. Kullanıcı Kaydı: Yeni kullanıcı oluşturma (/signup)

@@ -91,6 +91,7 @@
 .nav-link:hover {
   background: rgba(255, 255, 255, 0.1);
   transform: translateY(-1px);
+  color: #5e5c5c;
 }
 
 .nav-link svg {
@@ -353,6 +354,7 @@
 
 .mobile-nav-link:hover {
   background: #f8f9fa;
+  color: #000000;
 }
 
 .logout-link {

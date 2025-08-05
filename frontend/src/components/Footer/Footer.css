@@ -1,10 +1,11 @@
 .footer {
-  background: var(--bg-primary); /* Soft beyaz arka plan */
-  color: var(--text-primary); /* Koyu gri metin */
+  background: var(--bg-primary); /* Light mode: beyaz, dark mode: antrasit */
+  color: var(--text-primary); /* Light mode: koyu gri, dark mode: beyaz */
   margin-top: 4rem;
   padding: 2.5rem 1rem 1.2rem 1rem;
-  border-top: 1px solid var(--border-color); /* Üste ayıran çizgi */
+  border-top: 1px solid var(--border-color); /* Light mode: açık gri, dark mode: koyu gri */
 }
+
 .footer-content {
   max-width: 1120px;
   margin: 0 auto;
@@ -12,57 +13,75 @@
   grid-template-columns: 1fr;
   gap: 2rem;
   padding-bottom: 2rem;
-  border-bottom: 1px solid var(--border-color); /* Çizgi rengini açık gri yap */
+  border-bottom: 1px solid var(--border-color); /* Light mode: açık gri, dark mode: koyu gri */
 }
+
 @media (min-width: 768px) {
   .footer-content {
     grid-template-columns: repeat(3, 1fr);
   }
 }
+
 @media (max-width: 900px) {
-  .footer-content { grid-template-columns: 1fr 1fr; }
+  .footer-content { 
+    grid-template-columns: 1fr 1fr; 
+  }
 }
+
 @media (max-width: 600px) {
-  .footer-content { grid-template-columns: 1fr; padding: 1.2rem 0.5rem; }
-  .footer-title { font-size: 1rem; }
+  .footer-content { 
+    grid-template-columns: 1fr; 
+    padding: 1.2rem 0.5rem; 
+  }
+  .footer-title { 
+    font-size: 1rem; 
+  }
 }
+
 .footer-title {
   font-size: 1.1rem;
   font-weight: 700;
   margin-bottom: 0.75rem;
-  color: var(--text-primary); /* Koyu gri başlık */
+  color: var(--text-primary); /* Light mode: koyu gri, dark mode: beyaz */
 }
+
 .footer-list {
   list-style: none;
   padding: 0;
   margin: 0;
 }
+
 .footer-link {
-  color: var(--text-secondary); /* Pastel mavi tonu link */
+  color: var(--text-secondary); /* Light mode: orta gri, dark mode: açık gri */
   font-size: 0.97rem;
   text-decoration: none;
   transition: color 0.2s;
 }
+
 .footer-link:hover {
-  color: var(--accent-color); /* Mercan pembesi hover */
+  color: var(--accent-color); /* Turuncu hover */
   text-decoration: underline;
 }
+
 .footer-social {
   display: flex;
   gap: 1.1rem;
   margin-top: 0.5rem;
 }
+
 .footer-social a {
-  color: var(--text-secondary); /* Pastel mavi tonu ikon */
+  color: var(--text-secondary); /* Light mode: orta gri, dark mode: açık gri */
   font-size: 1.5rem;
   transition: color 0.2s;
 }
+
 .footer-social a:hover {
-  color: var(--accent-color); /* Mercan pembesi hover */
+  color: var(--accent-color); /* Turuncu hover */
 }
+
 .footer-copyright {
   text-align: center;
   font-size: 0.85rem;
-  color: #71717a; /* Copyright metin rengini ayarla */
+  color: var(--text-tertiary); /* Light mode: açık gri, dark mode: orta gri */
   margin-top: 2rem;
 } 

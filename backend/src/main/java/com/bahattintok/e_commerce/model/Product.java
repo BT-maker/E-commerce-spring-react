@@ -23,15 +23,17 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 /**
  * Ürünleri temsil eden JPA entity'si.
  */
 @Entity
 @Table(name = "products")
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
@@ -97,13 +99,15 @@ public class Product {
     /**
      * Ürünün ait olduğu kategori ID'si (String)
      */
-    @Column(name = "category_id", nullable = false)
+    @Column(name = "category_id")
+    @JsonIgnore
     private String categoryId;
 
     /**
      * Ürünün ait olduğu mağaza ID'si (String)
      */
-    @Column(name = "store_id")
+    @Column(name = "store_id", nullable = true)
+    @JsonIgnore
     private String storeId;
 
     /**
@@ -144,8 +148,17 @@ public class Product {
      */
     @JsonProperty("isDiscountActive")
     public boolean isDiscountActive() {
-        return discountPercentage != null && discountPercentage > 0 && 
-               (discountEndDate == null || discountEndDate.isAfter(java.time.LocalDateTime.now()));
+        if (discountEndDate == null || discountPercentage == null || discountPercentage <= 0) {
+            return false;
+        }
+        return java.time.LocalDateTime.now().isBefore(discountEndDate);
+    }
+    
+    /**
+     * Ürün görselini döner
+     */
+    public String getImage() {
+        return imageUrl;
     }
     
     /**

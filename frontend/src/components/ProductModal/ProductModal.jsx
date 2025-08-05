@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
+import { FaTimes, FaSave, FaImage, FaSpinner } from "react-icons/fa";
+import "./ProductModal.css";
 
-const ProductModal = ({ show, onClose, onSave, categories, initial }) => {
+const ProductModal = ({ show, onClose, onSave, categories, initial, loading = false }) => {
   const [form, setForm] = useState({
     name: "",
     price: "",
@@ -9,6 +11,9 @@ const ProductModal = ({ show, onClose, onSave, categories, initial }) => {
     description: "",
     stock: ""
   });
+
+  const [errors, setErrors] = useState({});
+  const [imagePreview, setImagePreview] = useState("");
 
   useEffect(() => {
     if (initial) {
@@ -20,101 +25,237 @@ const ProductModal = ({ show, onClose, onSave, categories, initial }) => {
         description: initial.description || "",
         stock: initial.stock || ""
       });
+      setImagePreview(initial.imageUrl || "");
     } else {
       setForm({ name: "", price: "", categoryId: "", imageUrl: "", description: "", stock: "" });
+      setImagePreview("");
     }
+    setErrors({});
   }, [initial, show]);
+
+  useEffect(() => {
+    setImagePreview(form.imageUrl);
+  }, [form.imageUrl]);
 
   if (!show) return null;
 
   const handleChange = e => {
-    setForm({ ...form, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    setForm({ ...form, [name]: value });
+    
+    // Clear error when user starts typing
+    if (errors[name]) {
+      setErrors({ ...errors, [name]: "" });
+    }
+  };
+
+  const validateForm = () => {
+    const newErrors = {};
+    
+    if (!form.name.trim()) {
+      newErrors.name = "Ürün adı gereklidir";
+    }
+    
+    if (!form.price || form.price <= 0) {
+      newErrors.price = "Geçerli bir fiyat giriniz";
+    }
+    
+    if (!form.categoryId) {
+      newErrors.categoryId = "Kategori seçiniz";
+    }
+    
+    if (!form.stock || form.stock < 0) {
+      newErrors.stock = "Geçerli bir stok miktarı giriniz";
+    }
+    
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
   };
 
   const handleSubmit = e => {
     e.preventDefault();
-    onSave(form);
+    
+    if (validateForm()) {
+      onSave(form);
+    }
+  };
+
+  const handleClose = () => {
+    if (!loading) {
+      onClose();
+    }
+  };
+
+  const getInputClassName = (fieldName) => {
+    const baseClass = fieldName === 'description' ? 'form-textarea' : 
+                     fieldName === 'categoryId' ? 'form-select' : 'form-input';
+    return `${baseClass} ${errors[fieldName] ? 'error' : ''}`;
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-30">
-      <div className="bg-white rounded-xl shadow-lg p-8 w-full max-w-md relative animate-fade-in">
-        <button onClick={onClose} className="absolute top-3 right-4 text-2xl text-gray-400 hover:text-red-500">&times;</button>
-        <h3 className="text-xl font-bold mb-4">{initial ? "Ürünü Düzenle" : "Yeni Ürün Ekle"}</h3>
-        <form onSubmit={handleSubmit} className="flex flex-col gap-3">
-          <input
-            name="name"
-            value={form.name}
-            onChange={handleChange}
-            placeholder="Ürün adı"
-            className="border rounded px-3 py-2"
-            required
-          />
-          <input
-            name="price"
-            type="number"
-            value={form.price}
-            onChange={handleChange}
-            placeholder="Fiyat"
-            className="border rounded px-3 py-2"
-            required
-          />
-          <select
-            name="categoryId"
-            value={form.categoryId}
-            onChange={handleChange}
-            className="border rounded px-3 py-2"
-            required
+    <div className="product-modal-overlay" onClick={handleClose}>
+      <div className="product-modal" onClick={e => e.stopPropagation()}>
+        <div className="product-modal-header">
+          <h3 className="product-modal-title">
+            {initial ? "Ürünü Düzenle" : "Yeni Ürün Ekle"}
+          </h3>
+          <button 
+            onClick={handleClose} 
+            className="product-modal-close"
+            disabled={loading}
           >
-            <option value="">Kategori seç</option>
-            {categories.map(cat => (
-              <option key={cat.id} value={cat.id}>{cat.name}</option>
-            ))}
-          </select>
-          <input
-            name="imageUrl"
-            value={form.imageUrl}
-            onChange={handleChange}
-            placeholder="Resim URL"
-            className="border rounded px-3 py-2"
-          />
-          <input
-            name="description"
-            value={form.description}
-            onChange={handleChange}
-            placeholder="Açıklama"
-            className="border rounded px-3 py-2"
-          />
-          <input
-            name="stock"
-            type="number"
-            value={form.stock}
-            onChange={handleChange}
-            placeholder="Stok"
-            className="border rounded px-3 py-2"
-            required
-          />
-          <button type="submit" className="bg-green-600 text-white px-4 py-2 rounded font-semibold mt-2">
-            Kaydet
+            <FaTimes />
           </button>
+        </div>
+
+        <form onSubmit={handleSubmit} className="product-modal-form">
+          {/* Ürün Adı */}
+          <div className="form-group">
+            <label className="form-label">Ürün Adı *</label>
+            <input
+              name="name"
+              value={form.name}
+              onChange={handleChange}
+              placeholder="Örn: iPhone 15 Pro"
+              className={getInputClassName('name')}
+              disabled={loading}
+            />
+            {errors.name && <div className="error-message">{errors.name}</div>}
+          </div>
+
+          {/* Fiyat ve Kategori */}
+          <div className="form-row">
+            <div className="form-group">
+              <label className="form-label">Fiyat (₺) *</label>
+              <input
+                name="price"
+                type="number"
+                step="0.01"
+                min="0"
+                value={form.price}
+                onChange={handleChange}
+                placeholder="0.00"
+                className={getInputClassName('price')}
+                disabled={loading}
+              />
+              {errors.price && <div className="error-message">{errors.price}</div>}
+            </div>
+
+            <div className="form-group">
+              <label className="form-label">Kategori *</label>
+              <select
+                name="categoryId"
+                value={form.categoryId}
+                onChange={handleChange}
+                className={getInputClassName('categoryId')}
+                disabled={loading}
+              >
+                <option value="">Kategori seçin</option>
+                {categories.map(cat => (
+                  <option key={cat.id} value={cat.id}>{cat.name}</option>
+                ))}
+              </select>
+              {errors.categoryId && <div className="error-message">{errors.categoryId}</div>}
+            </div>
+          </div>
+
+          {/* Stok */}
+          <div className="form-group">
+            <label className="form-label">Stok Miktarı *</label>
+            <input
+              name="stock"
+              type="number"
+              min="0"
+              value={form.stock}
+              onChange={handleChange}
+              placeholder="0"
+              className={getInputClassName('stock')}
+              disabled={loading}
+            />
+            {errors.stock && <div className="error-message">{errors.stock}</div>}
+          </div>
+
+          {/* Resim URL */}
+          <div className="form-group">
+            <label className="form-label">
+              <FaImage style={{ marginRight: '0.5rem' }} />
+              Resim URL
+            </label>
+            <input
+              name="imageUrl"
+              value={form.imageUrl}
+              onChange={handleChange}
+              placeholder="https://example.com/image.jpg"
+              className={getInputClassName('imageUrl')}
+              disabled={loading}
+            />
+          </div>
+
+          {/* Resim Önizleme - Sadece yeni ürün ekleme sırasında göster */}
+          {!initial && imagePreview && (
+            <div className="form-group">
+              <label className="form-label">Resim Önizleme</label>
+              <div className="image-preview">
+                <img 
+                  src={imagePreview} 
+                  alt="Ürün resmi" 
+                  onError={(e) => {
+                    e.target.style.display = 'none';
+                    e.target.nextSibling.style.display = 'block';
+                  }}
+                />
+                <div className="image-preview-placeholder" style={{ display: 'none' }}>
+                  Resim yüklenemedi
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Açıklama */}
+          <div className="form-group">
+            <label className="form-label">Ürün Açıklaması</label>
+            <textarea
+              name="description"
+              value={form.description}
+              onChange={handleChange}
+              placeholder="Ürün hakkında detaylı bilgi..."
+              className={getInputClassName('description')}
+              disabled={loading}
+            />
+          </div>
+
+          {/* Butonlar */}
+          <div className="product-modal-actions">
+            <button 
+              type="button" 
+              onClick={handleClose} 
+              className="btn btn-secondary"
+              disabled={loading}
+            >
+              İptal
+            </button>
+            <button 
+              type="submit" 
+              className="btn btn-primary"
+              disabled={loading}
+            >
+              {loading ? (
+                <>
+                  <FaSpinner className="animate-spin" />
+                  Kaydediliyor...
+                </>
+              ) : (
+                <>
+                  <FaSave />
+                  {initial ? "Güncelle" : "Kaydet"}
+                </>
+              )}
+            </button>
+          </div>
         </form>
       </div>
     </div>
   );
 };
 
-export default ProductModal;
-
-/**
- * Bu component şu işlevleri sağlar:
- * 
- * 1. Ürün Modal: Ürün ekleme/düzenleme için popup modal
- * 2. Form Yönetimi: Ürün bilgilerini form formatında toplama
- * 3. Kategori Seçimi: Ürün kategorisi seçme dropdown'u
- * 4. Form Validation: Gerekli alanların doğrulaması
- * 5. Edit Mode: Mevcut ürün bilgilerini düzenleme
- * 6. Add Mode: Yeni ürün oluşturma
- * 7. Responsive Design: Mobil ve desktop uyumlu tasarım
- * 
- * Bu component sayesinde admin kullanıcıları ürün ekleme ve düzenleme işlemlerini kolayca yapabilir!
- */ 
+export default ProductModal; 

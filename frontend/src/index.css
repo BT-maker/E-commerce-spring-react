@@ -6,23 +6,39 @@
   html {
     font-family: system-ui, sans-serif;
   }
+  
+  /* Light Mode Varsayılan Renkler */
+  :root {
+    --bg-primary: #ffffff;
+    --bg-secondary: #fafafa;
+    --bg-tertiary: #f5f5f5;
+    --text-primary: #1f2937;
+    --text-secondary: #6b7280;
+    --text-tertiary: #9ca3af;
+    --border-color: #e5e7eb;
+    --accent-color: #ff6000;
+  }
+  
+  body {
+    @apply bg-background-primary text-text-primary transition-colors duration-200;
+  }
 }
 
 @layer components {
   .btn-primary {
-    @apply bg-accent-400 hover:bg-accent-500 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200;
+    @apply bg-accent-500 hover:bg-accent-600 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200;
   }
   
   .btn-secondary {
-    @apply bg-secondary-400 hover:bg-secondary-500 text-gray-800 font-medium py-2 px-4 rounded-lg transition-colors duration-200;
+    @apply bg-secondary-200 hover:bg-secondary-300 text-gray-800 font-medium py-2 px-4 rounded-lg transition-colors duration-200;
   }
   
   .btn-accent {
-    @apply bg-accent-400 hover:bg-accent-500 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200;
+    @apply bg-accent-500 hover:bg-accent-600 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200;
   }
   
   .input-field {
-    @apply w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent-400 focus:border-transparent bg-background-primary text-text-primary;
+    @apply w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent-500 focus:border-transparent bg-background-primary text-text-primary;
   }
   
   .card {
@@ -44,11 +60,11 @@
   }
   
   .product-title {
-    @apply text-text-primary font-semibold text-lg mb-2 hover:text-accent-400 transition-colors;
+    @apply text-text-primary font-semibold text-lg mb-2 hover:text-accent-500 transition-colors;
   }
   
   .product-price {
-    @apply text-accent-400 font-bold text-xl mb-3;
+    @apply text-accent-500 font-bold text-xl mb-3;
   }
   
   .stock-badge {
@@ -56,7 +72,7 @@
   }
   
   .stock-available {
-    @apply bg-secondary-400 text-gray-800;
+    @apply bg-secondary-200 text-gray-800;
   }
   
   .stock-low {
@@ -69,7 +85,7 @@
   
   /* Button Styles */
   .add-to-cart-btn {
-    @apply w-full bg-accent-400 hover:bg-accent-500 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200 flex items-center justify-center gap-2;
+    @apply w-full bg-accent-500 hover:bg-accent-600 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200 flex items-center justify-center gap-2;
   }
   
   .add-to-cart-btn:disabled {
@@ -78,25 +94,40 @@
   
   /* Header Styles */
   .header-link {
-    @apply text-text-primary hover:text-accent-400 transition-colors duration-200;
+    @apply text-text-primary hover:text-accent-500 transition-colors duration-200;
   }
   
   .header-button {
-    @apply bg-accent-400 hover:bg-accent-500 text-white px-4 py-2 rounded-lg transition-colors duration-200;
+    @apply bg-accent-500 hover:bg-accent-600 text-white px-4 py-2 rounded-lg transition-colors duration-200;
   }
   
   /* Navigation Styles */
   .nav-link {
-    @apply text-text-secondary hover:text-accent-400 transition-colors duration-200;
+    @apply text-text-secondary hover:text-accent-500 transition-colors duration-200;
   }
   
   .nav-link.active {
-    @apply text-accent-400 font-semibold;
+    @apply text-accent-500 font-semibold;
   }
   
   /* Form Styles */
   .form-input {
-    @apply w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent-400 focus:border-transparent bg-background-primary text-text-primary;
+    @apply w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent-500 focus:border-transparent bg-background-primary text-text-primary;
+  }
+
+  /* Genel Input Stilleri */
+  input, textarea, select {
+    background-color: white !important;
+    color: #374151 !important;
+  }
+
+  input:focus, textarea:focus, select:focus {
+    background-color: white !important;
+    color: #374151 !important;
+  }
+
+  input::placeholder, textarea::placeholder {
+    color: #9ca3af !important;
   }
   
   .form-label {
@@ -104,12 +135,12 @@
   }
   
   .form-error {
-    @apply text-error-400 text-sm mt-1;
+    @apply text-error-500 text-sm mt-1;
   }
   
   /* Alert Styles */
   .alert-success {
-    @apply bg-secondary-400 text-gray-800 p-4 rounded-lg border border-secondary-500;
+    @apply bg-secondary-200 text-gray-800 p-4 rounded-lg border border-secondary-300;
   }
   
   .alert-error {
@@ -126,7 +157,7 @@
   }
   
   .badge-success {
-    @apply bg-secondary-400 text-gray-800;
+    @apply bg-secondary-200 text-gray-800;
   }
   
   .badge-error {
@@ -138,6 +169,43 @@
   }
   
   .badge-info {
-    @apply bg-primary-400 text-white;
+    @apply bg-accent-500 text-white;
+  }
+  
+  /* Modal Styles */
+  .modal-overlay {
+    @apply fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50;
+  }
+  
+  .modal-content {
+    @apply bg-background-primary rounded-lg shadow-xl p-6 max-w-md w-full mx-4;
+  }
+  
+  /* Loading Spinner */
+  .loading-spinner {
+    @apply animate-spin rounded-full h-8 w-8 border-b-2 border-accent-500;
+  }
+  
+  /* Custom Scrollbar */
+  .custom-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: var(--accent-color) var(--bg-secondary);
+  }
+  
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 6px;
+  }
+  
+  .custom-scrollbar::-webkit-scrollbar-track {
+    background: var(--bg-secondary);
+  }
+  
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    background: var(--accent-color);
+    border-radius: 3px;
+  }
+  
+  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: #ff8c00;
   }
 }

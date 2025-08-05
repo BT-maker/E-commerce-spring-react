@@ -11,7 +11,7 @@
 .product-card:hover {
   transform: translateY(-4px);
   box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
-  border-color: var(--orange-500);
+  border-color: var(--accent-color);
 }
 
 .product-image-container {
@@ -125,7 +125,7 @@
 }
 
 .quick-action-btn:hover {
-  background: var(--orange-500);
+  background: var(--accent-color);
   color: white;
   transform: scale(1.1);
 }
@@ -136,15 +136,15 @@
 
 .favorite-btn.active {
   color: var(--accent-color);
-  background: rgba(244, 114, 182, 0.1);
+  background: rgba(255, 96, 0, 0.1);
 }
 
 .favorite-btn.active:hover {
-  color: var(--accent-hover);
+  color: var(--accent-color);
 }
 
 .view-btn:hover {
-  color: var(--primary-color);
+  color: var(--accent-color);
 }
 
 /* Ürün Bilgileri */
@@ -164,7 +164,7 @@
 }
 
 .product-title:hover {
-  color: var(--orange-500);
+  color: var(--accent-color);
 }
 
 .product-card-price {
@@ -192,13 +192,13 @@
 }
 
 .discounted-price {
-  color: var(--orange-500);
+  color: var(--accent-color);
   font-weight: 700;
   font-size: 1.25rem;
 }
 
 .current-price {
-  color: var(--orange-500);
+  color: var(--accent-color);
   font-weight: 700;
   font-size: 1.25rem;
 }
@@ -219,8 +219,8 @@
 }
 
 .stock-status.available {
-  color: var(--secondary-color);
-  background: rgba(167, 243, 208, 0.1);
+  color: var(--accent-color);
+  background: rgba(255, 96, 0, 0.1);
 }
 
 .stock-status.low {
@@ -230,19 +230,19 @@
 
 .stock-available {
   font-size: 0.85rem;
-  color: var(--accent-600);
+  color: var(--accent-color);
   font-weight: 500;
 }
 
 .stock-low {
   font-size: 0.85rem;
-  color: var(--warning-600);
+  color: var(--warning-color);
   font-weight: 500;
 }
 
 .stock-unavailable {
   font-size: 0.85rem;
-  color: var(--error-600);
+  color: var(--error-color);
   font-weight: 500;
 }
 
@@ -260,12 +260,12 @@
   align-items: center;
   justify-content: center;
   gap: 8px;
-  background: var(--orange-500);
+  background: var(--accent-color);
   color: white;
 }
 
 .product-card-btn:hover:not(:disabled) {
-  background: var(--orange-600);
+  background: #ff8c00;
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(255, 96, 0, 0.3);
 }
@@ -275,12 +275,12 @@
 }
 
 .product-card-btn.added {
-  background: var(--accent-500);
+  background: var(--accent-color);
   color: white;
 }
 
 .product-card-btn.added:hover {
-  background: var(--accent-600);
+  background: #ff8c00;
 }
 
 .product-card-btn.disabled {

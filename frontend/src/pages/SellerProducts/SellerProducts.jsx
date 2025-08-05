@@ -1,26 +1,40 @@
 import React, { useState, useEffect } from 'react';
-import { FaPlus, FaEdit, FaTrash, FaEye, FaSearch, FaFilter, FaEyeSlash, FaPencilAlt, FaTimes, FaEyeDropper, FaPencilRuler, FaTrashAlt, FaBox, FaEye as FaEyeIcon, FaExclamationTriangle } from 'react-icons/fa';
+import { FaPlus, FaEdit, FaTrash, FaEye, FaSearch, FaTimes, FaBox, FaExclamationTriangle } from 'react-icons/fa';
 import { MdDelete, MdEdit, MdVisibility } from "react-icons/md";
+import ProductModal from '../../components/ProductModal/ProductModal';
 import './SellerProducts.css?v=1.0.2'; // Force cache refresh
+
 const SellerProducts = () => {
-  const [products, setProducts] = useState([]);
+  const [allProducts, setAllProducts] = useState([]); // Tüm ürünler
+  const [filteredProducts, setFilteredProducts] = useState([]); // Filtrelenmiş ürünler
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState('all');
-  const [showAddModal, setShowAddModal] = useState(false);
-  const [showEditModal, setShowEditModal] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState('');
+  const [minPrice, setMinPrice] = useState('');
+  const [maxPrice, setMaxPrice] = useState('');
+  const [useElasticsearch, setUseElasticsearch] = useState(false);
+  const [showModal, setShowModal] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [categories, setCategories] = useState([]);
+  const [modalLoading, setModalLoading] = useState(false);
+  const [showSuggestions, setShowSuggestions] = useState(false); // Öneriler için
+  
+  // Sayfalama state'leri
+  const [currentPage, setCurrentPage] = useState(0);
+  const [totalPages, setTotalPages] = useState(0);
+  const [totalProducts, setTotalProducts] = useState(0);
+  const [pageSize] = useState(10);
 
-  // Gerçek ürünleri API'den çek
-  const fetchProducts = async () => {
+  // Tüm ürünleri API'den çek (sadece bir kez)
+  const fetchAllProducts = async () => {
     try {
       setLoading(true);
-      setError('');
+      setError(null);
       
-      // Geçici olarak tüm ürünleri getir (test için)
-      const response = await fetch('http://localhost:8080/api/products', {
+      const url = `http://localhost:8080/api/seller/products?page=0&size=1000`; // Tüm ürünleri al
+      
+      const response = await fetch(url, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -33,14 +47,20 @@ const SellerProducts = () => {
       }
 
       const data = await response.json();
-      console.log('Çekilen ürünler:', data);
+      console.log('Tüm ürün verileri:', data);
       
-      // Page formatından content'i al
-      const products = data.content || data;
-      setProducts(products);
+      if (data && data.products) {
+        setAllProducts(data.products);
+        setFilteredProducts(data.products);
+        setTotalProducts(data.totalElements || data.products.length);
+      } else {
+        setAllProducts(data);
+        setFilteredProducts(data);
+        setTotalProducts(data.length || 0);
+      }
     } catch (err) {
-      console.error('Ürünler çekilirken hata:', err);
-      setError('Ürünler yüklenirken bir hata oluştu. Lütfen tekrar deneyin.');
+      console.error('Ürün veri hatası:', err);
+      setError('Ürün verileri yüklenirken bir hata oluştu.');
     } finally {
       setLoading(false);
     }
@@ -71,7 +91,7 @@ const SellerProducts = () => {
   const handleDelete = async (productId) => {
     if (window.confirm('Bu ürünü silmek istediğinizden emin misiniz?')) {
       try {
-        const response = await fetch(`http://localhost:8080/api/products/${productId}`, {
+        const response = await fetch(`http://localhost:8080/api/seller/products/${productId}`, {
           method: 'DELETE',
           headers: {
             'Content-Type': 'application/json',
@@ -81,7 +101,7 @@ const SellerProducts = () => {
 
         if (response.ok) {
           // Başarılı silme sonrası ürünleri yeniden çek
-          await fetchProducts();
+          await fetchAllProducts();
         } else {
           const errorData = await response.json();
           alert(`Ürün silinemedi: ${errorData.message || 'Bilinmeyen hata'}`);
@@ -93,23 +113,240 @@ const SellerProducts = () => {
     }
   };
 
-  // Component mount olduğunda verileri çek
+  // Ürün ekleme/düzenleme fonksiyonu
+  const handleSaveProduct = async (formData) => {
+    setModalLoading(true);
+    try {
+      console.log('=== SAVE PRODUCT DEBUG ===');
+      console.log('Form data:', formData);
+      console.log('Selected product:', selectedProduct);
+      
+      const url = selectedProduct 
+        ? `http://localhost:8080/api/seller/products/${selectedProduct.id}`
+        : 'http://localhost:8080/api/seller/products';
+      
+      const method = selectedProduct ? 'PUT' : 'POST';
+      console.log('Request URL:', url);
+      console.log('Request method:', method);
+      
+      const requestBody = {
+        ...formData,
+        price: parseFloat(formData.price),
+        stock: parseInt(formData.stock),
+        category: { id: formData.categoryId }
+      };
+      
+      console.log('Request body:', requestBody);
+      
+      const response = await fetch(url, {
+        method: method,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+        body: JSON.stringify(requestBody)
+      });
+
+      console.log('Response status:', response.status);
+      console.log('Response ok:', response.ok);
+
+      if (response.ok) {
+        const savedProduct = await response.json();
+        console.log('Saved product:', savedProduct);
+        console.log('=== END SAVE PRODUCT DEBUG ===');
+        
+        // Başarılı işlem sonrası modal'ı kapat ve ürünleri yeniden çek
+        setShowModal(false);
+        setSelectedProduct(null);
+        await fetchAllProducts();
+      } else {
+        console.error('Response not ok, trying to get error details...');
+        let errorData;
+        try {
+          errorData = await response.json();
+          console.error('Error response (JSON):', errorData);
+          console.error('Error details:', errorData.details);
+          console.error('Error cause:', errorData.cause);
+          alert(`Ürün kaydedilemedi: ${errorData.error || errorData.message || 'Bilinmeyen hata'}`);
+        } catch (parseError) {
+          console.error('Could not parse error response as JSON');
+          const errorText = await response.text();
+          console.error('Error response (text):', errorText);
+          alert(`Ürün kaydedilemedi: ${errorText || 'Bilinmeyen hata'}`);
+        }
+      }
+    } catch (err) {
+      console.error('Ürün kaydedilirken hata:', err);
+      alert('Ürün kaydedilirken bir hata oluştu.');
+    } finally {
+      setModalLoading(false);
+    }
+  };
+
+  // Test endpoint'i
+  const testAPI = async () => {
+    try {
+      console.log('Test API çağrısı yapılıyor...');
+      const response = await fetch('http://localhost:8080/api/seller/test', {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include'
+      });
+      
+      console.log('Test response status:', response.status);
+      if (response.ok) {
+        const data = await response.json();
+        console.log('Test API response:', data);
+      } else {
+        console.error('Test API error:', response.status);
+        const errorText = await response.text();
+        console.error('Test API error text:', errorText);
+      }
+    } catch (err) {
+      console.error('Test API hatası:', err);
+    }
+  };
+
+
+
+  // Component mount olduğunda tüm verileri çek
   useEffect(() => {
-    fetchProducts();
+    fetchAllProducts();
     fetchCategories();
   }, []);
 
-  // Filtreleme
-  const filteredProducts = products.filter(product => {
-    const matchesSearch = product.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         product.description?.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesCategory = selectedCategory === 'all' || product.category?.name === selectedCategory;
-    return matchesSearch && matchesCategory;
-  });
+  // Filtreleme değişikliklerinde anlık filtreleme
+  useEffect(() => {
+    if (allProducts.length > 0) {
+      filterProducts();
+    }
+  }, [searchTerm, selectedCategory, minPrice, maxPrice, allProducts]);
 
-  const handleEdit = (product) => {
+  // Sayfa dışına tıklandığında önerileri kapat
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (!event.target.closest('.search-group')) {
+        setShowSuggestions(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
+
+  // Filtreleme şimdilik devre dışı - sayfalama ile uyumlu çalışması için backend'de implement edilmeli
+  // const filteredProducts = products.filter(product => {
+  //   const matchesSearch = product.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+  //                        product.description?.toLowerCase().includes(searchTerm.toLowerCase());
+  //   const matchesCategory = selectedCategory === 'all' || product.category?.name === selectedCategory;
+  //   return matchesSearch && matchesCategory;
+  // });
+
+  const handleAddProduct = () => {
+    setSelectedProduct(null);
+    setShowModal(true);
+  };
+
+  const handleEditProduct = (product) => {
     setSelectedProduct(product);
-    setShowEditModal(true);
+    setShowModal(true);
+  };
+
+  const handleCloseModal = () => {
+    setShowModal(false);
+    setSelectedProduct(null);
+  };
+
+  // Sayfalama fonksiyonları
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
+  };
+
+  // Anlık filtreleme fonksiyonu
+  const filterProducts = () => {
+    let filtered = [...allProducts];
+    
+    // Arama terimi ile filtreleme
+    if (searchTerm) {
+      filtered = filtered.filter(product => 
+        product.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        product.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        product.category?.name?.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+    }
+    
+    // Kategori ile filtreleme
+    if (selectedCategory) {
+      filtered = filtered.filter(product => 
+        product.category?.name?.toLowerCase().includes(selectedCategory.toLowerCase())
+      );
+    }
+    
+    // Fiyat aralığı ile filtreleme
+    if (minPrice) {
+      filtered = filtered.filter(product => product.price >= parseFloat(minPrice));
+    }
+    if (maxPrice) {
+      filtered = filtered.filter(product => product.price <= parseFloat(maxPrice));
+    }
+    
+    // Arama terimine göre sıralama (eşleşenler üstte)
+    if (searchTerm) {
+      filtered.sort((a, b) => {
+        const aName = a.name?.toLowerCase() || '';
+        const bName = b.name?.toLowerCase() || '';
+        const searchLower = searchTerm.toLowerCase();
+        
+        const aStartsWith = aName.startsWith(searchLower);
+        const bStartsWith = bName.startsWith(searchLower);
+        
+        if (aStartsWith && !bStartsWith) return -1;
+        if (!aStartsWith && bStartsWith) return 1;
+        
+        return aName.localeCompare(bName);
+      });
+    }
+    
+    setFilteredProducts(filtered);
+    setTotalProducts(filtered.length);
+  };
+
+  const handleSearch = () => {
+    setCurrentPage(0);
+    filterProducts();
+  };
+
+  const handleClearFilters = () => {
+    setSearchTerm('');
+    setSelectedCategory('');
+    setMinPrice('');
+    setMaxPrice('');
+    setCurrentPage(0);
+    setFilteredProducts(allProducts);
+    setTotalProducts(allProducts.length);
+  };
+
+  const handleElasticsearchToggle = () => {
+    setUseElasticsearch(!useElasticsearch);
+    setCurrentPage(0);
+    // Toggle sonrası otomatik arama yap
+    setTimeout(() => fetchAllProducts(), 100);
+  };
+
+  const handlePreviousPage = () => {
+    if (currentPage > 0) {
+      setCurrentPage(currentPage - 1);
+    }
+  };
+
+  const handleNextPage = () => {
+    if (currentPage < totalPages - 1) {
+      setCurrentPage(currentPage + 1);
+    }
   };
 
   const getStatusBadge = (status) => {
@@ -139,7 +376,10 @@ const SellerProducts = () => {
         <p>{error}</p>
         <button 
           className="retry-btn"
-          onClick={fetchProducts}
+          onClick={async () => {
+            await testAPI();
+            await fetchAllProducts();
+          }}
         >
           Tekrar Dene
         </button>
@@ -151,46 +391,91 @@ const SellerProducts = () => {
     <div className="seller-products">
       {/* Header */}
       <div className="products-header">
-        <div className="header-left">
-          <h1>Ürünlerim</h1>
-          <p>Mağazanızdaki ürünleri yönetin ve takip edin</p>
+        <div className="header-content">
+          <div className="title-card">
+            <h2>Ürünlerim</h2>
+          </div>
         </div>
-        <button 
-          className="add-product-btn"
-          onClick={() => setShowAddModal(true)}
-        >
-          <FaPlus />
-          <span>Yeni Ürün Ekle</span>
+        <button className="add-product-btn" onClick={() => setShowModal(true)}>
+          <FaPlus /> Yeni Ürün Ekle
         </button>
       </div>
 
-      {/* Filters */}
-      <div className="products-filters">
-        <div className="search-box">
-          <FaSearch className="search-icon" />
-          <input
-            type="text"
-            placeholder="Ürün ara..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="search-input"
-          />
-        </div>
-        
-        <div className="filter-box">
-          <FaFilter className="filter-icon" />
-          <select
-            value={selectedCategory}
-            onChange={(e) => setSelectedCategory(e.target.value)}
-            className="category-select"
-          >
-            <option value="all">Tüm Kategoriler</option>
-            {categories.map(category => (
-              <option key={category.id} value={category.name}>
-                {category.name}
-              </option>
-            ))}
-          </select>
+      {/* Arama ve Filtreleme */}
+      <div className="search-filters">
+        <div className="search-row">
+          <div className="search-group">
+            <input
+              type="text"
+              placeholder="Ürün adı ara..."
+              value={searchTerm}
+              onChange={(e) => {
+                setSearchTerm(e.target.value);
+                setShowSuggestions(e.target.value.length > 0);
+              }}
+            />
+            {/* Öneriler */}
+            {showSuggestions && searchTerm && (
+              <div className="search-suggestions">
+                {allProducts
+                  .filter(product => 
+                    product.name?.toLowerCase().includes(searchTerm.toLowerCase())
+                  )
+                  .slice(0, 5)
+                  .map(product => (
+                    <div 
+                      key={product.id} 
+                      className="suggestion-item"
+                      onClick={() => {
+                        setSearchTerm(product.name);
+                        setShowSuggestions(false);
+                      }}
+                    >
+                      <FaSearch className="suggestion-icon" />
+                      <span>{product.name}</span>
+                    </div>
+                  ))}
+              </div>
+            )}
+          </div>
+          <div className="search-group">
+            <input
+              type="text"
+              placeholder="Kategori"
+              value={selectedCategory}
+              onChange={(e) => {
+                setSelectedCategory(e.target.value);
+              }}
+            />
+          </div>
+          <div className="search-group">
+            <input
+              type="number"
+              placeholder="Min fiyat"
+              min="0"
+              value={minPrice}
+              onChange={(e) => {
+                setMinPrice(e.target.value);
+              }}
+            />
+          </div>
+          <div className="search-group">
+            <input
+              type="number"
+              placeholder="Max fiyat"
+              min="0"
+              value={maxPrice}
+              onChange={(e) => {
+                setMaxPrice(e.target.value);
+              }}
+            />
+          </div>
+          <button className="search-btn" onClick={handleSearch}>
+            <FaSearch /> Ara
+          </button>
+          <button className="clear-btn" onClick={handleClearFilters}>
+            <FaTimes /> Temizle
+          </button>
         </div>
       </div>
 
@@ -200,12 +485,12 @@ const SellerProducts = () => {
           <div className="stat-icon">
             <FaBox />
           </div>
-          <span className="stat-number">{products.length}</span>
+          <span className="stat-number">{totalProducts}</span>
           <span className="stat-label">Toplam Ürün</span>
         </div>
         <div className="stat-item">
           <div className="stat-icon">
-            <FaEyeIcon />
+            <FaEye />
           </div>
           <span className="stat-number">{filteredProducts.length}</span>
           <span className="stat-label">Gösterilen</span>
@@ -215,7 +500,7 @@ const SellerProducts = () => {
             <FaExclamationTriangle />
           </div>
           <span className="stat-number">
-            {products.filter(p => p.stock < 10).length}
+            {filteredProducts.filter(p => p.stock < 10).length}
           </span>
           <span className="stat-label">Düşük Stok</span>
         </div>
@@ -270,7 +555,7 @@ const SellerProducts = () => {
                   </button>
                   <button 
                     className="action-btn edit-btn"
-                    onClick={() => handleEdit(product)}
+                    onClick={() => handleEditProduct(product)}
                     title="Düzenle"
                   >
                     <FaEdit />
@@ -297,7 +582,7 @@ const SellerProducts = () => {
             <p>Arama kriterlerinize uygun ürün bulunamadı.</p>
             <button 
               className="add-product-btn"
-              onClick={() => setShowAddModal(true)}
+              onClick={handleAddProduct}
             >
               <FaPlus />
               <span>İlk Ürününüzü Ekleyin</span>
@@ -306,45 +591,52 @@ const SellerProducts = () => {
         )}
       </div>
 
-      {/* Add Product Modal */}
-      {showAddModal && (
-        <div className="modal-overlay">
-          <div className="modal">
-            <div className="modal-header">
-              <h2>Yeni Ürün Ekle</h2>
-              <button 
-                className="modal-close"
-                onClick={() => setShowAddModal(false)}
-              >
-                ×
-              </button>
-            </div>
-            <div className="modal-content">
-              <p>Ürün ekleme formu yakında eklenecek...</p>
-            </div>
+      {/* Sayfalama */}
+      {totalPages > 1 && (
+        <div className="pagination-container">
+          <div className="pagination-info">
+            <span>Toplam {totalProducts} ürün, {totalPages} sayfa</span>
+            <span>Sayfa {currentPage + 1} / {totalPages}</span>
           </div>
+        <div className="pagination-controls">
+          <button 
+            className="pagination-btn"
+            onClick={handlePreviousPage}
+            disabled={currentPage === 0}
+          >
+            Önceki
+          </button>
+          
+          {Array.from({ length: totalPages }, (_, index) => (
+            <button
+              key={index}
+              className={`pagination-btn ${currentPage === index ? 'active' : ''}`}
+              onClick={() => handlePageChange(index)}
+            >
+              {index + 1}
+            </button>
+          ))}
+          
+          <button 
+            className="pagination-btn"
+            onClick={handleNextPage}
+            disabled={currentPage === totalPages - 1}
+          >
+            Sonraki
+          </button>
         </div>
+      </div>
       )}
 
-      {/* Edit Product Modal */}
-      {showEditModal && selectedProduct && (
-        <div className="modal-overlay">
-          <div className="modal">
-            <div className="modal-header">
-              <h2>Ürün Düzenle</h2>
-              <button 
-                className="modal-close"
-                onClick={() => setShowEditModal(false)}
-              >
-                ×
-              </button>
-            </div>
-            <div className="modal-content">
-              <p>"{selectedProduct.name}" ürününü düzenleme formu yakında eklenecek...</p>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* Product Modal */}
+      <ProductModal
+        show={showModal}
+        onClose={handleCloseModal}
+        onSave={handleSaveProduct}
+        categories={categories}
+        initial={selectedProduct}
+        loading={modalLoading}
+      />
     </div>
   );
 };

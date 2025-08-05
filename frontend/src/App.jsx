@@ -21,6 +21,11 @@ import Profile from './pages/Profile.jsx';
 import Orders from './pages/Orders.jsx';
 import SellerPanel from './pages/SellerPanel/SellerPanel.jsx';
 import SellerProducts from './pages/SellerProducts/SellerProducts.jsx';
+import SellerStatistics from './pages/SellerStatistics/SellerStatistics.jsx';
+import SellerOrders from './pages/SellerOrders/SellerOrders.jsx';
+import SellerStock from './pages/SellerStock/SellerStock.jsx';
+import SellerCampaigns from './pages/SellerCampaigns/SellerCampaigns.jsx';
+import SellerSettings from './pages/SellerSettings/SellerSettings.jsx';
 import StorePage from './pages/StorePage.jsx';
 import Favorites from './pages/Favorites.jsx';
 import AboutUs from './pages/AboutUs.jsx';
@@ -32,7 +37,7 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { CartProvider } from './context/CartContext.jsx';
 import { AuthProvider } from './context/AuthContext.jsx';
 import { FavoritesProvider } from './context/FavoritesContext.jsx';
-import { ThemeProvider } from './context/ThemeContext.jsx';
+
 import { NotificationProvider } from './context/NotificationContext.jsx';
 import { Toaster } from 'react-hot-toast';
 
@@ -92,7 +97,7 @@ const BackendStatus = ({ children }) => {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background-primary">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-accent-400 mx-auto mb-4"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-accent-500 mx-auto mb-4"></div>
           <p className="text-text-primary">Backend bağlantısı kontrol ediliyor...</p>
         </div>
       </div>
@@ -111,13 +116,13 @@ const BackendStatus = ({ children }) => {
           <div className="space-y-2">
             <button 
               onClick={() => setRetryCount(prev => prev + 1)}
-              className="bg-accent-400 hover:bg-accent-500 text-white px-4 py-2 rounded-lg transition-colors"
+              className="bg-accent-500 hover:bg-accent-600 text-white px-4 py-2 rounded-lg transition-colors"
             >
               Tekrar Dene
             </button>
             <button 
               onClick={() => window.location.reload()}
-              className="bg-primary-500 hover:bg-primary-600 text-white px-4 py-2 rounded-lg transition-colors ml-2"
+              className="bg-accent-500 hover:bg-accent-600 text-white px-4 py-2 rounded-lg transition-colors ml-2"
             >
               Sayfayı Yenile
             </button>
@@ -140,13 +145,12 @@ const BackendStatus = ({ children }) => {
 
 function App() {
   return (
-    <ThemeProvider>
-      <AuthProvider>
-        <FavoritesProvider>
-          <CartProvider>
-            <NotificationProvider>
-            <BackendStatus>
-            <BrowserRouter>
+    <AuthProvider>
+      <FavoritesProvider>
+        <CartProvider>
+          <NotificationProvider>
+          <BackendStatus>
+          <BrowserRouter>
               <Routes>
                 {/* Customer Routes - Normal Layout */}
                 <Route path="/" element={
@@ -402,10 +406,23 @@ function App() {
                 <Route path="/seller-panel/statistics" element={
                   <SellerRoute>
                     <SellerLayout>
-                      <div className="seller-page">
-                        <h1>İstatistikler</h1>
-                        <p>Satış istatistikleri sayfası yakında eklenecek...</p>
-                      </div>
+                      <SellerStatistics />
+                    </SellerLayout>
+                  </SellerRoute>
+                } />
+                
+                <Route path="/seller-panel/orders" element={
+                  <SellerRoute>
+                    <SellerLayout>
+                      <SellerOrders />
+                    </SellerLayout>
+                  </SellerRoute>
+                } />
+                
+                <Route path="/seller-panel/stock" element={
+                  <SellerRoute>
+                    <SellerLayout>
+                      <SellerStock />
                     </SellerLayout>
                   </SellerRoute>
                 } />
@@ -413,10 +430,7 @@ function App() {
                 <Route path="/seller-panel/campaigns" element={
                   <SellerRoute>
                     <SellerLayout>
-                      <div className="seller-page">
-                        <h1>Kampanyalar</h1>
-                        <p>Kampanya yönetimi sayfası yakında eklenecek...</p>
-                      </div>
+                      <SellerCampaigns />
                     </SellerLayout>
                   </SellerRoute>
                 } />
@@ -424,10 +438,7 @@ function App() {
                 <Route path="/seller-panel/settings" element={
                   <SellerRoute>
                     <SellerLayout>
-                      <div className="seller-page">
-                        <h1>Mağaza Ayarları</h1>
-                        <p>Mağaza ayarları sayfası yakında eklenecek...</p>
-                      </div>
+                      <SellerSettings />
                     </SellerLayout>
                   </SellerRoute>
                 } />
@@ -439,7 +450,6 @@ function App() {
           </CartProvider>
         </FavoritesProvider>
       </AuthProvider>
-    </ThemeProvider>
   );
 }
 

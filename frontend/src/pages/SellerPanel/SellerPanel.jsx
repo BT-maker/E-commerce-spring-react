@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { FaShoppingCart, FaChartLine, FaExclamationTriangle, FaStar, FaPlus, FaList, FaBoxes, FaUsers, FaComments, FaClipboardList } from 'react-icons/fa';
+import { FaShoppingCart, FaChartLine, FaExclamationTriangle, FaStar, FaPlus, FaList, FaBoxes, FaComments } from 'react-icons/fa';
 import './SellerPanel.css';
 
 const SellerPanel = () => {
@@ -88,27 +88,7 @@ const SellerPanel = () => {
     }).format(amount);
   };
 
-  const getStatusColor = (status) => {
-    switch (status?.toLowerCase()) {
-      case 'pending': return 'bg-yellow-100 text-yellow-800';
-      case 'processing': return 'bg-blue-100 text-blue-800';
-      case 'shipped': return 'bg-purple-100 text-purple-800';
-      case 'delivered': return 'bg-green-100 text-green-800';
-      case 'cancelled': return 'bg-red-100 text-red-800';
-      default: return 'bg-gray-100 text-gray-800';
-    }
-  };
 
-  const getStatusText = (status) => {
-    switch (status?.toLowerCase()) {
-      case 'pending': return 'Beklemede';
-      case 'processing': return 'İşleniyor';
-      case 'shipped': return 'Kargoda';
-      case 'delivered': return 'Teslim Edildi';
-      case 'cancelled': return 'İptal Edildi';
-      default: return status || 'Bilinmiyor';
-    }
-  };
 
   const renderStars = (rating) => {
     const stars = [];
@@ -230,44 +210,13 @@ const SellerPanel = () => {
             <h3>Stok Yönetimi</h3>
           </a>
 
-          <a href="/seller-panel/customers" className="quick-action-card">
-            <div className="action-icon purple">
-              <FaUsers />
-            </div>
-            <h3>Müşteri Yönetimi</h3>
-          </a>
+
         </div>
       </div>
 
       {/* Dashboard Content */}
       <div className="dashboard-content-grid">
-        {/* Recent Orders */}
-        <div className="dashboard-section">
-          <h2>Son Siparişler</h2>
-          <div className="orders-list">
-            {dashboardData.recentOrders && dashboardData.recentOrders.length > 0 ? (
-              dashboardData.recentOrders.map((order) => (
-                <div key={order.id} className="order-item">
-                  <div className="order-info">
-                    <h4>Sipariş #{order.id.slice(-8)}</h4>
-                    <div className="order-details">
-                      {order.orderItems?.length || 0} ürün • {formatCurrency(order.totalPrice)}
-                    </div>
-                    <div className="order-date">{formatDate(order.createdAt)}</div>
-                  </div>
-                  <div className={`order-status ${getStatusColor(order.status)}`}>
-                    {getStatusText(order.status)}
-                  </div>
-                </div>
-              ))
-            ) : (
-              <div className="no-data">
-                <FaClipboardList style={{ fontSize: '2rem', marginBottom: '1rem', opacity: 0.5 }} />
-                <p>Henüz sipariş bulunmuyor</p>
-              </div>
-            )}
-          </div>
-        </div>
+
 
         {/* Low Stock Alerts */}
         <div className="dashboard-section">

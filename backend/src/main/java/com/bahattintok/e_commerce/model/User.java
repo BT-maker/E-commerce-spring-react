@@ -18,8 +18,9 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.ToString;
 
 /**
@@ -27,7 +28,8 @@ import lombok.ToString;
  */
 @Entity
 @Table(name = "users")
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString(exclude = {"favorites", "reviews"})
@@ -59,6 +61,24 @@ public class User implements UserDetails {
      */
     @Column(unique = true, nullable = false)
     private String email;
+    
+    /**
+     * Kullanıcının adı
+     */
+    @Column(name = "first_name")
+    private String firstName;
+    
+    /**
+     * Kullanıcının soyadı
+     */
+    @Column(name = "last_name")
+    private String lastName;
+    
+    /**
+     * Kullanıcının telefon numarası
+     */
+    @Column(name = "phone")
+    private String phone;
     
     /**
      * Kullanıcının rolü (RoleEntity ile ilişki)
