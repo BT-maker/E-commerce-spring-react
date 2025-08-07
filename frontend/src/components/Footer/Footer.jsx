@@ -1,5 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
+import { FaInstagram, FaTwitter, FaFacebook } from "react-icons/fa";
 import "./Footer.css";
 
 const Footer = () => {
@@ -27,9 +28,9 @@ const Footer = () => {
         <div>
           <h3 className="footer-title">Bizi Takip Edin</h3>
           <div className="footer-social">
-            <a href="#" aria-label="Instagram"><i className="fab fa-instagram"></i></a>
-            <a href="#" aria-label="Twitter"><i className="fab fa-twitter"></i></a>
-            <a href="#" aria-label="Facebook"><i className="fab fa-facebook"></i></a>
+            <a href="#" aria-label="Instagram" className="social-icon"><FaInstagram /></a>
+            <a href="#" aria-label="Twitter" className="social-icon"><FaTwitter /></a>
+            <a href="#" aria-label="Facebook" className="social-icon"><FaFacebook /></a>
           </div>
         </div>
       </div>

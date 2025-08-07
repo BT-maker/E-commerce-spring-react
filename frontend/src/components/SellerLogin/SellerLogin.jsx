@@ -40,7 +40,7 @@ const SellerLogin = () => {
         e.preventDefault();
         setLoading(true);
         setError('');
-
+        //hashPassword(form.password).then(hashedPassword => {
         try {
             console.log('Seller login denemesi:', form.email);
             
@@ -57,6 +57,7 @@ const SellerLogin = () => {
             });
 
             if (response.ok) {
+            
                 const data = await response.json();
                 
                 // Seller rolü kontrolü

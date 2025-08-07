@@ -1,385 +1,386 @@
-/* ProductDetail component stilleri */
-.product-detail-container {
-  max-width: 1200px;
-  margin: 2rem auto;
-  padding: 0 1rem;
-}
-
-.product-detail-content {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 3rem;
-  background: var(--bg-primary);
-  border-radius: 12px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  border: 1px solid var(--border-color);
-  padding: 2rem;
-}
-
-.product-image-section {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-}
-
-.product-main-image {
-  width: 100%;
-  height: 500px;
-  object-fit: cover;
-  border-radius: 8px;
-  border: 1px solid var(--border-color);
+.product-card {
   background: var(--bg-secondary);
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  transition: all 0.3s ease;
+  position: relative;
+  border: 1px solid var(--border-color);
 }
 
-.product-info-section {
+.product-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+  border-color: var(--orange-500);
+}
+
+.product-image-container {
+  position: relative;
+  overflow: hidden;
+  aspect-ratio: 1;
+}
+
+.product-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.product-card:hover .product-image {
+  transform: scale(1.05);
+}
+
+/* Stok Badge'leri */
+.stock-badge {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  z-index: 2;
+  backdrop-filter: blur(8px);
+}
+
+.stock-badge.out-of-stock {
+  background: var(--error-color);
+  color: white;
+}
+
+.stock-badge.low-stock {
+  background: var(--warning-color);
+  color: white;
+}
+
+/* İndirim Badge */
+.discount-badge {
+  background: var(--error-color);
+  color: white;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  align-self: flex-start;
+  margin-top: 2px;
+}
+
+/* Resim üstündeki İndirim Badge */
+.discount-badge-image {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: var(--error-color);
+  color: white;
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  z-index: 2;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+/* Hızlı Aksiyon Butonları */
+.quick-actions {
+  position: absolute;
+  top: 12px;
+  right: 12px;
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: 8px;
+  opacity: 0;
+  transform: translateX(20px);
+  transition: all 0.3s ease;
+}
+
+.product-card:hover .quick-actions {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.quick-action-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.9);
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  color: var(--text-secondary);
+  backdrop-filter: blur(10px);
+}
+
+.favorites-remove-btn {
+  background: var(--error-color) !important;
+  color: white !important;
+}
+
+.favorites-remove-btn:hover {
+  background: var(--error-hover) !important;
+  transform: scale(1.1);
+}
+
+.quick-action-btn:hover {
+  background: var(--orange-500);
+  color: white;
+  transform: scale(1.1);
+}
+
+.favorite-btn:hover {
+  color: var(--accent-color);
+}
+
+.favorite-btn.active {
+  color: var(--accent-color);
+  background: rgba(244, 114, 182, 0.1);
+}
+
+.favorite-btn.active:hover {
+  color: var(--accent-hover);
+}
+
+.view-btn:hover {
+  color: var(--primary-color);
+}
+
+/* Ürün Bilgileri */
+.product-info {
+  padding: 16px;
 }
 
 .product-title {
-  font-size: 2rem;
-  font-weight: 700;
+  font-size: 0.9rem;
+  font-weight: 300;
   color: var(--text-primary);
-  margin: 0;
-  line-height: 1.2;
-}
-
-.product-rating {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  margin-bottom: 1rem;
-}
-
-.stars {
-  display: flex;
-  gap: 0.25rem;
-}
-
-.star {
-  color: #fbbf24;
-  font-size: 1.2rem;
-}
-
-.star.filled {
-  color: #fbbf24;
-}
-
-.star.empty {
-  color: #d1d5db;
-}
-
-.rating-text {
-  color: var(--text-secondary);
-  font-size: 0.9rem;
-}
-
-.product-price {
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: var(--accent-color);
-  margin: 0;
-}
-
-.product-store {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  color: var(--text-secondary);
-  font-size: 0.9rem;
-}
-
-.store-link {
-  color: var(--accent-color);
   text-decoration: none;
-  font-weight: 600;
-  transition: color 0.2s ease;
+  display: block;
+  margin-bottom: 8px;
+  line-height: 1.4;
+  transition: color 0.3s ease;
 }
 
-.store-link:hover {
-  color: var(--accent-hover);
-  text-decoration: underline;
+.product-title:hover {
+  color: var(--orange-500);
 }
 
-.product-description {
-  color: var(--text-secondary);
-  line-height: 1.6;
-  margin: 0;
+.product-card-price {
+  font-weight: 700;
+  font-size: 0.5rem;
 }
 
-.add-to-cart-btn {
-  background: var(--accent-color);
-  color: white;
+.price-container {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 12px;
+}
+
+.discount-price-container {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.original-price {
+  text-decoration: line-through;
+  color: var(--text-tertiary);
+  font-size: 0.9rem;
+}
+
+.discounted-price {
+  color: var(--orange-500);
+  font-weight: 700;
+  font-size: 1.25rem;
+}
+
+.current-price {
+  color: var(--orange-500);
+  font-weight: 700;
+  font-size: 1.25rem;
+}
+
+/* Stok Bilgisi */
+.stock-info {
+  margin-bottom: 16px;
+}
+
+.stock-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.8rem;
+  font-weight: 500;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+}
+
+.stock-status.available {
+  color: var(--secondary-color);
+}
+
+.stock-status.low {
+  color: var(--warning-color);
+  background:transparent
+}
+
+.stock-available {
+  font-size: 0.85rem;
+  color: var(--accent-600);
+  font-weight: 500;
+}
+
+.stock-low {
+  font-size: 0.85rem;
+  color: var(--warning-600);
+  font-weight: 500;
+}
+
+.stock-unavailable {
+  font-size: 0.85rem;
+  color: var(--error-600);
+  font-weight: 500;
+}
+
+/* Sepete Ekle Butonu */
+.product-card-btn {
+  width: 100%;
+  padding: 12px 16px;
   border: none;
-  padding: 1rem 2rem;
   border-radius: 8px;
-  font-size: 1.1rem;
+  font-size: 0.9rem;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.2s ease;
-  width: 220px;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: var(--orange-500);
+  color: white;
 }
 
-.add-to-cart-btn:hover {
-  background: var(--accent-hover);
-  transform: translateY(-1px);
+.product-card-btn:hover:not(:disabled) {
+  background: var(--orange-600);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(255, 96, 0, 0.3);
 }
 
-.add-to-cart-btn:disabled {
+.product-card-btn:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.product-card-btn.added {
+  background: var(--accent-500);
+  color: white;
+}
+
+.product-card-btn.added:hover {
+  background: var(--accent-600);
+}
+
+.product-card-btn.disabled {
   background: var(--text-tertiary);
+  color: var(--text-secondary);
   cursor: not-allowed;
   transform: none;
+  box-shadow: none;
 }
 
-.add-to-cart-btn.added {
-  background: #10b981;
-}
-
-/* Review sistemi */
-.reviews-section {
-  background: var(--bg-primary);
-  border-radius: 12px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  border: 1px solid var(--border-color);
-  padding: 2rem;
-  margin-top: 2rem;
-}
-
-.reviews-title {
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: var(--text-primary);
-  margin-bottom: 1.5rem;
-}
-
-.review-form {
-  background: var(--bg-secondary);
-  border: 1px solid var(--border-color);
-  border-radius: 8px;
-  padding: 1.5rem;
-  margin-bottom: 2rem;
-}
-
-.review-form-title {
-  font-weight: 600;
-  color: var(--text-primary);
-  margin-bottom: 1rem;
-}
-
-.rating-input {
-  margin-bottom: 1rem;
-}
-
-.rating-label {
-  display: block;
-  font-weight: 600;
-  color: var(--text-primary);
-  margin-bottom: 0.5rem;
-}
-
-.star-buttons {
-  display: flex;
-  gap: 0.25rem;
-}
-
-.star-button {
-  background: none;
-  border: none;
-  cursor: pointer;
-  padding: 0;
-  font-size: 1.5rem;
-  transition: color 0.2s ease;
-}
-
-.star-button:hover {
-  color: #fbbf24;
-}
-
-.comment-input {
-  width: 100%;
-  padding: 0.75rem;
-  border: 1px solid var(--border-color);
-  border-radius: 6px;
-  background: var(--bg-primary);
-  color: var(--text-primary);
-  font-size: 1rem;
-  resize: vertical;
-  min-height: 100px;
-  font-family: inherit;
-}
-
-.comment-input:focus {
-  outline: none;
-  border-color: var(--accent-color);
-  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
-}
-
-.review-buttons {
-  display: flex;
-  gap: 1rem;
-  margin-top: 1rem;
-}
-
-.review-submit-btn {
-  background: var(--accent-color);
-  color: white;
-  border: none;
-  padding: 0.75rem 1.5rem;
-  border-radius: 6px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.review-submit-btn:hover {
-  background: var(--accent-hover);
-}
-
-.review-submit-btn:disabled {
+.product-card-btn.disabled:hover {
   background: var(--text-tertiary);
-  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
 }
 
-.review-delete-btn {
-  background: #ef4444;
-  color: white;
-  border: none;
-  padding: 0.75rem 1.5rem;
-  border-radius: 6px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.review-delete-btn:hover {
-  background: #dc2626;
-}
-
-.reviews-list {
+/* Puanlama Yıldızları */
+.product-info .flex {
   display: flex;
-  flex-direction: column;
-  gap: 1rem;
-}
-
-.review-item {
-  border: 1px solid var(--border-color);
-  border-radius: 8px;
-  padding: 1rem;
-  background: var(--bg-secondary);
-}
-
-.review-header {
-  display: flex;
-  justify-content: space-between;
   align-items: center;
-  margin-bottom: 0.5rem;
 }
 
-.reviewer-name {
-  font-weight: 600;
-  color: var(--text-primary);
-}
-
-.review-date {
-  color: var(--text-secondary);
-  font-size: 0.9rem;
-}
-
-.review-rating {
-  display: flex;
+.product-info .gap-1 {
   gap: 0.25rem;
+}
+
+.product-info .mb-2 {
   margin-bottom: 0.5rem;
 }
 
-.review-comment {
+.product-info .text-xs {
+  font-size: 0.75rem;
+  line-height: 1rem;
+}
+
+.product-info .text-gray-500 {
   color: var(--text-secondary);
-  line-height: 1.5;
 }
 
-/* Loading states */
-.loading-skeleton {
-  background: var(--bg-secondary);
-  border-radius: 8px;
-  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+.product-info .w-3 {
+  width: 0.75rem;
 }
 
-@keyframes pulse {
-  0%, 100% {
-    opacity: 1;
-  }
-  50% {
-    opacity: 0.5;
-  }
+.product-info .h-3 {
+  height: 0.75rem;
 }
 
-/* Responsive tasarım */
+.product-info .fill-yellow-400 {
+  fill: var(--warning-color);
+}
+
+.product-info .text-yellow-400 {
+  color: var(--warning-color);
+}
+
+.product-info .text-gray-300 {
+  color: var(--text-tertiary);
+}
+
+/* Responsive */
 @media (max-width: 768px) {
-  .product-detail-content {
-    grid-template-columns: 1fr;
-    gap: 2rem;
-    padding: 1.5rem;
+  .product-card {
+    border-radius: 8px;
+  }
+  
+  .product-info {
+    padding: 12px;
   }
   
   .product-title {
-    font-size: 1.5rem;
+    font-size: 0.9rem;
   }
   
-  .product-main-image {
-    height: 400px;
+  .current-price,
+  .discounted-price {
+    font-size: 1.1rem;
   }
   
-  .add-to-cart-btn {
-    width: 100%;
+  .product-card-btn {
+    padding: 10px 12px;
+    font-size: 0.85rem;
   }
   
-  .review-buttons {
-    flex-direction: column;
+  .quick-actions {
+    top: 8px;
+    right: 8px;
+    gap: 6px;
+  }
+  
+  .quick-action-btn {
+    width: 32px;
+    height: 32px;
   }
 }
 
-@media (max-width: 640px) {
-  .product-detail-container {
-    margin: 1rem;
-    padding: 0;
+@media (max-width: 480px) {
+  .product-card:hover {
+    transform: translateY(-2px);
   }
   
-  .product-detail-content {
-    padding: 1rem;
+  .product-card:hover .quick-actions {
+    opacity: 1;
   }
-  
-  .product-main-image {
-    height: 300px;
-  }
-  
-  .reviews-section {
-    padding: 1.5rem;
-  }
-}
-
-/* Dark mode uyumluluğu */
-.dark .product-detail-content {
-  background: var(--bg-secondary);
-  border-color: var(--border-color);
-}
-
-.dark .product-main-image {
-  border-color: var(--border-color);
-  background: var(--bg-tertiary);
-}
-
-.dark .review-form {
-  background: var(--bg-tertiary);
-  border-color: var(--border-color);
-}
-
-.dark .comment-input {
-  background: var(--bg-primary);
-  border-color: var(--border-color);
-  color: var(--text-primary);
-}
-
-.dark .review-item {
-  background: var(--bg-tertiary);
-  border-color: var(--border-color);
 } 
