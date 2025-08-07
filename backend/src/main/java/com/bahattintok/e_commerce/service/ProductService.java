@@ -76,6 +76,11 @@ public interface ProductService {
     List<Product> getProductsByCurrentSeller();
     
     /**
+     * Ürün durumunu değiştirir (AKTİF/PASİF).
+     */
+    Product toggleProductStatus(String productId);
+    
+    /**
      * Bu interface şu işlevleri sağlar:
      * 
      * 1. Ürün CRUD İşlemleri: Ürün oluşturma, okuma, güncelleme ve silme

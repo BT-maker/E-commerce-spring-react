@@ -89,17 +89,10 @@
 
 
 .title-card {
-  background: linear-gradient(135deg, #ff6000 0%, #ff8c00 100%);
   padding: 0.75rem 1.5rem;
-  border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(255, 96, 0, 0.2);
   transition: all 0.3s ease;
 }
 
-.title-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(255, 96, 0, 0.3);
-}
 
 .header-content h2 {
   font-size: 2rem;
@@ -498,7 +491,6 @@
   left: -100%;
   width: 100%;
   height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
   transition: left 0.5s;
 }
 
@@ -506,23 +498,12 @@
   left: 100%;
 }
 
-.action-btn:hover svg {
-  color: #ff6000 !important;
-  fill: #ff6000 !important;
-  stroke: #ff6000 !important;
-  transform: scale(1.1);
-}
 
-.action-btn:hover .btn-text {
-  color: #ff6000 !important;
-}
 
-.action-btn.view-btn {
-  background: transparent;
-}
+
+
 
 .action-btn.view-btn:hover {
-  background: rgba(255, 96, 0, 0.1);
   transform: translateY(-2px);
 }
 
@@ -531,7 +512,7 @@
 }
 
 .action-btn.edit-btn:hover {
-  background: rgba(255, 96, 0, 0.1);
+
   transform: translateY(-2px);
 }
 
@@ -540,7 +521,7 @@
 }
 
 .action-btn.delete-btn:hover {
-  background: rgba(255, 96, 0, 0.1);
+
   transform: translateY(-2px);
 }
 

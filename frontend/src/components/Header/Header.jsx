@@ -40,7 +40,7 @@ const Header = () => {
       return;
     }
     
-    fetch("http://localhost:8080/api/categories")
+    fetch("http://localhost:8082/api/categories")
       .then(res => {
         if (!res.ok) throw new Error("Kategoriler alınamadı");
         return res.json();

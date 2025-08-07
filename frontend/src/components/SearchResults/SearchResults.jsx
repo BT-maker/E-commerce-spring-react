@@ -37,7 +37,7 @@ const SearchResults = () => {
     setLoading(true);
     
     // Önce Elasticsearch'te arama yapmayı dene
-    let url = `http://localhost:8080/api/products/search/elastic?keyword=${encodeURIComponent(query)}`;
+    let url = `http://localhost:8082/api/products/search/elastic?keyword=${encodeURIComponent(query)}`;
     
     fetch(url)
       .then(res => {
@@ -46,7 +46,7 @@ const SearchResults = () => {
         } else {
           // Elasticsearch çalışmıyorsa normal SQL araması yap
           console.log('Elasticsearch çalışmıyor, normal arama yapılıyor...');
-          url = `http://localhost:8080/api/products?search=${query}`;
+          url = `http://localhost:8082/api/products?search=${query}`;
     if (sort) url += `&sort=${sort}`;
     if (minPrice) url += `&minPrice=${minPrice}`;
     if (maxPrice) url += `&maxPrice=${maxPrice}`;
@@ -74,7 +74,7 @@ const SearchResults = () => {
   // Mağazaları getir
   useEffect(() => {
     setStoresLoading(true);
-    fetch("http://localhost:8080/api/products/stores")
+    fetch("http://localhost:8082/api/products/stores")
       .then((res) => {
         if (!res.ok) throw new Error("Mağazalar alınamadı");
         return res.json();

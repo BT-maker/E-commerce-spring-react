@@ -24,7 +24,7 @@ const AdminProducts = () => {
   // Ürünleri backend'den çeker, arama ve sayfalama destekler
   const fetchProducts = (page = 0, search = "") => {
     setLoading(true);
-    let url = `http://localhost:8080/api/products?page=${page}&size=${PAGE_SIZE}`;
+    let url = `http://localhost:8082/api/products?page=${page}&size=${PAGE_SIZE}`;
     if (search) {
       url += `&search=${encodeURIComponent(search)}`;
     }
@@ -43,7 +43,7 @@ const AdminProducts = () => {
 
   // Kategorileri backend'den çeker
   const fetchCategories = () => {
-    fetch("http://localhost:8080/api/categories")
+    fetch("http://localhost:8082/api/categories")
       .then(res => res.json())
       .then(data => setCategories(data));
   };
@@ -71,7 +71,7 @@ const AdminProducts = () => {
     };
 
     if (modalType === "add") {
-      fetch("http://localhost:8080/api/products", {
+      fetch("http://localhost:8082/api/products", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body),
@@ -82,7 +82,7 @@ const AdminProducts = () => {
           fetchProducts(page, searchTerm);
         });
     } else if (modalType === "edit" && modalInitial) {
-      fetch(`http://localhost:8080/api/products/${modalInitial.id}`, {
+      fetch(`http://localhost:8082/api/products/${modalInitial.id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body),
@@ -116,7 +116,7 @@ const AdminProducts = () => {
   // Ürün silme işlemi
   const handleDelete = (id) => {
     if (!window.confirm("Silmek istediğine emin misin?")) return;
-    fetch(`http://localhost:8080/api/products/${id}`, {
+    fetch(`http://localhost:8082/api/products/${id}`, {
       method: "DELETE",
       credentials: "include"
     }).then(() => fetchProducts(page, searchTerm));

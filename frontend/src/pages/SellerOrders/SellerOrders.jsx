@@ -64,7 +64,7 @@ const SellerOrders = () => {
       setLoading(true);
       setError(null);
       
-      const url = 'http://localhost:8080/api/seller/orders?page=0&size=1000';
+      const url = 'http://localhost:8082/api/seller/orders?page=0&size=1000';
       
       const response = await fetch(url, {
         method: 'GET',
@@ -123,7 +123,7 @@ const SellerOrders = () => {
 
     // Durum ile filtreleme
     if (selectedStatus !== 'all') {
-      filtered = filtered.filter(order => order.status === selectedStatus);
+      filtered = filtered.filter(order => order.status?.toUpperCase() === selectedStatus.toUpperCase());
     }
 
     // Arama terimine göre sıralama (eşleşenler üstte)
@@ -158,41 +158,41 @@ const SellerOrders = () => {
   };
 
   const getStatusColor = (status) => {
-    switch (status?.toLowerCase()) {
-      case 'pending': return 'status-pending';
-      case 'processing': return 'status-processing';
-      case 'shipped': return 'status-shipped';
-      case 'delivered': return 'status-delivered';
-      case 'cancelled': return 'status-cancelled';
+    switch (status?.toUpperCase()) {
+      case 'PENDING': return 'status-pending';
+      case 'PROCESSING': return 'status-processing';
+      case 'SHIPPED': return 'status-shipped';
+      case 'DELIVERED': return 'status-delivered';
+      case 'CANCELLED': return 'status-cancelled';
       default: return 'status-pending';
     }
   };
 
   const getStatusText = (status) => {
-    switch (status?.toLowerCase()) {
-      case 'pending': return 'Beklemede';
-      case 'processing': return 'İşleniyor';
-      case 'shipped': return 'Kargoda';
-      case 'delivered': return 'Teslim Edildi';
-      case 'cancelled': return 'İptal Edildi';
+    switch (status?.toUpperCase()) {
+      case 'PENDING': return 'Beklemede';
+      case 'PROCESSING': return 'İşleniyor';
+      case 'SHIPPED': return 'Kargoda';
+      case 'DELIVERED': return 'Teslim Edildi';
+      case 'CANCELLED': return 'İptal Edildi';
       default: return status || 'Bilinmiyor';
     }
   };
 
   const getStatusIcon = (status) => {
-    switch (status?.toLowerCase()) {
-      case 'pending': return <FaClock />;
-      case 'processing': return <FaBox />;
-      case 'shipped': return <FaTruck />;
-      case 'delivered': return <FaCheckCircle />;
-      case 'cancelled': return <FaTimesCircle />;
+    switch (status?.toUpperCase()) {
+      case 'PENDING': return <FaClock />;
+      case 'PROCESSING': return <FaBox />;
+      case 'SHIPPED': return <FaTruck />;
+      case 'DELIVERED': return <FaCheckCircle />;
+      case 'CANCELLED': return <FaTimesCircle />;
       default: return <FaClock />;
     }
   };
 
   const handleStatusChange = async (orderId, newStatus) => {
     try {
-      const response = await fetch(`http://localhost:8080/api/seller/orders/${orderId}/status`, {
+      const response = await fetch(`http://localhost:8082/api/seller/orders/${orderId}/status`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -445,11 +445,11 @@ const SellerOrders = () => {
                     onChange={(e) => handleStatusChange(order.id, e.target.value)}
                     className={`status-select ${getStatusColor(order.status)}`}
                   >
-                    <option value="pending">Beklemede</option>
-                    <option value="processing">İşleniyor</option>
-                    <option value="shipped">Kargoda</option>
-                    <option value="delivered">Teslim Edildi</option>
-                    <option value="cancelled">İptal Edildi</option>
+                    <option value="PENDING">Beklemede</option>
+                    <option value="PROCESSING">İşleniyor</option>
+                    <option value="SHIPPED">Kargoda</option>
+                    <option value="DELIVERED">Teslim Edildi</option>
+                    <option value="CANCELLED">İptal Edildi</option>
                   </select>
                   
                   <div className="action-buttons">

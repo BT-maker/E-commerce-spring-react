@@ -97,6 +97,12 @@ public class Product {
     private java.time.LocalDateTime discountEndDate;
     
     /**
+     * Ürün durumu (AKTİF, PASİF)
+     */
+    @Column(name = "status", nullable = false)
+    private String status = "AKTİF"; // Varsayılan olarak aktif
+    
+    /**
      * Ürünün ait olduğu kategori ID'si (String)
      */
     @Column(name = "category_id")

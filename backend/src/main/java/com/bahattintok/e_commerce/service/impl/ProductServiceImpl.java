@@ -1,9 +1,11 @@
 package com.bahattintok.e_commerce.service.impl;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -45,7 +47,7 @@ public class ProductServiceImpl implements ProductService {
      */
     @Override
     public List<Product> getAllProducts() {
-        return productRepository.findAll();
+        return productRepository.findActiveProducts();
     }
     
     /**
@@ -53,7 +55,7 @@ public class ProductServiceImpl implements ProductService {
      */
     @Override
     public Page<Product> getAllProducts(Pageable pageable) {
-        return productRepository.findAll(pageable);
+        return productRepository.findActiveProducts(pageable);
     }
     
     /**
@@ -152,7 +154,9 @@ public class ProductServiceImpl implements ProductService {
      */
     @Override
     public List<Product> getProductsByCategory(String category) {
-        return productRepository.findByCategory(category);
+        return productRepository.findByCategory(category).stream()
+                .filter(product -> "AKTİF".equals(product.getStatus()))
+                .collect(Collectors.toList());
     }
     
     /**
@@ -160,7 +164,11 @@ public class ProductServiceImpl implements ProductService {
      */
     @Override
     public Page<Product> searchProducts(String keyword, Pageable pageable) {
-        return productRepository.searchProducts(keyword, pageable);
+        Page<Product> products = productRepository.searchProducts(keyword, pageable);
+        List<Product> activeProducts = products.getContent().stream()
+                .filter(product -> "AKTİF".equals(product.getStatus()))
+                .collect(Collectors.toList());
+        return new PageImpl<>(activeProducts, pageable, activeProducts.size());
     }
     
     /**
@@ -168,33 +176,45 @@ public class ProductServiceImpl implements ProductService {
      */
     @Override
     public List<Product> getProductsByPriceRange(Double minPrice, Double maxPrice) {
-        return productRepository.findByPriceRange(minPrice, maxPrice);
+        return productRepository.findByPriceRange(minPrice, maxPrice).stream()
+                .filter(product -> "AKTİF".equals(product.getStatus()))
+                .collect(Collectors.toList());
     }
-
+    
     /**
      * Fiyat aralığına göre ürünleri sayfalı getirir.
      */
     @Override
     public Page<Product> getProductsByPriceRange(Double minPrice, Double maxPrice, Pageable pageable) {
-        return productRepository.findByPriceRange(minPrice, maxPrice, pageable);
+        Page<Product> products = productRepository.findByPriceRange(minPrice, maxPrice, pageable);
+        List<Product> activeProducts = products.getContent().stream()
+                .filter(product -> "AKTİF".equals(product.getStatus()))
+                .collect(Collectors.toList());
+        return new PageImpl<>(activeProducts, pageable, activeProducts.size());
     }
-
+    
     /**
      * Kategori ID'sine göre ürünleri getirir.
      */
     @Override
     public List<Product> getProductsByCategoryId(String categoryId) {
-        return productRepository.findByCategoryId(categoryId);
+        return productRepository.findByCategoryId(categoryId).stream()
+                .filter(product -> "AKTİF".equals(product.getStatus()))
+                .collect(Collectors.toList());
     }
-
+    
     /**
      * Kategori ID'sine göre ürünleri sayfalı getirir.
      */
     @Override
     public Page<Product> getProductsByCategoryId(String categoryId, Pageable pageable) {
-        return productRepository.findByCategoryId(categoryId, pageable);
+        Page<Product> products = productRepository.findByCategoryId(categoryId, pageable);
+        List<Product> activeProducts = products.getContent().stream()
+                .filter(product -> "AKTİF".equals(product.getStatus()))
+                .collect(Collectors.toList());
+        return new PageImpl<>(activeProducts, pageable, activeProducts.size());
     }
-
+    
     /**
      * Mağaza adına göre ürünleri sayfalı getirir.
      */
@@ -202,12 +222,16 @@ public class ProductServiceImpl implements ProductService {
     public Page<Product> getProductsByStoreName(String storeName, Pageable pageable) {
         var storeOpt = storeRepository.findByNameIgnoreCase(storeName);
         if (storeOpt.isEmpty()) return Page.empty(pageable);
-        return productRepository.findByStore(storeOpt.get(), pageable);
+        return productRepository.findActiveProductsByStore(storeOpt.get(), pageable);
     }
     
     @Override
     public Page<Product> getMostPopularProducts(Pageable pageable) {
-        return productRepository.findMostPopularProducts(pageable);
+        Page<Product> products = productRepository.findMostPopularProducts(pageable);
+        List<Product> activeProducts = products.getContent().stream()
+                .filter(product -> "AKTİF".equals(product.getStatus()))
+                .collect(Collectors.toList());
+        return new PageImpl<>(activeProducts, pageable, activeProducts.size());
     }
 
     /**
@@ -245,6 +269,23 @@ public class ProductServiceImpl implements ProductService {
             e.printStackTrace();
             throw e;
         }
+    }
+    
+    /**
+     * Ürün durumunu değiştirir (AKTİF/PASİF).
+     */
+    @Override
+    public Product toggleProductStatus(String productId) {
+        Product product = getProductById(productId);
+        
+        // Mevcut durumu kontrol et ve değiştir
+        if ("AKTİF".equals(product.getStatus())) {
+            product.setStatus("PASİF");
+        } else {
+            product.setStatus("AKTİF");
+        }
+        
+        return productRepository.save(product);
     }
     
     /**

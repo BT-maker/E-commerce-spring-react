@@ -25,7 +25,7 @@ const ProductList = () => {
 
   useEffect(() => {
     setLoading(true);
-    let url = `http://localhost:8080/api/products?page=${page}&size=${PAGE_SIZE}`;
+    let url = `http://localhost:8082/api/products?page=${page}&size=${PAGE_SIZE}`;
     if (sort) url += `&sort=${sort}`;
     if (minPrice) url += `&minPrice=${minPrice}`;
     if (maxPrice) url += `&maxPrice=${maxPrice}`;
@@ -49,7 +49,7 @@ const ProductList = () => {
   // Mağazaları getir
   useEffect(() => {
     setStoresLoading(true);
-    fetch("http://localhost:8080/api/products/stores")
+    fetch("http://localhost:8082/api/products/stores")
       .then((res) => {
         if (!res.ok) throw new Error("Mağazalar alınamadı");
         return res.json();

@@ -24,13 +24,13 @@ const CategoryProducts = () => {
 
   useEffect(() => {
     setLoading(true);
-    let url = `http://localhost:8080/api/products?categoryId=${id}`;
+    let url = `http://localhost:8082/api/products?categoryId=${id}`;
     if (sort) url += `&sort=${sort}`;
     if (minPrice) url += `&minPrice=${minPrice}`;
     if (maxPrice) url += `&maxPrice=${maxPrice}`;
     if (selectedStore) url += `&storeName=${encodeURIComponent(selectedStore)}`;
     Promise.all([
-      fetch(`http://localhost:8080/api/categories/${id}`).then(res => res.json()),
+      fetch(`http://localhost:8082/api/categories/${id}`).then(res => res.json()),
       fetch(url).then(res => res.json())
     ])
       .then(([cat, prods]) => {
@@ -47,7 +47,7 @@ const CategoryProducts = () => {
   // Mağazaları getir
   useEffect(() => {
     setStoresLoading(true);
-    fetch("http://localhost:8080/api/products/stores")
+    fetch("http://localhost:8082/api/products/stores")
       .then((res) => {
         if (!res.ok) throw new Error("Mağazalar alınamadı");
         return res.json();

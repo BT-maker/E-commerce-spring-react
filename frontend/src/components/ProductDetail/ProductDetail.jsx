@@ -31,7 +31,7 @@ const ProductDetail = () => {
   const [reviewsLoading, setReviewsLoading] = useState(false);
 
   useEffect(() => {
-    fetch(`http://localhost:8080/api/products/${id}`)
+    fetch(`http://localhost:8082/api/products/${id}`)
       .then(res => {
         if (!res.ok) throw new Error("Ürün bulunamadı");
         return res.json();
@@ -52,8 +52,8 @@ const ProductDetail = () => {
     
     setReviewsLoading(true);
     Promise.all([
-      fetch(`http://localhost:8080/api/reviews/product/${product.id}`).then(res => res.json()),
-      fetch(`http://localhost:8080/api/reviews/product/${product.id}/stats`).then(res => res.json())
+      fetch(`http://localhost:8082/api/reviews/product/${product.id}`).then(res => res.json()),
+      fetch(`http://localhost:8082/api/reviews/product/${product.id}/stats`).then(res => res.json())
     ])
       .then(([reviewsData, statsData]) => {
         setReviews(reviewsData);
@@ -69,7 +69,7 @@ const ProductDetail = () => {
   useEffect(() => {
     if (!product || !isLoggedIn) return;
     
-    fetch(`http://localhost:8080/api/reviews/product/${product.id}/user`, {
+    fetch(`http://localhost:8082/api/reviews/product/${product.id}/user`, {
       credentials: "include"
     })
       .then(res => {
@@ -108,7 +108,7 @@ const ProductDetail = () => {
     
     setReviewLoading(true);
     try {
-      const res = await fetch(`http://localhost:8080/api/reviews/product/${product.id}`, {
+      const res = await fetch(`http://localhost:8082/api/reviews/product/${product.id}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
@@ -121,12 +121,12 @@ const ProductDetail = () => {
         toast.success("Yorumunuz kaydedildi!");
         
         // Review listesini güncelle
-        const reviewsRes = await fetch(`http://localhost:8080/api/reviews/product/${product.id}`);
+        const reviewsRes = await fetch(`http://localhost:8082/api/reviews/product/${product.id}`);
         const reviewsData = await reviewsRes.json();
         setReviews(reviewsData);
         
         // İstatistikleri güncelle
-        const statsRes = await fetch(`http://localhost:8080/api/reviews/product/${product.id}/stats`);
+        const statsRes = await fetch(`http://localhost:8082/api/reviews/product/${product.id}/stats`);
         const statsData = await statsRes.json();
         setReviewStats(statsData);
       } else {
@@ -143,7 +143,7 @@ const ProductDetail = () => {
     if (!userReview) return;
     
     try {
-      const res = await fetch(`http://localhost:8080/api/reviews/product/${product.id}`, {
+      const res = await fetch(`http://localhost:8082/api/reviews/product/${product.id}`, {
         method: "DELETE",
         credentials: "include"
       });
@@ -154,12 +154,12 @@ const ProductDetail = () => {
         toast.success("Yorumunuz silindi!");
         
         // Review listesini güncelle
-        const reviewsRes = await fetch(`http://localhost:8080/api/reviews/product/${product.id}`);
+        const reviewsRes = await fetch(`http://localhost:8082/api/reviews/product/${product.id}`);
         const reviewsData = await reviewsRes.json();
         setReviews(reviewsData);
         
         // İstatistikleri güncelle
-        const statsRes = await fetch(`http://localhost:8080/api/reviews/product/${product.id}/stats`);
+        const statsRes = await fetch(`http://localhost:8082/api/reviews/product/${product.id}/stats`);
         const statsData = await statsRes.json();
         setReviewStats(statsData);
       }

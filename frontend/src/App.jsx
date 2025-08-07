@@ -37,6 +37,7 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { CartProvider } from './context/CartContext.jsx';
 import { AuthProvider } from './context/AuthContext.jsx';
 import { FavoritesProvider } from './context/FavoritesContext.jsx';
+import { LanguageProvider } from './context/LanguageContext.jsx';
 
 import { NotificationProvider } from './context/NotificationContext.jsx';
 import { Toaster } from 'react-hot-toast';
@@ -56,7 +57,7 @@ const BackendStatus = ({ children }) => {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 3000);
       
-      const response = await fetch('http://localhost:8080/api/auth/me', {
+      const response = await fetch('http://localhost:8082/api/auth/me', {
         method: 'GET',
         signal: controller.signal,
         mode: 'cors',
@@ -145,12 +146,13 @@ const BackendStatus = ({ children }) => {
 
 function App() {
   return (
-    <AuthProvider>
-      <FavoritesProvider>
-        <CartProvider>
-          <NotificationProvider>
-          <BackendStatus>
-          <BrowserRouter>
+    <LanguageProvider>
+      <AuthProvider>
+        <FavoritesProvider>
+          <CartProvider>
+            <NotificationProvider>
+            <BackendStatus>
+            <BrowserRouter>
               <Routes>
                 {/* Customer Routes - Normal Layout */}
                 <Route path="/" element={
@@ -450,6 +452,7 @@ function App() {
           </CartProvider>
         </FavoritesProvider>
       </AuthProvider>
+    </LanguageProvider>
   );
 }
 

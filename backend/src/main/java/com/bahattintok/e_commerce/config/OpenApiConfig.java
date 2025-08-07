@@ -51,7 +51,7 @@ public class OpenApiConfig {
      * 4. Dokümantasyon: API endpoint'lerinin otomatik dokümantasyonunu oluşturur
      * 
      * Bu konfigürasyon sayesinde:
-     * - http://localhost:8080/swagger-ui/index.html adresinden API dokümantasyonuna erişebilirsiniz
+     * - http://localhost:8082/swagger-ui/index.html adresinden API dokümantasyonuna erişebilirsiniz
      * - Tüm endpoint'leri test edebilirsiniz
      * - JWT token ile authentication yapabilirsiniz
      * - API'nizin nasıl kullanılacağını görebilirsiniz

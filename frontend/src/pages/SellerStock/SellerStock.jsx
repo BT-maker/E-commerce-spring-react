@@ -61,7 +61,7 @@ const SellerStock = () => {
       setLoading(true);
       setError(null);
       
-      const url = 'http://localhost:8080/api/seller/products?page=0&size=1000';
+      const url = 'http://localhost:8082/api/seller/products?page=0&size=1000';
       
       const response = await fetch(url, {
         method: 'GET',
@@ -143,7 +143,7 @@ const SellerStock = () => {
 
   const fetchCategories = async () => {
     try {
-      const response = await fetch('http://localhost:8080/api/categories', {
+      const response = await fetch('http://localhost:8082/api/categories', {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -167,7 +167,7 @@ const SellerStock = () => {
 
   const handleSaveStock = async () => {
     try {
-      const response = await fetch(`http://localhost:8080/api/seller/products/${editingProduct.id}`, {
+      const response = await fetch(`http://localhost:8082/api/seller/products/${editingProduct.id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

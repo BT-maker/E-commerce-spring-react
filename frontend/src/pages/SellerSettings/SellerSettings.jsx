@@ -19,9 +19,12 @@ import {
   FaPalette,
   FaCog
 } from 'react-icons/fa';
+import { useLanguage } from '../../context/LanguageContext';
 import './SellerSettings.css';
 
 const SellerSettings = () => {
+  const { t, currentLanguage, changeLanguage } = useLanguage();
+  
   const [storeData, setStoreData] = useState({
     name: '',
     description: '',
@@ -47,7 +50,6 @@ const SellerSettings = () => {
     smsNotifications: false,
     orderNotifications: true,
     stockNotifications: true,
-    theme: 'light',
     language: 'tr'
   });
   
@@ -66,7 +68,7 @@ const SellerSettings = () => {
 
   const fetchStoreData = async () => {
     try {
-      const response = await fetch('http://localhost:8080/api/seller/store', {
+      const response = await fetch('http://localhost:8082/api/seller/store', {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -76,6 +78,16 @@ const SellerSettings = () => {
 
       if (response.ok) {
         const data = await response.json();
+        
+        // Base64 verilerini tamamen temizle ve sadece geçerli URL'leri kabul et
+        const cleanLogo = data.logo && data.logo.startsWith('http') && !data.logo.includes('data:image') ? data.logo : '';
+        const cleanBanner = data.banner && data.banner.startsWith('http') && !data.banner.includes('data:image') ? data.banner : '';
+        
+        console.log('Original logo:', data.logo);
+        console.log('Cleaned logo:', cleanLogo);
+        console.log('Original banner:', data.banner);
+        console.log('Cleaned banner:', cleanBanner);
+        
         setStoreData({
           name: data.name || '',
           description: data.description || '',
@@ -84,8 +96,8 @@ const SellerSettings = () => {
           email: data.email || '',
           website: data.website || '',
           workingHours: data.workingHours || '',
-          logo: data.logo || '',
-          banner: data.banner || ''
+          logo: cleanLogo,
+          banner: cleanBanner
         });
       }
     } catch (err) {
@@ -96,7 +108,7 @@ const SellerSettings = () => {
 
   const fetchUserData = async () => {
     try {
-      const response = await fetch('http://localhost:8080/api/auth/profile', {
+      const response = await fetch('http://localhost:8082/api/auth/me', {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -126,27 +138,71 @@ const SellerSettings = () => {
     setSuccess(null);
 
     try {
-      const response = await fetch('http://localhost:8080/api/seller/store', {
+      // URL validasyonu
+      const logoUrl = storeData.logo.trim();
+      const bannerUrl = storeData.banner.trim();
+      
+      if (logoUrl && !isValidUrl(logoUrl)) {
+        setError('Geçerli bir logo URL\'si girin');
+        setSaving(false);
+        return;
+      }
+      
+      if (bannerUrl && !isValidUrl(bannerUrl)) {
+        setError('Geçerli bir banner URL\'si girin');
+        setSaving(false);
+        return;
+      }
+
+      const response = await fetch('http://localhost:8082/api/seller/store', {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
         },
         credentials: 'include',
-        body: JSON.stringify(storeData)
+        body: JSON.stringify({
+          ...storeData,
+          logo: logoUrl,
+          banner: bannerUrl
+        })
       });
 
       if (response.ok) {
-        setSuccess('Mağaza bilgileri başarıyla güncellendi!');
+        const data = await response.json();
+        setSuccess(data.message || 'Mağaza bilgileri başarıyla güncellendi!');
         setTimeout(() => setSuccess(null), 3000);
       } else {
-        const errorData = await response.json();
-        setError(errorData.message || 'Mağaza bilgileri güncellenirken bir hata oluştu.');
+        let errorMessage = 'Mağaza bilgileri güncellenirken bir hata oluştu.';
+        try {
+          const errorData = await response.json();
+          errorMessage = errorData.message || errorMessage;
+        } catch (jsonError) {
+          console.error('JSON parse error:', jsonError);
+        }
+        setError(errorMessage);
       }
     } catch (err) {
       console.error('Mağaza güncelleme hatası:', err);
       setError('Mağaza bilgileri güncellenirken bir hata oluştu.');
     } finally {
       setSaving(false);
+    }
+  };
+
+  // URL validasyon fonksiyonu
+  const isValidUrl = (string) => {
+    if (!string || string.trim() === '') return true; // Boş URL'ler geçerli
+    
+    // Base64 kontrolü
+    if (string.includes('data:image') || string.includes('base64')) {
+      return false;
+    }
+    
+    try {
+      new URL(string);
+      return true;
+    } catch (_) {
+      return false;
     }
   };
 
@@ -168,7 +224,7 @@ const SellerSettings = () => {
     setSuccess(null);
 
     try {
-      const response = await fetch('http://localhost:8080/api/auth/change-password', {
+      const response = await fetch('http://localhost:8082/api/auth/change-password', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -201,13 +257,48 @@ const SellerSettings = () => {
     }
   };
 
+  const handleProfileUpdate = async (e) => {
+    e.preventDefault();
+    
+    setSaving(true);
+    setError(null);
+    setSuccess(null);
+
+    try {
+      const response = await fetch('http://localhost:8082/api/auth/me', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+        body: JSON.stringify({
+          username: userData.username,
+          email: userData.email
+        })
+      });
+
+      if (response.ok) {
+        setSuccess('Hesap bilgileri başarıyla güncellendi!');
+        setTimeout(() => setSuccess(null), 3000);
+      } else {
+        const errorData = await response.json();
+        setError(errorData.message || 'Hesap bilgileri güncellenirken bir hata oluştu.');
+      }
+    } catch (err) {
+      console.error('Hesap güncelleme hatası:', err);
+      setError('Hesap bilgileri güncellenirken bir hata oluştu.');
+    } finally {
+      setSaving(false);
+    }
+  };
+
   const handleSettingsUpdate = async () => {
     setSaving(true);
     setError(null);
     setSuccess(null);
 
     try {
-      const response = await fetch('http://localhost:8080/api/seller/settings', {
+      const response = await fetch('http://localhost:8082/api/seller/settings', {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -231,46 +322,8 @@ const SellerSettings = () => {
     }
   };
 
-  const handleImageUpload = async (e, type) => {
-    const file = e.target.files[0];
-    if (!file) return;
-
-    if (file.size > 5 * 1024 * 1024) { // 5MB limit
-      setError('Dosya boyutu 5MB\'dan küçük olmalıdır!');
-      return;
-    }
-
-    const formData = new FormData();
-    formData.append('image', file);
-    formData.append('type', type);
-
-    setSaving(true);
-    setError(null);
-
-    try {
-      const response = await fetch('http://localhost:8080/api/seller/upload-image', {
-        method: 'POST',
-        credentials: 'include',
-        body: formData
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        setStoreData(prev => ({
-          ...prev,
-          [type]: data.imageUrl
-        }));
-        setSuccess(`${type === 'logo' ? 'Logo' : 'Banner'} başarıyla yüklendi!`);
-        setTimeout(() => setSuccess(null), 3000);
-      } else {
-        setError('Resim yüklenirken bir hata oluştu.');
-      }
-    } catch (err) {
-      console.error('Resim yükleme hatası:', err);
-      setError('Resim yüklenirken bir hata oluştu.');
-    } finally {
-      setSaving(false);
-    }
+  const handleLanguageChange = (e) => {
+    changeLanguage(e.target.value);
   };
 
   if (loading) {
@@ -290,7 +343,7 @@ const SellerSettings = () => {
       {/* Header */}
       <div className="settings-header">
         <div className="header-content">
-          <h1>Ayarlar</h1>
+          <h1>{t('settings')}</h1>
         </div>
       </div>
 
@@ -316,28 +369,28 @@ const SellerSettings = () => {
           onClick={() => setActiveTab('store')}
         >
           <FaStore />
-          <span>Mağaza Bilgileri</span>
+          <span>{t('store')}</span>
         </button>
         <button 
           className={`tab-btn ${activeTab === 'account' ? 'active' : ''}`}
           onClick={() => setActiveTab('account')}
         >
           <FaUser />
-          <span>Hesap Ayarları</span>
+          <span>{t('account')}</span>
         </button>
         <button 
           className={`tab-btn ${activeTab === 'notifications' ? 'active' : ''}`}
           onClick={() => setActiveTab('notifications')}
         >
           <FaBell />
-          <span>Bildirimler</span>
+          <span>{t('notifications')}</span>
         </button>
         <button 
           className={`tab-btn ${activeTab === 'appearance' ? 'active' : ''}`}
           onClick={() => setActiveTab('appearance')}
         >
           <FaPalette />
-          <span>Görünüm</span>
+          <span>{t('appearance')}</span>
         </button>
       </div>
 
@@ -470,42 +523,42 @@ const SellerSettings = () => {
                 
                 <div className="form-row">
                   <div className="form-group">
-                    <label htmlFor="storeLogo">Mağaza Logosu</label>
-                    <div className="image-upload">
-                      {storeData.logo && (
+                    <label htmlFor="storeLogo">Mağaza Logosu URL</label>
+                    <div className="image-input-group">
+                      {storeData.logo && storeData.logo.startsWith('http') && (
                         <img src={storeData.logo} alt="Logo" className="preview-image" />
                       )}
-                      <input
-                        type="file"
-                        id="storeLogo"
-                        accept="image/*"
-                        onChange={(e) => handleImageUpload(e, 'logo')}
-                        className="file-input"
-                      />
-                      <label htmlFor="storeLogo" className="upload-btn">
-                        <FaImage />
-                        <span>Logo Yükle</span>
-                      </label>
+                      <div className="input-group">
+                        <FaImage className="input-icon" />
+                        <input
+                          type="url"
+                          id="storeLogo"
+                          value={storeData.logo || ''}
+                          onChange={(e) => setStoreData({...storeData, logo: e.target.value})}
+                          className="form-input"
+                          placeholder="https://example.com/logo.png"
+                        />
+                      </div>
                     </div>
                   </div>
 
                   <div className="form-group">
-                    <label htmlFor="storeBanner">Mağaza Banner'ı</label>
-                    <div className="image-upload">
-                      {storeData.banner && (
+                    <label htmlFor="storeBanner">Mağaza Banner'ı URL</label>
+                    <div className="image-input-group">
+                      {storeData.banner && storeData.banner.startsWith('http') && (
                         <img src={storeData.banner} alt="Banner" className="preview-image" />
                       )}
-                      <input
-                        type="file"
-                        id="storeBanner"
-                        accept="image/*"
-                        onChange={(e) => handleImageUpload(e, 'banner')}
-                        className="file-input"
-                      />
-                      <label htmlFor="storeBanner" className="upload-btn">
-                        <FaImage />
-                        <span>Banner Yükle</span>
-                      </label>
+                      <div className="input-group">
+                        <FaImage className="input-icon" />
+                        <input
+                          type="url"
+                          id="storeBanner"
+                          value={storeData.banner || ''}
+                          onChange={(e) => setStoreData({...storeData, banner: e.target.value})}
+                          className="form-input"
+                          placeholder="https://example.com/banner.png"
+                        />
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -541,8 +594,8 @@ const SellerSettings = () => {
                       type="text"
                       id="username"
                       value={userData.username}
-                      disabled
-                      className="form-input disabled"
+                      onChange={(e) => setUserData({...userData, username: e.target.value})}
+                      className="form-input"
                       placeholder="Kullanıcı adınız"
                     />
                   </div>
@@ -556,11 +609,18 @@ const SellerSettings = () => {
                       type="email"
                       id="userEmail"
                       value={userData.email}
-                      disabled
-                      className="form-input disabled"
+                      onChange={(e) => setUserData({...userData, email: e.target.value})}
+                      className="form-input"
                       placeholder="E-posta adresiniz"
                     />
                   </div>
+                </div>
+
+                <div className="form-actions">
+                  <button onClick={handleProfileUpdate} className="btn-primary" disabled={saving}>
+                    <FaSave />
+                    {saving ? 'Güncelleniyor...' : 'Hesap Bilgilerini Güncelle'}
+                  </button>
                 </div>
               </div>
 
@@ -723,94 +783,7 @@ const SellerSettings = () => {
           </div>
         )}
 
-        {/* Appearance Tab */}
-        {activeTab === 'appearance' && (
-          <div className="tab-content">
-            <div className="content-header">
-              <h2>Görünüm Ayarları</h2>
-              <p>Panel görünümünüzü özelleştirin</p>
-            </div>
-
-            <div className="settings-form">
-              <div className="form-section">
-                <h3>Tema Seçimi</h3>
-                
-                <div className="theme-options">
-                  <div className="theme-option">
-                    <input
-                      type="radio"
-                      id="light-theme"
-                      name="theme"
-                      value="light"
-                      checked={settings.theme === 'light'}
-                      onChange={(e) => setSettings({...settings, theme: e.target.value})}
-                    />
-                    <label htmlFor="light-theme" className="theme-label">
-                      <div className="theme-preview light"></div>
-                      <span>Açık Tema</span>
-                    </label>
-                  </div>
-
-                  <div className="theme-option">
-                    <input
-                      type="radio"
-                      id="dark-theme"
-                      name="theme"
-                      value="dark"
-                      checked={settings.theme === 'dark'}
-                      onChange={(e) => setSettings({...settings, theme: e.target.value})}
-                    />
-                    <label htmlFor="dark-theme" className="theme-label">
-                      <div className="theme-preview dark"></div>
-                      <span>Koyu Tema</span>
-                    </label>
-                  </div>
-
-                  <div className="theme-option">
-                    <input
-                      type="radio"
-                      id="auto-theme"
-                      name="theme"
-                      value="auto"
-                      checked={settings.theme === 'auto'}
-                      onChange={(e) => setSettings({...settings, theme: e.target.value})}
-                    />
-                    <label htmlFor="auto-theme" className="theme-label">
-                      <div className="theme-preview auto"></div>
-                      <span>Otomatik</span>
-                    </label>
-                  </div>
-                </div>
-              </div>
-
-              <div className="form-section">
-                <h3>Dil Seçimi</h3>
-                
-                <div className="form-group">
-                  <label htmlFor="language">Dil</label>
-                  <select
-                    id="language"
-                    value={settings.language}
-                    onChange={(e) => setSettings({...settings, language: e.target.value})}
-                    className="form-select"
-                  >
-                    <option value="tr">Türkçe</option>
-                    <option value="en">English</option>
-                    <option value="de">Deutsch</option>
-                    <option value="fr">Français</option>
-                  </select>
-                </div>
-              </div>
-
-              <div className="form-actions">
-                <button onClick={handleSettingsUpdate} className="btn-primary" disabled={saving}>
-                  <FaSave />
-                  {saving ? 'Kaydediliyor...' : 'Ayarları Kaydet'}
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
+        
       </div>
     </div>
   );

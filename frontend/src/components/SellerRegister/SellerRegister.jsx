@@ -57,7 +57,7 @@ const SellerRegister = () => {
         try {
             const hashedPassword = await hashPassword(form.password);
             
-            const response = await fetch('http://localhost:8080/api/auth/signup', {
+            const response = await fetch('http://localhost:8082/api/auth/signup', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

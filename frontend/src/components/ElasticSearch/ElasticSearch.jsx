@@ -25,8 +25,8 @@ const ElasticSearch = () => {
     const fetchData = async () => {
       try {
         const [catRes, storeRes] = await Promise.all([
-          fetch('http://localhost:8080/api/categories'),
-          fetch('http://localhost:8080/api/stores')
+          fetch('http://localhost:8082/api/categories'),
+          fetch('http://localhost:8082/api/stores')
         ]);
         
         if (catRes.ok) {
@@ -56,7 +56,7 @@ const ElasticSearch = () => {
     setError('');
 
     try {
-      let url = 'http://localhost:8080/api/elasticsearch/advanced-search?';
+      let url = 'http://localhost:8082/api/elasticsearch/advanced-search?';
       const params = new URLSearchParams();
 
       if (searchQuery.trim()) {

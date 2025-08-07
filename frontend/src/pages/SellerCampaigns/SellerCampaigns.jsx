@@ -75,7 +75,7 @@ const SellerCampaigns = () => {
       setLoading(true);
       setError(null);
       
-      const url = 'http://localhost:8080/api/seller/campaigns';
+      const url = 'http://localhost:8082/api/seller/campaigns';
       
       const response = await fetch(url, {
         method: 'GET',
@@ -104,7 +104,7 @@ const SellerCampaigns = () => {
 
   const fetchProducts = async () => {
     try {
-      const response = await fetch('http://localhost:8080/api/seller/products?page=0&size=1000', {
+      const response = await fetch('http://localhost:8082/api/seller/products?page=0&size=1000', {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -127,7 +127,7 @@ const SellerCampaigns = () => {
 
   const fetchCategories = async () => {
     try {
-      const response = await fetch('http://localhost:8080/api/categories', {
+      const response = await fetch('http://localhost:8082/api/categories', {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -179,7 +179,7 @@ const SellerCampaigns = () => {
   const handleDeleteCampaign = async (campaignId) => {
     if (window.confirm('Bu kampanyayı silmek istediğinizden emin misiniz?')) {
       try {
-        const response = await fetch(`http://localhost:8080/api/seller/campaigns/${campaignId}`, {
+        const response = await fetch(`http://localhost:8082/api/seller/campaigns/${campaignId}`, {
           method: 'DELETE',
           credentials: 'include'
         });
@@ -212,8 +212,8 @@ const SellerCampaigns = () => {
     
     try {
       const url = editingCampaign 
-        ? `http://localhost:8080/api/seller/campaigns/${editingCampaign.id}`
-        : 'http://localhost:8080/api/seller/campaigns';
+        ? `http://localhost:8082/api/seller/campaigns/${editingCampaign.id}`
+        : 'http://localhost:8082/api/seller/campaigns';
       
       const method = editingCampaign ? 'PUT' : 'POST';
       

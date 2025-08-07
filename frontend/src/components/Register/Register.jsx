@@ -60,7 +60,7 @@ const Register = () => {
         userType: 'USER'
       };
 
-      const res = await fetch("http://localhost:8080/api/auth/signup", {
+      const res = await fetch("http://localhost:8082/api/auth/signup", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: 'include',

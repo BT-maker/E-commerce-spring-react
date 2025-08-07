@@ -56,7 +56,7 @@ const SellerStatistics = () => {
       setLoading(true);
       setError(null);
       
-      const response = await fetch(`http://localhost:8080/api/seller/stats?period=${selectedPeriod}`, {
+      const response = await fetch(`http://localhost:8082/api/seller/stats?period=${selectedPeriod}`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',

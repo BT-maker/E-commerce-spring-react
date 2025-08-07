@@ -29,10 +29,12 @@ const SellerProducts = () => {
   // Tüm ürünleri API'den çek (sadece bir kez)
   const fetchAllProducts = async () => {
     try {
+      console.log('=== FETCH ALL PRODUCTS DEBUG ===');
       setLoading(true);
       setError(null);
       
-      const url = `http://localhost:8080/api/seller/products?page=0&size=1000`; // Tüm ürünleri al
+      const url = `http://localhost:8082/api/seller/products?page=0&size=1000`; // Tüm ürünleri al
+      console.log('Fetching from URL:', url);
       
       const response = await fetch(url, {
         method: 'GET',
@@ -42,6 +44,9 @@ const SellerProducts = () => {
         credentials: 'include'
       });
 
+      console.log('Response status:', response.status);
+      console.log('Response ok:', response.ok);
+
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
@@ -50,14 +55,20 @@ const SellerProducts = () => {
       console.log('Tüm ürün verileri:', data);
       
       if (data && data.products) {
+        console.log('Products array length:', data.products.length);
+        console.log('First product status:', data.products[0]?.status);
         setAllProducts(data.products);
         setFilteredProducts(data.products);
         setTotalProducts(data.totalElements || data.products.length);
       } else {
+        console.log('Data is array, length:', data.length);
+        console.log('First product status:', data[0]?.status);
         setAllProducts(data);
         setFilteredProducts(data);
         setTotalProducts(data.length || 0);
       }
+      
+      console.log('=== END FETCH ALL PRODUCTS DEBUG ===');
     } catch (err) {
       console.error('Ürün veri hatası:', err);
       setError('Ürün verileri yüklenirken bir hata oluştu.');
@@ -69,7 +80,7 @@ const SellerProducts = () => {
   // Kategorileri API'den çek
   const fetchCategories = async () => {
     try {
-      const response = await fetch('http://localhost:8080/api/categories', {
+      const response = await fetch('http://localhost:8082/api/categories', {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -91,7 +102,7 @@ const SellerProducts = () => {
   const handleDelete = async (productId) => {
     if (window.confirm('Bu ürünü silmek istediğinizden emin misiniz?')) {
       try {
-        const response = await fetch(`http://localhost:8080/api/seller/products/${productId}`, {
+        const response = await fetch(`http://localhost:8082/api/seller/products/${productId}`, {
           method: 'DELETE',
           headers: {
             'Content-Type': 'application/json',
@@ -100,16 +111,70 @@ const SellerProducts = () => {
         });
 
         if (response.ok) {
-          // Başarılı silme sonrası ürünleri yeniden çek
+          // Ürünleri yeniden yükle
           await fetchAllProducts();
+          alert('Ürün başarıyla silindi!');
         } else {
-          const errorData = await response.json();
-          alert(`Ürün silinemedi: ${errorData.message || 'Bilinmeyen hata'}`);
+          alert('Ürün silinirken bir hata oluştu!');
         }
-      } catch (err) {
-        console.error('Ürün silinirken hata:', err);
-        alert('Ürün silinirken bir hata oluştu.');
+      } catch (error) {
+        console.error('Ürün silme hatası:', error);
+        alert('Ürün silinirken bir hata oluştu!');
       }
+    }
+  };
+
+  // Ürün durumunu değiştirme fonksiyonu
+  const handleToggleStatus = async (productId) => {
+    try {
+      console.log('=== TOGGLE STATUS DEBUG ===');
+      console.log('Product ID to toggle:', productId);
+      
+      const response = await fetch(`http://localhost:8082/api/seller/products/${productId}/toggle-status`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include'
+      });
+
+      console.log('Response status:', response.status);
+      console.log('Response ok:', response.ok);
+
+      if (response.ok) {
+        const updatedProduct = await response.json();
+        console.log('Updated product from backend:', updatedProduct);
+        console.log('Updated product status:', updatedProduct.status);
+        
+        // Sadece o ürünün durumunu güncelle, tüm sayfayı yeniden yükleme
+        setAllProducts(prevProducts => 
+          prevProducts.map(product => 
+            product.id === productId 
+              ? { ...product, status: updatedProduct.status }
+              : product
+          )
+        );
+        
+        setFilteredProducts(prevProducts => 
+          prevProducts.map(product => 
+            product.id === productId 
+              ? { ...product, status: updatedProduct.status }
+              : product
+          )
+        );
+        
+        const newStatus = updatedProduct.status === 'AKTİF' ? 'aktif' : 'pasif';
+        console.log('New status for alert:', newStatus);
+        alert(`Ürün durumu başarıyla ${newStatus} olarak değiştirildi!`);
+        
+        console.log('=== END TOGGLE STATUS DEBUG ===');
+      } else {
+        console.error('Response not ok');
+        alert('Ürün durumu değiştirilirken bir hata oluştu!');
+      }
+    } catch (error) {
+      console.error('Ürün durumu değiştirme hatası:', error);
+      alert('Ürün durumu değiştirilirken bir hata oluştu!');
     }
   };
 
@@ -122,8 +187,8 @@ const SellerProducts = () => {
       console.log('Selected product:', selectedProduct);
       
       const url = selectedProduct 
-        ? `http://localhost:8080/api/seller/products/${selectedProduct.id}`
-        : 'http://localhost:8080/api/seller/products';
+        ? `http://localhost:8082/api/seller/products/${selectedProduct.id}`
+        : 'http://localhost:8082/api/seller/products';
       
       const method = selectedProduct ? 'PUT' : 'POST';
       console.log('Request URL:', url);
@@ -187,7 +252,7 @@ const SellerProducts = () => {
   const testAPI = async () => {
     try {
       console.log('Test API çağrısı yapılıyor...');
-      const response = await fetch('http://localhost:8080/api/seller/test', {
+      const response = await fetch('http://localhost:8082/api/seller/test', {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -350,12 +415,16 @@ const SellerProducts = () => {
   };
 
   const getStatusBadge = (status) => {
+    console.log('getStatusBadge called with status:', status);
     const statusConfig = {
-      ACTIVE: { text: 'Aktif', class: 'status-active' },
-      INACTIVE: { text: 'Pasif', class: 'status-inactive' },
-      DRAFT: { text: 'Taslak', class: 'status-draft' }
+      'AKTİF': { text: 'Aktif', class: 'status-active' },
+      'PASİF': { text: 'Pasif', class: 'status-inactive' },
+      'ACTIVE': { text: 'Aktif', class: 'status-active' },
+      'INACTIVE': { text: 'Pasif', class: 'status-inactive' },
+      'DRAFT': { text: 'Taslak', class: 'status-draft' }
     };
-    const config = statusConfig[status] || statusConfig.ACTIVE;
+    const config = statusConfig[status] || statusConfig['AKTİF'];
+    console.log('Status config:', config);
     return <span className={`status-badge ${config.class}`}>{config.text}</span>;
   };
 
@@ -547,8 +616,8 @@ const SellerProducts = () => {
                 <td className="actions-cell">
                   <button 
                     className="action-btn view-btn"
-                    title="Görüntüle"
-                    onClick={() => console.log('Görüntüle:', product.name)}
+                    title="Durumu Değiştir"
+                    onClick={() => handleToggleStatus(product.id)}
                   >
                     <FaEye />
                     <span className="btn-text"></span>

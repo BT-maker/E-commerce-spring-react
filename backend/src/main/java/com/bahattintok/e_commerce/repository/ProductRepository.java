@@ -84,6 +84,30 @@ public interface ProductRepository extends JpaRepository<Product, String> {
     Page<Product> findMostPopularProducts(Pageable pageable);
     
     /**
+     * Sadece aktif ürünleri getirir.
+     */
+    @Query("SELECT p FROM Product p WHERE p.status = 'AKTİF'")
+    List<Product> findActiveProducts();
+    
+    /**
+     * Sadece aktif ürünleri sayfalı getirir.
+     */
+    @Query("SELECT p FROM Product p WHERE p.status = 'AKTİF'")
+    Page<Product> findActiveProducts(Pageable pageable);
+    
+    /**
+     * Mağazaya ait aktif ürünleri getirir.
+     */
+    @Query("SELECT p FROM Product p WHERE p.store = :store AND p.status = 'AKTİF'")
+    List<Product> findActiveProductsByStore(Store store);
+    
+    /**
+     * Mağazaya ait aktif ürünleri sayfalı getirir.
+     */
+    @Query("SELECT p FROM Product p WHERE p.store = :store AND p.status = 'AKTİF'")
+    Page<Product> findActiveProductsByStore(Store store, Pageable pageable);
+    
+    /**
      * Bu repository şu işlevleri sağlar:
      * 
      * 1. Temel CRUD İşlemleri: Product entity'si için standart veritabanı işlemleri

@@ -38,7 +38,7 @@ const AdminCategories = () => {
 
   const fetchCategories = () => {
     setLoading(true);
-    fetch("http://localhost:8080/api/categories")
+    fetch("http://localhost:8082/api/categories")
       .then(res => res.json())
       .then(data => {
         setCategories(data);
@@ -56,7 +56,7 @@ const AdminCategories = () => {
 
   const handleModalSave = (name) => {
     if (modalType === "add") {
-      fetch("http://localhost:8080/api/categories", {
+      fetch("http://localhost:8082/api/categories", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name }),
@@ -67,7 +67,7 @@ const AdminCategories = () => {
           fetchCategories();
         });
     } else if (modalType === "edit" && modalInitial) {
-      fetch(`http://localhost:8080/api/categories/${modalInitial.id}`, {
+      fetch(`http://localhost:8082/api/categories/${modalInitial.id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name }),
@@ -95,7 +95,7 @@ const AdminCategories = () => {
 
   const handleDelete = (id) => {
     if (!window.confirm("Silmek istediğine emin misin?")) return;
-    fetch(`http://localhost:8080/api/categories/${id}`, {
+    fetch(`http://localhost:8082/api/categories/${id}`, {
       method: "DELETE",
       credentials: "include"
     }).then(() => fetchCategories());

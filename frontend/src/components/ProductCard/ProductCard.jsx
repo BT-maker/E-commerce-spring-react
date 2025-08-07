@@ -28,7 +28,7 @@ const ProductCard = ({ product, loading, onAddToCart, isFavoritesPage = false })
     // Review stats API'si 403 hatası verdiği için şimdilik devre dışı
     // Bu özellik daha sonra aktif edilebilir
     /*
-    fetch(`http://localhost:8080/api/reviews/product/${product.id}/stats`)
+    fetch(`http://localhost:8082/api/reviews/product/${product.id}/stats`)
       .then(res => {
         if (res.ok) {
           return res.json();

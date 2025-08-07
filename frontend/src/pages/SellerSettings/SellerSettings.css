@@ -242,51 +242,23 @@
 }
 
 /* Image Upload */
-.image-upload {
-  position: relative;
+.image-input-group {
   display: flex;
   flex-direction: column;
-  align-items: center;
   gap: 1rem;
+  align-items: center;
 }
 
 .preview-image {
-  width: 120px;
-  height: 120px;
+  width: 100px;
+  height: 100px;
   object-fit: cover;
   border-radius: 8px;
   border: 2px solid #e5e7eb;
 }
 
-.file-input {
-  display: none;
-}
-
-.upload-btn {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 1rem;
-  border: 2px dashed #d1d5db;
-  border-radius: 8px;
-  background: #f9fafb;
-  color: #6b7280;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  min-width: 120px;
-  min-height: 120px;
-  justify-content: center;
-}
-
-.upload-btn:hover {
-  border-color: #ff6000;
-  background: #fff7ed;
-  color: #ff6000;
-}
-
-.upload-btn svg {
-  font-size: 1.5rem;
+.image-input-group .input-group {
+  width: 100%;
 }
 
 /* Settings Items */

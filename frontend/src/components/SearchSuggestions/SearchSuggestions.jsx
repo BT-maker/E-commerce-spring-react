@@ -34,7 +34,7 @@ const SearchSuggestions = ({ onSearch, placeholder = "Ürün, kategori veya mağ
 
     const fetchPopularTerms = async () => {
         try {
-            const response = await fetch('http://localhost:8080/api/search-suggestions/popular?limit=8');
+            const response = await fetch('http://localhost:8082/api/search-suggestions/popular?limit=8');
             if (response.ok) {
                 const data = await response.json();
                 setPopularTerms(data);
@@ -53,7 +53,7 @@ const SearchSuggestions = ({ onSearch, placeholder = "Ürün, kategori veya mağ
 
         setLoading(true);
         try {
-            const response = await fetch(`http://localhost:8080/api/search-suggestions/general?query=${encodeURIComponent(searchQuery)}&limit=8`);
+            const response = await fetch(`http://localhost:8082/api/search-suggestions/general?query=${encodeURIComponent(searchQuery)}&limit=8`);
             if (response.ok) {
                 const data = await response.json();
                 setSuggestions(data);

@@ -21,8 +21,8 @@ const StorePage = () => {
     setLoading(true);
     setError("");
     Promise.all([
-      fetch(`http://localhost:8080/api/stores/${encodeURIComponent(name)}`).then(res => res.json()),
-      fetch(`http://localhost:8080/api/products?storeName=${encodeURIComponent(name)}`).then(res => res.json())
+      fetch(`http://localhost:8082/api/stores/${encodeURIComponent(name)}`).then(res => res.json()),
+      fetch(`http://localhost:8082/api/products?storeName=${encodeURIComponent(name)}`).then(res => res.json())
     ])
       .then(([storeData, productData]) => {
         setStore(storeData);

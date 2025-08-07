@@ -2,8 +2,10 @@ package com.bahattintok.e_commerce.controller;
 
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
@@ -55,6 +57,7 @@ public class ProductController {
         @RequestParam(value = "maxPrice", required = false) Double maxPrice,
         @RequestParam(value = "storeName", required = false) String storeName,
         @RequestParam(value = "sort", required = false) String sort,
+        @RequestParam(value = "includeInactive", required = false, defaultValue = "false") Boolean includeInactive,
         @PageableDefault(size = 12) Pageable pageable
     ) {
         Page<Product> products;
@@ -73,6 +76,17 @@ public class ProductController {
         } else {
             products = productService.getAllProducts(pageable);
         }
+        
+        // Eğer includeInactive false ise sadece aktif ürünleri filtrele
+        if (!includeInactive) {
+            List<Product> activeProducts = products.getContent().stream()
+                .filter(product -> "AKTİF".equals(product.getStatus()))
+                .collect(Collectors.toList());
+            
+            // Yeni bir Page nesnesi oluştur
+            products = new PageImpl<>(activeProducts, pageable, activeProducts.size());
+        }
+        
         return ResponseEntity.ok(products);
     }
     
@@ -173,6 +187,17 @@ public class ProductController {
     public ResponseEntity<Void> deleteProduct(@PathVariable String id) {
         productService.deleteProduct(id);
         return ResponseEntity.noContent().build();
+    }
+    
+    /**
+     * Ürün durumunu değiştirir (AKTİF/PASİF).
+     */
+    @PutMapping("/{id}/toggle-status")
+    @PreAuthorize("hasRole('SELLER') or hasRole('ADMIN')")
+    @Operation(summary = "Toggle product status", description = "Toggle product status between active and inactive")
+    public ResponseEntity<Product> toggleProductStatus(@PathVariable String id) {
+        Product product = productService.toggleProductStatus(id);
+        return ResponseEntity.ok(product);
     }
     
     /**

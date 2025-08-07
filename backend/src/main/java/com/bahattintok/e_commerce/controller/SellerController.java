@@ -172,20 +172,30 @@ public class SellerController {
             List<Product> allProducts = productRepository.findAll();
             System.out.println("Total products in DB: " + allProducts.size());
             
-            // Her ürünün store ID'sini kontrol et
-            System.out.println("=== STORE ID DEBUG ===");
+            // Her ürünün store ID'sini ve status'unu kontrol et
+            System.out.println("=== STORE ID AND STATUS DEBUG ===");
             for (Product p : allProducts) {
-                System.out.println("Product: " + p.getName() + " | Store ID: " + p.getStoreId() + " | Looking for: " + sellerStore.getId());
+                System.out.println("Product: " + p.getName() + " | Store ID: " + p.getStoreId() + " | Status: " + p.getStatus() + " | Looking for: " + sellerStore.getId());
             }
-            System.out.println("=== END STORE ID DEBUG ===");
+            System.out.println("=== END STORE ID AND STATUS DEBUG ===");
             
             // Store ID'sine göre ürünleri filtrele
             List<Product> sellerProducts = allProducts.stream()
                 .filter(p -> p.getStoreId() != null && p.getStoreId().equals(sellerStore.getId()))
                 .collect(java.util.stream.Collectors.toList());
             
+            // Alternatif olarak ProductRepository'nin yeni metodunu kullan
+            // List<Product> sellerProducts = productRepository.findActiveProductsByStore(sellerStore);
+            
             System.out.println("Found " + sellerProducts.size() + " products for seller");
             System.out.println("Seller store ID: " + sellerStore.getId());
+            
+            // Status bilgilerini kontrol et
+            System.out.println("=== STATUS DEBUG ===");
+            for (Product p : sellerProducts) {
+                System.out.println("Product: " + p.getName() + " | Status: " + p.getStatus());
+            }
+            System.out.println("=== END STATUS DEBUG ===");
             
             // Sayfalama hesaplamaları
             int totalProducts = sellerProducts.size();
@@ -378,47 +388,143 @@ public class SellerController {
     @Operation(summary = "Delete product", description = "Delete a product from the seller's store")
     public ResponseEntity<Void> deleteProduct(@PathVariable String id) {
         try {
+            System.out.println("=== DELETE PRODUCT DEBUG ===");
+            System.out.println("Product ID to delete: " + id);
+            
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
             String email = authentication.getName();
+            System.out.println("Current user email: " + email);
             
             User currentUser = userRepository.findByEmail(email)
                     .orElseThrow(() -> new RuntimeException("User not found: " + email));
+            System.out.println("Found user: " + currentUser.getEmail() + ", Role: " + currentUser.getRole().getName());
             
             if (!currentUser.getRole().getName().equals("SELLER")) {
+                System.out.println("User is not a seller, returning 403");
                 return ResponseEntity.status(403).build();
             }
             
             Store sellerStore = storeRepository.findBySeller(currentUser)
                     .orElseThrow(() -> new RuntimeException("Store not found for seller: " + email));
+            System.out.println("Found store: " + sellerStore.getName() + " (ID: " + sellerStore.getId() + ")");
             
-            Product existingProduct = productRepository.findById(id)
+            // Ürünün bu satıcıya ait olup olmadığını kontrol et
+            Product product = productRepository.findById(id)
                     .orElseThrow(() -> new RuntimeException("Product not found: " + id));
             
-            // Ürünün bu satıcıya ait olduğunu kontrol et
-            if (!existingProduct.getStore().getId().equals(sellerStore.getId())) {
+            if (!sellerStore.getId().equals(product.getStoreId())) {
+                System.out.println("Product does not belong to this seller, returning 403");
                 return ResponseEntity.status(403).build();
             }
             
-            // Önce Elasticsearch'ten sil (eğer varsa)
+            System.out.println("Product found: " + product.getName() + " (ID: " + product.getId() + ")");
+            System.out.println("Product store ID: " + product.getStoreId());
+            System.out.println("Seller store ID: " + sellerStore.getId());
+            
+            productRepository.deleteById(id);
+            System.out.println("Product deleted successfully");
+            
+            // Elasticsearch'ten de sil (eğer varsa)
             if (elasticsearchService != null) {
                 try {
                     elasticsearchService.deleteProduct(id);
                     System.out.println("Product deleted from Elasticsearch successfully");
                 } catch (Exception e) {
-                    System.err.println("Elasticsearch delete failed: " + e.getMessage());
+                    System.err.println("Elasticsearch deletion failed: " + e.getMessage());
                     // Elasticsearch hatası ürün silmeyi engellemez
                 }
             } else {
-                System.out.println("Elasticsearch service not available, skipping delete");
+                System.out.println("Elasticsearch service not available, skipping deletion");
             }
             
-            productRepository.delete(existingProduct);
-            return ResponseEntity.ok().build();
+            System.out.println("=== END DELETE PRODUCT DEBUG ===");
+            
+            return ResponseEntity.noContent().build();
             
         } catch (Exception e) {
-            System.err.println("Error in deleteProduct: " + e.getMessage());
+            System.err.println("=== ERROR IN DELETE PRODUCT ===");
+            System.err.println("Error message: " + e.getMessage());
+            System.err.println("Error type: " + e.getClass().getSimpleName());
             e.printStackTrace();
-            return ResponseEntity.badRequest().build();
+            throw new RuntimeException("Failed to delete product: " + e.getMessage());
+        }
+    }
+    
+    /**
+     * Ürün durumunu değiştirir (AKTİF/PASİF).
+     */
+    @PutMapping("/products/{id}/toggle-status")
+    @PreAuthorize("hasRole('SELLER') or hasRole('ROLE_SELLER')")
+    @Operation(summary = "Toggle product status", description = "Toggle product status between active and inactive")
+    public ResponseEntity<Product> toggleProductStatus(@PathVariable String id) {
+        try {
+            System.out.println("=== TOGGLE PRODUCT STATUS DEBUG ===");
+            System.out.println("Product ID to toggle: " + id);
+            
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            String email = authentication.getName();
+            System.out.println("Current user email: " + email);
+            
+            User currentUser = userRepository.findByEmail(email)
+                    .orElseThrow(() -> new RuntimeException("User not found: " + email));
+            System.out.println("Found user: " + currentUser.getEmail() + ", Role: " + currentUser.getRole().getName());
+            
+            if (!currentUser.getRole().getName().equals("SELLER")) {
+                System.out.println("User is not a seller, returning 403");
+                return ResponseEntity.status(403).build();
+            }
+            
+            Store sellerStore = storeRepository.findBySeller(currentUser)
+                    .orElseThrow(() -> new RuntimeException("Store not found for seller: " + email));
+            System.out.println("Found store: " + sellerStore.getName() + " (ID: " + sellerStore.getId() + ")");
+            
+            // Ürünün bu satıcıya ait olup olmadığını kontrol et
+            Product product = productRepository.findById(id)
+                    .orElseThrow(() -> new RuntimeException("Product not found: " + id));
+            
+            if (!sellerStore.getId().equals(product.getStoreId())) {
+                System.out.println("Product does not belong to this seller, returning 403");
+                return ResponseEntity.status(403).build();
+            }
+            
+            System.out.println("Product found: " + product.getName() + " (ID: " + product.getId() + ")");
+            System.out.println("Current status: " + product.getStatus());
+            
+            // Durumu değiştir
+            if ("AKTİF".equals(product.getStatus())) {
+                product.setStatus("PASİF");
+                System.out.println("Status changed to: PASİF");
+            } else {
+                product.setStatus("AKTİF");
+                System.out.println("Status changed to: AKTİF");
+            }
+            
+            Product updatedProduct = productRepository.save(product);
+            System.out.println("Product status updated successfully");
+            
+            // Elasticsearch'i güncelle (eğer varsa)
+            if (elasticsearchService != null) {
+                try {
+                    elasticsearchService.indexProduct(updatedProduct);
+                    System.out.println("Product updated in Elasticsearch successfully");
+                } catch (Exception e) {
+                    System.err.println("Elasticsearch update failed: " + e.getMessage());
+                    // Elasticsearch hatası ürün güncellemeyi engellemez
+                }
+            } else {
+                System.out.println("Elasticsearch service not available, skipping update");
+            }
+            
+            System.out.println("=== END TOGGLE PRODUCT STATUS DEBUG ===");
+            
+            return ResponseEntity.ok(updatedProduct);
+            
+        } catch (Exception e) {
+            System.err.println("=== ERROR IN TOGGLE PRODUCT STATUS ===");
+            System.err.println("Error message: " + e.getMessage());
+            System.err.println("Error type: " + e.getClass().getSimpleName());
+            e.printStackTrace();
+            throw new RuntimeException("Failed to toggle product status: " + e.getMessage());
         }
     }
 
@@ -1416,81 +1522,79 @@ public class SellerController {
     @Operation(summary = "Update store information", description = "Update store information for the authenticated seller")
     public ResponseEntity<Map<String, Object>> updateStoreInfo(@RequestBody Map<String, Object> request) {
         try {
+            System.out.println("=== UPDATE STORE INFO DEBUG ===");
+            System.out.println("Request data: " + request);
+            
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
             String email = authentication.getName();
+            System.out.println("Current user email: " + email);
             
             User currentUser = userRepository.findByEmail(email)
                     .orElseThrow(() -> new RuntimeException("User not found: " + email));
+            System.out.println("Found user: " + currentUser.getEmail());
             
             Store sellerStore = storeRepository.findBySeller(currentUser)
                     .orElseThrow(() -> new RuntimeException("Store not found for seller: " + email));
+            System.out.println("Found store: " + sellerStore.getName() + " (ID: " + sellerStore.getId() + ")");
             
             // Mağaza bilgilerini güvenli şekilde güncelle
-            sellerStore.setName((String) request.get("name"));
+            if (request.get("name") != null) {
+                sellerStore.setName((String) request.get("name"));
+                System.out.println("Updated name: " + request.get("name"));
+            }
             
-            try {
+            if (request.get("description") != null) {
                 sellerStore.setDescription((String) request.get("description"));
-            } catch (Exception e) {
-                // Alan yoksa atla
+                System.out.println("Updated description: " + request.get("description"));
             }
             
-            try {
+            if (request.get("address") != null) {
                 sellerStore.setAddress((String) request.get("address"));
-            } catch (Exception e) {
-                // Alan yoksa atla
+                System.out.println("Updated address: " + request.get("address"));
             }
             
-            try {
+            if (request.get("phone") != null) {
                 sellerStore.setPhone((String) request.get("phone"));
-            } catch (Exception e) {
-                // Alan yoksa atla
+                System.out.println("Updated phone: " + request.get("phone"));
             }
             
-            try {
+            if (request.get("email") != null) {
                 sellerStore.setEmail((String) request.get("email"));
-            } catch (Exception e) {
-                // Alan yoksa atla
+                System.out.println("Updated email: " + request.get("email"));
             }
             
-            try {
+            if (request.get("website") != null) {
                 sellerStore.setWebsite((String) request.get("website"));
-            } catch (Exception e) {
-                // Alan yoksa atla
+                System.out.println("Updated website: " + request.get("website"));
             }
             
-            try {
+            if (request.get("workingHours") != null) {
                 sellerStore.setWorkingHours((String) request.get("workingHours"));
-            } catch (Exception e) {
-                // Alan yoksa atla
+                System.out.println("Updated workingHours: " + request.get("workingHours"));
             }
             
-            try {
+            if (request.get("logo") != null) {
                 sellerStore.setLogo((String) request.get("logo"));
-            } catch (Exception e) {
-                // Alan yoksa atla
+                System.out.println("Updated logo: " + request.get("logo"));
             }
             
-            try {
+            if (request.get("banner") != null) {
                 sellerStore.setBanner((String) request.get("banner"));
-            } catch (Exception e) {
-                // Alan yoksa atla
+                System.out.println("Updated banner: " + request.get("banner"));
             }
             
-            try {
-                sellerStore.setUpdatedAt(java.time.LocalDateTime.now());
-            } catch (Exception e) {
-                // Alan yoksa atla
+            // Zaman damgalarını güncelle
+            sellerStore.setUpdatedAt(java.time.LocalDateTime.now());
+            System.out.println("Updated timestamp: " + sellerStore.getUpdatedAt());
+            
+            if (sellerStore.getCreatedAt() == null) {
+                sellerStore.setCreatedAt(java.time.LocalDateTime.now());
+                System.out.println("Set created timestamp: " + sellerStore.getCreatedAt());
             }
             
-            try {
-                if (sellerStore.getCreatedAt() == null) {
-                    sellerStore.setCreatedAt(java.time.LocalDateTime.now());
-                }
-            } catch (Exception e) {
-                // Alan yoksa atla
-            }
-            
-            storeRepository.save(sellerStore);
+            Store savedStore = storeRepository.save(sellerStore);
+            System.out.println("Store saved successfully: " + savedStore.getId());
+            System.out.println("=== END UPDATE STORE INFO DEBUG ===");
             
             Map<String, Object> response = new HashMap<>();
             response.put("message", "Mağaza bilgileri başarıyla güncellendi");
@@ -1498,9 +1602,18 @@ public class SellerController {
             
             return ResponseEntity.ok(response);
         } catch (Exception e) {
-            System.err.println("Update store info error: " + e.getMessage());
+            System.err.println("=== UPDATE STORE INFO ERROR ===");
+            System.err.println("Error message: " + e.getMessage());
+            System.err.println("Error type: " + e.getClass().getSimpleName());
+            System.err.println("Error cause: " + (e.getCause() != null ? e.getCause().getMessage() : "No cause"));
             e.printStackTrace();
-            return ResponseEntity.internalServerError().build();
+            
+            Map<String, Object> errorResponse = new HashMap<>();
+            errorResponse.put("error", "Mağaza bilgileri güncellenirken bir hata oluştu: " + e.getMessage());
+            errorResponse.put("details", e.getClass().getSimpleName());
+            errorResponse.put("timestamp", java.time.LocalDateTime.now().toString());
+            
+            return ResponseEntity.internalServerError().body(errorResponse);
         }
     }
 
