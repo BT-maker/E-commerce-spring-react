@@ -46,6 +46,76 @@ public class OrderItem {
     private BigDecimal price; // sipariş anındaki ürün fiyatı
     
     /**
+     * Id getter metodu
+     */
+    public String getId() {
+        return id;
+    }
+    
+    /**
+     * Id setter metodu
+     */
+    public void setId(String id) {
+        this.id = id;
+    }
+    
+    /**
+     * Order getter metodu
+     */
+    public Order getOrder() {
+        return order;
+    }
+    
+    /**
+     * Order setter metodu
+     */
+    public void setOrder(Order order) {
+        this.order = order;
+    }
+    
+    /**
+     * Product getter metodu
+     */
+    public Product getProduct() {
+        return product;
+    }
+    
+    /**
+     * Product setter metodu
+     */
+    public void setProduct(Product product) {
+        this.product = product;
+    }
+    
+    /**
+     * Quantity getter metodu
+     */
+    public Integer getQuantity() {
+        return quantity;
+    }
+    
+    /**
+     * Quantity setter metodu
+     */
+    public void setQuantity(Integer quantity) {
+        this.quantity = quantity;
+    }
+    
+    /**
+     * Price getter metodu
+     */
+    public BigDecimal getPrice() {
+        return price;
+    }
+    
+    /**
+     * Price setter metodu
+     */
+    public void setPrice(BigDecimal price) {
+        this.price = price;
+    }
+    
+    /**
      * Bu entity şu işlevleri sağlar:
      * 
      * 1. Sipariş Ürünü: Siparişteki her ürün için ayrı kayıt

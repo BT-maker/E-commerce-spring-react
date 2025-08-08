@@ -1,5 +1,6 @@
 package com.bahattintok.e_commerce.config;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -12,19 +13,25 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 import com.bahattintok.e_commerce.security.CustomUserDetailsService;
 
-import lombok.RequiredArgsConstructor;
-
 /**
- * Uygulamanın authentication ve user details ile ilgili Spring bean konfigürasyonlarını içerir.
+ * Spring Security için gerekli bean'lerin konfigürasyonu.
  */
 @Configuration
-@RequiredArgsConstructor
 public class ApplicationConfig {
     
-    private final CustomUserDetailsService customUserDetailsService;
+    @Autowired
+    private CustomUserDetailsService customUserDetailsService;
     
     /**
-     * Kullanıcı detaylarını yüklemek için özel servis.
+     * Password encoder bean'i
+     */
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
+    
+    /**
+     * UserDetailsService bean'i
      */
     @Bean
     public UserDetailsService userDetailsService() {
@@ -32,10 +39,8 @@ public class ApplicationConfig {
     }
     
     /**
-     * Authentication işlemlerinde kullanılacak provider.
-     * UserDetailsService ve PasswordEncoder ile çalışır.
+     * Authentication provider bean'i
      */
-    @SuppressWarnings("deprecation")
     @Bean
     public AuthenticationProvider authenticationProvider() {
         DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
@@ -45,7 +50,7 @@ public class ApplicationConfig {
     }
     
     /**
-     * Authentication işlemlerini yöneten ana bean.
+     * Authentication manager bean'i
      */
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
@@ -53,25 +58,13 @@ public class ApplicationConfig {
     }
     
     /**
-     * Şifreleri hash'lemek için BCrypt algoritması kullanılır.
-     */
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
-    
-    /**
-     * Bu sınıf şu işlevleri sağlar:
+     * Bu konfigürasyon şu işlevleri sağlar:
      * 
-     * 1. Kullanıcı Detayları: Kullanıcı bilgilerinin yüklenmesi için servis tanımlar
-     * 2. Şifre Doğrulama: Güvenli şifre hash'leme ve karşılaştırma
-     * 3. Kimlik Doğrulama: Authentication işlemlerinin yönetimi
-     * 4. Güvenli Şifre Hash'leme: BCrypt algoritması ile şifre güvenliği
+     * 1. Password Encoding: BCrypt ile şifre hash'leme
+     * 2. UserDetailsService: Kullanıcı bilgilerini yükleme servisi
+     * 3. Authentication Provider: Kimlik doğrulama sağlayıcısı
+     * 4. Authentication Manager: Kimlik doğrulama yöneticisi
      * 
-     * Bu konfigürasyon sayesinde:
-     * - Kullanıcı bilgileri güvenli şekilde yüklenir
-     * - Şifreler veritabanında hash'lenmiş olarak saklanır
-     * - Login sırasında şifre güvenli şekilde doğrulanır
-     * - Authentication sistemi düzgün çalışır
+     * Bu konfigürasyon sayesinde Spring Security düzgün şekilde çalışır!
      */
 } 

@@ -53,10 +53,94 @@ public class Order {
     private List<OrderItem> items = new ArrayList<>();
     
     /**
+     * Id getter metodu
+     */
+    public String getId() {
+        return id;
+    }
+    
+    /**
+     * Id setter metodu
+     */
+    public void setId(String id) {
+        this.id = id;
+    }
+    
+    /**
+     * Items getter metodu
+     */
+    public List<OrderItem> getItems() {
+        return items;
+    }
+    
+    /**
+     * Items setter metodu
+     */
+    public void setItems(List<OrderItem> items) {
+        this.items = items;
+    }
+    
+    /**
      * Order items'ları döner
      */
     public List<OrderItem> getOrderItems() {
         return items;
+    }
+    
+    /**
+     * User getter metodu
+     */
+    public User getUser() {
+        return user;
+    }
+    
+    /**
+     * User setter metodu
+     */
+    public void setUser(User user) {
+        this.user = user;
+    }
+    
+    /**
+     * Status getter metodu
+     */
+    public String getStatus() {
+        return status;
+    }
+    
+    /**
+     * Status setter metodu
+     */
+    public void setStatus(String status) {
+        this.status = status;
+    }
+    
+    /**
+     * TotalPrice getter metodu
+     */
+    public BigDecimal getTotalPrice() {
+        return totalPrice;
+    }
+    
+    /**
+     * TotalPrice setter metodu
+     */
+    public void setTotalPrice(BigDecimal totalPrice) {
+        this.totalPrice = totalPrice;
+    }
+    
+    /**
+     * CreatedAt getter metodu
+     */
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+    
+    /**
+     * CreatedAt setter metodu
+     */
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
     }
     
     /**

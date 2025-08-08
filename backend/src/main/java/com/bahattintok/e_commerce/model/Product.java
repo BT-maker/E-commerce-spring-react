@@ -103,68 +103,256 @@ public class Product {
     private String status = "AKTİF"; // Varsayılan olarak aktif
     
     /**
-     * Ürünün ait olduğu kategori ID'si (String)
+     * Kategori ID'si (foreign key)
      */
     @Column(name = "category_id")
     @JsonIgnore
     private String categoryId;
-
+    
     /**
-     * Ürünün ait olduğu mağaza ID'si (String)
+     * Mağaza ID'si (foreign key, opsiyonel)
      */
     @Column(name = "store_id", nullable = true)
     @JsonIgnore
     private String storeId;
-
+    
     /**
-     * Ürünün ait olduğu kategori (lazy loading)
+     * Kategori ilişkisi (lazy loading)
      */
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id", insertable = false, updatable = false)
     @JsonIgnoreProperties({"hibernateLazyInitializer", "handler", "products"})
     private Category category;
-
+    
     /**
-     * Ürünün ait olduğu mağaza (lazy loading)
+     * Mağaza ilişkisi (lazy loading)
      */
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "store_id", insertable = false, updatable = false)
     @JsonIgnore
     private Store store;
-
+    
+    /**
+     * Ürün yorumları
+     */
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     @JsonIgnore
     private List<Review> reviews = new ArrayList<>();
     
     /**
-     * İndirimli fiyatı hesapla
+     * İndirimli fiyatı döner (indirim varsa indirimli fiyat, yoksa normal fiyat)
      */
     @JsonProperty("discountedPrice")
     public BigDecimal getFinalPrice() {
-        if (discountPercentage != null && discountPercentage > 0 && 
-            (discountEndDate == null || discountEndDate.isAfter(java.time.LocalDateTime.now()))) {
-            return price.multiply(BigDecimal.valueOf(100 - discountPercentage))
-                       .divide(BigDecimal.valueOf(100), 2, java.math.RoundingMode.HALF_UP);
+        if (isDiscountActive()) {
+            return discountedPrice != null ? discountedPrice : price;
         }
         return price;
     }
     
     /**
-     * İndirim aktif mi kontrol et
+     * İndirimin aktif olup olmadığını kontrol eder
      */
     @JsonProperty("isDiscountActive")
     public boolean isDiscountActive() {
-        if (discountEndDate == null || discountPercentage == null || discountPercentage <= 0) {
+        if (discountPercentage == null || discountPercentage <= 0) {
             return false;
         }
-        return java.time.LocalDateTime.now().isBefore(discountEndDate);
+        
+        if (discountEndDate != null && java.time.LocalDateTime.now().isAfter(discountEndDate)) {
+            return false;
+        }
+        
+        return true;
     }
     
     /**
-     * Ürün görselini döner
+     * Ürün görselini döner (varsayılan görsel yoksa)
      */
     public String getImage() {
+        return imageUrl != null ? imageUrl : "/images/default-product.jpg";
+    }
+    
+    /**
+     * Name getter metodu
+     */
+    public String getName() {
+        return name;
+    }
+    
+    /**
+     * Name setter metodu
+     */
+    public void setName(String name) {
+        this.name = name;
+    }
+    
+    /**
+     * Description getter metodu
+     */
+    public String getDescription() {
+        return description;
+    }
+    
+    /**
+     * Description setter metodu
+     */
+    public void setDescription(String description) {
+        this.description = description;
+    }
+    
+    /**
+     * Price getter metodu
+     */
+    public BigDecimal getPrice() {
+        return price;
+    }
+    
+    /**
+     * Price setter metodu
+     */
+    public void setPrice(BigDecimal price) {
+        this.price = price;
+    }
+    
+    /**
+     * Stock getter metodu
+     */
+    public Integer getStock() {
+        return stock;
+    }
+    
+    /**
+     * Stock setter metodu
+     */
+    public void setStock(Integer stock) {
+        this.stock = stock;
+    }
+    
+    /**
+     * CategoryId getter metodu
+     */
+    public String getCategoryId() {
+        return categoryId;
+    }
+    
+    /**
+     * CategoryId setter metodu
+     */
+    public void setCategoryId(String categoryId) {
+        this.categoryId = categoryId;
+    }
+    
+    /**
+     * StoreId getter metodu
+     */
+    public String getStoreId() {
+        return storeId;
+    }
+    
+    /**
+     * StoreId setter metodu
+     */
+    public void setStoreId(String storeId) {
+        this.storeId = storeId;
+    }
+    
+    /**
+     * ImageUrl getter metodu
+     */
+    public String getImageUrl() {
         return imageUrl;
+    }
+    
+    /**
+     * ImageUrl setter metodu
+     */
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
+    }
+    
+    /**
+     * Id getter metodu
+     */
+    public String getId() {
+        return id;
+    }
+    
+    /**
+     * Id setter metodu
+     */
+    public void setId(String id) {
+        this.id = id;
+    }
+    
+    /**
+     * Category getter metodu
+     */
+    public Category getCategory() {
+        return category;
+    }
+    
+    /**
+     * Category setter metodu
+     */
+    public void setCategory(Category category) {
+        this.category = category;
+    }
+    
+    /**
+     * Store getter metodu
+     */
+    public Store getStore() {
+        return store;
+    }
+    
+    /**
+     * Store setter metodu
+     */
+    public void setStore(Store store) {
+        this.store = store;
+    }
+    
+    /**
+     * Status getter metodu
+     */
+    public String getStatus() {
+        return status;
+    }
+    
+    /**
+     * Status setter metodu
+     */
+    public void setStatus(String status) {
+        this.status = status;
+    }
+    
+    /**
+     * DiscountedPrice getter metodu
+     */
+    public BigDecimal getDiscountedPrice() {
+        return discountedPrice;
+    }
+    
+    /**
+     * DiscountedPrice setter metodu
+     */
+    public void setDiscountedPrice(BigDecimal discountedPrice) {
+        this.discountedPrice = discountedPrice;
+    }
+    
+    /**
+     * DiscountPercentage getter metodu
+     */
+    public Integer getDiscountPercentage() {
+        return discountPercentage;
+    }
+    
+    /**
+     * DiscountPercentage setter metodu
+     */
+    public void setDiscountPercentage(Integer discountPercentage) {
+        this.discountPercentage = discountPercentage;
     }
     
     /**

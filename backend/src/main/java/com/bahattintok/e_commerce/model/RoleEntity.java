@@ -39,6 +39,34 @@ public class RoleEntity {
     private boolean isSeller = false;
     
     /**
+     * Name getter metodu
+     */
+    public String getName() {
+        return name;
+    }
+    
+    /**
+     * Name setter metodu
+     */
+    public void setName(String name) {
+        this.name = name;
+    }
+    
+    /**
+     * IsSeller getter metodu
+     */
+    public boolean isSeller() {
+        return isSeller;
+    }
+    
+    /**
+     * IsSeller setter metodu
+     */
+    public void setSeller(boolean seller) {
+        this.isSeller = seller;
+    }
+    
+    /**
      * Bu entity şu işlevleri sağlar:
      * 
      * 1. Rol Yönetimi: Veritabanında kullanıcı rollerinin saklanması

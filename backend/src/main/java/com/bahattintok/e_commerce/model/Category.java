@@ -36,6 +36,34 @@ public class Category {
     private String name;
     
     /**
+     * Id getter metodu
+     */
+    public String getId() {
+        return id;
+    }
+    
+    /**
+     * Id setter metodu
+     */
+    public void setId(String id) {
+        this.id = id;
+    }
+    
+    /**
+     * Name getter metodu
+     */
+    public String getName() {
+        return name;
+    }
+    
+    /**
+     * Name setter metodu
+     */
+    public void setName(String name) {
+        this.name = name;
+    }
+    
+    /**
      * Bu entity şu işlevleri sağlar:
      * 
      * 1. Kategori Yönetimi: Ürün kategorilerinin tanımlanması

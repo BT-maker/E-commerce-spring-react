@@ -37,6 +37,11 @@ public interface ProductSearchRepository extends ElasticsearchRepository<Product
     List<ProductDocument> findByCategoryNameContainingIgnoreCase(String categoryName);
     
     /**
+     * Tam kategori adı eşleşmesi için arama yapar.
+     */
+    List<ProductDocument> findByCategoryName(String categoryName);
+    
+    /**
      * Mağaza adına göre arama yapar.
      */
     List<ProductDocument> findByStoreNameContainingIgnoreCase(String storeName);

@@ -44,6 +44,62 @@ public class Favorite {
     private java.time.LocalDateTime createdAt = java.time.LocalDateTime.now();
     
     /**
+     * Id getter metodu
+     */
+    public Long getId() {
+        return id;
+    }
+    
+    /**
+     * Id setter metodu
+     */
+    public void setId(Long id) {
+        this.id = id;
+    }
+    
+    /**
+     * User getter metodu
+     */
+    public User getUser() {
+        return user;
+    }
+    
+    /**
+     * User setter metodu
+     */
+    public void setUser(User user) {
+        this.user = user;
+    }
+    
+    /**
+     * Product getter metodu
+     */
+    public Product getProduct() {
+        return product;
+    }
+    
+    /**
+     * Product setter metodu
+     */
+    public void setProduct(Product product) {
+        this.product = product;
+    }
+    
+    /**
+     * CreatedAt getter metodu
+     */
+    public java.time.LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+    
+    /**
+     * CreatedAt setter metodu
+     */
+    public void setCreatedAt(java.time.LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
+    
+    /**
      * Bu entity şu işlevleri sağlar:
      * 
      * 1. Favori Yönetimi: Kullanıcıların favori ürünlerini saklama

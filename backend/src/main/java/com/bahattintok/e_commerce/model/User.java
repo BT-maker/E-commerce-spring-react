@@ -128,6 +128,118 @@ public class User implements UserDetails {
     }
     
     /**
+     * Email getter metodu
+     */
+    public String getEmail() {
+        return email;
+    }
+    
+    /**
+     * Username getter metodu (UserDetails interface requirement)
+     */
+    public String getUsername() {
+        return username;
+    }
+    
+    /**
+     * Password getter metodu (UserDetails interface requirement)
+     */
+    public String getPassword() {
+        return password;
+    }
+    
+    /**
+     * Role getter metodu
+     */
+    public RoleEntity getRole() {
+        return role;
+    }
+    
+    /**
+     * Username setter metodu
+     */
+    public void setUsername(String username) {
+        this.username = username;
+    }
+    
+    /**
+     * Email setter metodu
+     */
+    public void setEmail(String email) {
+        this.email = email;
+    }
+    
+    /**
+     * Password setter metodu
+     */
+    public void setPassword(String password) {
+        this.password = password;
+    }
+    
+    /**
+     * Role setter metodu
+     */
+    public void setRole(RoleEntity role) {
+        this.role = role;
+    }
+    
+    /**
+     * Id getter metodu
+     */
+    public String getId() {
+        return id;
+    }
+    
+    /**
+     * Id setter metodu
+     */
+    public void setId(String id) {
+        this.id = id;
+    }
+    
+    /**
+     * FirstName getter metodu
+     */
+    public String getFirstName() {
+        return firstName;
+    }
+    
+    /**
+     * FirstName setter metodu
+     */
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
+    }
+    
+    /**
+     * LastName getter metodu
+     */
+    public String getLastName() {
+        return lastName;
+    }
+    
+    /**
+     * LastName setter metodu
+     */
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
+    }
+    
+    /**
+     * Phone getter metodu
+     */
+    public String getPhone() {
+        return phone;
+    }
+    
+    /**
+     * Phone setter metodu
+     */
+    public void setPhone(String phone) {
+        this.phone = phone;
+    }
+    
+    /**
      * Bu entity şu işlevleri sağlar:
      * 
      * 1. Kullanıcı Yönetimi: Sistem kullanıcılarının temel bilgileri

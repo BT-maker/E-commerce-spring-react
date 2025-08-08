@@ -50,6 +50,90 @@ public class Review {
     private LocalDateTime createdAt;
     
     /**
+     * User getter metodu
+     */
+    public User getUser() {
+        return user;
+    }
+    
+    /**
+     * User setter metodu
+     */
+    public void setUser(User user) {
+        this.user = user;
+    }
+    
+    /**
+     * Product getter metodu
+     */
+    public Product getProduct() {
+        return product;
+    }
+    
+    /**
+     * Product setter metodu
+     */
+    public void setProduct(Product product) {
+        this.product = product;
+    }
+    
+    /**
+     * Id getter metodu
+     */
+    public String getId() {
+        return id;
+    }
+    
+    /**
+     * Id setter metodu
+     */
+    public void setId(String id) {
+        this.id = id;
+    }
+    
+    /**
+     * Rating getter metodu
+     */
+    public int getRating() {
+        return rating;
+    }
+    
+    /**
+     * Rating setter metodu
+     */
+    public void setRating(int rating) {
+        this.rating = rating;
+    }
+    
+    /**
+     * Comment getter metodu
+     */
+    public String getComment() {
+        return comment;
+    }
+    
+    /**
+     * Comment setter metodu
+     */
+    public void setComment(String comment) {
+        this.comment = comment;
+    }
+    
+    /**
+     * CreatedAt getter metodu
+     */
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+    
+    /**
+     * CreatedAt setter metodu
+     */
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
+    
+    /**
      * Bu entity şu işlevleri sağlar:
      * 
      * 1. Ürün Değerlendirmesi: Kullanıcıların ürün puanlama ve yorum sistemi

@@ -25,6 +25,62 @@ public class UpdateProfileRequest {
     private String newPassword;
     
     /**
+     * Username getter metodu
+     */
+    public String getUsername() {
+        return username;
+    }
+    
+    /**
+     * Username setter metodu
+     */
+    public void setUsername(String username) {
+        this.username = username;
+    }
+    
+    /**
+     * Email getter metodu
+     */
+    public String getEmail() {
+        return email;
+    }
+    
+    /**
+     * Email setter metodu
+     */
+    public void setEmail(String email) {
+        this.email = email;
+    }
+    
+    /**
+     * CurrentPassword getter metodu
+     */
+    public String getCurrentPassword() {
+        return currentPassword;
+    }
+    
+    /**
+     * CurrentPassword setter metodu
+     */
+    public void setCurrentPassword(String currentPassword) {
+        this.currentPassword = currentPassword;
+    }
+    
+    /**
+     * NewPassword getter metodu
+     */
+    public String getNewPassword() {
+        return newPassword;
+    }
+    
+    /**
+     * NewPassword setter metodu
+     */
+    public void setNewPassword(String newPassword) {
+        this.newPassword = newPassword;
+    }
+    
+    /**
      * Bu DTO şu işlevleri sağlar:
      * 
      * 1. Profil Güncelleme: Kullanıcı bilgilerinin (ad, email) güncellenmesi

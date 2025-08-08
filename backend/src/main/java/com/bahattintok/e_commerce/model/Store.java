@@ -78,6 +78,188 @@ public class Store {
     private LocalDateTime updatedAt;
     
     /**
+     * Id getter metodu
+     */
+    public String getId() {
+        return id;
+    }
+    
+    /**
+     * Id setter metodu
+     */
+    public void setId(String id) {
+        this.id = id;
+    }
+    
+    /**
+     * Name getter metodu
+     */
+    public String getName() {
+        return name;
+    }
+    
+    /**
+     * Name setter metodu
+     */
+    public void setName(String name) {
+        this.name = name;
+    }
+    
+    /**
+     * Seller getter metodu
+     */
+    public User getSeller() {
+        return seller;
+    }
+    
+    /**
+     * Seller setter metodu
+     */
+    public void setSeller(User seller) {
+        this.seller = seller;
+    }
+    
+    /**
+     * Description getter metodu
+     */
+    public String getDescription() {
+        return description;
+    }
+    
+    /**
+     * Description setter metodu
+     */
+    public void setDescription(String description) {
+        this.description = description;
+    }
+    
+    /**
+     * Address getter metodu
+     */
+    public String getAddress() {
+        return address;
+    }
+    
+    /**
+     * Address setter metodu
+     */
+    public void setAddress(String address) {
+        this.address = address;
+    }
+    
+    /**
+     * Phone getter metodu
+     */
+    public String getPhone() {
+        return phone;
+    }
+    
+    /**
+     * Phone setter metodu
+     */
+    public void setPhone(String phone) {
+        this.phone = phone;
+    }
+    
+    /**
+     * Email getter metodu
+     */
+    public String getEmail() {
+        return email;
+    }
+    
+    /**
+     * Email setter metodu
+     */
+    public void setEmail(String email) {
+        this.email = email;
+    }
+    
+    /**
+     * Website getter metodu
+     */
+    public String getWebsite() {
+        return website;
+    }
+    
+    /**
+     * Website setter metodu
+     */
+    public void setWebsite(String website) {
+        this.website = website;
+    }
+    
+    /**
+     * WorkingHours getter metodu
+     */
+    public String getWorkingHours() {
+        return workingHours;
+    }
+    
+    /**
+     * WorkingHours setter metodu
+     */
+    public void setWorkingHours(String workingHours) {
+        this.workingHours = workingHours;
+    }
+    
+    /**
+     * Logo getter metodu
+     */
+    public String getLogo() {
+        return logo;
+    }
+    
+    /**
+     * Logo setter metodu
+     */
+    public void setLogo(String logo) {
+        this.logo = logo;
+    }
+    
+    /**
+     * Banner getter metodu
+     */
+    public String getBanner() {
+        return banner;
+    }
+    
+    /**
+     * Banner setter metodu
+     */
+    public void setBanner(String banner) {
+        this.banner = banner;
+    }
+    
+    /**
+     * CreatedAt getter metodu
+     */
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+    
+    /**
+     * CreatedAt setter metodu
+     */
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
+    
+    /**
+     * UpdatedAt getter metodu
+     */
+    public LocalDateTime getUpdatedAt() {
+        return updatedAt;
+    }
+    
+    /**
+     * UpdatedAt setter metodu
+     */
+    public void setUpdatedAt(LocalDateTime updatedAt) {
+        this.updatedAt = updatedAt;
+    }
+    
+    /**
      * Bu entity şu işlevleri sağlar:
      * 
      * 1. Mağaza Yönetimi: Satıcı mağazalarının tanımlanması

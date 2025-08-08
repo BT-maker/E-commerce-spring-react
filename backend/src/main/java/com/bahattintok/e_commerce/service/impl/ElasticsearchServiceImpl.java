@@ -1,10 +1,14 @@
 package com.bahattintok.e_commerce.service.impl;
 
+import java.math.BigDecimal;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -109,10 +113,26 @@ public class ElasticsearchServiceImpl implements ElasticsearchService {
         }
         
         try {
-            return productSearchRepository.searchByKeyword(keyword, pageable);
+            if (keyword == null || keyword.trim().isEmpty()) {
+                // Boş arama durumunda tüm ürünleri döndür
+                return productSearchRepository.findAll(pageable);
+            }
+            
+            return productSearchRepository.searchByKeyword(keyword.trim(), pageable);
         } catch (Exception e) {
             log.error("Arama yapılırken hata oluştu: {}", keyword, e);
-            return Page.empty(pageable);
+            // Hata durumunda normal SQL araması yap
+            try {
+                Page<Product> products = productRepository.searchProducts(keyword, pageable);
+                List<ProductDocument> documents = products.getContent().stream()
+                    .map(ProductDocument::fromProduct)
+                    .toList();
+                
+                return new PageImpl<>(documents, pageable, products.getTotalElements());
+            } catch (Exception sqlError) {
+                log.error("SQL araması da başarısız oldu: {}", sqlError.getMessage());
+                return Page.empty(pageable);
+            }
         }
     }
     
@@ -124,17 +144,75 @@ public class ElasticsearchServiceImpl implements ElasticsearchService {
         }
         
         try {
+            List<ProductDocument> results = List.of();
+            
+            // Arama kriterlerine göre ürünleri getir
             if (query != null && !query.trim().isEmpty()) {
-                return productSearchRepository.fullTextSearch(query);
+                // Tam metin araması
+                log.debug("Tam metin araması yapılıyor: {}", query);
+                results = productSearchRepository.fullTextSearch(query.trim());
             } else if (category != null && !category.trim().isEmpty()) {
                 // Kategori bazlı arama
-                return productSearchRepository.findByCategoryNameContainingIgnoreCase(category);
+                log.debug("Kategori araması yapılıyor: {}", category);
+                results = productSearchRepository.findByCategoryName(category.trim());
             } else if (storeName != null && !storeName.trim().isEmpty()) {
                 // Mağaza bazlı arama
-                return productSearchRepository.findByStoreNameContainingIgnoreCase(storeName);
+                log.debug("Mağaza araması yapılıyor: {}", storeName);
+                results = productSearchRepository.findByStoreNameContainingIgnoreCase(storeName.trim());
+            } else {
+                // Hiçbir arama kriteri yoksa veya sadece fiyat filtresi varsa tüm ürünleri getir
+                log.debug("Tüm ürünler getiriliyor (fiyat filtresi için) - query: {}, category: {}, storeName: {}", query, category, storeName);
+                // findAll() Iterable döndürür, Stream API ile List'e çeviriyoruz
+                results = StreamSupport.stream(productSearchRepository.findAll().spliterator(), false)
+                    .collect(Collectors.toList());
             }
             
-            return (List<ProductDocument>) productSearchRepository.findAll();
+            log.debug("İlk arama sonucu: {} ürün bulundu", results.size());
+            
+            // Fiyat filtresi uygula
+            if (minPrice != null || maxPrice != null) {
+                log.debug("Fiyat filtresi uygulanıyor: minPrice={}, maxPrice={}", minPrice, maxPrice);
+                BigDecimal min = minPrice != null ? BigDecimal.valueOf(minPrice) : BigDecimal.ZERO;
+                BigDecimal max = maxPrice != null ? BigDecimal.valueOf(maxPrice) : BigDecimal.valueOf(999999.99);
+                
+                int beforeFilter = results.size();
+                results = results.stream()
+                    .filter(product -> {
+                        BigDecimal price = product.getPrice();
+                        if (price == null || price.compareTo(BigDecimal.ZERO) == 0) {
+                            log.debug("Ürün {} fiyatı null veya sıfır, filtreleniyor", product.getName());
+                            return false;
+                        }
+                        
+                        boolean minCheck = minPrice == null || price.compareTo(min) >= 0;
+                        boolean maxCheck = maxPrice == null || price.compareTo(max) <= 0;
+                        
+                        if (!minCheck || !maxCheck) {
+                            log.debug("Ürün {} fiyatı {} filtreleniyor (min: {}, max: {})", 
+                                    product.getName(), price, min, max);
+                        }
+                        
+                        return minCheck && maxCheck;
+                    })
+                    .toList();
+                
+                log.debug("Fiyat filtresi uygulandı: min={}, max={}, önceki={}, sonraki={} ürün", 
+                         minPrice, maxPrice, beforeFilter, results.size());
+            }
+            
+            // Mağaza filtresi uygula (eğer kategori araması yapılmadıysa)
+            if (storeName != null && !storeName.trim().isEmpty() && (category == null || category.trim().isEmpty())) {
+                log.debug("Mağaza filtresi uygulanıyor: {}", storeName);
+                int beforeFilter = results.size();
+                results = results.stream()
+                    .filter(product -> product.getStoreName() != null && 
+                                     product.getStoreName().toLowerCase().contains(storeName.toLowerCase()))
+                    .toList();
+                log.debug("Mağaza filtresi uygulandı: önceki={}, sonraki={} ürün", beforeFilter, results.size());
+            }
+            
+            log.debug("Elasticsearch arama sonucu: {} ürün bulundu", results.size());
+            return results;
         } catch (Exception e) {
             log.error("Gelişmiş arama yapılırken hata oluştu", e);
             return List.of();

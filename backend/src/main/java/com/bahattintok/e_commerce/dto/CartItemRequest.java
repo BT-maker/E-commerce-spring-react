@@ -28,6 +28,34 @@ public class CartItemRequest {
     private Integer quantity;
     
     /**
+     * ProductId getter metodu
+     */
+    public String getProductId() {
+        return productId;
+    }
+    
+    /**
+     * ProductId setter metodu
+     */
+    public void setProductId(String productId) {
+        this.productId = productId;
+    }
+    
+    /**
+     * Quantity getter metodu
+     */
+    public Integer getQuantity() {
+        return quantity;
+    }
+    
+    /**
+     * Quantity setter metodu
+     */
+    public void setQuantity(Integer quantity) {
+        this.quantity = quantity;
+    }
+    
+    /**
      * Bu DTO şu işlevleri sağlar:
      * 
      * 1. Ürün Tanımlama: Sepete eklenecek ürünün benzersiz kimliği

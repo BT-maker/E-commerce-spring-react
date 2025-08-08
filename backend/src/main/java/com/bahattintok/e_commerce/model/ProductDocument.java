@@ -33,6 +33,23 @@ public class ProductDocument {
     @Field(type = FieldType.Double)
     private BigDecimal price;
     
+    /**
+     * Fiyatı güvenli şekilde döner
+     */
+    public BigDecimal getPrice() {
+        if (price == null) {
+            return BigDecimal.ZERO;
+        }
+        return price;
+    }
+    
+    /**
+     * Fiyatı güvenli şekilde set eder
+     */
+    public void setPrice(BigDecimal price) {
+        this.price = price != null ? price : BigDecimal.ZERO;
+    }
+    
     @Field(type = FieldType.Integer)
     private Integer stock;
     
@@ -59,6 +76,97 @@ public class ProductDocument {
     
     @Field(type = FieldType.Date)
     private String updatedAt;
+    
+    /**
+     * Id setter metodu
+     */
+    public void setId(String id) {
+        this.id = id;
+    }
+    
+    /**
+     * Name setter metodu
+     */
+    public void setName(String name) {
+        this.name = name;
+    }
+    
+    /**
+     * Description setter metodu
+     */
+    public void setDescription(String description) {
+        this.description = description;
+    }
+    
+    /**
+     * UpdatedAt setter metodu
+     */
+    public void setUpdatedAt(String updatedAt) {
+        this.updatedAt = updatedAt;
+    }
+    
+    /**
+     * StoreId getter metodu
+     */
+    public String getStoreId() {
+        return storeId;
+    }
+    
+    /**
+     * StoreId setter metodu
+     */
+    public void setStoreId(String storeId) {
+        this.storeId = storeId;
+    }
+    
+    /**
+     * Stock getter metodu
+     */
+    public Integer getStock() {
+        return stock;
+    }
+    
+    /**
+     * Stock setter metodu
+     */
+    public void setStock(Integer stock) {
+        this.stock = stock;
+    }
+    
+    /**
+     * ImageUrl setter metodu
+     */
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
+    }
+    
+    /**
+     * DiscountedPrice setter metodu
+     */
+    public void setDiscountedPrice(BigDecimal discountedPrice) {
+        this.discountedPrice = discountedPrice;
+    }
+    
+    /**
+     * DiscountPercentage setter metodu
+     */
+    public void setDiscountPercentage(Integer discountPercentage) {
+        this.discountPercentage = discountPercentage;
+    }
+    
+    /**
+     * CategoryName setter metodu
+     */
+    public void setCategoryName(String categoryName) {
+        this.categoryName = categoryName;
+    }
+    
+    /**
+     * StoreName setter metodu
+     */
+    public void setStoreName(String storeName) {
+        this.storeName = storeName;
+    }
     
     /**
      * Product entity'sinden ProductDocument oluşturur.

@@ -26,6 +26,34 @@ public class SignInRequest {
     private String password;
     
     /**
+     * Email getter metodu
+     */
+    public String getEmail() {
+        return email;
+    }
+    
+    /**
+     * Email setter metodu
+     */
+    public void setEmail(String email) {
+        this.email = email;
+    }
+    
+    /**
+     * Password getter metodu
+     */
+    public String getPassword() {
+        return password;
+    }
+    
+    /**
+     * Password setter metodu
+     */
+    public void setPassword(String password) {
+        this.password = password;
+    }
+    
+    /**
      * Bu DTO şu işlevleri sağlar:
      * 
      * 1. Kimlik Doğrulama: Kullanıcı girişi için gerekli email ve şifre bilgileri

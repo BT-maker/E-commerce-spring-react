@@ -57,6 +57,104 @@ public class SignUpRequest {
     private String phone;
     
     /**
+     * Username getter metodu
+     */
+    public String getUsername() {
+        return username;
+    }
+    
+    /**
+     * Username setter metodu
+     */
+    public void setUsername(String username) {
+        this.username = username;
+    }
+    
+    /**
+     * Email getter metodu
+     */
+    public String getEmail() {
+        return email;
+    }
+    
+    /**
+     * Email setter metodu
+     */
+    public void setEmail(String email) {
+        this.email = email;
+    }
+    
+    /**
+     * Password getter metodu
+     */
+    public String getPassword() {
+        return password;
+    }
+    
+    /**
+     * Password setter metodu
+     */
+    public void setPassword(String password) {
+        this.password = password;
+    }
+    
+    /**
+     * RoleId getter metodu
+     */
+    public Long getRoleId() {
+        return roleId;
+    }
+    
+    /**
+     * RoleId setter metodu
+     */
+    public void setRoleId(Long roleId) {
+        this.roleId = roleId;
+    }
+    
+    /**
+     * UserType getter metodu
+     */
+    public String getUserType() {
+        return userType;
+    }
+    
+    /**
+     * UserType setter metodu
+     */
+    public void setUserType(String userType) {
+        this.userType = userType;
+    }
+    
+    /**
+     * StoreName getter metodu
+     */
+    public String getStoreName() {
+        return storeName;
+    }
+    
+    /**
+     * StoreName setter metodu
+     */
+    public void setStoreName(String storeName) {
+        this.storeName = storeName;
+    }
+    
+    /**
+     * Phone getter metodu
+     */
+    public String getPhone() {
+        return phone;
+    }
+    
+    /**
+     * Phone setter metodu
+     */
+    public void setPhone(String phone) {
+        this.phone = phone;
+    }
+    
+    /**
      * Bu DTO şu işlevleri sağlar:
      * 
      * 1. Kullanıcı Kaydı: Yeni kullanıcı oluşturma için gerekli temel bilgiler
