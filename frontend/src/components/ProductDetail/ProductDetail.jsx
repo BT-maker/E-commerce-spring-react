@@ -33,14 +33,24 @@ const ProductDetail = () => {
   useEffect(() => {
     fetch(`http://localhost:8082/api/products/${id}`)
       .then(res => {
-        if (!res.ok) throw new Error("Ürün bulunamadı");
+        if (!res.ok) {
+          if (res.status === 400) {
+            throw new Error("Geçersiz ürün ID'si");
+          } else if (res.status === 404) {
+            throw new Error("Ürün bulunamadı");
+          } else {
+            throw new Error("Ürün yüklenirken bir hata oluştu");
+          }
+        }
         return res.json();
       })
       .then(data => {
+        console.log("Ürün verisi:", data);
         setProduct(data);
         setLoading(false);
       })
       .catch(err => {
+        console.error("Ürün yükleme hatası:", err);
         setError(err.message);
         setLoading(false);
       });
@@ -210,46 +220,51 @@ const ProductDetail = () => {
       <MetaTags 
         title={product ? product.name : "Ürün Detayı"}
         description={product ? `${product.name} - ${product.description || 'Detaylı ürün bilgileri ve kullanıcı yorumları'}. En uygun fiyat garantisi.` : "Ürün detayları"}
-        keywords={product ? `${product.name}, ${product.category?.name || 'ürün'}, alışveriş, e-ticaret` : "ürün detayı, alışveriş"}
+        keywords={product ? `${product.name}, ${product.category ? product.category.name : 'ürün'}, alışveriş, e-ticaret` : "ürün detayı, alışveriş"}
         image={product?.imageUrl || ""}
         type="product"
         siteName="E-Ticaret"
       />
       {/* Ürün Detayları */}
       <div className="bg-white rounded-xl shadow p-4 sm:p-8 flex flex-col sm:flex-row gap-4 sm:gap-8 mb-8">
-        <img src={product.imageUrl} alt={product.name} className="w-full sm:w-72 h-56 sm:h-72 object-contain rounded-lg bg-gray-100" />
+        <img 
+          src={product.imageUrl || '/img/no-image.png'} 
+          alt={product.name || 'Ürün'} 
+          className="w-full sm:w-72 h-56 sm:h-72 object-contain rounded-lg bg-gray-100" 
+          onError={(e) => { e.target.src = '/img/no-image.png'; }}
+        />
         <div className="flex-1 flex flex-col gap-4">
-          <h2 className="text-2xl font-bold">{product.name}</h2>
+          <h2 className="text-2xl font-bold">{product.name || 'İsimsiz Ürün'}</h2>
           
           {/* Puanlama */}
           <div className="flex items-center gap-2">
             <div className="flex items-center gap-1">
-              {renderStars(reviewStats.averageRating)}
+              {renderStars(reviewStats?.averageRating || 0)}
             </div>
             <span className="text-sm text-gray-600">
-              ({reviewStats.reviewCount} değerlendirme)
+              ({reviewStats?.reviewCount || 0} değerlendirme)
             </span>
           </div>
           
-          <div className="text-lg text-green-700 font-semibold">{product.price} ₺</div>
+          <div className="text-lg text-green-700 font-semibold">{product.price || 0} ₺</div>
           {product.storeName && (
             <div className="text-sm text-gray-500 mb-2">
               Mağaza: <Link to={`/store/${encodeURIComponent(product.storeName)}`} className="font-semibold text-green-700 hover:underline">{product.storeName}</Link>
             </div>
           )}
-          <div className="text-gray-700">{product.description}</div>
+          <div className="text-gray-700">{product.description || 'Bu ürün için açıklama bulunmamaktadır.'}</div>
           
           {/* Sosyal Medya Paylaşım */}
           <SocialShare 
-            title={product.name}
-            description={`${product.name} - ${product.description || 'Harika bir ürün!'} ${product.price} ₺`}
+            title={product.name || 'Ürün'}
+            description={`${product.name || 'Ürün'} - ${product.description || 'Harika bir ürün!'} ${product.price || 0} ₺`}
             url={window.location.href}
           />
           
           <button
             className={`product-card-btn mt-4${added ? " added" : ""}`}
             onClick={handleAddToCart}
-            disabled={added || addLoading}
+            disabled={added || addLoading || !product.id}
             style={{ width: "220px", fontSize: "1.1rem" }}
           >
             {added ? "Eklendi!" : addLoading ? "Ekleniyor..." : "Sepete Ekle"}

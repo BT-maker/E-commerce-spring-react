@@ -1,5 +1,6 @@
 package com.bahattintok.e_commerce.controller;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -96,18 +97,38 @@ public class ProductController {
     @GetMapping("/{id}")
     @Operation(summary = "Get product by ID", description = "Retrieve a specific product by its ID")
     public ResponseEntity<Map<String, Object>> getProductById(@PathVariable String id) {
-        Product product = productService.getProductById(id);
-        Map<String, Object> dto = Map.of(
-            "id", product.getId(),
-            "name", product.getName(),
-            "price", product.getPrice(),
-            "description", product.getDescription(),
-            "stock", product.getStock(),
-            "imageUrl", product.getImageUrl(),
-            "category", product.getCategory(),
-            "storeName", product.getStore() != null ? product.getStore().getName() : null
-        );
-        return ResponseEntity.ok(dto);
+        try {
+            Product product = productService.getProductById(id);
+            
+            // Map.of sınırlı sayıda parametre alabilir ve null değerleri kabul etmez
+            // Bu nedenle HashMap kullanarak daha esnek bir yaklaşım uygulayalım
+            Map<String, Object> dto = new HashMap<>();
+            dto.put("id", product.getId());
+            dto.put("name", product.getName());
+            dto.put("price", product.getPrice());
+            dto.put("description", product.getDescription());
+            dto.put("stock", product.getStock());
+            dto.put("imageUrl", product.getImageUrl());
+            
+            // Category bilgisini güvenli bir şekilde ekle
+            if (product.getCategory() != null) {
+                Map<String, Object> categoryMap = new HashMap<>();
+                categoryMap.put("id", product.getCategory().getId());
+                categoryMap.put("name", product.getCategory().getName());
+                dto.put("category", categoryMap);
+            } else {
+                dto.put("category", null);
+            }
+            
+            dto.put("storeName", product.getStore() != null ? product.getStore().getName() : null);
+            
+            return ResponseEntity.ok(dto);
+        } catch (Exception e) {
+            // Hata durumunda detaylı log ve uygun hata yanıtı
+            System.err.println("Ürün detayı alınırken hata: " + e.getMessage());
+            e.printStackTrace();
+            return ResponseEntity.status(500).body(Map.of("error", "Ürün detayı alınamadı: " + e.getMessage()));
+        }
     }
     
     /**
@@ -252,4 +273,4 @@ public class ProductController {
      * 
      * Bu controller sayesinde ürünler yönetilebilir, aranabilir ve filtrelenebilir!
      */
-} 
+}
