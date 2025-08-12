@@ -26,9 +26,6 @@
 /* Search Form */
 .search-form {
   background: var(--background-secondary);
-  border-radius: 12px;
-  padding: 0.5rem;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
 .search-input-group {
@@ -52,7 +49,7 @@
 .search-input:focus {
   outline: none;
   border-color: var(--accent-400);
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
 }
 
 .search-icon {

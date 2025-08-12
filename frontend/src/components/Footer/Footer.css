@@ -17,6 +17,11 @@
   border-bottom: 1px solid var(--border-color); /* Light mode: açık gri, dark mode: koyu gri */
 }
 
+/* Footer içeriğini ortala */
+.footer-content > div {
+  text-align: center;
+}
+
 @media (min-width: 768px) {
   .footer-content {
     grid-template-columns: repeat(3, 1fr);
@@ -44,12 +49,14 @@
  font-weight: 700;
  margin-bottom: 0.75rem;
  color: var(--text-primary); /* Light mode: koyu gri, dark mode: beyaz */
+ text-align: center;
 }
 
 .footer-list {
  list-style: none;
  padding: 0;
  margin: 0;
+ text-align: center;
 }
 
 .footer-link {
@@ -68,6 +75,7 @@
  display: flex;
  gap: 1.1rem;
  margin-top: 0.5rem;
+ justify-content: center;
 }
 
 .footer-social a {

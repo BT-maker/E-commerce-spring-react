@@ -9,6 +9,16 @@
   border: 1px solid var(--border-color);
 }
 
+/* Düzenle butonu renkleri */
+.edit-button {
+  color: #ff6000;
+  transition: color 0.2s ease;
+}
+
+.edit-button:hover {
+  color: #ea580c !important;
+}
+
 .profile-header {
   display: flex;
   justify-content: space-between;
@@ -96,25 +106,3 @@
   }
 }
 
-/* Dark mode uyumluluğu */
-.dark .profile-container {
-  background: var(--bg-secondary);
-  border-color: var(--border-color);
-}
-
-.dark .profile-title {
-  color: var(--text-primary);
-}
-
-.dark .profile-edit-btn {
-  color: var(--text-secondary);
-}
-
-.dark .profile-edit-btn:hover {
-  color: var(--accent-color);
-  background: var(--bg-tertiary);
-}
-
-.dark .profile-field {
-  border-color: var(--border-color);
-} 

@@ -185,7 +185,7 @@ const ProductList = () => {
         keywords="e-ticaret, online alışveriş, ürünler, kaliteli ürünler, güvenli alışveriş"
       />
       
-      <div className="flex flex-col lg:flex-row gap-8">
+      <div className="flex flex-col lg:flex-row gap-8 justify-center items-start">
         {/* Sol Filtreleme Paneli */}
         <div className="lg:w-1/4">
           <div className="bg-white rounded-lg shadow-md p-6 sticky top-4">

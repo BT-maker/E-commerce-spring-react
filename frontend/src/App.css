@@ -221,3 +221,13 @@ body {
 footer {
   color: #888;
 }
+
+/* Kaydet butonu özel renkleri */
+.save-button {
+  background-color: #ff6000 !important;
+  transition: background-color 0.3s ease;
+}
+
+.save-button:hover {
+  background-color: #ea580c !important;
+}

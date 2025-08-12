@@ -81,6 +81,18 @@ public class User implements UserDetails {
     private String phone;
     
     /**
+     * Kullanıcının doğum tarihi
+     */
+    @Column(name = "birth_date")
+    private String birthDate;
+    
+    /**
+     * Kullanıcının adresi
+     */
+    @Column(name = "adress")
+    private String adress;
+    
+    /**
      * Kullanıcının rolü (RoleEntity ile ilişki)
      */
     @ManyToOne(fetch = FetchType.EAGER)

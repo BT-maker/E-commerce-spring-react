@@ -44,8 +44,6 @@
 
 .search-input:focus {
     border-color: #3b82f6;
-    border-bottom-left-radius: 0;
-    border-bottom-right-radius: 0;
     box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
 }
 
@@ -195,51 +193,6 @@
     transform: translateY(0);
 }
 
-/* Dark Mode Support - Sadece gerçek dark mode'da aktif olsun */
-.dark .search-input {
-    background: #1f2937;
-    border-color: #4b5563;
-    color: white;
-    height: 40px;
-    box-sizing: border-box;
-}
-
-.dark .search-input:focus {
-    border-color: #60a5fa;
-    border-bottom-left-radius: 0;
-    border-bottom-right-radius: 0;
-    box-shadow: 0 0 0 2px rgba(96, 165, 250, 0.1);
-}
-
-.dark .suggestions-dropdown {
-    background: #1f2937;
-    border-color: #4b5563;
-}
-
-.dark .suggestion-item:hover {
-    background-color: #374151;
-}
-
-.dark .suggestion-item:active {
-    background-color: #4b5563;
-}
-
-.dark .popular-terms {
-    background: #111827;
-    border-color: #4b5563;
-}
-
-.dark .popular-term-chip {
-    background: #374151;
-    border-color: #6b7280;
-    color: #d1d5db;
-}
-
-.dark .popular-term-chip:hover {
-    background: #60a5fa;
-    color: white;
-    border-color: #60a5fa;
-}
 
 /* Responsive Design */
 @media (max-width: 768px) {
