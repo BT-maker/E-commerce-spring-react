@@ -63,10 +63,36 @@ public class AuthController {
         cookie.setHttpOnly(true);
         cookie.setSecure(false); // localde HTTP için false olmalı!
         cookie.setPath("/");
+        // Domain ayarlama - localhost ve network erişimi için
         cookie.setMaxAge(7 * 24 * 60 * 60); // 7 gün
         response.addCookie(cookie);
 
         // authResponse.setToken(null); // Token'ı body'den kaldır (Swagger için yoruma alındı)
+        return ResponseEntity.ok(authResponse);
+    }
+
+    /**
+     * Seller girişi (seller signin) - sadece SELLER rolündeki kullanıcılar için
+     */
+    @PostMapping("/seller/signin")
+    @Operation(summary = "Seller login", description = "Authenticate seller and return JWT token")
+    public ResponseEntity<AuthResponse> sellerSignIn(@Valid @RequestBody SignInRequest request, HttpServletResponse response) {
+        AuthResponse authResponse = authService.signIn(request);
+        
+        // Seller rolü kontrolü
+        if (!"SELLER".equals(authResponse.getRole())) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                .body(new AuthResponse(null, null, null));
+        }
+
+        Cookie cookie = new Cookie("token", authResponse.getToken());
+        cookie.setHttpOnly(true);
+        cookie.setSecure(false); // localde HTTP için false olmalı!
+        cookie.setPath("/");
+        // Domain ayarlama - localhost ve network erişimi için
+        cookie.setMaxAge(7 * 24 * 60 * 60); // 7 gün
+        response.addCookie(cookie);
+
         return ResponseEntity.ok(authResponse);
     }
 
@@ -79,6 +105,7 @@ public class AuthController {
         cookie.setHttpOnly(true);
         cookie.setSecure(false); // prod'da true olmalı
         cookie.setPath("/");
+        // Domain ayarlama - localhost ve network erişimi için
         cookie.setMaxAge(0); // hemen silinsin
         response.addCookie(cookie);
         return ResponseEntity.ok().body("Çıkış başarılı");
@@ -134,11 +161,14 @@ public class AuthController {
             System.out.println("User role: " + user.getRole().getName());
             System.out.println("=== /me endpoint tamamlandı ===");
             
-            return ResponseEntity.ok(Map.of(
-                "email", user.getEmail(),
-                "username", user.getUsername(),
-                "role", user.getRole().getName()
-            ));
+            // Map.of null değerleri kabul etmez; null olabilecek alanlar için HashMap kullan
+            java.util.Map<String, Object> body = new java.util.HashMap<>();
+            body.put("email", user.getEmail());
+            body.put("username", user.getUsername());
+            body.put("role", user.getRole().getName());
+            body.put("address", user.getAddress());
+            body.put("phone", user.getPhone());
+            return ResponseEntity.ok(body);
         } catch (Exception e) {
             System.out.println("=== /me endpoint hatası ===");
             System.out.println("Hata: " + e.getMessage());
@@ -170,6 +200,10 @@ public class AuthController {
             }
             if (request.getEmail() != null && !request.getEmail().isBlank()) {
                 user.setEmail(request.getEmail());
+            }
+            // Adres güncelleme
+            if (request.getAddress() != null) {
+                user.setAddress(request.getAddress());
             }
             // Şifre güncelleme
             if (request.getCurrentPassword() != null && !request.getCurrentPassword().isBlank()

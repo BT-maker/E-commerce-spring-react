@@ -44,7 +44,7 @@
   border: 2px solid var(--border-color);
   border-radius: 8px;
   font-size: 1rem;
-  background: var(--background-primary);
+  background: white;
   color: var(--text-primary);
   position: relative;
 }
@@ -71,7 +71,7 @@
   padding: 0.75rem 1rem;
   border: 2px solid var(--border-color);
   border-radius: 8px;
-  background: var(--background-primary);
+  background: white;
   color: var(--text-primary);
   cursor: pointer;
   transition: all 0.2s ease;
@@ -79,7 +79,7 @@
 
 .filter-toggle:hover {
   border-color: var(--accent-400);
-  background: var(--accent-50);
+  background: #f0f9ff;
 }
 
 .filter-toggle.active {

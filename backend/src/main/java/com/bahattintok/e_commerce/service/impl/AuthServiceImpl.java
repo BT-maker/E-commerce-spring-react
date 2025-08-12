@@ -64,6 +64,9 @@ public class AuthServiceImpl implements AuthService {
         User user = new User();
         user.setUsername(request.getUsername());
         user.setEmail(request.getEmail());
+        // Opsiyonel alanlar
+        user.setPhone(request.getPhone());
+        user.setAddress(request.getAddress());
         
         // Frontend'den gelen hash'lenmiş şifreyi BCrypt ile tekrar hash'le
         String hashedPassword = request.getPassword(); // Frontend'den gelen SHA-256 hash
