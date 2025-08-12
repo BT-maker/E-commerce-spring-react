@@ -159,7 +159,7 @@ public class SellerController {
                     .orElseThrow(() -> new RuntimeException("User not found: " + email));
             System.out.println("Found user: " + currentUser.getEmail() + ", Role: " + currentUser.getRole().getName());
             
-            if (!currentUser.getRole().getName().equals("SELLER")) {
+            if (!currentUser.getRole().getName().equals("SELLER") && !currentUser.getRole().isSeller()) {
                 System.out.println("User is not a seller, returning 403");
                 return ResponseEntity.status(403).build();
             }
@@ -248,7 +248,7 @@ public class SellerController {
                     .orElseThrow(() -> new RuntimeException("User not found: " + email));
             System.out.println("Found user: " + currentUser.getEmail() + ", Role: " + currentUser.getRole().getName());
             
-            if (!currentUser.getRole().getName().equals("SELLER")) {
+            if (!currentUser.getRole().getName().equals("SELLER") && !currentUser.getRole().isSeller()) {
                 System.out.println("User is not a seller, returning 403");
                 return ResponseEntity.status(403).build();
             }
@@ -324,7 +324,7 @@ public class SellerController {
             User currentUser = userRepository.findByEmail(email)
                     .orElseThrow(() -> new RuntimeException("User not found: " + email));
             
-            if (!currentUser.getRole().getName().equals("SELLER")) {
+            if (!currentUser.getRole().getName().equals("SELLER") && !currentUser.getRole().isSeller()) {
                 return ResponseEntity.status(403).build();
             }
             
@@ -399,7 +399,7 @@ public class SellerController {
                     .orElseThrow(() -> new RuntimeException("User not found: " + email));
             System.out.println("Found user: " + currentUser.getEmail() + ", Role: " + currentUser.getRole().getName());
             
-            if (!currentUser.getRole().getName().equals("SELLER")) {
+            if (!currentUser.getRole().getName().equals("SELLER") && !currentUser.getRole().isSeller()) {
                 System.out.println("User is not a seller, returning 403");
                 return ResponseEntity.status(403).build();
             }
@@ -469,7 +469,7 @@ public class SellerController {
                     .orElseThrow(() -> new RuntimeException("User not found: " + email));
             System.out.println("Found user: " + currentUser.getEmail() + ", Role: " + currentUser.getRole().getName());
             
-            if (!currentUser.getRole().getName().equals("SELLER")) {
+            if (!currentUser.getRole().getName().equals("SELLER") && !currentUser.getRole().isSeller()) {
                 System.out.println("User is not a seller, returning 403");
                 return ResponseEntity.status(403).build();
             }
@@ -542,7 +542,7 @@ public class SellerController {
             User currentUser = userRepository.findByEmail(email)
                     .orElseThrow(() -> new RuntimeException("User not found: " + email));
             
-            if (!currentUser.getRole().getName().equals("SELLER")) {
+            if (!currentUser.getRole().getName().equals("SELLER") && !currentUser.getRole().isSeller()) {
                 Map<String, Object> error = new HashMap<>();
                 error.put("error", "Access denied. User is not a seller.");
                 return ResponseEntity.status(403).body(error);
@@ -835,7 +835,7 @@ public class SellerController {
             System.out.println("Found user: " + currentUser.getEmail() + ", Role: " + currentUser.getRole().getName()); // Debug log
             
             // Check if user is a seller
-            if (!currentUser.getRole().getName().equals("SELLER")) {
+            if (!currentUser.getRole().getName().equals("SELLER") && !currentUser.getRole().isSeller()) {
                 Map<String, Object> error = new HashMap<>();
                 error.put("error", "Access denied. User is not a seller.");
                 return ResponseEntity.status(403).body(error);
