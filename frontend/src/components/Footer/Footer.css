@@ -77,7 +77,7 @@
 }
 
 .footer-social a:hover {
- color: var(--accent-color); /* Turuncu hover */
+ color: var(#ff6000); /* Turuncu hover */
 }
 
 .footer-copyright {

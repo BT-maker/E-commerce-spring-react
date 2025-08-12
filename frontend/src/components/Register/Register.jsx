@@ -159,7 +159,7 @@ const Register = () => {
         
         <div className="login-link-row">
           <span>Hesabınız var mı?</span>
-          <Link to="/login" className="login-link">Giriş yapın</Link>
+          <Link to="/login" className="login-link">Giriş Yap</Link>
         </div>
       </form>
     </div>

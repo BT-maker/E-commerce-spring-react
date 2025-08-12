@@ -105,7 +105,7 @@ const Login = () => {
         <button type="submit" className="login-btn" disabled={loading}>{loading ? "Giriş Yapılıyor..." : "Giriş Yap"}</button>
         <div className="login-link-row">
           <span>Hesabınız yok mu?</span>
-          <Link to="/register" className="login-link">Kayıt olun</Link>
+          <Link to="/register" className="login-link">Kayıt Ol</Link>
         </div>
         
       </form>

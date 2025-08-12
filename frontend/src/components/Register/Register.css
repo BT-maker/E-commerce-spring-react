@@ -1,9 +1,9 @@
 .register-container {
   max-width: 500px;
   margin: 0 auto;
-  padding: 2rem 1rem;
+  padding: 2rem 0rem;
   min-height: 80vh;
-  background: var(--bg-primary);
+  background: none;
 }
 
 .register-form {
@@ -16,7 +16,7 @@
 }
 
 .register-title {
-  font-size: 2.5rem;
+  font-size: 1.7rem;
   font-weight: 700;
   color: var(--text-primary);
   text-align: center;
@@ -117,7 +117,7 @@
 
 .register-btn {
   width: 100%;
-  background: linear-gradient(135deg, var(--accent-color), #ff8c00);
+  background: linear-gradient(135deg, rgba(255, 96, 0), #ff8c00);
   color: white;
   border: none;
   padding: 1rem 2rem;
