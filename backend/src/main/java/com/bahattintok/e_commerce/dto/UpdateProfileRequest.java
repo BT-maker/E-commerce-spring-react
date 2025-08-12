@@ -35,6 +35,11 @@ public class UpdateProfileRequest {
      * Yeni şifre (şifre değişikliği için zorunlu)
      */
     private String newPassword;
+
+    /**
+     * Adres (opsiyonel)
+     */
+    private String address;
     
     /**
      * Username getter metodu
@@ -132,6 +137,20 @@ public class UpdateProfileRequest {
      */
     public void setNewPassword(String newPassword) {
         this.newPassword = newPassword;
+    }
+
+    /**
+     * Address getter metodu
+     */
+    public String getAddress() {
+        return address;
+    }
+
+    /**
+     * Address setter metodu
+     */
+    public void setAddress(String address) {
+        this.address = address;
     }
     
     /**

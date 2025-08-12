@@ -157,7 +157,7 @@
   border-radius: 8px;
   font-size: 0.9rem;
   transition: all 0.3s ease;
-  background: var(--bg-secondary);
+  background: white;
   color: var(--text-primary);
 }
 
@@ -188,7 +188,7 @@
   border: 2px solid var(--border-color);
   border-radius: 8px;
   font-size: 0.9rem;
-  background: var(--bg-secondary);
+  background: white;
   color: var(--text-primary);
   cursor: pointer;
   transition: all 0.3s ease;

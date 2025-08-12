@@ -55,6 +55,11 @@ public class SignUpRequest {
      * Telefon numarası (sadece seller için)
      */
     private String phone;
+
+    /**
+     * Adres (opsiyonel)
+     */
+    private String address;
     
     /**
      * Username getter metodu
@@ -152,6 +157,20 @@ public class SignUpRequest {
      */
     public void setPhone(String phone) {
         this.phone = phone;
+    }
+
+    /**
+     * Address getter metodu
+     */
+    public String getAddress() {
+        return address;
+    }
+
+    /**
+     * Address setter metodu
+     */
+    public void setAddress(String address) {
+        this.address = address;
     }
     
     /**

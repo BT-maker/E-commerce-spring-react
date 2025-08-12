@@ -79,6 +79,12 @@ public class User implements UserDetails {
      */
     @Column(name = "phone")
     private String phone;
+
+    /**
+     * Kullanıcının adresi
+     */
+    @Column(name = "address", length = 255)
+    private String address;
     
     /**
      * Kullanıcının doğum tarihi

@@ -47,6 +47,9 @@ export const AuthProvider = ({ children }) => {
       setUser(userData);
       setLoading(false);
       console.log('Login state güncellendi - isLoggedIn: true, user:', userData);
+      
+      // Seller login için checkAuth çağırma, direkt user data kullan
+      console.log('Seller login - checkAuth atlandı, direkt user data kullanılıyor');
     } else {
       // Verilmemişse auth kontrolü yap
       console.log('User data yok, auth kontrolü yapılıyor');

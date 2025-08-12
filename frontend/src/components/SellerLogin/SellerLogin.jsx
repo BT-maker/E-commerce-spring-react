@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { FaStore, FaEye, FaEyeSlash, FaLock, FaEnvelope } from 'react-icons/fa';
+import api from '../../services/api';
 import './SellerLogin.css';
 
 const SellerLogin = () => {
@@ -44,36 +45,23 @@ const SellerLogin = () => {
         try {
             console.log('Seller login denemesi:', form.email);
             
-            const response = await fetch('/api/auth/signin', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                credentials: 'include',
-                body: JSON.stringify({
-                    email: form.email,
-                    password: form.password
-                })
+            const response = await api.post('/auth/seller/signin', {
+                email: form.email,
+                password: form.password
             });
 
-            if (response.ok) {
+            console.log('Login response data:', response.data);
             
-                const data = await response.json();
-                
-                // Seller rolü kontrolü
-                if (data.role === 'SELLER') {
-                    login(data);
-                    navigate('/seller-panel');
-                } else {
-                    setError('Bu hesap satıcı hesabı değil. Lütfen doğru giriş sayfasını kullanın.');
-                }
-            } else {
-                const errorData = await response.json();
-                setError(errorData.message || 'Giriş başarısız');
-            }
+            console.log('Seller login başarılı, seller-panel\'e yönlendiriliyor');
+            login(response.data);
+            navigate('/seller-panel');
         } catch (err) {
             console.log('Login hatası:', err);
-            setError('Bağlantı hatası. Lütfen tekrar deneyin.');
+            if (err.response?.status === 403) {
+                setError('Bu hesap satıcı hesabı değil. Lütfen doğru giriş sayfasını kullanın.');
+            } else {
+                setError(err.response?.data?.message || 'Bağlantı hatası. Lütfen tekrar deneyin.');
+            }
         } finally {
             setLoading(false);
         }
