@@ -25,8 +25,7 @@ const SellerHeader = () => {
     { path: '/seller-panel/orders', icon: <FaClipboardList />, label: 'Siparişler' },
     { path: '/seller-panel/stock', icon: <FaExclamationTriangle />, label: 'Stok' },
     { path: '/seller-panel/statistics', icon: <FaChartBar />, label: 'İstatistikler' },
-    { path: '/seller-panel/campaigns', icon: <FaGift />, label: 'Kampanyalar' },
-    { path: '/seller-panel/settings', icon: <FaCog />, label: 'Ayarlar' }
+    { path: '/seller-panel/campaigns', icon: <FaGift />, label: 'Kampanyalar' }
   ];
 
   return (
@@ -102,6 +101,15 @@ const SellerHeader = () => {
                 
                 <div className="dropdown-divider"></div>
                 
+                <Link 
+                  to="/seller-panel/settings"
+                  className="dropdown-item"
+                  onClick={() => setShowUserMenu(false)}
+                >
+                  <FaCog />
+                  <span>Ayarlar</span>
+                </Link>
+                
                 <button 
                   onClick={handleLogout}
                   className="dropdown-item logout-item"
@@ -147,6 +155,16 @@ const SellerHeader = () => {
                 <FaStore />
                 <span>Müşteri Sayfası</span>
               </button>
+            </li>
+            <li>
+              <Link 
+                to="/seller-panel/settings"
+                className="mobile-nav-link"
+                onClick={() => setShowMobileMenu(false)}
+              >
+                <FaCog />
+                <span>Ayarlar</span>
+              </Link>
             </li>
             <li>
               <button 

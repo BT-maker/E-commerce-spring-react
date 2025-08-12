@@ -9,10 +9,10 @@ export const CartProvider = ({ children }) => {
   const [cartLoaded, setCartLoaded] = useState(false); // Cart yüklendi mi?
 
   // Sepeti backend'den çek
-  const fetchCart = async () => {
-    // Eğer cart zaten yüklendiyse tekrar yükleme
-    if (cartLoaded) return;
-    
+  const fetchCart = async (force = false) => {
+    // İlk render optimizasyonu: daha önce yüklenmişse ve force değilse tekrar çekme
+    if (cartLoaded && !force) return;
+
     // Backend offline ise cart yükleme
     if (window.BACKEND_OFFLINE) {
       console.log('Backend offline, cart yüklenmedi');
@@ -21,7 +21,7 @@ export const CartProvider = ({ children }) => {
       setLoading(false);
       return;
     }
-    
+
     setLoading(true);
     try {
       const res = await api.get("/cart", { withCredentials: true });
@@ -41,14 +41,13 @@ export const CartProvider = ({ children }) => {
 
   const addToCart = async (productId, quantity = 1) => {
     try {
-    await api.post(
-      "/cart",
-      { productId, quantity },
-      { withCredentials: true }
-    );
-      // Cart'ı yeniden yükle
-      setCartLoaded(false);
-      await fetchCart();
+      await api.post(
+        "/cart",
+        { productId, quantity },
+        { withCredentials: true }
+      );
+      // Sepeti zorunlu olarak yeniden yükle
+      await fetchCart(true);
     } catch (error) {
       console.error('Sepete ekleme hatası:', error);
     }
@@ -56,10 +55,9 @@ export const CartProvider = ({ children }) => {
 
   const removeFromCart = async (productId) => {
     try {
-    await api.delete(`/cart/${productId}`, { withCredentials: true });
-      // Cart'ı yeniden yükle
-      setCartLoaded(false);
-      await fetchCart();
+      await api.delete(`/cart/${productId}`, { withCredentials: true });
+      // Sepeti zorunlu olarak yeniden yükle
+      await fetchCart(true);
     } catch (error) {
       console.error('Sepetten çıkarma hatası:', error);
     }
@@ -68,14 +66,13 @@ export const CartProvider = ({ children }) => {
   const changeQuantity = async (productId, quantity) => {
     if (quantity < 1) return;
     try {
-    await api.put(
-      `/cart/${productId}/quantity?quantity=${quantity}`,
-      {},
-      { withCredentials: true }
-    );
-      // Cart'ı yeniden yükle
-      setCartLoaded(false);
-      await fetchCart();
+      await api.put(
+        `/cart/${productId}/quantity?quantity=${quantity}`,
+        {},
+        { withCredentials: true }
+      );
+      // Sepeti zorunlu olarak yeniden yükle
+      await fetchCart(true);
     } catch (error) {
       console.error('Miktar değiştirme hatası:', error);
     }
@@ -83,10 +80,9 @@ export const CartProvider = ({ children }) => {
 
   const clearCart = async () => {
     try {
-    await api.delete("/cart", { withCredentials: true });
-      // Cart'ı yeniden yükle
-      setCartLoaded(false);
-      await fetchCart();
+      await api.delete("/cart", { withCredentials: true });
+      // Sepeti zorunlu olarak yeniden yükle
+      await fetchCart(true);
     } catch (error) {
       console.error('Sepeti temizleme hatası:', error);
     }
