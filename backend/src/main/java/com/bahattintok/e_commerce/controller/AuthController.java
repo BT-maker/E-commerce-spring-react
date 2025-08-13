@@ -166,7 +166,8 @@ public class AuthController {
             body.put("email", user.getEmail());
             body.put("username", user.getUsername());
             body.put("role", user.getRole().getName());
-            body.put("address", user.getAddress());
+            body.put("address1", user.getAddress1());
+            body.put("address2", user.getAddress2());
             body.put("phone", user.getPhone());
             return ResponseEntity.ok(body);
         } catch (Exception e) {
@@ -202,8 +203,11 @@ public class AuthController {
                 user.setEmail(request.getEmail());
             }
             // Adres güncelleme
-            if (request.getAddress() != null) {
-                user.setAddress(request.getAddress());
+            if (request.getAddress1() != null) {
+                user.setAddress1(request.getAddress1());
+            }
+            if (request.getAddress2() != null) {
+                user.setAddress2(request.getAddress2());
             }
             // Şifre güncelleme
             if (request.getCurrentPassword() != null && !request.getCurrentPassword().isBlank()

@@ -23,10 +23,7 @@ public class UpdateProfileRequest {
      * Doğum tarihi (opsiyonel)
      */
     private String birthDate;
-    /**
-     * Adres bilgisi (opsiyonel)
-     */
-    private String adress;
+
     /**
      * Mevcut şifre (şifre değişikliği için zorunlu)
      */
@@ -37,9 +34,14 @@ public class UpdateProfileRequest {
     private String newPassword;
 
     /**
-     * Adres (opsiyonel)
+     * Birinci adres bilgisi (opsiyonel)
      */
-    private String address;
+    private String address1;
+
+    /**
+     * İkinci adres bilgisi (opsiyonel)
+     */
+    private String address2;
     
     /**
      * Username getter metodu
@@ -97,19 +99,7 @@ public class UpdateProfileRequest {
         this.birthDate = birthDate;
     }
     
-    /**
-     * Adress getter metodu
-     */
-    public String getAdress() {
-        return adress;
-    }
-    
-    /**
-     * Adress setter metodu
-     */
-    public void setAdress(String adress) {
-        this.adress = adress;
-    }
+
     
     /**
      * CurrentPassword getter metodu
@@ -142,15 +132,15 @@ public class UpdateProfileRequest {
     /**
      * Address getter metodu
      */
-    public String getAddress() {
-        return address;
+    public String getAddress1() {
+        return address1;
     }
 
     /**
      * Address setter metodu
      */
-    public void setAddress(String address) {
-        this.address = address;
+    public void setAddress1(String address1) {
+        this.address1 = address1;
     }
     
     /**

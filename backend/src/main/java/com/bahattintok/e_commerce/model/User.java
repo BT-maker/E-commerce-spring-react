@@ -81,10 +81,16 @@ public class User implements UserDetails {
     private String phone;
 
     /**
-     * Kullanıcının adresi
+     * Kullanıcının birinci adresi
      */
-    @Column(name = "address", length = 255)
-    private String address;
+    @Column(name = "address1", length = 255)
+    private String address1;
+
+    /**
+     * Kullanıcının ikinci adresi
+     */
+    @Column(name = "address2")
+    private String address2;
     
     /**
      * Kullanıcının doğum tarihi
@@ -92,11 +98,7 @@ public class User implements UserDetails {
     @Column(name = "birth_date")
     private String birthDate;
     
-    /**
-     * Kullanıcının adresi
-     */
-    @Column(name = "adress")
-    private String adress;
+
     
     /**
      * Kullanıcının rolü (RoleEntity ile ilişki)

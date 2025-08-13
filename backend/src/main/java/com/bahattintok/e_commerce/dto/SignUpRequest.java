@@ -57,9 +57,14 @@ public class SignUpRequest {
     private String phone;
 
     /**
-     * Adres (opsiyonel)
+     * Birinci adres (opsiyonel)
      */
-    private String address;
+    private String address1;
+
+    /**
+     * İkinci adres (opsiyonel)
+     */
+    private String address2;
     
     /**
      * Username getter metodu
@@ -160,17 +165,31 @@ public class SignUpRequest {
     }
 
     /**
-     * Address getter metodu
+     * Address1 getter metodu
      */
-    public String getAddress() {
-        return address;
+    public String getAddress1() {
+        return address1;
     }
 
     /**
-     * Address setter metodu
+     * Address1 setter metodu
      */
-    public void setAddress(String address) {
-        this.address = address;
+    public void setAddress1(String address1) {
+        this.address1 = address1;
+    }
+
+    /**
+     * Address2 getter metodu
+     */
+    public String getAddress2() {
+        return address2;
+    }
+
+    /**
+     * Address2 setter metodu
+     */
+    public void setAddress2(String address2) {
+        this.address2 = address2;
     }
     
     /**
