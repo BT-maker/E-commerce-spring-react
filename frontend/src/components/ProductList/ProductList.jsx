@@ -72,7 +72,7 @@ const ProductList = () => {
       url = `http://localhost:8082/api/elasticsearch/advanced-search?${params.toString()}`;
     } else {
       // Normal arama
-      url = `http://localhost:8082/api/products?page=${page}&size=${PAGE_SIZE}`;
+      url = `http://localhost:8082/api/products?page=${page}&size=${PAGE_SIZE}&includeInactive=true`;
       if (sort) url += `&sort=${sort}`;
       if (minPrice && minPrice.trim() !== '') url += `&minPrice=${minPrice}`;
       if (maxPrice && maxPrice.trim() !== '') url += `&maxPrice=${maxPrice}`;
@@ -86,6 +86,16 @@ const ProductList = () => {
         return res.json();
       })
       .then((data) => {
+        console.log('=== PRODUCT LIST DEBUG ===');
+        console.log('Backend\'den gelen veri:', data);
+        console.log('Toplam sayfa sayısı:', data.totalPages);
+        console.log('Toplam ürün sayısı:', data.totalElements);
+        console.log('Mevcut sayfa:', data.number);
+        console.log('Sayfa boyutu:', data.size);
+        console.log('Ürün sayısı:', data.content?.length || data.length);
+        console.log('Elasticsearch aktif mi:', elasticsearchAvailable);
+        console.log('=== DEBUG END ===');
+        
         // Elasticsearch sonuçları artık Map formatında dönüyor
         if (elasticsearchAvailable && data.content) {
           setProducts(data.content);
@@ -349,6 +359,7 @@ const ProductList = () => {
                     ))}
                   </div>
                   {/* Sayfalama */}
+                  {console.log('Sayfalama kontrolü - totalPages:', totalPages, 'products.length:', products.length)}
                   {totalPages > 1 && (
                     <div className="flex justify-center mt-8 space-x-2">
                       {/* Önceki sayfa */}
