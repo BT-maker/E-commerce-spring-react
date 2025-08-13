@@ -13,17 +13,9 @@ import com.bahattintok.e_commerce.model.User;
 @Repository
 public interface UserRepository extends JpaRepository<User, String> {
     /**
-     * Kullanıcı adından kullanıcı bulur.
-     */
-    Optional<User> findByUsername(String username);
-    /**
      * Email adresinden kullanıcı bulur.
      */
     Optional<User> findByEmail(String email);
-    /**
-     * Kullanıcı adı var mı kontrolü.
-     */
-    boolean existsByUsername(String username);
     /**
      * Email var mı kontrolü.
      */

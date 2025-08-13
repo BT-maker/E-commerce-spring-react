@@ -248,7 +248,7 @@ public class ProductServiceImpl implements ProductService {
             String username = authentication.getName();
             System.out.println("Current user: " + username);
             
-            User currentUser = userRepository.findByUsername(username)
+            User currentUser = userRepository.findByEmail(username)
                     .orElseThrow(() -> new RuntimeException("User not found: " + username));
             
             System.out.println("Found user: " + currentUser.getUsername() + ", Role: " + currentUser.getRole());

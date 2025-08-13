@@ -64,7 +64,8 @@ const SellerRegister = () => {
                 },
                 credentials: 'include',
                 body: JSON.stringify({
-                    username: form.firstName + " " + form.lastName,
+                    firstName: form.firstName,
+                    lastName: form.lastName,
                     email: form.email,
                     password: hashedPassword,
                     roleId: 3, // SELLER role ID

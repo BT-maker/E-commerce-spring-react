@@ -43,8 +43,8 @@ public class AuthServiceImpl implements AuthService {
     @Override
     @Transactional
     public AuthResponse signUp(SignUpRequest request) {
-        if (userRepository.existsByUsername(request.getUsername())) {
-            throw new RuntimeException("Username already exists");
+        if (userRepository.existsByEmail(request.getEmail())) {
+            throw new RuntimeException("Email already exists");
         }
         
         if (userRepository.existsByEmail(request.getEmail())) {
@@ -53,16 +53,34 @@ public class AuthServiceImpl implements AuthService {
         
         // Kullanıcı tipine göre rol belirleme
         RoleEntity role;
-        if ("seller".equals(request.getUserType())) {
-            role = roleRepository.findByName("SELLER")
-                    .orElseThrow(() -> new RuntimeException("SELLER role not found"));
-        } else {
-            role = roleRepository.findByName("USER")
-                    .orElseThrow(() -> new RuntimeException("USER role not found"));
+        try {
+            if ("seller".equals(request.getUserType())) {
+                role = roleRepository.findByName("SELLER")
+                        .orElseThrow(() -> new RuntimeException("SELLER role not found"));
+            } else {
+                role = roleRepository.findByName("USER")
+                        .orElseThrow(() -> new RuntimeException("USER role not found"));
+            }
+        } catch (Exception e) {
+            System.err.println("Rol bulunamadı: " + e.getMessage());
+            // Geçici çözüm: İlk rolü kullan
+            role = roleRepository.findAll().stream().findFirst()
+                    .orElseThrow(() -> new RuntimeException("Hiç rol bulunamadı"));
+            System.err.println("Geçici olarak rol kullanılıyor: " + role.getName());
         }
         
+        // DEBUG: Rol bilgisini logla
+        System.out.println("=== DEBUG: SIGNUP ===");
+        System.out.println("Email: " + request.getEmail());
+        System.out.println("FirstName: " + request.getFirstName());
+        System.out.println("LastName: " + request.getLastName());
+        System.out.println("UserType: " + request.getUserType());
+        System.out.println("Role: " + role.getName());
+        System.out.println("=== DEBUG END ===");
+        
         User user = new User();
-        user.setUsername(request.getUsername());
+        user.setFirstName(request.getFirstName());
+        user.setLastName(request.getLastName());
         user.setEmail(request.getEmail());
         // Opsiyonel alanlar
         user.setPhone(request.getPhone());
@@ -98,7 +116,7 @@ public class AuthServiceImpl implements AuthService {
         UserDetails userDetails = customUserDetailsService.loadUserByUsername(savedUser.getEmail());
         String token = jwtUtil.generateToken(userDetails);
         
-        return new AuthResponse(token, savedUser.getUsername(), savedUser.getRole().getName());
+        return new AuthResponse(token, savedUser.getFirstName(), savedUser.getLastName(), savedUser.getRole().getName());
     }
     
     /**
@@ -142,7 +160,7 @@ public class AuthServiceImpl implements AuthService {
         System.out.println("Role: " + roleName);
         System.out.println("=== DEBUG END ===");
         
-        return new AuthResponse(token, user.getUsername(), roleName);
+        return new AuthResponse(token, user.getFirstName(), user.getLastName(), roleName);
     }
     
     /**

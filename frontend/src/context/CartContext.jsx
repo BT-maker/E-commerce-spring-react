@@ -36,7 +36,15 @@ export const CartProvider = ({ children }) => {
   };
 
   useEffect(() => {
-    fetchCart();
+    // Sadece kullanıcı giriş yapmışsa sepeti yükle
+    const token = localStorage.getItem('token') || sessionStorage.getItem('token');
+    if (token) {
+      fetchCart();
+    } else {
+      // Token yoksa direkt loading'i false yap
+      setLoading(false);
+      console.log('Token bulunamadı, cart yükleme atlandı');
+    }
   }, []); // Sadece component mount olduğunda çalışsın
 
   const addToCart = async (productId, quantity = 1) => {

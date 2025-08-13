@@ -8,9 +8,14 @@ import lombok.Data;
 @Data
 public class UpdateProfileRequest {
     /**
-     * Yeni kullanıcı adı (opsiyonel)
+     * Yeni ad (opsiyonel)
      */
-    private String username;
+    private String firstName;
+    
+    /**
+     * Yeni soyad (opsiyonel)
+     */
+    private String lastName;
     /**
      * Yeni email adresi (opsiyonel)
      */
@@ -44,17 +49,31 @@ public class UpdateProfileRequest {
     private String address2;
     
     /**
-     * Username getter metodu
+     * FirstName getter metodu
      */
-    public String getUsername() {
-        return username;
+    public String getFirstName() {
+        return firstName;
     }
     
     /**
-     * Username setter metodu
+     * FirstName setter metodu
      */
-    public void setUsername(String username) {
-        this.username = username;
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
+    }
+    
+    /**
+     * LastName getter metodu
+     */
+    public String getLastName() {
+        return lastName;
+    }
+    
+    /**
+     * LastName setter metodu
+     */
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
     }
     
     /**
@@ -141,6 +160,20 @@ public class UpdateProfileRequest {
      */
     public void setAddress1(String address1) {
         this.address1 = address1;
+    }
+
+    /**
+     * Address2 getter metodu
+     */
+    public String getAddress2() {
+        return address2;
+    }
+
+    /**
+     * Address2 setter metodu
+     */
+    public void setAddress2(String address2) {
+        this.address2 = address2;
     }
     
     /**

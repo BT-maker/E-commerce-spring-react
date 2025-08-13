@@ -4,11 +4,17 @@ import { FaUser, FaEnvelope, FaShieldAlt, FaSave, FaTimes, FaPhone, FaCalendar }
 
 const EditProfileModal = ({ user, onClose }) => {
   const { updateProfile } = useContext(AuthContext);
-  const [username, setUsername] = useState(user.username);
-  const [email, setEmail] = useState(user.email);
+  
+  console.log('EditProfileModal - user prop:', user);
+  console.log('EditProfileModal - user.email:', user?.email);
+  
+  const [firstName, setFirstName] = useState(user.firstName || "");
+  const [lastName, setLastName] = useState(user.lastName || "");
+  const [email, setEmail] = useState(user.email || "");
   const [phone, setPhone] = useState(user.phone || "");
   const [birthDate, setBirthDate] = useState(user.birthDate ? user.birthDate.split('T')[0] : "");
-  const [adress, setAdress] = useState(user.adress);
+  const [address1, setAddress1] = useState(user.address1 || "");
+  const [address2, setAddress2] = useState(user.address2 || "");
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false);
@@ -20,15 +26,17 @@ const EditProfileModal = ({ user, onClose }) => {
     
     setLoading(true);
     const result = await updateProfile({
-      username,
+      firstName,
+      lastName,
       email,
       phone,
       birthDate,
-      adress
+      address1,
+      address2
     });
     setLoading(false);
     if (result.success) {
-      setSuccess("Bilgiler başarıyla güncellendi");
+      setSuccess(result.message || "Bilgiler başarıyla güncellendi");
       setTimeout(() => {
         setSuccess("");
         onClose();
@@ -63,16 +71,29 @@ const EditProfileModal = ({ user, onClose }) => {
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">Ad Soyad</label>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">Ad</label>
                 <div className="relative">
                   <FaUser className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
                   <input
                     type="text"
                     className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                    value={username}
-                    onChange={(e) => setUsername(e.target.value)}
-                    required
-                    placeholder="Ad Soyad"
+                    value={firstName}
+                    onChange={(e) => setFirstName(e.target.value)}
+                    placeholder="Adınız"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">Soyad</label>
+                <div className="relative">
+                  <FaUser className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                  <input
+                    type="text"
+                    className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                    value={lastName}
+                    onChange={(e) => setLastName(e.target.value)}
+                    placeholder="Soyadınız"
                   />
                 </div>
               </div>
@@ -122,17 +143,33 @@ const EditProfileModal = ({ user, onClose }) => {
               </div>
             </div>
 
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">Adres</label>
-              <div className="relative">
-                <FaShieldAlt className="absolute left-3 top-3 text-gray-400" />
-                <textarea
-                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent resize-none"
-                  rows="3"
-                  value={adress}
-                  onChange={(e) => setAdress(e.target.value)}
-                  placeholder="Adres bilginiz"
-                />
+            <div className="grid grid-cols-1 gap-4">
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">Adres 1</label>
+                <div className="relative">
+                  <FaShieldAlt className="absolute left-3 top-3 text-gray-400" />
+                  <textarea
+                    className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent resize-none"
+                    rows="2"
+                    value={address1}
+                    onChange={(e) => setAddress1(e.target.value)}
+                    placeholder="Birinci adres bilginiz"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">Adres 2 (Opsiyonel)</label>
+                <div className="relative">
+                  <FaShieldAlt className="absolute left-3 top-3 text-gray-400" />
+                  <textarea
+                    className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent resize-none"
+                    rows="2"
+                    value={address2}
+                    onChange={(e) => setAddress2(e.target.value)}
+                    placeholder="İkinci adres bilginiz (opsiyonel)"
+                  />
+                </div>
               </div>
             </div>
           </div>

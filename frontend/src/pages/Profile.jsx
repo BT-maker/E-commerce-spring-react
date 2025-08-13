@@ -8,11 +8,31 @@ import MetaTags from "../components/MetaTags/MetaTags";
 import "./Profile.css";
 
 const Profile = () => {
-  const { user } = useContext(AuthContext);
+  const { user, loading, isLoggedIn } = useContext(AuthContext);
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [passwordModalOpen, setPasswordModalOpen] = useState(false);
 
-  if (!user) {
+  console.log('Profile - user:', user);
+  console.log('Profile - user.email:', user?.email);
+  console.log('Profile - user.firstName:', user?.firstName);
+  console.log('Profile - user.lastName:', user?.lastName);
+  console.log('Profile - loading:', loading);
+  console.log('Profile - isLoggedIn:', isLoggedIn);
+
+  // Loading durumunda loading göster
+  if (loading) {
+    return (
+      <div className="max-w-4xl mx-auto mt-8 sm:mt-16">
+        <div className="bg-white rounded-lg shadow-lg p-8 text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-500 mx-auto mb-4"></div>
+          <p className="text-gray-600">Yükleniyor...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Loading bittiyse ama kullanıcı giriş yapmamışsa
+  if (!loading && !isLoggedIn) {
     return (
       <div className="max-w-4xl mx-auto mt-8 sm:mt-16">
         <div className="bg-white rounded-lg shadow-lg p-8 text-center">
@@ -60,7 +80,11 @@ const Profile = () => {
               <label className="block text-sm font-semibold text-gray-700 mb-2">Ad Soyad</label>
               <div className="flex items-center gap-3">
                 <FaUser className="text-gray-400" />
-                <span className="text-gray-800">{user.username || 'Belirtilmemiş'}</span>
+                <span className="text-gray-800">
+                  {user.firstName && user.lastName 
+                    ? `${user.firstName} ${user.lastName}` 
+                    : (user.firstName || user.lastName || 'Belirtilmemiş')}
+                </span>
               </div>
             </div>
 
@@ -94,7 +118,9 @@ const Profile = () => {
               <label className="block text-sm font-semibold text-gray-700 mb-2">Adres</label>
               <div className="flex items-center gap-3">
                 <FaShieldAlt className="text-gray-400" />
-                <span className="text-gray-800">{user.adress || 'Belirtilmemiş'}</span>
+                <span className="text-gray-800">
+                  {user.address1 || user.address2 || 'Belirtilmemiş'}
+                </span>
               </div>
             </div>
 

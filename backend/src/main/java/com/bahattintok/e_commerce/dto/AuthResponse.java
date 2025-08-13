@@ -16,9 +16,14 @@ public class AuthResponse {
      */
     private String token;
     /**
-     * Kullanıcı adı
+     * Kullanıcının adı
      */
-    private String username;
+    private String firstName;
+    
+    /**
+     * Kullanıcının soyadı
+     */
+    private String lastName;
     /**
      * Kullanıcı rolü (USER, ADMIN vs.)
      */

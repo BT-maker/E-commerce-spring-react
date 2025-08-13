@@ -57,7 +57,7 @@ const BackendStatus = ({ children }) => {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 3000);
       
-      const response = await fetch('http://localhost:8082/api/auth/me', {
+      const response = await fetch('http://localhost:8082/api/products?page=0&size=1', {
         method: 'GET',
         signal: controller.signal,
         mode: 'cors',
@@ -67,8 +67,7 @@ const BackendStatus = ({ children }) => {
       clearTimeout(timeoutId);
       
       console.log('Backend response status:', response.status);
-      if (response.ok || response.status === 401) {
-        // 401 de olsa backend çalışıyor demektir (auth endpoint'i var)
+      if (response.ok) {
         setBackendStatus('connected');
         console.log('Backend bağlantısı başarılı');
       } else {

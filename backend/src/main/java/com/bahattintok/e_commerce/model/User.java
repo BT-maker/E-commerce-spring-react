@@ -45,10 +45,16 @@ public class User implements UserDetails {
     private String id;
     
     /**
-     * Kullanıcı adı (benzersiz ve zorunlu)
+     * Kullanıcının adı (zorunlu)
      */
-    @Column(unique = true, nullable = false)
-    private String username;
+    @Column(name = "first_name", nullable = false)
+    private String firstName;
+    
+    /**
+     * Kullanıcının soyadı (zorunlu)
+     */
+    @Column(name = "last_name", nullable = false)
+    private String lastName;
     
     /**
      * Kullanıcı şifresi (hash'li)
@@ -62,17 +68,7 @@ public class User implements UserDetails {
     @Column(unique = true, nullable = false)
     private String email;
     
-    /**
-     * Kullanıcının adı
-     */
-    @Column(name = "first_name")
-    private String firstName;
-    
-    /**
-     * Kullanıcının soyadı
-     */
-    @Column(name = "last_name")
-    private String lastName;
+
     
     /**
      * Kullanıcının telefon numarası
@@ -156,9 +152,11 @@ public class User implements UserDetails {
     
     /**
      * Username getter metodu (UserDetails interface requirement)
+     * Email'i username olarak kullanıyoruz
      */
+    @Override
     public String getUsername() {
-        return username;
+        return email;
     }
     
     /**
@@ -176,10 +174,11 @@ public class User implements UserDetails {
     }
     
     /**
-     * Username setter metodu
+     * Username setter metodu (artık kullanılmıyor, email kullanılıyor)
      */
     public void setUsername(String username) {
-        this.username = username;
+        // Username artık kullanılmıyor, email kullanılıyor
+        // Bu metod geriye uyumluluk için bırakıldı
     }
     
     /**
@@ -257,6 +256,34 @@ public class User implements UserDetails {
      */
     public void setPhone(String phone) {
         this.phone = phone;
+    }
+
+    /**
+     * Address1 getter metodu
+     */
+    public String getAddress1() {
+        return address1;
+    }
+
+    /**
+     * Address1 setter metodu
+     */
+    public void setAddress1(String address1) {
+        this.address1 = address1;
+    }
+
+    /**
+     * Address2 getter metodu
+     */
+    public String getAddress2() {
+        return address2;
+    }
+
+    /**
+     * Address2 setter metodu
+     */
+    public void setAddress2(String address2) {
+        this.address2 = address2;
     }
     
     /**

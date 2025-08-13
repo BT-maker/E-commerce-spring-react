@@ -21,6 +21,7 @@ api.interceptors.request.use(
       console.log('Backend offline, istek engellendi:', config.url);
       return Promise.reject(new Error('Backend offline'));
     }
+    
     return config;
   },
   (error) => Promise.reject(error)

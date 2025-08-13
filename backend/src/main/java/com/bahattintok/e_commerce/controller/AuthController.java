@@ -82,7 +82,7 @@ public class AuthController {
         // Seller rolü kontrolü
         if (!"SELLER".equals(authResponse.getRole())) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                .body(new AuthResponse(null, null, null));
+                .body(new AuthResponse(null, null, null, null));
         }
 
         Cookie cookie = new Cookie("token", authResponse.getToken());
@@ -164,11 +164,13 @@ public class AuthController {
             // Map.of null değerleri kabul etmez; null olabilecek alanlar için HashMap kullan
             java.util.Map<String, Object> body = new java.util.HashMap<>();
             body.put("email", user.getEmail());
-            body.put("username", user.getUsername());
+            body.put("firstName", user.getFirstName());
+            body.put("lastName", user.getLastName());
             body.put("role", user.getRole().getName());
             body.put("address1", user.getAddress1());
             body.put("address2", user.getAddress2());
             body.put("phone", user.getPhone());
+            body.put("birthDate", user.getBirthDate());
             return ResponseEntity.ok(body);
         } catch (Exception e) {
             System.out.println("=== /me endpoint hatası ===");
@@ -187,43 +189,101 @@ public class AuthController {
             @RequestBody UpdateProfileRequest request,
             Authentication authentication) {
         try {
+            System.out.println("=== /me PUT endpoint çağrıldı ===");
+            System.out.println("Authentication: " + authentication);
+            System.out.println("Request: " + request);
+            
             if (authentication == null || !authentication.isAuthenticated()) {
+                System.out.println("Authentication null veya authenticated değil");
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Not authenticated");
             }
+            
             String email = authentication.getName();
+            System.out.println("Email: " + email);
+            
             User user = userRepository.findByEmail(email).orElse(null);
             if (user == null) {
+                System.out.println("User bulunamadı");
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Not authenticated");
             }
-            // Kullanıcı adı ve email güncelle
-            if (request.getUsername() != null && !request.getUsername().isBlank()) {
-                user.setUsername(request.getUsername());
+            
+            System.out.println("User bulundu: " + user.getFirstName() + " " + user.getLastName());
+            
+            // Ad, soyad ve email güncelle
+            if (request.getFirstName() != null && !request.getFirstName().isBlank()) {
+                System.out.println("FirstName güncelleniyor: " + request.getFirstName());
+                user.setFirstName(request.getFirstName());
+            }
+            if (request.getLastName() != null && !request.getLastName().isBlank()) {
+                System.out.println("LastName güncelleniyor: " + request.getLastName());
+                user.setLastName(request.getLastName());
             }
             if (request.getEmail() != null && !request.getEmail().isBlank()) {
+                System.out.println("Email güncelleniyor: " + request.getEmail());
                 user.setEmail(request.getEmail());
             }
+            
+            // Telefon güncelleme
+            if (request.getPhone() != null) {
+                System.out.println("Phone güncelleniyor: " + request.getPhone());
+                user.setPhone(request.getPhone());
+            }
+            
+            // Doğum tarihi güncelleme
+            if (request.getBirthDate() != null) {
+                System.out.println("BirthDate güncelleniyor: " + request.getBirthDate());
+                user.setBirthDate(request.getBirthDate());
+            }
+            
             // Adres güncelleme
             if (request.getAddress1() != null) {
+                System.out.println("Address1 güncelleniyor: " + request.getAddress1());
                 user.setAddress1(request.getAddress1());
             }
             if (request.getAddress2() != null) {
+                System.out.println("Address2 güncelleniyor: " + request.getAddress2());
                 user.setAddress2(request.getAddress2());
             }
+            
             // Şifre güncelleme
             if (request.getCurrentPassword() != null && !request.getCurrentPassword().isBlank()
                     && request.getNewPassword() != null && !request.getNewPassword().isBlank()) {
+                System.out.println("Şifre güncelleniyor");
                 if (!passwordEncoder.matches(request.getCurrentPassword(), user.getPassword())) {
+                    System.out.println("Mevcut şifre yanlış");
                     return ResponseEntity.badRequest().body("Mevcut şifre yanlış");
                 }
                 user.setPassword(passwordEncoder.encode(request.getNewPassword()));
             }
+            
+            System.out.println("User kaydediliyor...");
             userRepository.save(user);
-            return ResponseEntity.ok("Profil başarıyla güncellendi");
+            System.out.println("User başarıyla kaydedildi");
+            System.out.println("=== /me PUT endpoint tamamlandı ===");
+            
+            // Güncellenmiş kullanıcı bilgilerini döndür
+            java.util.Map<String, Object> response = new java.util.HashMap<>();
+            response.put("message", "Profil başarıyla güncellendi");
+            response.put("user", Map.of(
+                "id", user.getId(),
+                "firstName", user.getFirstName() != null ? user.getFirstName() : "Belirtilmemiş",
+                "lastName", user.getLastName() != null ? user.getLastName() : "Belirtilmemiş",
+                "email", user.getEmail(),
+                "phone", user.getPhone() != null ? user.getPhone() : "Belirtilmemiş",
+                "birthDate", user.getBirthDate() != null ? user.getBirthDate() : "Belirtilmemiş",
+                "address1", user.getAddress1() != null ? user.getAddress1() : "Belirtilmemiş",
+                "address2", user.getAddress2() != null ? user.getAddress2() : "Belirtilmemiş",
+                "role", user.getRole().getName()
+            ));
+            
+            return ResponseEntity.ok(response);
         } catch (Exception ex) {
+            System.out.println("=== /me PUT endpoint hatası ===");
+            System.out.println("Hata: " + ex.getMessage());
             ex.printStackTrace();
-                    return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Beklenmeyen hata: " + ex.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Beklenmeyen hata: " + ex.getMessage());
+        }
     }
-}
     
     /**
      * Şifre değiştirme

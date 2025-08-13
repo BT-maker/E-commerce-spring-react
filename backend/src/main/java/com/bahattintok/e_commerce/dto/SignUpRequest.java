@@ -16,11 +16,18 @@ import lombok.NoArgsConstructor;
 public class SignUpRequest {
     
     /**
-     * Kullanıcı adı
+     * Kullanıcının adı
      */
-    @NotBlank(message = "Username is required")
-    @Size(min = 3, max = 50, message = "Username must be between 3 and 50 characters")
-    private String username;
+    @NotBlank(message = "First name is required")
+    @Size(min = 2, max = 50, message = "First name must be between 2 and 50 characters")
+    private String firstName;
+    
+    /**
+     * Kullanıcının soyadı
+     */
+    @NotBlank(message = "Last name is required")
+    @Size(min = 2, max = 50, message = "Last name must be between 2 and 50 characters")
+    private String lastName;
     
     /**
      * Kullanıcı email adresi
@@ -67,17 +74,31 @@ public class SignUpRequest {
     private String address2;
     
     /**
-     * Username getter metodu
+     * FirstName getter metodu
      */
-    public String getUsername() {
-        return username;
+    public String getFirstName() {
+        return firstName;
     }
     
     /**
-     * Username setter metodu
+     * FirstName setter metodu
      */
-    public void setUsername(String username) {
-        this.username = username;
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
+    }
+    
+    /**
+     * LastName getter metodu
+     */
+    public String getLastName() {
+        return lastName;
+    }
+    
+    /**
+     * LastName setter metodu
+     */
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
     }
     
     /**

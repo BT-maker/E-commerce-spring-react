@@ -62,7 +62,13 @@ export const NotificationProvider = ({ children }) => {
   };
 
   useEffect(() => {
-    fetchNotifications();
+    // Sadece kullanıcı giriş yapmışsa bildirimleri yükle
+    const token = localStorage.getItem('token') || sessionStorage.getItem('token');
+    if (token) {
+      fetchNotifications();
+    } else {
+      console.log('Token bulunamadı, bildirimler yüklenmedi');
+    }
   }, []);
 
   return (

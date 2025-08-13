@@ -37,6 +37,7 @@ const Register = () => {
   };
 
   const handleSubmit = async (e) => {
+    console.log('Form submit edildi!');
     e.preventDefault();
     setError("");
     setSuccess("");
@@ -53,19 +54,22 @@ const Register = () => {
       console.log('Şifre hash\'lendi:', hashedPassword.substring(0, 10) + '...');
       
       const requestBody = {
-        username: form.firstName + " " + form.lastName,
+        firstName: form.firstName,
+        lastName: form.lastName,
         email: form.email,
         password: hashedPassword, // Hash'lenmiş şifreyi gönder
         roleId: 1, // USER role ID
         userType: 'USER'
       };
 
+      console.log('Kayıt isteği gönderiliyor:', requestBody);
       const res = await fetch("http://localhost:8082/api/auth/signup", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: 'include',
         body: JSON.stringify(requestBody)
       });
+      console.log('Kayıt response status:', res.status);
       
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
