@@ -217,7 +217,7 @@ const Header = () => {
         ) : catError ? (
           <div className="text-center py-2 text-error-400 text-sm">{catError}</div>
         ) : (
-          <ul className="flex flex-wrap justify-center gap-4 py-1 text-sm font-medium text-accent-500">
+          <ul className="flex flex-wrap justify-center gap-4 py-1 text-base font-medium text-accent-500">
             {categories.map((cat) => (
               <li
                 key={cat.id}
