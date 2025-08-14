@@ -117,7 +117,7 @@ const SellerLogin = () => {
                         <div className="form-group">
                             <label htmlFor="email">E-posta Adresi</label>
                             <div className="input-wrapper">
-                                <FaEnvelope className="input-icon" />
+                                
                                 <input
                                     type="email"
                                     id="email"
@@ -134,7 +134,7 @@ const SellerLogin = () => {
                         <div className="form-group">
                             <label htmlFor="password">Şifre</label>
                             <div className="input-wrapper">
-                                <FaLock className="input-icon" />
+                                
                                 <input
                                     type={showPassword ? "text" : "password"}
                                     id="password"
