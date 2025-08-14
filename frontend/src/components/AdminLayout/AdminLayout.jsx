@@ -135,49 +135,10 @@ const AdminLayout = ({ children }) => {
       {/* Main Content */}
       <div className="admin-main">
         {/* Top Header */}
-        <header className="admin-header">
-          <div className="header-left">
-            <button 
-              className="sidebar-toggle"
-              onClick={() => setSidebarOpen(true)}
-            >
-              <Menu size={24} />
-            </button>
-            
-            <form className="search-form" onSubmit={handleSearch}>
-              <div className="search-input-wrapper">
-                <Search size={20} />
-                <input
-                  type="text"
-                  placeholder="Ara..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="search-input"
-                />
-              </div>
-            </form>
-          </div>
-
-          <div className="header-right">
-            <button className="notification-btn">
-              <Bell size={20} />
-              <span className="notification-badge">3</span>
-            </button>
-            
-            <div className="admin-profile">
-              <div className="profile-avatar">
-                <User size={20} />
-              </div>
-              <div className="profile-info">
-                <span className="profile-name">Admin</span>
-                <span className="profile-role">Yönetici</span>
-              </div>
-            </div>
-          </div>
-        </header>
+        
 
         {/* Page Content */}
-        <main className="admin-content">
+        <main className="admin-content items-center">
           {children}
         </main>
       </div>
