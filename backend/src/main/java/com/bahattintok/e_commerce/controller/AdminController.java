@@ -3,6 +3,7 @@ package com.bahattintok.e_commerce.controller;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -55,10 +56,10 @@ public class AdminController {
             // Temel istatistikler
             List<User> allUsers = userRepository.findAll();
             long totalUsers = allUsers.stream()
-                .filter(user -> !"ADMIN".equals(user.getRole().getName()))
+                .filter(user -> user.getRole() != null && !"ADMIN".equals(user.getRole().getName()))
                 .count();
             long totalSellers = allUsers.stream()
-                .filter(user -> "SELLER".equals(user.getRole().getName()))
+                .filter(user -> user.getRole() != null && "SELLER".equals(user.getRole().getName()))
                 .count();
             long totalProducts = productRepository.count();
             long totalOrders = orderRepository.count();
@@ -101,8 +102,8 @@ public class AdminController {
             List<User> allUsers = userRepository.findAll();
             // Admin rolündeki kullanıcıları filtrele
             List<User> nonAdminUsers = allUsers.stream()
-                .filter(user -> !"ADMIN".equals(user.getRole().getName()))
-                .toList();
+                .filter(user -> user.getRole() != null && !"ADMIN".equals(user.getRole().getName()))
+                .collect(Collectors.toList());
             return ResponseEntity.ok(nonAdminUsers);
         } catch (Exception e) {
             return ResponseEntity.badRequest().build();

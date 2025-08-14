@@ -97,6 +97,31 @@ public class AuthController {
     }
 
     /**
+     * Admin girişi (admin signin) - sadece ADMIN rolündeki kullanıcılar için
+     */
+    @PostMapping("/admin/signin")
+    @Operation(summary = "Admin login", description = "Authenticate admin and return JWT token")
+    public ResponseEntity<AuthResponse> adminSignIn(@Valid @RequestBody SignInRequest request, HttpServletResponse response) {
+        AuthResponse authResponse = authService.signIn(request);
+        
+        // Admin rolü kontrolü
+        if (!"ADMIN".equals(authResponse.getRole())) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                .body(new AuthResponse(null, null, null, null));
+        }
+
+        Cookie cookie = new Cookie("token", authResponse.getToken());
+        cookie.setHttpOnly(true);
+        cookie.setSecure(false); // localde HTTP için false olmalı!
+        cookie.setPath("/");
+        // Domain ayarlama - localhost ve network erişimi için
+        cookie.setMaxAge(7 * 24 * 60 * 60); // 7 gün
+        response.addCookie(cookie);
+
+        return ResponseEntity.ok(authResponse);
+    }
+
+    /**
      * Kullanıcı çıkışı (logout) - JWT cookie'sini siler.
      */
     @PostMapping("/logout")

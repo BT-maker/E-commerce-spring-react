@@ -8,12 +8,21 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
-      const checkAuth = async () => {
-        console.log('Auth kontrol ediliyor...');
-    
+        const checkAuth = async () => {
+    console.log('Auth kontrol ediliyor...');
+
     // Backend offline ise auth kontrolü yapma
     if (window.BACKEND_OFFLINE) {
       console.log('Backend offline, auth kontrolü atlandı');
+      setIsLoggedIn(false);
+      setUser(null);
+      setLoading(false);
+      return;
+    }
+
+    // Eğer admin/login sayfasındaysak auth kontrolü yapma
+    if (window.location.pathname === '/admin/login') {
+      console.log('Admin login sayfasında, auth kontrolü atlandı');
       setIsLoggedIn(false);
       setUser(null);
       setLoading(false);
@@ -50,16 +59,16 @@ export const AuthProvider = ({ children }) => {
   const login = async (userData = null) => {
     console.log('Login fonksiyonu çağrıldı, userData:', userData);
     if (userData) {
-      // Backend'den gelen veriyi doğru formata çevir
+      // Backend'den gelen AuthResponse'u doğru formata çevir
       const formattedUserData = {
-        email: userData.email,
-        firstName: userData.firstName,
-        lastName: userData.lastName,
-        role: userData.role,
-        phone: userData.phone,
-        birthDate: userData.birthDate,
-        address1: userData.address1,
-        address2: userData.address2
+        email: userData.email || '', // AuthResponse'da email yok, /me endpoint'inden gelecek
+        firstName: userData.firstName || '',
+        lastName: userData.lastName || '',
+        role: userData.role ? { name: userData.role } : null, // Role objesi olarak formatla
+        phone: userData.phone || '',
+        birthDate: userData.birthDate || '',
+        address1: userData.address1 || '',
+        address2: userData.address2 || ''
       };
       
       console.log('User data ile login yapılıyor:', formattedUserData);

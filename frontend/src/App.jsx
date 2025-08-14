@@ -160,22 +160,22 @@ function App() {
             <NotificationProvider>
             <BackendStatus>
             <BrowserRouter>
-              <Routes>
-                {/* Customer Routes - Normal Layout */}
-                <Route path="/" element={
-                  <>
-                    <Header />
-                    <main className="min-h-screen bg-background-primary">
-                      <div className="container mx-auto px-12 sm:px-16 lg:px-24 py-8">
-                        <div className="mt-0">
-                          <Banner />
-                        </div>
-                        <ProductList />
-                      </div>
-                    </main>
-                    <Footer />
-                  </>
-                } />
+                                            <Routes>
+                 {/* Customer Routes - Normal Layout */}
+                 <Route path="/" element={
+                   <>
+                     <Header />
+                     <main className="min-h-screen bg-background-primary">
+                       <div className="container mx-auto px-12 sm:px-16 lg:px-24 py-8">
+                         <div className="mt-0">
+                           <Banner />
+                         </div>
+                         <ProductList />
+                       </div>
+                     </main>
+                     <Footer />
+                   </>
+                 } />
                 
                 <Route path="/register" element={
                   <>
@@ -189,17 +189,17 @@ function App() {
                   </>
                 } />
                 
-                <Route path="/login" element={
-                  <>
-                    <Header />
-                    <main className="min-h-screen bg-background-primary">
-                      <div className="container mx-auto px-12 sm:px-16 lg:px-24 py-8">
-                        <Login />
-                      </div>
-                    </main>
-                    <Footer />
-                  </>
-                } />
+                                                  <Route path="/login" element={
+                   <>
+                     <Header />
+                     <main className="min-h-screen bg-background-primary">
+                       <div className="container mx-auto px-12 sm:px-16 lg:px-24 py-8">
+                         <Login />
+                       </div>
+                     </main>
+                     <Footer />
+                   </>
+                 } />
                 
                 <Route path="/seller/login" element={
                   <main className="min-h-screen bg-background-primary">
@@ -252,61 +252,61 @@ function App() {
                 {/* Admin Routes */}
                 <Route path="/admin/login" element={<AdminLogin />} />
                 
-                <Route path="/admin" element={
-                  <AdminRoute>
-                    <AdminLayout>
-                      <AdminDashboard />
-                    </AdminLayout>
-                  </AdminRoute>
-                } />
-                
-                <Route path="/admin/dashboard" element={
-                  <AdminRoute>
-                    <AdminLayout>
-                      <AdminDashboard />
-                    </AdminLayout>
-                  </AdminRoute>
-                } />
-                
-                <Route path="/admin/users" element={
-                  <AdminRoute>
-                    <AdminLayout>
-                      <AdminUsers />
-                    </AdminLayout>
-                  </AdminRoute>
-                } />
-                
-                                 <Route path="/admin/sellers" element={
+                                 <Route path="/admin" element={
                    <AdminRoute>
                      <AdminLayout>
-                       <AdminSellers />
+                       <AdminDashboard />
                      </AdminLayout>
                    </AdminRoute>
                  } />
                  
-                 <Route path="/admin/products" element={
+                 <Route path="/admin/dashboard" element={
                    <AdminRoute>
                      <AdminLayout>
-                       <AdminProducts />
+                       <AdminDashboard />
                      </AdminLayout>
                    </AdminRoute>
                  } />
                  
-                 <Route path="/admin/orders" element={
+                 <Route path="/admin/users" element={
                    <AdminRoute>
                      <AdminLayout>
-                       <AdminOrders />
+                       <AdminUsers />
                      </AdminLayout>
                    </AdminRoute>
                  } />
                  
-                 <Route path="/admin/financial" element={
-                   <AdminRoute>
-                     <AdminLayout>
-                       <AdminFinancial />
-                     </AdminLayout>
-                   </AdminRoute>
-                 } />
+                                  <Route path="/admin/sellers" element={
+                    <AdminRoute>
+                      <AdminLayout>
+                        <AdminSellers />
+                      </AdminLayout>
+                    </AdminRoute>
+                  } />
+                  
+                  <Route path="/admin/products" element={
+                    <AdminRoute>
+                      <AdminLayout>
+                        <AdminProducts />
+                      </AdminLayout>
+                    </AdminRoute>
+                  } />
+                  
+                  <Route path="/admin/orders" element={
+                    <AdminRoute>
+                      <AdminLayout>
+                        <AdminOrders />
+                      </AdminLayout>
+                    </AdminRoute>
+                  } />
+                  
+                  <Route path="/admin/financial" element={
+                    <AdminRoute>
+                      <AdminLayout>
+                        <AdminFinancial />
+                      </AdminLayout>
+                    </AdminRoute>
+                  } />
                 
                 <Route path="/search" element={
                   <>

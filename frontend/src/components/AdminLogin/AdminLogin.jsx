@@ -52,7 +52,7 @@ const AdminLogin = () => {
         password: hashedPassword
       };
 
-      const res = await fetch("http://localhost:8082/api/auth/signin", {
+      const res = await fetch("http://localhost:8082/api/auth/admin/signin", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: 'include',
@@ -61,20 +61,35 @@ const AdminLogin = () => {
       
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
-        setError(data.message || "Giriş başarısız. Lütfen bilgilerinizi kontrol edin.");
+        if (res.status === 403) {
+          setError("Bu sayfaya erişim yetkiniz bulunmamaktadır. Sadece admin kullanıcıları giriş yapabilir.");
+        } else {
+          setError(data.message || "Giriş başarısız. Lütfen bilgilerinizi kontrol edin.");
+        }
         return;
       }
 
       const data = await res.json();
-      
-      // Admin rolü kontrolü
-      if (data.role !== 'ADMIN') {
-        setError("Bu sayfaya erişim yetkiniz bulunmamaktadır.");
-        return;
-      }
 
-      // Login işlemi
-      await login(form.email, hashedPassword);
+      // Login işlemi - userData olarak gönder
+      await login(data);
+      
+      // Kullanıcı bilgilerini tam olarak almak için /me endpoint'ini çağır
+      try {
+        const userRes = await fetch("http://localhost:8082/api/auth/me", {
+          method: "GET",
+          credentials: 'include'
+        });
+        
+        if (userRes.ok) {
+          const userData = await userRes.json();
+          console.log('Tam kullanıcı bilgileri alındı:', userData);
+          // Kullanıcı bilgilerini güncelle
+          await login(userData);
+        }
+      } catch (userErr) {
+        console.log('Kullanıcı bilgileri alınamadı:', userErr);
+      }
       
       toast.success("Admin paneline hoş geldiniz!");
       navigate("/admin/dashboard");

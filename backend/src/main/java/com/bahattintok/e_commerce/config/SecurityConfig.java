@@ -40,14 +40,15 @@ public class SecurityConfig {
             .csrf(csrf -> csrf.disable()) // CSRF koruması devre dışı
             .cors(cors -> cors.configurationSource(corsConfigurationSource())) // CORS ayarları
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/api/admin/**").hasRole("ADMIN") // Sadece admin erişebilir
                 .requestMatchers(
+                    "/api/auth/admin/signin", // Admin login endpoint'i public
                     "/api/products/**", "/api/categories/**", "/api/auth/**", "/api/stores/**", "/api/elasticsearch/**", "/api/search-suggestions/**",
                     "/swagger-ui/**", "/swagger-ui.html", "/v3/api-docs/**", "/v3/api-docs.yaml",
                     "/swagger-resources/**", "/webjars/**",
                     "/v3/api-docs/swagger-config", "/api-docs/swagger-config",
                     "/api-docs"
                 ).permitAll() // Public endpointler
+                .requestMatchers("/api/admin/**").hasRole("ADMIN") // Admin endpoint'leri sadece admin erişebilir
                 .anyRequest().authenticated() // Diğer tüm endpointler için authentication gerekli
             )
             .sessionManagement(session -> session
