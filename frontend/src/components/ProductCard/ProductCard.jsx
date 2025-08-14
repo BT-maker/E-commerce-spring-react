@@ -117,13 +117,6 @@ const ProductCard = ({ product, loading, onAddToCart, isFavoritesPage = false })
           <div className="discount-badge-image">%{product.discountPercentage} İndirim</div>
         )}
         
-        {/* Stok Badge */}
-        {product.stock <= 0 && (
-          <div className="stock-badge out-of-stock">Stokta Yok</div>
-        )}
-        {product.stock > 0 && product.stock <= 5 && (
-          <div className="stock-badge low-stock">Son {product.stock} Adet</div>
-        )}
         
         {/* Quick Actions */}
         <div className="quick-actions">

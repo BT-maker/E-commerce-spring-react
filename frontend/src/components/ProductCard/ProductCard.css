@@ -32,28 +32,10 @@
   transform: scale(1.05);
 }
 
-/* Stok Badge'leri */
-.stock-badge {
-  position: absolute;
-  top: 8px;
-  left: 8px;
-  padding: 4px 8px;
-  border-radius: 6px;
-  font-size: 12px;
-  font-weight: 600;
-  z-index: 2;
-  backdrop-filter: blur(8px);
-}
 
-.stock-badge.out-of-stock {
-  background: var(--error-color);
-  color: white;
-}
 
-.stock-badge.low-stock {
-  background: var(--warning-color);
-  color: white;
-}
+
+
 
 /* İndirim Badge */
 .discount-badge {
