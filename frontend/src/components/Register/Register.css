@@ -72,15 +72,11 @@
 }
 
 /* Form Bölümleri */
-.form-section {
-  margin-bottom: 2rem;
-}
 
 .form-section h3 {
   font-size: 1.2rem;
   font-weight: 600;
   color: var(--text-primary);
-  margin-bottom: 1rem;
   border-left: 3px solid var(--accent-color);
   padding-left: 1rem;
 }
@@ -102,6 +98,7 @@
   transition: all 0.3s ease;
   background: white;
   color: var(--text-primary);
+  margin-bottom: 1rem;
 }
 
 .register-input:focus {
@@ -196,67 +193,6 @@
   font-size: 0.95rem;
 }
 
-/* Dark mode support */
-.dark .register-container {
-  background: #0f172a;
-}
-
-.dark .register-form {
-  background: #1e293b;
-  color: #f1f5f9;
-}
-
-.dark .register-title {
-  color: #f1f5f9;
-}
-
-.dark .form-section h3 {
-  color: #f1f5f9;
-}
-
-.dark .user-type-display {
-  background: #334155;
-  border-color: var(--accent-color);
-}
-
-.dark .user-type-display h4 {
-  color: #f1f5f9;
-}
-
-.dark .user-type-display p {
-  color: #cbd5e1;
-}
-
-.dark .register-input {
-  background: #334155;
-  border-color: #475569;
-  color: #f1f5f9;
-}
-
-.dark .register-input:focus {
-  border-color: var(--accent-color);
-}
-
-.dark .register-input:disabled {
-  background: #475569;
-}
-
-.dark .login-link-row,
-.dark .seller-link-row {
-  color: #cbd5e1;
-}
-
-.dark .error-message {
-  background: #7f1d1d;
-  color: #fca5a5;
-  border-color: #dc2626;
-}
-
-.dark .success-message {
-  background: #14532d;
-  color: #86efac;
-  border-color: #16a34a;
-}
 
 /* Responsive design */
 @media (max-width: 768px) {

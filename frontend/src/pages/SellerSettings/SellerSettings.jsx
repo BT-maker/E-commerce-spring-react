@@ -385,13 +385,6 @@ const SellerSettings = () => {
           <FaBell />
           <span>{t('notifications')}</span>
         </button>
-        <button 
-          className={`tab-btn ${activeTab === 'appearance' ? 'active' : ''}`}
-          onClick={() => setActiveTab('appearance')}
-        >
-          <FaPalette />
-          <span>{t('appearance')}</span>
-        </button>
       </div>
 
       {/* Tab Content */}
