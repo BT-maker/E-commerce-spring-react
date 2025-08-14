@@ -162,9 +162,11 @@
 .search-form {
   display: flex;
   align-items: center;
+  width: 100%;
 }
 
 .search-input-wrapper {
+  width: 100%;
   position: relative;
   display: flex;
   align-items: center;
@@ -178,7 +180,7 @@
 }
 
 .search-input {
-  width: 300px;
+  width: 800px;
   padding: 0.5rem 0.75rem 0.5rem 2.5rem;
   border: 1px solid #e2e8f0;
   border-radius: 8px;

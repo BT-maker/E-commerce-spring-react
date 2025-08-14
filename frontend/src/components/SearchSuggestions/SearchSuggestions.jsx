@@ -110,17 +110,17 @@ const SearchSuggestions = ({ onSearch, placeholder = "Ürün, kategori veya mağ
     };
 
     return (
-        <div className="search-suggestions-container" ref={searchRef}>
-            <form onSubmit={handleSubmit} className="search-form">
-                <div className="search-input-wrapper">
-                    <Search className="search-icon" size={16} />
+        <div className="header-search-suggestions-container" ref={searchRef}>
+            <form onSubmit={handleSubmit} className="header-search-form">
+                <div className="header-search-input-wrapper">
+                    <Search className="header-search-icon" size={16} />
                     <input
                         type="text"
                         value={query}
                         onChange={handleInputChange}
                         onKeyDown={handleKeyDown}
                         placeholder={placeholder}
-                        className="search-input"
+                        className="header-search-input"
                         autoComplete="off"
                     />
                     {loading && (
@@ -130,7 +130,7 @@ const SearchSuggestions = ({ onSearch, placeholder = "Ürün, kategori veya mağ
                     )}
                 </div>
                 {!compact && (
-                    <button type="submit" className="search-button">
+                    <button type="submit" className="header-search-button">
                         Ara
                     </button>
                 )}

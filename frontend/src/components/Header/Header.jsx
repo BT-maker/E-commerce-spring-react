@@ -102,7 +102,7 @@ const Header = () => {
           <span className="text-2xl font-bold italic tracking-wide group-hover:text-accent-500 transition-colors text-accent-500">Shopping</span>
         </Link>
         {/* Arama kutusu */}
-        <div className="flex-1 mx-8 flex justify-center items-start mt-6">
+        <div className="flex-1 mx-4 flex justify-center items-start mt-6">
           <SearchSuggestions
             onSearch={handleSearch}
             placeholder="Ürün, kategori veya mağaza ara..."
