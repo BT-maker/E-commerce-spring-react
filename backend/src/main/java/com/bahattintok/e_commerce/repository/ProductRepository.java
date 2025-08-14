@@ -108,6 +108,11 @@ public interface ProductRepository extends JpaRepository<Product, String> {
     Page<Product> findActiveProductsByStore(Store store, Pageable pageable);
     
     /**
+     * Duruma göre ürünleri getirir.
+     */
+    List<Product> findByStatus(String status);
+    
+    /**
      * Bu repository şu işlevleri sağlar:
      * 
      * 1. Temel CRUD İşlemleri: Product entity'si için standart veritabanı işlemleri

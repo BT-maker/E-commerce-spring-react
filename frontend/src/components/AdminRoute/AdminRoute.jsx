@@ -19,7 +19,7 @@ const AdminRoute = ({ children }) => {
   }
 
   if (!isLoggedIn) {
-    return <Navigate to="/login" replace />;
+    return <Navigate to="/admin/login" replace />;
   }
 
   // Admin rolü kontrolü - role string olarak geliyor

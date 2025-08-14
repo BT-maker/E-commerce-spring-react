@@ -12,6 +12,14 @@ import CartPage from './components/CartPage/CartPage.jsx';
 import ProductDetail from './components/ProductDetail/ProductDetail.jsx';
 import CategoryProducts from './components/CategoryProducts/CategoryProducts.jsx';
 import AdminPanel from './components/AdminPanel/AdminPanel.jsx';
+import AdminLogin from './components/AdminLogin/AdminLogin.jsx';
+import AdminLayout from './components/AdminLayout/AdminLayout.jsx';
+import AdminDashboard from './pages/AdminDashboard/AdminDashboard.jsx';
+import AdminUsers from './pages/AdminUsers/AdminUsers.jsx';
+import AdminSellers from './pages/AdminSellers/AdminSellers.jsx';
+import AdminProducts from './pages/AdminProducts/AdminProducts.jsx';
+import AdminOrders from './pages/AdminOrders/AdminOrders.jsx';
+import AdminFinancial from './pages/AdminFinancial/AdminFinancial.jsx';
 import SearchResults from './components/SearchResults/SearchResults.jsx';
 import ElasticSearch from './components/ElasticSearch/ElasticSearch.jsx';
 import AdminRoute from './components/AdminRoute/AdminRoute.jsx';
@@ -241,19 +249,64 @@ function App() {
                   </>
                 } />
                 
+                {/* Admin Routes */}
+                <Route path="/admin/login" element={<AdminLogin />} />
+                
                 <Route path="/admin" element={
-                  <>
-                    <Header />
-                    <main className="min-h-screen bg-background-primary">
-                      <div className="container mx-auto px-12 sm:px-16 lg:px-24 py-8">
-                        <AdminRoute>
-                          <AdminPanel />
-                        </AdminRoute>
-                      </div>
-                    </main>
-                    <Footer />
-                  </>
+                  <AdminRoute>
+                    <AdminLayout>
+                      <AdminDashboard />
+                    </AdminLayout>
+                  </AdminRoute>
                 } />
+                
+                <Route path="/admin/dashboard" element={
+                  <AdminRoute>
+                    <AdminLayout>
+                      <AdminDashboard />
+                    </AdminLayout>
+                  </AdminRoute>
+                } />
+                
+                <Route path="/admin/users" element={
+                  <AdminRoute>
+                    <AdminLayout>
+                      <AdminUsers />
+                    </AdminLayout>
+                  </AdminRoute>
+                } />
+                
+                                 <Route path="/admin/sellers" element={
+                   <AdminRoute>
+                     <AdminLayout>
+                       <AdminSellers />
+                     </AdminLayout>
+                   </AdminRoute>
+                 } />
+                 
+                 <Route path="/admin/products" element={
+                   <AdminRoute>
+                     <AdminLayout>
+                       <AdminProducts />
+                     </AdminLayout>
+                   </AdminRoute>
+                 } />
+                 
+                 <Route path="/admin/orders" element={
+                   <AdminRoute>
+                     <AdminLayout>
+                       <AdminOrders />
+                     </AdminLayout>
+                   </AdminRoute>
+                 } />
+                 
+                 <Route path="/admin/financial" element={
+                   <AdminRoute>
+                     <AdminLayout>
+                       <AdminFinancial />
+                     </AdminLayout>
+                   </AdminRoute>
+                 } />
                 
                 <Route path="/search" element={
                   <>

@@ -1,0 +1,383 @@
+.admin-dashboard {
+  min-height: 100vh;
+  background: #f8fafc;
+  padding: 2rem;
+}
+
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh;
+  gap: 1rem;
+}
+
+.loading-spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid #e2e8f0;
+  border-top: 4px solid #667eea;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.dashboard-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  padding: 2rem;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.header-content h1 {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #2d3748;
+  margin-bottom: 0.5rem;
+}
+
+.header-content p {
+  color: #718096;
+  font-size: 1rem;
+}
+
+.refresh-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.refresh-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+}
+
+/* İstatistik Kartları */
+.admin-dashboard .stats-grid {
+  display: grid !important;
+  grid-template-columns: repeat(3, 1fr) !important;
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+  /* Debug styles to ensure our CSS is applied */
+}
+
+.stat-card {
+  background: white;
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+  border: 1px solid #e2e8f0;
+}
+
+.stat-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+.stat-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.stat-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: white;
+}
+
+.stat-change {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.stat-change.positive {
+  background: #c6f6d5;
+  color: #22543d;
+}
+
+.stat-change.negative {
+  background: #fed7d7;
+  color: #c53030;
+}
+
+.stat-content {
+  text-align: left;
+}
+
+.stat-value {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #2d3748;
+  margin-bottom: 0.5rem;
+}
+
+.stat-title {
+  color: #718096;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+/* Dashboard İçerik */
+.dashboard-content {
+  margin-top: 2rem;
+}
+
+.content-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 1.5rem;
+}
+
+.content-card {
+  background: white;
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e2e8f0;
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.card-header h3 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #2d3748;
+}
+
+.view-all-btn {
+  padding: 0.5rem 1rem;
+  background: #667eea;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.view-all-btn:hover {
+  background: #5a67d8;
+}
+
+/* Sipariş Listesi */
+.orders-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.order-card {
+  padding: 1rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+}
+
+.order-card:hover {
+  border-color: #667eea;
+  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.1);
+}
+
+.order-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.order-id {
+  font-weight: 600;
+  color: #2d3748;
+}
+
+.order-status {
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.order-status.pending {
+  background: #fef5e7;
+  color: #d69e2e;
+}
+
+.order-status.completed {
+  background: #c6f6d5;
+  color: #22543d;
+}
+
+.order-status.cancelled {
+  background: #fed7d7;
+  color: #c53030;
+}
+
+.order-details {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.875rem;
+}
+
+.customer-name {
+  font-weight: 500;
+  color: #4a5568;
+}
+
+.order-amount {
+  font-weight: 600;
+  color: #2d3748;
+}
+
+.order-date {
+  color: #718096;
+}
+
+/* Hızlı İstatistikler */
+.quick-stats {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.quick-stat {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+}
+
+.quick-stat:hover {
+  border-color: #667eea;
+  background: #f7fafc;
+}
+
+.quick-stat-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: white;
+}
+
+.quick-stat-content {
+  display: flex;
+  flex-direction: column;
+}
+
+.quick-stat-value {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #2d3748;
+}
+
+.quick-stat-label {
+  font-size: 0.875rem;
+  color: #718096;
+}
+
+/* Boş Durum */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem;
+  color: #718096;
+  text-align: center;
+}
+
+.empty-state svg {
+  margin-bottom: 1rem;
+  opacity: 0.5;
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+  .content-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .admin-dashboard {
+    padding: 1rem;
+  }
+  
+  .dashboard-header {
+    flex-direction: column;
+    gap: 1rem;
+    text-align: center;
+  }
+  
+  .admin-dashboard .stats-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+  
+  .header-content h1 {
+    font-size: 1.75rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .admin-dashboard .stats-grid {
+    grid-template-columns: 1fr !important;
+  }
+  
+  .stat-card {
+    padding: 1rem;
+  }
+  
+  .stat-value {
+    font-size: 1.5rem;
+  }
+  
+  .content-card {
+    padding: 1rem;
+  }
+}

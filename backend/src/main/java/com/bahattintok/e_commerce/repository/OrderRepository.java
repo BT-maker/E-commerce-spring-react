@@ -23,6 +23,11 @@ public interface OrderRepository extends JpaRepository<Order, String> {
     }
     
     /**
+     * Duruma göre siparişleri getirir.
+     */
+    List<Order> findByStatus(String status);
+    
+    /**
      * Bu repository şu işlevleri sağlar:
      * 
      * 1. Temel CRUD İşlemleri: Order entity'si için standart veritabanı işlemleri

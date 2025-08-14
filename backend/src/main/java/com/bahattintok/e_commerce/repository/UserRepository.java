@@ -1,10 +1,12 @@
 package com.bahattintok.e_commerce.repository;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import com.bahattintok.e_commerce.model.RoleEntity;
 import com.bahattintok.e_commerce.model.User;
 
 /**
@@ -20,6 +22,22 @@ public interface UserRepository extends JpaRepository<User, String> {
      * Email var mı kontrolü.
      */
     boolean existsByEmail(String email);
+    
+    /**
+     * Belirli bir role sahip kullanıcıları sayar.
+     */
+    long countByRole(RoleEntity role);
+    
+    /**
+     * Belirli bir role sahip kullanıcıları getirir.
+     */
+    List<User> findByRole(RoleEntity role);
+    
+    /**
+     * Ad, soyad veya email ile kullanıcı arar.
+     */
+    List<User> findByFirstNameContainingIgnoreCaseOrLastNameContainingIgnoreCaseOrEmailContainingIgnoreCase(
+        String firstName, String lastName, String email);
     
     /**
      * Bu repository şu işlevleri sağlar:
