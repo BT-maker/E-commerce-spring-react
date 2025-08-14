@@ -68,7 +68,6 @@
 
 .footer-link:hover {
  color: var(--accent-color); /* Turuncu hover */
- text-decoration: underline;
 }
 
 .footer-social {
