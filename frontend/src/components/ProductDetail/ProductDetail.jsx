@@ -6,7 +6,29 @@ import "./ProductDetail.css";
 import toast from 'react-hot-toast';
 import Skeleton from 'react-loading-skeleton';
 import 'react-loading-skeleton/dist/skeleton.css';
-import { Heart, Star, ShoppingCart } from 'lucide-react';
+import { 
+  Heart, 
+  Star, 
+  ShoppingCart, 
+  Truck, 
+  Shield, 
+  RotateCcw, 
+  CheckCircle,
+  XCircle,
+  StarHalf,
+  ChevronRight,
+  Share2,
+  Eye,
+  Package,
+  Zap,
+  Clock,
+  MapPin,
+  Phone,
+  Mail,
+  ArrowRight,
+  Minus,
+  Plus
+} from 'lucide-react';
 import { useFavorites } from '../../context/FavoritesContext';
 import PageTitle from '../PageTitle/PageTitle';
 import MetaTags from '../MetaTags/MetaTags';
@@ -19,8 +41,12 @@ const ProductDetail = () => {
   const [error, setError] = useState("");
   const [added, setAdded] = useState(false);
   const [addLoading, setAddLoading] = useState(false);
+  const [quantity, setQuantity] = useState(1);
+  const [selectedImage, setSelectedImage] = useState(0);
+  const [activeTab, setActiveTab] = useState('description');
   const { addToCart } = useContext(CartContext);
   const { isLoggedIn } = useContext(AuthContext);
+  const { addToFavorites, removeFromFavorites, isFavorite } = useFavorites();
   
   // Review state'leri
   const [reviews, setReviews] = useState([]);
@@ -29,6 +55,14 @@ const ProductDetail = () => {
   const [reviewForm, setReviewForm] = useState({ rating: 5, comment: "" });
   const [reviewLoading, setReviewLoading] = useState(false);
   const [reviewsLoading, setReviewsLoading] = useState(false);
+
+  // Ürün görselleri (örnek)
+  const productImages = [
+    product?.imageUrl || '/img/no-image.png',
+    product?.imageUrl || '/img/no-image.png',
+    product?.imageUrl || '/img/no-image.png',
+    product?.imageUrl || '/img/no-image.png'
+  ];
 
   useEffect(() => {
     fetch(`http://localhost:8082/api/products/${id}`)
@@ -47,6 +81,10 @@ const ProductDetail = () => {
       .then(data => {
         console.log("Ürün verisi:", data);
         setProduct(data);
+        // Stok durumuna göre quantity'yi ayarla
+        if (data.stock > 0 && data.stock < quantity) {
+          setQuantity(data.stock);
+        }
         setLoading(false);
       })
       .catch(err => {
@@ -99,13 +137,41 @@ const ProductDetail = () => {
 
   const handleAddToCart = async () => {
     if (!product?.id) return;
+    
+    // Stok kontrolü
+    if (product.stock <= 0) {
+      toast.error("Bu ürün stokta bulunmamaktadır!");
+      return;
+    }
+    
+    // Miktar kontrolü
+    if (quantity > product.stock) {
+      toast.error(`Stokta sadece ${product.stock} adet bulunmaktadır!`);
+      return;
+    }
+    
     setAddLoading(true);
     try {
-      await addToCart(product.id, 1);
+      await addToCart(product.id, quantity);
       setAdded(true);
       setTimeout(() => setAdded(false), 900);
     } finally {
       setAddLoading(false);
+    }
+  };
+
+  const handleFavoriteToggle = () => {
+    if (!isLoggedIn) {
+      toast.error("Favorilere eklemek için giriş yapmalısınız!");
+      return;
+    }
+    
+    if (isFavorite(product.id)) {
+      removeFromFavorites(product.id);
+      toast.success("Favorilerden çıkarıldı!");
+    } else {
+      addToFavorites(product.id);
+      toast.success("Favorilere eklendi!");
     }
   };
 
@@ -200,22 +266,37 @@ const ProductDetail = () => {
   };
 
   if (loading) return (
-    <div className="max-w-3xl mx-auto mt-10 bg-white rounded-xl shadow p-4 sm:p-8 flex flex-col sm:flex-row gap-4 sm:gap-8">
-      <Skeleton height={220} width={220} className="rounded-lg" />
-      <div className="flex-1 flex flex-col gap-4">
-        <Skeleton height={32} width={180} />
-        <Skeleton height={28} width={100} />
-        <Skeleton height={20} width={120} />
-        <Skeleton count={3} height={18} />
-        <Skeleton height={44} width={180} className="mt-4 rounded" />
+    <div className="product-detail-container">
+      <div className="product-detail-skeleton">
+        <div className="product-images-skeleton">
+          <Skeleton height={400} width={400} className="rounded-lg" />
+          <div className="thumbnail-skeleton">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <Skeleton key={i} height={80} width={80} className="rounded" />
+            ))}
+          </div>
+        </div>
+        <div className="product-info-skeleton">
+          <Skeleton height={32} width={300} className="mb-4" />
+          <Skeleton height={24} width={200} className="mb-2" />
+          <Skeleton height={28} width={150} className="mb-4" />
+          <Skeleton count={4} height={16} className="mb-2" />
+          <Skeleton height={48} width={200} className="mt-6" />
+        </div>
       </div>
     </div>
   );
-  if (error) return <div className="cart-empty" style={{ color: "#d32f2f" }}>{error}</div>;
+
+  if (error) return (
+    <div className="product-detail-container">
+      <div className="error-message">{error}</div>
+    </div>
+  );
+
   if (!product) return null;
 
   return (
-    <div className="max-w-4xl mx-auto mt-10">
+    <div className="product-detail-container">
       <PageTitle title={product ? product.name : "Ürün Detayı"} />
       <MetaTags 
         title={product ? product.name : "Ürün Detayı"}
@@ -225,166 +306,372 @@ const ProductDetail = () => {
         type="product"
         siteName="E-Ticaret"
       />
-      {/* Ürün Detayları */}
-      <div className="bg-white rounded-xl shadow p-4 sm:p-8 flex flex-col sm:flex-row gap-4 sm:gap-8 mb-8">
-        <img 
-          src={product.imageUrl || '/img/no-image.png'} 
-          alt={product.name || 'Ürün'} 
-          className="w-full sm:w-72 h-56 sm:h-72 object-contain rounded-lg bg-gray-100" 
-          onError={(e) => { e.target.src = '/img/no-image.png'; }}
-        />
-        <div className="flex-1 flex flex-col gap-4">
-          <h2 className="text-2xl font-bold">{product.name || 'İsimsiz Ürün'}</h2>
-          
-          {/* Puanlama */}
-          <div className="flex items-center gap-2">
-            <div className="flex items-center gap-1">
-              {renderStars(reviewStats?.averageRating || 0)}
+
+      {/* Breadcrumb */}
+      <div className="breadcrumb">
+        <Link to="/" className="breadcrumb-item">Ana Sayfa</Link>
+        <ChevronRight className="breadcrumb-separator" />
+        <Link to={`/category/${product.category?.id}`} className="breadcrumb-item">
+          {product.category?.name || 'Kategori'}
+        </Link>
+        <ChevronRight className="breadcrumb-separator" />
+        <span className="breadcrumb-item active">{product.name}</span>
+      </div>
+
+      {/* Ana Ürün Bölümü */}
+      <div className="product-main-section">
+        {/* Sol Taraf - Ürün Görselleri */}
+        <div className="product-images-section">
+          <div className="main-image-container">
+            <img 
+              src={productImages[selectedImage]} 
+              alt={product.name} 
+              className="main-product-image"
+              onError={(e) => { e.target.src = '/img/no-image.png'; }}
+            />
+            <div className="image-actions">
+              <button className="image-action-btn" title="Paylaş">
+                <Share2 size={16} />
+              </button>
+              <button className="image-action-btn" title="Büyüt">
+                <Eye size={16} />
+              </button>
             </div>
-            <span className="text-sm text-gray-600">
-              ({reviewStats?.reviewCount || 0} değerlendirme)
-            </span>
           </div>
           
-          <div className="text-lg text-green-700 font-semibold">{product.price || 0} ₺</div>
+          <div className="thumbnail-images">
+            {productImages.map((image, index) => (
+              <button
+                key={index}
+                className={`thumbnail-image ${selectedImage === index ? 'active' : ''}`}
+                onClick={() => setSelectedImage(index)}
+              >
+                <img 
+                  src={image} 
+                  alt={`${product.name} ${index + 1}`}
+                  onError={(e) => { e.target.src = '/img/no-image.png'; }}
+                />
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Sağ Taraf - Ürün Bilgileri */}
+        <div className="product-info-section">
+          {/* Ürün Başlığı ve Marka */}
+          <div className="product-header">
+            <h1 className="product-title">{product.name}</h1>
+            <div className="product-brand">
+              <span className="brand-label">Marka:</span>
+              <span className="brand-name">{product.storeName || 'Bilinmeyen Marka'}</span>
+            </div>
+          </div>
+
+          {/* Puanlama */}
+          <div className="product-rating">
+            <div className="rating-stars">
+              {renderStars(reviewStats?.averageRating || 0)}
+            </div>
+            <div className="rating-info">
+              <span className="rating-score">{reviewStats?.averageRating?.toFixed(1) || '0.0'}</span>
+              <span className="rating-count">({reviewStats?.reviewCount || 0} değerlendirme)</span>
+            </div>
+            <button className="rating-link" onClick={() => setActiveTab('reviews')}>
+              Tüm değerlendirmeleri gör
+            </button>
+          </div>
+
+          {/* Fiyat Bilgisi */}
+          <div className="product-price-section">
+            <div className="price-main">
+              <span className="price-currency">₺</span>
+              <span className="price-amount">{product.price?.toLocaleString() || '0'}</span>
+            </div>
+            <div className="price-details">
+              <span className="price-tax">KDV Dahil</span>
+              <span className="price-shipping">Ücretsiz Kargo</span>
+            </div>
+          </div>
+
+                     {/* Stok Durumu */}
+           <div className="product-stock">
+             {product.stock > 0 ? (
+               <>
+                 <div className="stock-status available">
+                   <CheckCircle size={16} />
+                   <span>Stokta</span>
+                 </div>
+                 <div className="stock-info">
+                   <span className="stock-text">
+                     {product.stock <= 5 
+                       ? `Son ${product.stock} adet!` 
+                       : "Hızlı teslimat için stokta"
+                     }
+                   </span>
+                 </div>
+               </>
+             ) : (
+               <>
+                 <div className="stock-status unavailable">
+                   <XCircle size={16} />
+                   <span>Stokta Yok</span>
+                 </div>
+                 <div className="stock-info">
+                   <span className="stock-text">Bu ürün şu anda stokta bulunmamaktadır</span>
+                 </div>
+               </>
+             )}
+           </div>
+
+                     {/* Miktar Seçimi */}
+           {product.stock > 0 && (
+             <div className="quantity-section">
+               <span className="quantity-label">Adet:</span>
+               <div className="quantity-controls">
+                 <button 
+                   className="quantity-btn"
+                   onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                   disabled={quantity <= 1}
+                 >
+                   <Minus size={16} />
+                 </button>
+                 <span className="quantity-value">{quantity}</span>
+                 <button 
+                   className="quantity-btn"
+                   onClick={() => setQuantity(Math.min(product.stock, quantity + 1))}
+                   disabled={quantity >= product.stock}
+                 >
+                   <Plus size={16} />
+                 </button>
+               </div>
+               {product.stock <= 10 && (
+                 <div className="stock-warning">
+                   <span>Stok: {product.stock} adet</span>
+                 </div>
+               )}
+             </div>
+           )}
+
+                     {/* Aksiyon Butonları */}
+           <div className="product-actions">
+             {product.stock > 0 ? (
+               <button
+                 className={`add-to-cart-btn ${added ? 'added' : ''}`}
+                 onClick={handleAddToCart}
+                 disabled={added || addLoading}
+               >
+                 <ShoppingCart size={20} />
+                 {added ? "Sepete Eklendi!" : addLoading ? "Ekleniyor..." : "Sepete Ekle"}
+               </button>
+             ) : (
+               <button
+                 className="out-of-stock-btn"
+                 disabled={true}
+               >
+                 <XCircle size={20} />
+                 Stokta Yok
+               </button>
+             )}
+             
+             <button
+               className={`favorite-btn ${isFavorite(product.id) ? 'active' : ''}`}
+               onClick={handleFavoriteToggle}
+             >
+               <Heart size={20} />
+             </button>
+           </div>
+
+          {/* Hızlı Özellikler */}
+          <div className="quick-features">
+            <div className="feature-item">
+              <Truck size={16} />
+              <span>Ücretsiz Kargo</span>
+            </div>
+            <div className="feature-item">
+              <Shield size={16} />
+              <span>Güvenli Alışveriş</span>
+            </div>
+            <div className="feature-item">
+              <RotateCcw size={16} />
+              <span>Kolay İade</span>
+            </div>
+          </div>
+
+          {/* Mağaza Bilgisi */}
           {product.storeName && (
-            <div className="text-sm text-gray-500 mb-2">
-              Mağaza: <Link to={`/store/${encodeURIComponent(product.storeName)}`} className="font-semibold text-green-700 hover:underline">{product.storeName}</Link>
+            <div className="store-info">
+              <div className="store-header">
+                <Package size={16} />
+                <span className="store-name">{product.storeName}</span>
+              </div>
+              <div className="store-actions">
+                <button className="store-btn primary">
+                  Mağazaya Git
+                </button>
+                <button className="store-btn secondary">
+                  <Phone size={14} />
+                  İletişim
+                </button>
+              </div>
             </div>
           )}
-          <div className="text-gray-700">{product.description || 'Bu ürün için açıklama bulunmamaktadır.'}</div>
-          
-          {/* Sosyal Medya Paylaşım */}
-          <SocialShare 
-            title={product.name || 'Ürün'}
-            description={`${product.name || 'Ürün'} - ${product.description || 'Harika bir ürün!'} ${product.price || 0} ₺`}
-            url={window.location.href}
-          />
-          
-          <button
-            className={`product-card-btn mt-4${added ? " added" : ""}`}
-            onClick={handleAddToCart}
-            disabled={added || addLoading || !product.id}
-            style={{ width: "220px", fontSize: "1.1rem" }}
-          >
-            {added ? "Eklendi!" : addLoading ? "Ekleniyor..." : "Sepete Ekle"}
-          </button>
         </div>
       </div>
 
-      {/* Review Sistemi */}
-      <div className="bg-white rounded-xl shadow p-4 sm:p-8">
-        <h3 className="text-xl font-bold mb-6">Değerlendirmeler</h3>
-        
-        {/* Kullanıcı Review Formu */}
-        {isLoggedIn && (
-          <div className="border rounded-lg p-4 mb-6 bg-gray-50">
-            <h4 className="font-semibold mb-3">
-              {userReview ? "Yorumunuzu Güncelleyin" : "Yorum Yapın"}
-            </h4>
-            <form onSubmit={handleReviewSubmit} className="space-y-3">
-              <div>
-                <label className="block text-sm font-medium mb-1">Puanınız:</label>
-                <div className="flex items-center gap-1">
-                  {[1, 2, 3, 4, 5].map(star => (
-                    <button
-                      key={star}
-                      type="button"
-                      onClick={() => setReviewForm({ ...reviewForm, rating: star })}
-                      className="focus:outline-none"
-                    >
-                      <Star className={`w-6 h-6 ${star <= reviewForm.rating ? 'fill-yellow-400 text-yellow-400' : 'text-gray-300'}`} />
-                    </button>
-                  ))}
-                </div>
-              </div>
-              <div>
-                <label className="block text-sm font-medium mb-1">Yorumunuz:</label>
-                <textarea
-                  value={reviewForm.comment}
-                  onChange={(e) => setReviewForm({ ...reviewForm, comment: e.target.value })}
-                  className="w-full p-2 border rounded-md"
-                  rows="3"
-                  placeholder="Ürün hakkında düşüncelerinizi paylaşın..."
-                />
-              </div>
-              <div className="flex gap-2">
-                <button
-                  type="submit"
-                  disabled={reviewLoading}
-                  className="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 disabled:opacity-50"
-                >
-                  {reviewLoading ? "Kaydediliyor..." : (userReview ? "Güncelle" : "Gönder")}
-                </button>
-                {userReview && (
-                  <button
-                    type="button"
-                    onClick={handleReviewDelete}
-                    className="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700"
-                  >
-                    Sil
-                  </button>
-                )}
-              </div>
-            </form>
-          </div>
-        )}
+      {/* Alt Bölümler */}
+      <div className="product-details-section">
+        {/* Tab Menüsü */}
+        <div className="product-tabs">
+          <button 
+            className={`tab-btn ${activeTab === 'description' ? 'active' : ''}`}
+            onClick={() => setActiveTab('description')}
+          >
+            Ürün Açıklaması
+          </button>
+          <button 
+            className={`tab-btn ${activeTab === 'specifications' ? 'active' : ''}`}
+            onClick={() => setActiveTab('specifications')}
+          >
+            Teknik Özellikler
+          </button>
+          <button 
+            className={`tab-btn ${activeTab === 'reviews' ? 'active' : ''}`}
+            onClick={() => setActiveTab('reviews')}
+          >
+            Değerlendirmeler ({reviewStats?.reviewCount || 0})
+          </button>
+        </div>
 
-        {/* Review Listesi */}
-        {reviewsLoading ? (
-          <div className="space-y-4">
-            {Array.from({ length: 3 }).map((_, i) => (
-              <div key={i} className="border rounded-lg p-4">
-                <Skeleton height={20} width={150} className="mb-2" />
-                <Skeleton height={16} width={100} className="mb-2" />
-                <Skeleton count={2} height={16} />
-              </div>
-            ))}
-          </div>
-        ) : reviews.length === 0 ? (
-          <div className="text-center text-gray-500 py-8">
-            Henüz değerlendirme yapılmamış. İlk yorumu siz yapın!
-          </div>
-        ) : (
-          <div className="space-y-4">
-            {reviews.map((review) => (
-              <div key={review.id} className="border rounded-lg p-4">
-                <div className="flex items-center justify-between mb-2">
-                  <div className="flex items-center gap-2">
-                    <span className="font-semibold">{review.user.username}</span>
-                    <div className="flex items-center gap-1">
-                      {renderStars(review.rating)}
-                    </div>
-                  </div>
-                  <span className="text-sm text-gray-500">
-                    {new Date(review.createdAt).toLocaleDateString('tr-TR')}
-                  </span>
+        {/* Tab İçerikleri */}
+        <div className="tab-content">
+          {activeTab === 'description' && (
+            <div className="description-content">
+              <h3>Ürün Açıklaması</h3>
+              <p>{product.description || 'Bu ürün için detaylı açıklama bulunmamaktadır.'}</p>
+            </div>
+          )}
+
+          {activeTab === 'specifications' && (
+            <div className="specifications-content">
+              <h3>Teknik Özellikler</h3>
+              <div className="specs-grid">
+                <div className="spec-item">
+                  <span className="spec-label">Marka:</span>
+                  <span className="spec-value">{product.storeName || 'Bilinmiyor'}</span>
                 </div>
-                {review.comment && (
-                  <p className="text-gray-700">{review.comment}</p>
+                <div className="spec-item">
+                  <span className="spec-label">Kategori:</span>
+                  <span className="spec-value">{product.category?.name || 'Bilinmiyor'}</span>
+                </div>
+                <div className="spec-item">
+                  <span className="spec-label">Stok Durumu:</span>
+                  <span className="spec-value">Mevcut</span>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {activeTab === 'reviews' && (
+            <div className="reviews-content">
+              <div className="reviews-header">
+                <h3>Değerlendirmeler</h3>
+                <div className="reviews-summary">
+                  <div className="average-rating">
+                    <span className="rating-number">{reviewStats?.averageRating?.toFixed(1) || '0.0'}</span>
+                    <div className="rating-stars-large">
+                      {renderStars(reviewStats?.averageRating || 0)}
+                    </div>
+                    <span className="total-reviews">{reviewStats?.reviewCount || 0} değerlendirme</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Kullanıcı Review Formu */}
+              {isLoggedIn && (
+                <div className="review-form-section">
+                  <h4>{userReview ? "Yorumunuzu Güncelleyin" : "Yorum Yapın"}</h4>
+                  <form onSubmit={handleReviewSubmit} className="review-form">
+                    <div className="rating-input">
+                      <label>Puanınız:</label>
+                      <div className="star-rating">
+                        {[1, 2, 3, 4, 5].map(star => (
+                          <button
+                            key={star}
+                            type="button"
+                            onClick={() => setReviewForm({ ...reviewForm, rating: star })}
+                            className="star-btn"
+                          >
+                            <Star className={`star-icon ${star <= reviewForm.rating ? 'filled' : ''}`} />
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                    <div className="comment-input">
+                      <label>Yorumunuz:</label>
+                      <textarea
+                        value={reviewForm.comment}
+                        onChange={(e) => setReviewForm({ ...reviewForm, comment: e.target.value })}
+                        placeholder="Ürün hakkında düşüncelerinizi paylaşın..."
+                        rows="4"
+                      />
+                    </div>
+                    <div className="form-actions">
+                      <button type="submit" className="submit-btn" disabled={reviewLoading}>
+                        {reviewLoading ? "Kaydediliyor..." : (userReview ? "Güncelle" : "Gönder")}
+                      </button>
+                      {userReview && (
+                        <button type="button" onClick={handleReviewDelete} className="delete-btn">
+                          Sil
+                        </button>
+                      )}
+                    </div>
+                  </form>
+                </div>
+              )}
+
+              {/* Review Listesi */}
+              <div className="reviews-list">
+                {reviewsLoading ? (
+                  <div className="reviews-loading">
+                    {Array.from({ length: 3 }).map((_, i) => (
+                      <div key={i} className="review-skeleton">
+                        <Skeleton height={20} width={150} className="mb-2" />
+                        <Skeleton height={16} width={100} className="mb-2" />
+                        <Skeleton count={2} height={16} />
+                      </div>
+                    ))}
+                  </div>
+                ) : reviews.length === 0 ? (
+                  <div className="no-reviews">
+                    <p>Henüz değerlendirme yapılmamış. İlk yorumu siz yapın!</p>
+                  </div>
+                ) : (
+                  reviews.map((review) => (
+                    <div key={review.id} className="review-item">
+                      <div className="review-header">
+                        <div className="reviewer-info">
+                          <span className="reviewer-name">{review.user.username}</span>
+                          <div className="review-rating">
+                            {renderStars(review.rating)}
+                          </div>
+                        </div>
+                        <span className="review-date">
+                          {new Date(review.createdAt).toLocaleDateString('tr-TR')}
+                        </span>
+                      </div>
+                      {review.comment && (
+                        <p className="review-comment">{review.comment}</p>
+                      )}
+                    </div>
+                  ))
                 )}
               </div>
-            ))}
-          </div>
-        )}
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
 };
 
 export default ProductDetail;
-
-/**
- * Bu component şu işlevleri sağlar:
- * 
- * 1. Ürün Detay Sayfası: Ürünün detaylı bilgilerini görüntüleme
- * 2. Ürün Bilgileri: Ürün adı, fiyatı, açıklaması ve görseli
- * 3. Review Sistemi: Ürün değerlendirme ve yorum sistemi
- * 4. Sepete Ekleme: Ürünü sepete ekleme fonksiyonu
- * 5. Sosyal Paylaşım: Ürünü sosyal medyada paylaşma
- * 6. Loading States: Yükleme durumları için skeleton animasyonları
- * 7. SEO Optimizasyonu: Sayfa başlığı ve meta etiketleri
- * 8. Responsive Design: Mobil ve desktop uyumlu tasarım
- * 
- * Bu component sayesinde kullanıcılar ürün detaylarını kapsamlı şekilde inceleyebilir!
- */
