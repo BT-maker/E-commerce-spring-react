@@ -243,7 +243,7 @@
   align-items: center;
   justify-content: center;
   gap: 8px;
-  background: var(--accent-color);
+  background: #ff6000;
   color: white;
 }
 
@@ -258,7 +258,7 @@
 }
 
 .product-card-btn.added {
-  background: var(--accent-color);
+  background: #28a745;
   color: white;
 }
 
@@ -267,15 +267,15 @@
 }
 
 .product-card-btn.disabled {
-  background: var(--text-tertiary);
-  color: var(--text-secondary);
+  background: #6c757d;
+  color: #ffffff;
   cursor: not-allowed;
   transform: none;
   box-shadow: none;
 }
 
 .product-card-btn.disabled:hover {
-  background: var(--text-tertiary);
+  background: #6c757d;
   transform: none;
   box-shadow: none;
 }

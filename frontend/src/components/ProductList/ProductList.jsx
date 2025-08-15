@@ -6,6 +6,7 @@ import { CartContext } from '../../context/CartContext';
 import toast from 'react-hot-toast';
 import PageTitle from '../PageTitle/PageTitle';
 import MetaTags from '../MetaTags/MetaTags';
+import './ProductList.css';
 
 const PAGE_SIZE = 12;
 
@@ -187,7 +188,7 @@ const ProductList = () => {
   };
 
   return (
-    <section className="max-w-7xl mx-auto px-2 sm:px-4 md:px-8 mt-16">
+    <section className="product-list-container max-w-7xl mx-auto px-2 sm:px-4 md:px-8 mt-16">
       <PageTitle title="Öne Çıkan Ürünler" />
       <MetaTags 
         title="Öne Çıkan Ürünler"
@@ -198,7 +199,7 @@ const ProductList = () => {
       <div className="flex flex-col lg:flex-row gap-8 justify-center items-start">
         {/* Sol Filtreleme Paneli */}
         <div className="lg:w-1/4">
-          <div className="bg-white rounded-lg shadow-md p-6 sticky top-4">
+          <div className="filter-panel bg-white rounded-lg shadow-md p-6">
             <div className="flex items-center justify-between mb-6">
               <h3 className="text-lg font-semibold text-gray-800">Filtreler</h3>
               <button
