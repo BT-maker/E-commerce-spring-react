@@ -23,7 +23,6 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
-import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
@@ -32,7 +31,6 @@ import lombok.Setter;
  */
 @Entity
 @Table(name = "products")
-@Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
@@ -113,7 +111,7 @@ public class Product {
      * Mağaza ID'si (foreign key, opsiyonel)
      */
     @Column(name = "store_id", nullable = true)
-    @JsonIgnore
+    @JsonProperty("storeId")
     private String storeId;
     
     /**
@@ -131,6 +129,26 @@ public class Product {
     @JoinColumn(name = "store_id", insertable = false, updatable = false)
     @JsonIgnore
     private Store store;
+    
+    /**
+     * Mağaza adını döner
+     */
+    @JsonProperty("storeName")
+    public String getStoreName() {
+        return store != null ? store.getName() : null;
+    }
+    
+    /**
+     * Mağaza ID'sini döner
+     */
+    @JsonProperty("storeId")
+    public String getStoreId() {
+        return storeId;
+    }
+    
+
+    
+
     
     /**
      * Ürün yorumları
@@ -243,12 +261,7 @@ public class Product {
         this.categoryId = categoryId;
     }
     
-    /**
-     * StoreId getter metodu
-     */
-    public String getStoreId() {
-        return storeId;
-    }
+
     
     /**
      * StoreId setter metodu
@@ -353,6 +366,20 @@ public class Product {
      */
     public void setDiscountPercentage(Integer discountPercentage) {
         this.discountPercentage = discountPercentage;
+    }
+    
+    /**
+     * DiscountEndDate getter metodu
+     */
+    public java.time.LocalDateTime getDiscountEndDate() {
+        return discountEndDate;
+    }
+    
+    /**
+     * DiscountEndDate setter metodu
+     */
+    public void setDiscountEndDate(java.time.LocalDateTime discountEndDate) {
+        this.discountEndDate = discountEndDate;
     }
     
     /**

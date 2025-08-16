@@ -225,6 +225,14 @@ public class ProductServiceImpl implements ProductService {
         return productRepository.findActiveProductsByStore(storeOpt.get(), pageable);
     }
     
+    /**
+     * Mağaza ID'sine göre ürünleri sayfalı getirir.
+     */
+    @Override
+    public Page<Product> getProductsByStoreId(String storeId, Pageable pageable) {
+        return productRepository.findByStoreId(storeId, pageable);
+    }
+    
     @Override
     public Page<Product> getMostPopularProducts(Pageable pageable) {
         Page<Product> products = productRepository.findMostPopularProducts(pageable);

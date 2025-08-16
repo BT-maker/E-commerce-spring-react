@@ -66,6 +66,11 @@ public interface ProductService {
     Page<Product> getProductsByStoreName(String storeName, Pageable pageable);
     
     /**
+     * Mağaza ID'sine göre ürünleri sayfalı getirir.
+     */
+    Page<Product> getProductsByStoreId(String storeId, Pageable pageable);
+    
+    /**
      * En popüler ürünleri getirir (en çok satılan).
      */
     Page<Product> getMostPopularProducts(Pageable pageable);

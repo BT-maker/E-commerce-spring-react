@@ -356,13 +356,11 @@ function App() {
                   </>
                 } />
                 
-                <Route path="/store/:name" element={
+                <Route path="/store/:id" element={
                   <>
                     <Header />
                     <main className="min-h-screen bg-background-primary">
-                      <div className="container mx-auto px-12 sm:px-16 lg:px-24 py-8">
-                        <StorePage />
-                      </div>
+                      <StorePage />
                     </main>
                     <Footer />
                   </>

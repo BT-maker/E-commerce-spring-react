@@ -57,12 +57,15 @@ public class ProductController {
         @RequestParam(value = "minPrice", required = false) Double minPrice,
         @RequestParam(value = "maxPrice", required = false) Double maxPrice,
         @RequestParam(value = "storeName", required = false) String storeName,
+        @RequestParam(value = "storeId", required = false) String storeId,
         @RequestParam(value = "sort", required = false) String sort,
         @RequestParam(value = "includeInactive", required = false, defaultValue = "false") Boolean includeInactive,
         @PageableDefault(size = 12) Pageable pageable
     ) {
         Page<Product> products;
-        if (storeName != null && !storeName.isEmpty()) {
+        if (storeId != null && !storeId.isEmpty()) {
+            products = productService.getProductsByStoreId(storeId, pageable);
+        } else if (storeName != null && !storeName.isEmpty()) {
             products = productService.getProductsByStoreName(storeName, pageable);
         } else if (search != null && !search.isEmpty()) {
             products = productService.searchProducts(search, pageable);
@@ -121,6 +124,7 @@ public class ProductController {
             }
             
             dto.put("storeName", product.getStore() != null ? product.getStore().getName() : null);
+            dto.put("storeId", product.getStoreId());
             
             return ResponseEntity.ok(dto);
         } catch (Exception e) {

@@ -80,6 +80,8 @@ const ProductDetail = () => {
       })
       .then(data => {
         console.log("Ürün verisi:", data);
+        console.log("Store ID:", data.storeId);
+        console.log("Store Name:", data.storeName);
         setProduct(data);
         // Stok durumuna göre quantity'yi ayarla
         if (data.stock > 0 && data.stock < quantity) {
@@ -518,9 +520,9 @@ const ProductDetail = () => {
                 <span className="store-name">{product.storeName}</span>
               </div>
               <div className="store-actions">
-                <button className="store-btn primary">
+                <Link to={`/store/${product.storeId || 'unknown'}`} className="store-btn primary">
                   Mağazaya Git
-                </button>
+                </Link>
                 <button className="store-btn secondary">
                   <Phone size={14} />
                   İletişim

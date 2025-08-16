@@ -21,17 +21,29 @@ import lombok.RequiredArgsConstructor;
 public class StoreController {
     private final StoreRepository storeRepository;
 
-    @GetMapping("/{name}")
+    @GetMapping
+    @Operation(summary = "Get all stores", description = "Tüm mağazaları listeler")
+    public ResponseEntity<?> getAllStores() {
+        var stores = storeRepository.findAll();
+        return ResponseEntity.ok(stores);
+    }
+
+    @GetMapping("/{id}")
+    @Operation(summary = "Get store by ID", description = "Mağaza ID'sine göre mağaza bilgisini döner")
+    public ResponseEntity<?> getStoreById(@PathVariable String id) {
+        var storeOpt = storeRepository.findById(id);
+        if (storeOpt.isEmpty()) return ResponseEntity.status(404).body(Map.of("error", "Mağaza bulunamadı"));
+        var store = storeOpt.get();
+        return ResponseEntity.ok(store);
+    }
+
+    @GetMapping("/name/{name}")
     @Operation(summary = "Get store by name", description = "Mağaza adına göre mağaza bilgisini döner")
     public ResponseEntity<?> getStoreByName(@PathVariable String name) {
         var storeOpt = storeRepository.findByNameIgnoreCase(name);
         if (storeOpt.isEmpty()) return ResponseEntity.status(404).body(Map.of("error", "Mağaza bulunamadı"));
         var store = storeOpt.get();
-        Map<String, Object> dto = Map.of(
-            "id", store.getId(),
-            "name", store.getName()
-        );
-        return ResponseEntity.ok(dto);
+        return ResponseEntity.ok(store);
     }
     
     /**
