@@ -42,7 +42,7 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers(
                     "/api/auth/admin/signin", // Admin login endpoint'i public
-                    "/api/products/**", "/api/categories/**", "/api/auth/**", "/api/stores/**", "/api/elasticsearch/**", "/api/search-suggestions/**",
+                    "/api/products/**", "/api/categories/**", "/api/auth/**", "/api/stores/**", "/api/elasticsearch/**", "/api/search-suggestions/**", "/api/reviews/**",
                     "/swagger-ui/**", "/swagger-ui.html", "/v3/api-docs/**", "/v3/api-docs.yaml",
                     "/swagger-resources/**", "/webjars/**",
                     "/v3/api-docs/swagger-config", "/api-docs/swagger-config",

@@ -100,15 +100,28 @@ const ProductDetail = () => {
     
     setReviewsLoading(true);
     Promise.all([
-      fetch(`http://localhost:8082/api/reviews/product/${product.id}`).then(res => res.json()),
-      fetch(`http://localhost:8082/api/reviews/product/${product.id}/stats`).then(res => res.json())
+      fetch(`http://localhost:8082/api/reviews/product/${product.id}`)
+        .then(res => {
+          if (!res.ok) {
+            throw new Error(`Reviews API Error: ${res.status}`);
+          }
+          return res.json();
+        }),
+      fetch(`http://localhost:8082/api/reviews/product/${product.id}/stats`)
+        .then(res => {
+          if (!res.ok) {
+            throw new Error(`Stats API Error: ${res.status}`);
+          }
+          return res.json();
+        })
     ])
       .then(([reviewsData, statsData]) => {
         setReviews(reviewsData);
         setReviewStats(statsData);
         setReviewsLoading(false);
       })
-      .catch(() => {
+      .catch((error) => {
+        console.error('Review API Error:', error);
         setReviewsLoading(false);
       });
   }, [product]);
@@ -650,7 +663,7 @@ const ProductDetail = () => {
                     <div key={review.id} className="review-item">
                       <div className="review-header">
                         <div className="reviewer-info">
-                          <span className="reviewer-name">{review.user.username}</span>
+                          <span className="reviewer-name">{review.userName || 'Anonim'}</span>
                           <div className="review-rating">
                             {renderStars(review.rating)}
                           </div>

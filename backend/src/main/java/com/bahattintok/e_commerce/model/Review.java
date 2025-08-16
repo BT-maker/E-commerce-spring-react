@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 import org.hibernate.annotations.GenericGenerator;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -30,14 +31,14 @@ public class Review {
     @Column(columnDefinition = "VARCHAR(36)")
     private String id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "user_id", nullable = false)
-    @JsonIgnoreProperties({"reviews", "favorites", "password", "authorities", "accountNonExpired", "accountNonLocked", "credentialsNonExpired", "enabled"})
+    @JsonIgnoreProperties({"reviews", "favorites", "password", "authorities", "accountNonExpired", "accountNonLocked", "credentialsNonExpired", "enabled", "hibernateLazyInitializer", "handler"})
     private User user;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "product_id", nullable = false)
-    @JsonIgnoreProperties({"reviews", "store"})
+    @JsonIgnoreProperties({"reviews", "store", "category", "hibernateLazyInitializer", "handler"})
     private Product product;
 
     @Column(nullable = false)
@@ -48,6 +49,45 @@ public class Review {
 
     @Column(nullable = false)
     private LocalDateTime createdAt;
+    
+    // JSON serialization için özel getter metodları
+    @JsonProperty("userName")
+    public String getUserName() {
+        if (user == null) {
+            return "Anonim";
+        }
+        
+        String firstName = user.getFirstName();
+        String lastName = user.getLastName();
+        
+        // Eğer hem firstName hem lastName null ise email'i kullan
+        if ((firstName == null || firstName.trim().isEmpty()) && 
+            (lastName == null || lastName.trim().isEmpty())) {
+            return user.getEmail() != null ? user.getEmail().split("@")[0] : "Anonim";
+        }
+        
+        // Eğer sadece biri null ise diğerini kullan
+        if (firstName == null || firstName.trim().isEmpty()) {
+            return lastName != null ? lastName : "Anonim";
+        }
+        
+        if (lastName == null || lastName.trim().isEmpty()) {
+            return firstName;
+        }
+        
+        // Her ikisi de varsa birleştir
+        return firstName + " " + lastName;
+    }
+    
+    @JsonProperty("userEmail")
+    public String getUserEmail() {
+        return user != null ? user.getEmail() : null;
+    }
+    
+    @JsonProperty("productName")
+    public String getProductName() {
+        return product != null ? product.getName() : null;
+    }
     
     /**
      * User getter metodu

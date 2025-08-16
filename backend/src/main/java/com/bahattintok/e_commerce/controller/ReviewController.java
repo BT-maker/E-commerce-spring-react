@@ -1,10 +1,13 @@
 package com.bahattintok.e_commerce.controller;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -22,6 +25,7 @@ import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("/api/reviews")
+@CrossOrigin(origins = "http://localhost:5173", allowCredentials = "true")
 @RequiredArgsConstructor
 @Tag(name = "Reviews", description = "Ürün değerlendirme ve yorum API'leri")
 public class ReviewController {
@@ -31,15 +35,27 @@ public class ReviewController {
     @GetMapping("/product/{productId}")
     @Operation(summary = "Ürün review'larını getir", description = "Belirtilen ürünün tüm review'larını listeler")
     public ResponseEntity<List<Review>> getProductReviews(@PathVariable String productId) {
-        List<Review> reviews = reviewService.getProductReviews(productId);
-        return ResponseEntity.ok(reviews);
+        try {
+            List<Review> reviews = reviewService.getProductReviews(productId);
+            return ResponseEntity.ok(reviews);
+        } catch (Exception e) {
+            return ResponseEntity.ok(new ArrayList<>()); // Hata durumunda boş liste döndür
+        }
     }
     
     @GetMapping("/product/{productId}/stats")
     @Operation(summary = "Ürün review istatistiklerini getir", description = "Ürünün ortalama puanı ve review sayısını döner")
     public ResponseEntity<Map<String, Object>> getProductReviewStats(@PathVariable String productId) {
-        Map<String, Object> stats = reviewService.getReviewStats(productId);
-        return ResponseEntity.ok(stats);
+        try {
+            Map<String, Object> stats = reviewService.getReviewStats(productId);
+            return ResponseEntity.ok(stats);
+        } catch (Exception e) {
+            // Hata durumunda varsayılan değerler döndür
+            Map<String, Object> defaultStats = new HashMap<>();
+            defaultStats.put("averageRating", 0.0);
+            defaultStats.put("reviewCount", 0L);
+            return ResponseEntity.ok(defaultStats);
+        }
     }
     
     @GetMapping("/product/{productId}/user")
@@ -92,6 +108,18 @@ public class ReviewController {
             return ResponseEntity.ok().build();
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().build();
+        }
+    }
+    
+    @PostMapping("/test/add-sample-reviews")
+    @Operation(summary = "Test yorumları ekle", description = "Test için örnek yorumlar ekler")
+    public ResponseEntity<String> addSampleReviews() {
+        try {
+            // Bu endpoint sadece test amaçlı kullanılmalı
+            reviewService.addSampleReviews();
+            return ResponseEntity.ok("Test yorumları eklendi");
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Hata: " + e.getMessage());
         }
     }
     

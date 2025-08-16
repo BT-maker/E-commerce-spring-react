@@ -113,6 +113,49 @@ public class ReviewServiceImpl implements ReviewService {
         return reviewRepository.existsByUserIdAndProductId(user.getId(), productId);
     }
     
+    @Override
+    public void addSampleReviews() {
+        // Test için örnek yorumlar ekle
+        List<Product> products = productRepository.findAll();
+        List<User> users = userRepository.findAll();
+        
+        if (products.isEmpty() || users.isEmpty()) {
+            throw new RuntimeException("Ürün veya kullanıcı bulunamadı");
+        }
+        
+        String[] sampleComments = {
+            "Harika bir ürün! Çok memnun kaldım.",
+            "Kaliteli ve dayanıklı. Tavsiye ederim.",
+            "Fiyatına göre iyi bir ürün.",
+            "Beklediğimden daha iyi çıktı.",
+            "Hızlı kargo ve güvenli paketleme.",
+            "Ürün açıklamasına uygun.",
+            "İkinci kez alıyorum, çok beğendim.",
+            "Arkadaşlarıma da tavsiye ettim."
+        };
+        
+        int[] sampleRatings = {5, 4, 4, 5, 4, 3, 5, 4};
+        
+        for (int i = 0; i < Math.min(products.size(), 3); i++) {
+            Product product = products.get(i);
+            User user = users.get(i % users.size());
+            
+            // Eğer bu kullanıcı bu ürün için zaten yorum yapmışsa atla
+            if (reviewRepository.existsByUserIdAndProductId(user.getId(), product.getId())) {
+                continue;
+            }
+            
+            Review review = new Review();
+            review.setUser(user);
+            review.setProduct(product);
+            review.setRating(sampleRatings[i % sampleRatings.length]);
+            review.setComment(sampleComments[i % sampleComments.length]);
+            review.setCreatedAt(LocalDateTime.now());
+            
+            reviewRepository.save(review);
+        }
+    }
+    
     /**
      * Bu servis şu işlevleri sağlar:
      * 

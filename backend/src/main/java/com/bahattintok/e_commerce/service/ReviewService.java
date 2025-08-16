@@ -48,6 +48,11 @@ public interface ReviewService {
     boolean hasUserReviewed(String email, String productId);
     
     /**
+     * Test için örnek yorumlar ekler
+     */
+    void addSampleReviews();
+    
+    /**
      * Bu interface şu işlevleri sağlar:
      * 
      * 1. Review Listeleme: Ürüne ait tüm değerlendirmeleri getirme

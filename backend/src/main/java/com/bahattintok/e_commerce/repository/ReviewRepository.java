@@ -18,7 +18,8 @@ public interface ReviewRepository extends JpaRepository<Review, String> {
     /**
      * Ürüne ait tüm review'ları getirir (tarihe göre sıralı)
      */
-    List<Review> findByProductIdOrderByCreatedAtDesc(String productId);
+    @Query("SELECT r FROM Review r WHERE r.product.id = :productId ORDER BY r.createdAt DESC")
+    List<Review> findByProductIdOrderByCreatedAtDesc(@Param("productId") String productId);
     
     /**
      * Kullanıcının belirli bir ürün için review'ını getirir
