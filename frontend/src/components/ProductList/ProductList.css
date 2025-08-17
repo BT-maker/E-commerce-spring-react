@@ -12,6 +12,7 @@
   max-height: calc(100vh - 120px);
   overflow-y: auto;
   background: white;
+  margin-top: 100px;
 }
 
 /* Responsive adjustments */

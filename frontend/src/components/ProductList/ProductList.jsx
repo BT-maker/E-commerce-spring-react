@@ -199,7 +199,7 @@ const ProductList = () => {
       <div className="flex flex-col lg:flex-row gap-8 justify-center items-start">
         {/* Sol Filtreleme Paneli */}
         <div className="lg:w-1/4">
-          <div className="filter-panel bg-white rounded-lg shadow-md p-6">
+          <div className="filter-panel bg-white rounded-lg shadow-md border border-gray-200 p-6">
             <div className="flex items-center justify-between mb-6">
               <h3 className="text-lg font-semibold text-gray-800">Filtreler</h3>
               <button
