@@ -43,6 +43,7 @@ import OrderTracking from './pages/OrderTracking.jsx';
 import ReturnExchange from './pages/ReturnExchange.jsx';
 import FAQ from './pages/FAQ.jsx';
 import DiscountedProducts from './pages/DiscountedProducts.jsx';
+import NotFound from './pages/NotFound.jsx';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { CartProvider } from './context/CartContext.jsx';
 import { AuthProvider } from './context/AuthContext.jsx';
@@ -513,14 +514,17 @@ function App() {
                   </SellerRoute>
                 } />
                 
-                <Route path="/seller-panel/settings" element={
-                  <SellerRoute>
-                    <SellerLayout>
-                      <SellerSettings />
-                    </SellerLayout>
-                  </SellerRoute>
-                } />
-              </Routes>
+                                 <Route path="/seller-panel/settings" element={
+                   <SellerRoute>
+                     <SellerLayout>
+                       <SellerSettings />
+                     </SellerLayout>
+                   </SellerRoute>
+                 } />
+                 
+                 {/* 404 - Catch All Route */}
+                 <Route path="*" element={<NotFound />} />
+               </Routes>
               <Toaster position="top-right" />
             </BrowserRouter>
             </BackendStatus>
