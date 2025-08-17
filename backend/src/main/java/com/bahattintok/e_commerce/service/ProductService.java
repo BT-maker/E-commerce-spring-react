@@ -86,6 +86,11 @@ public interface ProductService {
     Product toggleProductStatus(String productId);
     
     /**
+     * İndirimli ürünleri sayfalı getirir.
+     */
+    Page<Product> getDiscountedProducts(Pageable pageable);
+    
+    /**
      * Bu interface şu işlevleri sağlar:
      * 
      * 1. Ürün CRUD İşlemleri: Ürün oluşturma, okuma, güncelleme ve silme

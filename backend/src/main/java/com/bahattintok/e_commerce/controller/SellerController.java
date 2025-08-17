@@ -1,5 +1,6 @@
 package com.bahattintok.e_commerce.controller;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -1336,6 +1337,22 @@ public class SellerController {
             
             Campaign savedCampaign = campaignRepository.save(campaign);
             
+            System.out.println("=== KAMPANYA OLUŞTURULDU ===");
+            System.out.println("Kampanya ID: " + savedCampaign.getId());
+            System.out.println("Kampanya Tipi: " + savedCampaign.getCampaignType());
+            System.out.println("Hedef ID: " + savedCampaign.getTargetId());
+            System.out.println("Aktif mi: " + savedCampaign.isActive());
+            System.out.println("İndirim Tipi: " + savedCampaign.getDiscountType());
+            System.out.println("İndirim Değeri: " + savedCampaign.getDiscountValue());
+            
+            // Kampanya aktifse ürünlerin indirim bilgilerini güncelle (hem product hem category için)
+            if (savedCampaign.isActive()) {
+                System.out.println("Ürün indirimleri güncelleniyor...");
+                updateProductDiscounts(savedCampaign);
+            } else {
+                System.out.println("Kampanya pasif, ürün güncellemesi yapılmıyor.");
+            }
+            
             Map<String, Object> response = new HashMap<>();
             response.put("message", "Kampanya başarıyla oluşturuldu");
             response.put("campaignId", savedCampaign.getId());
@@ -1387,6 +1404,9 @@ public class SellerController {
             
             campaignRepository.save(campaign);
             
+            // Kampanya güncellendikten sonra ürünlerin indirim bilgilerini güncelle
+            updateProductDiscounts(campaign);
+            
             Map<String, Object> response = new HashMap<>();
             response.put("message", "Kampanya başarıyla güncellendi");
             response.put("campaignId", campaignId);
@@ -1396,6 +1416,150 @@ public class SellerController {
             System.err.println("Update campaign error: " + e.getMessage());
             e.printStackTrace();
             return ResponseEntity.internalServerError().build();
+        }
+    }
+
+    /**
+     * Kampanya bilgilerine göre ürünlerin indirim bilgilerini günceller
+     */
+    private void updateProductDiscounts(Campaign campaign) {
+        try {
+            System.out.println("=== UPDATE PRODUCT DISCOUNTS BAŞLADI ===");
+            System.out.println("Kampanya Tipi: " + campaign.getCampaignType());
+            System.out.println("Hedef ID: " + campaign.getTargetId());
+            System.out.println("Store ID: " + campaign.getStore().getId());
+            
+            if ("product".equals(campaign.getCampaignType())) {
+                System.out.println("Ürün kampanyası - belirli ürün güncelleniyor...");
+                // Belirli ürün için indirim
+                Product product = productRepository.findById(campaign.getTargetId()).orElse(null);
+                if (product != null && product.getStoreId().equals(campaign.getStore().getId())) {
+                    System.out.println("Ürün bulundu: " + product.getName());
+                    updateProductDiscount(product, campaign);
+                } else {
+                    System.out.println("Ürün bulunamadı veya store ID uyuşmuyor!");
+                    System.out.println("Product: " + (product != null ? product.getName() : "null"));
+                    System.out.println("Product Store ID: " + (product != null ? product.getStoreId() : "null"));
+                }
+            } else if ("category".equals(campaign.getCampaignType())) {
+                System.out.println("Kategori kampanyası - kategorideki tüm ürünler güncelleniyor...");
+                // Kategori için indirim - o kategorideki tüm ürünleri güncelle
+                List<Product> categoryProducts = productRepository.findByCategoryIdAndStoreId(
+                    campaign.getTargetId(), campaign.getStore().getId());
+                
+                System.out.println("Kategoride bulunan ürün sayısı: " + categoryProducts.size());
+                
+                for (Product product : categoryProducts) {
+                    System.out.println("Ürün güncelleniyor: " + product.getName());
+                    updateProductDiscount(product, campaign);
+                }
+            } else {
+                System.out.println("Bilinmeyen kampanya tipi: " + campaign.getCampaignType());
+            }
+            
+            System.out.println("=== UPDATE PRODUCT DISCOUNTS TAMAMLANDI ===");
+        } catch (Exception e) {
+            System.err.println("Update product discounts error: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Tek bir ürünün indirim bilgilerini günceller
+     */
+    private void updateProductDiscount(Product product, Campaign campaign) {
+        try {
+            System.out.println("=== UPDATE PRODUCT DISCOUNT BAŞLADI ===");
+            System.out.println("Ürün: " + product.getName() + " (ID: " + product.getId() + ")");
+            System.out.println("Mevcut Fiyat: " + product.getPrice());
+            System.out.println("Kampanya Aktif mi: " + campaign.isActive());
+            System.out.println("İndirim Tipi: " + campaign.getDiscountType());
+            System.out.println("İndirim Değeri: " + campaign.getDiscountValue());
+            
+            if (campaign.isActive()) {
+                // İndirim yüzdesi hesapla
+                int discountPercentage = 0;
+                if ("percentage".equals(campaign.getDiscountType())) {
+                    discountPercentage = campaign.getDiscountValue().intValue();
+                    System.out.println("Yüzde indirim: %" + discountPercentage);
+                } else if ("fixed".equals(campaign.getDiscountType())) {
+                    // Sabit tutar indirimi için yüzde hesapla
+                    if (product.getPrice().compareTo(BigDecimal.ZERO) > 0) {
+                        BigDecimal discountAmount = campaign.getDiscountValue();
+                        BigDecimal percentage = discountAmount.multiply(new BigDecimal("100"))
+                            .divide(product.getPrice(), 2, BigDecimal.ROUND_HALF_UP);
+                        discountPercentage = percentage.intValue();
+                        System.out.println("Sabit tutar indirimi: " + discountAmount + "₺ (%" + discountPercentage + ")");
+                    }
+                }
+                
+                // İndirimli fiyat hesapla
+                BigDecimal discountedPrice = null;
+                if (discountPercentage > 0) {
+                    BigDecimal discountMultiplier = new BigDecimal("100").subtract(new BigDecimal(discountPercentage))
+                        .divide(new BigDecimal("100"), 4, BigDecimal.ROUND_HALF_UP);
+                    discountedPrice = product.getPrice().multiply(discountMultiplier);
+                    System.out.println("İndirimli Fiyat: " + discountedPrice + "₺");
+                }
+                
+                // Ürünü güncelle
+                product.setDiscountPercentage(discountPercentage);
+                product.setDiscountedPrice(discountedPrice);
+                product.setDiscountEndDate(campaign.getEndDate());
+                
+                Product savedProduct = productRepository.save(product);
+                System.out.println("Ürün kaydedildi!");
+                System.out.println("Yeni İndirim Yüzdesi: " + savedProduct.getDiscountPercentage());
+                System.out.println("Yeni İndirimli Fiyat: " + savedProduct.getDiscountedPrice());
+                System.out.println("İndirim Bitiş Tarihi: " + savedProduct.getDiscountEndDate());
+                System.out.println("İndirim Aktif mi: " + savedProduct.isDiscountActive());
+            } else {
+                System.out.println("Kampanya pasif - indirimler kaldırılıyor...");
+                // Kampanya pasifse indirimleri kaldır
+                product.setDiscountPercentage(null);
+                product.setDiscountedPrice(null);
+                product.setDiscountEndDate(null);
+                
+                Product savedProduct = productRepository.save(product);
+                System.out.println("İndirimler kaldırıldı!");
+            }
+            
+            System.out.println("=== UPDATE PRODUCT DISCOUNT TAMAMLANDI ===");
+        } catch (Exception e) {
+            System.err.println("Update product discount error for product " + product.getId() + ": " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Kampanya silindiğinde ürünlerin indirim bilgilerini temizler
+     */
+    private void clearProductDiscounts(Campaign campaign) {
+        try {
+            if ("product".equals(campaign.getCampaignType())) {
+                // Belirli ürün için indirimleri temizle
+                Product product = productRepository.findById(campaign.getTargetId()).orElse(null);
+                if (product != null && product.getStoreId().equals(campaign.getStore().getId())) {
+                    product.setDiscountPercentage(null);
+                    product.setDiscountedPrice(null);
+                    product.setDiscountEndDate(null);
+                    productRepository.save(product);
+                }
+            } else if ("category".equals(campaign.getCampaignType())) {
+                // Kategori için indirimleri temizle - o kategorideki tüm ürünleri güncelle
+                List<Product> categoryProducts = productRepository.findByCategoryIdAndStoreId(
+                    campaign.getTargetId(), campaign.getStore().getId());
+                
+                for (Product product : categoryProducts) {
+                    product.setDiscountPercentage(null);
+                    product.setDiscountedPrice(null);
+                    product.setDiscountEndDate(null);
+                    productRepository.save(product);
+                }
+            }
+        } catch (Exception e) {
+            System.err.println("Clear product discounts error: " + e.getMessage());
+            e.printStackTrace();
         }
     }
 
@@ -1421,6 +1585,9 @@ public class SellerController {
             if (!campaign.getStore().getId().equals(sellerStore.getId())) {
                 return ResponseEntity.badRequest().body(Map.of("error", "Bu kampanyayı silme yetkiniz yok"));
             }
+            
+            // Kampanya silinmeden önce ürünlerin indirim bilgilerini temizle
+            clearProductDiscounts(campaign);
             
             campaignRepository.delete(campaign);
             

@@ -237,4 +237,17 @@
 .dark .cart-item-remove:hover {
   background: #7f1d1d;
   color: #f87171;
+}
+
+/* Line clamp için CSS */
+.display-webkit-box {
+  display: -webkit-box;
+}
+
+.-webkit-line-clamp-2 {
+  -webkit-line-clamp: 2;
+}
+
+.-webkit-box-orient-vertical {
+  -webkit-box-orient: vertical;
 } 

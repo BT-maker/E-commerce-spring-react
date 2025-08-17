@@ -95,6 +95,18 @@ public class ProductController {
     }
     
     /**
+     * İndirimli ürünleri getirir.
+     */
+    @GetMapping("/discounted")
+    @Operation(summary = "Get discounted products", description = "Retrieve all products with active discounts")
+    public ResponseEntity<Page<Product>> getDiscountedProducts(
+        @PageableDefault(size = 12) Pageable pageable
+    ) {
+        Page<Product> discountedProducts = productService.getDiscountedProducts(pageable);
+        return ResponseEntity.ok(discountedProducts);
+    }
+    
+    /**
      * ID'ye göre ürün getirir.
      */
     @GetMapping("/{id}")

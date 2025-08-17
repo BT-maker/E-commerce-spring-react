@@ -9,6 +9,7 @@ import Login from './components/Login/Login.jsx';
 import SellerLogin from './components/SellerLogin/SellerLogin.jsx';
 import SellerRegister from './components/SellerRegister/SellerRegister.jsx';
 import CartPage from './components/CartPage/CartPage.jsx';
+import CheckoutPage from './components/CheckoutPage/CheckoutPage.jsx';
 import ProductDetail from './components/ProductDetail/ProductDetail.jsx';
 import CategoryProducts from './components/CategoryProducts/CategoryProducts.jsx';
 import AdminPanel from './components/AdminPanel/AdminPanel.jsx';
@@ -41,6 +42,7 @@ import Contact from './pages/Contact.jsx';
 import OrderTracking from './pages/OrderTracking.jsx';
 import ReturnExchange from './pages/ReturnExchange.jsx';
 import FAQ from './pages/FAQ.jsx';
+import DiscountedProducts from './pages/DiscountedProducts.jsx';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { CartProvider } from './context/CartContext.jsx';
 import { AuthProvider } from './context/AuthContext.jsx';
@@ -225,6 +227,18 @@ function App() {
                   </>
                 } />
                 
+                <Route path="/checkout" element={
+                  <>
+                    <Header />
+                    <main className="min-h-screen bg-background-primary">
+                      <div className="container mx-auto px-12 sm:px-16 lg:px-24 py-8">
+                        <CheckoutPage />
+                      </div>
+                    </main>
+                    <Footer />
+                  </>
+                } />
+                
                 <Route path="/product/:id" element={
                   <>
                     <Header />
@@ -243,6 +257,18 @@ function App() {
                     <main className="min-h-screen bg-background-primary">
                       <div className="container mx-auto px-12 sm:px-16 lg:px-24 py-8">
                         <CategoryProducts />
+                      </div>
+                    </main>
+                    <Footer />
+                  </>
+                } />
+                
+                <Route path="/discounted-products" element={
+                  <>
+                    <Header />
+                    <main className="min-h-screen bg-background-primary">
+                      <div className="container mx-auto px-12 sm:px-16 lg:px-24 py-8">
+                        <DiscountedProducts />
                       </div>
                     </main>
                     <Footer />

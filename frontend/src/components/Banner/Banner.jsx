@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import "./Banner.css";
 
 const slides = [
   {
     image: "/img/slider.jpeg",
     title: "Özel İndirimler",
-    desc: "Seçili ürünlerde %30'a varan indirimler",
+    desc: "Seçili ürünlerde  indirimler",
     button: "İndirimleri Gör",
     align: "left"
   },
@@ -28,6 +29,7 @@ const slides = [
 const Banner = () => {
   const [current, setCurrent] = useState(0);
   const length = slides.length;
+  const navigate = useNavigate();
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -38,6 +40,19 @@ const Banner = () => {
 
   const prevSlide = () => setCurrent((prev) => (prev - 1 + length) % length);
   const nextSlide = () => setCurrent((prev) => (prev + 1) % length);
+  
+  const handleBannerButtonClick = (buttonText) => {
+    if (buttonText === "İndirimleri Gör") {
+      // İndirimli ürünleri göster
+      navigate("/discounted-products");
+    } else if (buttonText === "Koleksiyonu İncele") {
+      // Koleksiyon sayfasına git
+      navigate("/products");
+    } else if (buttonText === "Fırsatları Kaçırma") {
+      // Fırsatlar sayfasına git
+      navigate("/products");
+    }
+  };
 
   return (
     <section className="banner-slider">
@@ -52,7 +67,12 @@ const Banner = () => {
             <div className={`banner-overlay ${slide.align}`}>
               <h2 className="banner-title">{slide.title}</h2>
               <p className="banner-desc">{slide.desc}</p>
-              <button className="banner-btn">{slide.button}</button>
+              <button 
+                className="banner-btn"
+                onClick={() => handleBannerButtonClick(slide.button)}
+              >
+                {slide.button}
+              </button>
             </div>
           )}
           {/* Sol Ok */}

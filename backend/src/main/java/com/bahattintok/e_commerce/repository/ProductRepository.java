@@ -113,6 +113,24 @@ public interface ProductRepository extends JpaRepository<Product, String> {
     List<Product> findByStatus(String status);
     
     /**
+     * Kategori ID'si ve mağaza ID'sine göre ürünleri getirir.
+     */
+    @Query("SELECT p FROM Product p WHERE p.categoryId = :categoryId AND p.storeId = :storeId")
+    List<Product> findByCategoryIdAndStoreId(@Param("categoryId") String categoryId, @Param("storeId") String storeId);
+    
+    /**
+     * İndirimli ürünleri getirir.
+     */
+    @Query("SELECT p FROM Product p WHERE p.discountPercentage IS NOT NULL AND p.discountPercentage > 0 AND p.discountEndDate > CURRENT_TIMESTAMP")
+    List<Product> findDiscountedProducts();
+    
+    /**
+     * İndirimli ürünleri sayfalı getirir.
+     */
+    @Query("SELECT p FROM Product p WHERE p.discountPercentage IS NOT NULL AND p.discountPercentage > 0 AND p.discountEndDate > CURRENT_TIMESTAMP")
+    Page<Product> findDiscountedProducts(Pageable pageable);
+    
+    /**
      * Bu repository şu işlevleri sağlar:
      * 
      * 1. Temel CRUD İşlemleri: Product entity'si için standart veritabanı işlemleri

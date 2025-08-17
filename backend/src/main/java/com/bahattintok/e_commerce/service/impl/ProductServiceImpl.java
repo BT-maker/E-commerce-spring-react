@@ -297,6 +297,14 @@ public class ProductServiceImpl implements ProductService {
     }
     
     /**
+     * İndirimli ürünleri sayfalı getirir.
+     */
+    @Override
+    public Page<Product> getDiscountedProducts(Pageable pageable) {
+        return productRepository.findDiscountedProducts(pageable);
+    }
+    
+    /**
      * Bu servis şu işlevleri sağlar:
      * 
      * 1. Ürün CRUD İşlemleri: Ürün oluşturma, okuma, güncelleme ve silme
