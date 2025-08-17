@@ -518,16 +518,11 @@ const ProductDetail = () => {
               <div className="store-header">
                 <Package size={16} />
                 <span className="store-name">{product.storeName}</span>
-              </div>
-              <div className="store-actions">
                 <Link to={`/store/${product.storeId || 'unknown'}`} className="store-btn primary">
                   Mağazaya Git
                 </Link>
-                <button className="store-btn secondary">
-                  <Phone size={14} />
-                  İletişim
-                </button>
               </div>
+              
             </div>
           )}
         </div>

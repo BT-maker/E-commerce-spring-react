@@ -53,8 +53,8 @@
 .discount-badge-image {
   position: absolute;
   top: 8px;
-  right: 8px;
-  background: var(--error-color);
+  left: 8px;
+  background: red;
   color: white;
   padding: 4px 8px;
   border-radius: 6px;
@@ -86,48 +86,48 @@
   width: 36px;
   height: 36px;
   border-radius: 8px;
-  background: rgba(255, 255, 255, 0.9);
+  background: #ff6000;
   border: none;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
   transition: all 0.3s ease;
-  color: var(--text-secondary);
+  color: white;
   backdrop-filter: blur(10px);
 }
 
 .favorites-remove-btn {
-  background: var(--error-color) !important;
+  background: #ff6000;
   color: white !important;
 }
 
 .favorites-remove-btn:hover {
-  background: var(--error-hover) !important;
+  background: #ff6000;
   transform: scale(1.1);
 }
 
 .quick-action-btn:hover {
-  background: var(--accent-color);
+  background: #ff6000;
   color: white;
   transform: scale(1.1);
 }
 
 .favorite-btn:hover {
-  color: var(--accent-color);
+  background: #ff6000;
 }
 
 .favorite-btn.active {
-  color: var(--accent-color);
+  background: #ff6000;
   background: rgba(255, 96, 0, 0.1);
 }
 
 .favorite-btn.active:hover {
-  color: var(--accent-color);
+  background: #ff6000;
 }
 
 .view-btn:hover {
-  color: var(--accent-color);
+  background: #ff6000;
 }
 
 /* Ürün Bilgileri */

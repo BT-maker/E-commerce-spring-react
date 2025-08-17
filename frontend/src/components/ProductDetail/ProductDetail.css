@@ -452,7 +452,7 @@
 
 .favorite-btn:hover {
   border-color: #ff6000;
-  color: #ff6000;
+  color: #ffffff;
 }
 
 .favorite-btn.active {
@@ -494,7 +494,6 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  margin-bottom: 16px;
 }
 
 .store-name {
@@ -511,6 +510,7 @@
 .store-btn {
   padding: 8px 16px;
   border-radius: 6px;
+  margin-left: 240px;
   font-size: 14px;
   font-weight: 500;
   cursor: pointer;
@@ -593,7 +593,6 @@
   font-size: 20px;
   font-weight: 600;
   color: #333;
-  margin-bottom: 16px;
 }
 
 .description-content p {
