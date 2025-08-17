@@ -6,6 +6,9 @@
   transition: all 0.3s ease;
   position: relative;
   border: 1px solid var(--border-color);
+  height: 500px;
+  display: flex;
+  flex-direction: column;
 }
 
 .product-card:hover {
@@ -21,11 +24,22 @@
   height: 250px;
 }
 
+.product-card-img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  transition: transform 0.3s ease;
+}
+
 .product-image {
   width: auto;
   height: auto;
   object-fit: contain;
   transition: transform 0.3s ease;
+}
+
+.product-card:hover .product-card-img {
+  transform: scale(1.05);
 }
 
 .product-card:hover .product-image {
@@ -133,17 +147,26 @@
 /* Ürün Bilgileri */
 .product-info {
   padding: 16px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
 }
 
 .product-title {
-  font-size: 1rem;
+  font-size: 0.9rem;
   font-weight: 600;
   color: var(--text-primary);
   text-decoration: none;
-  display: block;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
   margin-bottom: 8px;
   line-height: 1.4;
   transition: color 0.3s ease;
+  min-height: 2.8em;
+  flex-shrink: 0;
 }
 
 .product-title:hover {
@@ -160,6 +183,7 @@
   align-items: center;
   gap: 0.5rem;
   margin-bottom: 12px;
+  flex-shrink: 0;
 }
 
 .discount-price-container {
@@ -189,6 +213,7 @@
 /* Stok Bilgisi */
 .stock-info {
   margin-bottom: 16px;
+  flex-shrink: 0;
 }
 
 .stock-status {
@@ -245,6 +270,8 @@
   gap: 8px;
   background: #ff6000;
   color: white;
+  margin-top: auto;
+  flex-shrink: 0;
 }
 
 .product-card-btn:hover:not(:disabled) {
@@ -327,6 +354,11 @@
 @media (max-width: 768px) {
   .product-card {
     border-radius: 8px;
+    height: 450px;
+  }
+  
+  .product-image-container {
+    height: 200px;
   }
   
   .product-info {
@@ -334,7 +366,8 @@
   }
   
   .product-title {
-    font-size: 0.9rem;
+    font-size: 0.85rem;
+    min-height: 2.4em;
   }
   
   .current-price,
@@ -360,6 +393,19 @@
 }
 
 @media (max-width: 480px) {
+  .product-card {
+    height: 400px;
+  }
+  
+  .product-image-container {
+    height: 180px;
+  }
+  
+  .product-title {
+    font-size: 0.8rem;
+    min-height: 2.2em;
+  }
+  
   .product-card:hover {
     transform: translateY(-2px);
   }
