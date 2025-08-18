@@ -200,7 +200,7 @@ const ProductCard = ({ product, loading, onAddToCart, isFavoritesPage = false })
           ) : loadingBtn ? (
             "Ekleniyor..."
           ) : product.stock <= 0 ? (
-            "Stokta Yok"
+            "Gelince Haber Ver"
           ) : (
             <>
               <ShoppingCart className="w-4 h-4" />

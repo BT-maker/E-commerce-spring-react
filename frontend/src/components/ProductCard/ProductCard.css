@@ -46,11 +46,6 @@
   transform: scale(1.05);
 }
 
-
-
-
-
-
 /* İndirim Badge */
 .discount-badge {
   background: var(--error-color);

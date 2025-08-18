@@ -62,7 +62,7 @@ const CartPage = () => {
             <p className="text-gray-500 mb-6">Alışverişe başlamak için ürünlerimizi keşfedin!</p>
             <button 
               onClick={() => navigate('/')}
-              className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium transition-colors"
+              className="bg-orange-500 hover:bg-orange-700 text-white px-6 py-3 rounded-lg font-medium transition-colors"
             >
               Alışverişe Başla
             </button>
