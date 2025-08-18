@@ -1,5 +1,6 @@
 package com.bahattintok.e_commerce.controller;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -501,16 +502,528 @@ public class AdminController {
                }
            }
 
-           // Aylık satış raporu
-           @GetMapping("/financial/monthly-sales")
-           public ResponseEntity<Map<String, Object>> getMonthlySalesReport() {
-               try {
-                   Map<String, Object> report = adminService.getMonthlySalesReport();
-                   return ResponseEntity.ok(report);
-               } catch (Exception e) {
-                   Map<String, Object> error = new HashMap<>();
-                   error.put("error", "Aylık satış raporu alınamadı: " + e.getMessage());
-                   return ResponseEntity.badRequest().body(error);
-               }
-           }
+                       // Aylık satış raporu
+            @GetMapping("/financial/monthly-sales")
+            public ResponseEntity<Map<String, Object>> getMonthlySalesReport() {
+                try {
+                    Map<String, Object> report = adminService.getMonthlySalesReport();
+                    return ResponseEntity.ok(report);
+                } catch (Exception e) {
+                    Map<String, Object> error = new HashMap<>();
+                    error.put("error", "Aylık satış raporu alınamadı: " + e.getMessage());
+                    return ResponseEntity.badRequest().body(error);
+                }
+            }
+
+            // Rapor istatistikleri
+            @GetMapping("/reports/stats")
+            public ResponseEntity<Map<String, Object>> getReportStats() {
+                try {
+                    System.out.println("=== DEBUG: getReportStats called ===");
+                    
+                    List<Order> allOrders = orderRepository.findAll();
+                    List<User> allUsers = userRepository.findAll();
+                    List<Product> allProducts = productRepository.findAll();
+                    
+                    // Toplam gelir
+                    double totalRevenue = allOrders.stream()
+                        .filter(order -> "COMPLETED".equals(order.getStatus()))
+                        .mapToDouble(order -> order.getTotalPrice().doubleValue())
+                        .sum();
+                    
+                    // Toplam sipariş
+                    long totalOrders = allOrders.size();
+                    
+                    // Toplam kullanıcı (USER rolü)
+                    long totalUsers = allUsers.stream()
+                        .filter(user -> user.getRole() != null && "USER".equals(user.getRole().getName()))
+                        .count();
+                    
+                    // Toplam ürün
+                    long totalProducts = allProducts.size();
+                    
+                    // Büyüme oranı (basit hesaplama)
+                    double growthRate = 15.5; // Örnek değer
+                    
+                    Map<String, Object> stats = new HashMap<>();
+                    stats.put("totalRevenue", totalRevenue);
+                    stats.put("totalOrders", totalOrders);
+                    stats.put("totalUsers", totalUsers);
+                    stats.put("totalProducts", totalProducts);
+                    stats.put("growthRate", growthRate);
+                    
+                    System.out.println("Report stats: " + stats);
+                    return ResponseEntity.ok(stats);
+                } catch (Exception e) {
+                    System.out.println("Error in getReportStats: " + e.getMessage());
+                    e.printStackTrace();
+                    Map<String, Object> error = new HashMap<>();
+                    error.put("error", "Rapor istatistikleri alınamadı: " + e.getMessage());
+                    return ResponseEntity.badRequest().body(error);
+                }
+            }
+
+            // Satış trendi
+            @GetMapping("/reports/sales")
+            public ResponseEntity<Map<String, Object>> getSalesData(@RequestParam String range) {
+                try {
+                    System.out.println("=== DEBUG: getSalesData called with range: " + range + " ===");
+                    
+                    // Örnek satış verileri
+                    Map<String, Object> salesData = new HashMap<>();
+                    
+                    if ("week".equals(range)) {
+                        salesData.put("labels", new String[]{"Pzt", "Sal", "Çar", "Per", "Cum", "Cmt", "Paz"});
+                        salesData.put("datasets", new Object[]{
+                            Map.of(
+                                "label", "Satışlar",
+                                "data", new int[]{120, 190, 300, 500, 200, 300, 450},
+                                "borderColor", "rgb(255, 96, 0)",
+                                "backgroundColor", "rgba(255, 96, 0, 0.1)",
+                                "tension", 0.4
+                            )
+                        });
+                    } else if ("month".equals(range)) {
+                        salesData.put("labels", new String[]{"1. Hafta", "2. Hafta", "3. Hafta", "4. Hafta"});
+                        salesData.put("datasets", new Object[]{
+                            Map.of(
+                                "label", "Satışlar",
+                                "data", new int[]{1200, 1900, 3000, 2500},
+                                "borderColor", "rgb(255, 96, 0)",
+                                "backgroundColor", "rgba(255, 96, 0, 0.1)",
+                                "tension", 0.4
+                            )
+                        });
+                    } else {
+                        salesData.put("labels", new String[]{"Ocak", "Şubat", "Mart", "Nisan", "Mayıs", "Haziran"});
+                        salesData.put("datasets", new Object[]{
+                            Map.of(
+                                "label", "Satışlar",
+                                "data", new int[]{5000, 6000, 7500, 8000, 9000, 10000},
+                                "borderColor", "rgb(255, 96, 0)",
+                                "backgroundColor", "rgba(255, 96, 0, 0.1)",
+                                "tension", 0.4
+                            )
+                        });
+                    }
+                    
+                    System.out.println("Sales data: " + salesData);
+                    return ResponseEntity.ok(salesData);
+                } catch (Exception e) {
+                    System.out.println("Error in getSalesData: " + e.getMessage());
+                    e.printStackTrace();
+                    Map<String, Object> error = new HashMap<>();
+                    error.put("error", "Satış verileri alınamadı: " + e.getMessage());
+                    return ResponseEntity.badRequest().body(error);
+                }
+            }
+
+            // Gelir analizi (Raporlar sayfası için)
+            @GetMapping("/reports/revenue")
+            public ResponseEntity<Map<String, Object>> getReportsRevenueData(@RequestParam String range) {
+                try {
+                    System.out.println("=== DEBUG: getReportsRevenueData called with range: " + range + " ===");
+                    
+                    // Örnek gelir verileri
+                    Map<String, Object> revenueData = new HashMap<>();
+                    
+                    if ("week".equals(range)) {
+                        revenueData.put("labels", new String[]{"Pzt", "Sal", "Çar", "Per", "Cum", "Cmt", "Paz"});
+                        revenueData.put("datasets", new Object[]{
+                            Map.of(
+                                "label", "Gelir",
+                                "data", new int[]{12000, 19000, 30000, 50000, 20000, 30000, 45000},
+                                "backgroundColor", "rgba(16, 185, 129, 0.8)"
+                            )
+                        });
+                    } else if ("month".equals(range)) {
+                        revenueData.put("labels", new String[]{"1. Hafta", "2. Hafta", "3. Hafta", "4. Hafta"});
+                        revenueData.put("datasets", new Object[]{
+                            Map.of(
+                                "label", "Gelir",
+                                "data", new int[]{120000, 190000, 300000, 250000},
+                                "backgroundColor", "rgba(16, 185, 129, 0.8)"
+                            )
+                        });
+                    } else {
+                        revenueData.put("labels", new String[]{"Ocak", "Şubat", "Mart", "Nisan", "Mayıs", "Haziran"});
+                        revenueData.put("datasets", new Object[]{
+                            Map.of(
+                                "label", "Gelir",
+                                "data", new int[]{500000, 600000, 750000, 800000, 900000, 1000000},
+                                "backgroundColor", "rgba(16, 185, 129, 0.8)"
+                            )
+                        });
+                    }
+                    
+                    System.out.println("Reports revenue data: " + revenueData);
+                    return ResponseEntity.ok(revenueData);
+                } catch (Exception e) {
+                    System.out.println("Error in getReportsRevenueData: " + e.getMessage());
+                    e.printStackTrace();
+                    Map<String, Object> error = new HashMap<>();
+                    error.put("error", "Gelir verileri alınamadı: " + e.getMessage());
+                    return ResponseEntity.badRequest().body(error);
+                }
+            }
+
+            // Kategori dağılımı
+            @GetMapping("/reports/categories")
+            public ResponseEntity<Map<String, Object>> getCategoryData() {
+                try {
+                    System.out.println("=== DEBUG: getCategoryData called ===");
+                    
+                    // Örnek kategori verileri
+                    Map<String, Object> categoryData = new HashMap<>();
+                    categoryData.put("labels", new String[]{"Elektronik", "Giyim", "Ev & Yaşam", "Spor", "Kitap"});
+                    categoryData.put("datasets", new Object[]{
+                        Map.of(
+                            "label", "Satış Oranı",
+                            "data", new int[]{35, 25, 20, 15, 5},
+                            "backgroundColor", new String[]{
+                                "rgba(255, 99, 132, 0.8)",
+                                "rgba(54, 162, 235, 0.8)",
+                                "rgba(255, 206, 86, 0.8)",
+                                "rgba(75, 192, 192, 0.8)",
+                                "rgba(153, 102, 255, 0.8)"
+                            }
+                        )
+                    });
+                    
+                    System.out.println("Category data: " + categoryData);
+                    return ResponseEntity.ok(categoryData);
+                } catch (Exception e) {
+                    System.out.println("Error in getCategoryData: " + e.getMessage());
+                    e.printStackTrace();
+                    Map<String, Object> error = new HashMap<>();
+                    error.put("error", "Kategori verileri alınamadı: " + e.getMessage());
+                    return ResponseEntity.badRequest().body(error);
+                }
+            }
+
+            // ========== FİNANSAL YÖNETİM ENDPOİNTLERİ ==========
+            
+            // Ana finansal veriler
+            @GetMapping("/financial/data")
+            public ResponseEntity<Map<String, Object>> getFinancialData(@RequestParam String range) {
+                try {
+                    System.out.println("=== DEBUG: getFinancialData called with range: " + range + " ===");
+                    
+                    List<Order> allOrders = orderRepository.findAll();
+                    
+                    // Toplam gelir
+                    double totalRevenue = allOrders.stream()
+                        .filter(order -> "COMPLETED".equals(order.getStatus()))
+                        .mapToDouble(order -> order.getTotalPrice().doubleValue())
+                        .sum();
+                    
+                    // Toplam gider (örnek hesaplama)
+                    double totalExpenses = totalRevenue * 0.35; // %35 gider oranı
+                    
+                    // Net kar
+                    double netProfit = totalRevenue - totalExpenses;
+                    
+                    // Kar marjı
+                    double profitMargin = totalRevenue > 0 ? (netProfit / totalRevenue) * 100 : 0;
+                    
+                    // Büyüme oranı
+                    double growthRate = 12.5; // Örnek değer
+                    
+                    Map<String, Object> financialData = new HashMap<>();
+                    financialData.put("revenue", totalRevenue);
+                    financialData.put("expenses", totalExpenses);
+                    financialData.put("profit", netProfit);
+                    financialData.put("profitMargin", Math.round(profitMargin * 10.0) / 10.0);
+                    financialData.put("growthRate", growthRate);
+                    
+                    System.out.println("Financial data: " + financialData);
+                    return ResponseEntity.ok(financialData);
+                } catch (Exception e) {
+                    System.out.println("Error in getFinancialData: " + e.getMessage());
+                    e.printStackTrace();
+                    Map<String, Object> error = new HashMap<>();
+                    error.put("error", "Finansal veriler alınamadı: " + e.getMessage());
+                    return ResponseEntity.badRequest().body(error);
+                }
+            }
+
+            // Gelir trendi
+            @GetMapping("/financial/revenue")
+            public ResponseEntity<Map<String, Object>> getRevenueData(@RequestParam String range) {
+                try {
+                    System.out.println("=== DEBUG: getRevenueData called with range: " + range + " ===");
+                    
+                    Map<String, Object> revenueData = new HashMap<>();
+                    
+                    if ("week".equals(range)) {
+                        revenueData.put("labels", new String[]{"Pzt", "Sal", "Çar", "Per", "Cum", "Cmt", "Paz"});
+                        revenueData.put("datasets", new Object[]{
+                            Map.of(
+                                "label", "Gelir",
+                                "data", new int[]{45000, 52000, 48000, 61000, 55000, 68000, 72000},
+                                "borderColor", "rgb(16, 185, 129)",
+                                "backgroundColor", "rgba(16, 185, 129, 0.1)",
+                                "tension", 0.4
+                            )
+                        });
+                    } else if ("month".equals(range)) {
+                        revenueData.put("labels", new String[]{"1. Hafta", "2. Hafta", "3. Hafta", "4. Hafta"});
+                        revenueData.put("datasets", new Object[]{
+                            Map.of(
+                                "label", "Gelir",
+                                "data", new int[]{320000, 380000, 420000, 450000},
+                                "borderColor", "rgb(16, 185, 129)",
+                                "backgroundColor", "rgba(16, 185, 129, 0.1)",
+                                "tension", 0.4
+                            )
+                        });
+                    } else {
+                        revenueData.put("labels", new String[]{"Ocak", "Şubat", "Mart", "Nisan", "Mayıs", "Haziran"});
+                        revenueData.put("datasets", new Object[]{
+                            Map.of(
+                                "label", "Gelir",
+                                "data", new int[]{1200000, 1350000, 1500000, 1650000, 1800000, 1950000},
+                                "borderColor", "rgb(16, 185, 129)",
+                                "backgroundColor", "rgba(16, 185, 129, 0.1)",
+                                "tension", 0.4
+                            )
+                        });
+                    }
+                    
+                    System.out.println("Revenue data: " + revenueData);
+                    return ResponseEntity.ok(revenueData);
+                } catch (Exception e) {
+                    System.out.println("Error in getRevenueData: " + e.getMessage());
+                    e.printStackTrace();
+                    Map<String, Object> error = new HashMap<>();
+                    error.put("error", "Gelir verileri alınamadı: " + e.getMessage());
+                    return ResponseEntity.badRequest().body(error);
+                }
+            }
+
+            // Gider trendi
+            @GetMapping("/financial/expenses")
+            public ResponseEntity<Map<String, Object>> getExpenseData(@RequestParam String range) {
+                try {
+                    System.out.println("=== DEBUG: getExpenseData called with range: " + range + " ===");
+                    
+                    Map<String, Object> expenseData = new HashMap<>();
+                    
+                    if ("week".equals(range)) {
+                        expenseData.put("labels", new String[]{"Pzt", "Sal", "Çar", "Per", "Cum", "Cmt", "Paz"});
+                        expenseData.put("datasets", new Object[]{
+                            Map.of(
+                                "label", "Gider",
+                                "data", new int[]{15000, 18000, 16000, 21000, 19000, 24000, 25000},
+                                "borderColor", "rgb(239, 68, 68)",
+                                "backgroundColor", "rgba(239, 68, 68, 0.1)",
+                                "tension", 0.4
+                            )
+                        });
+                    } else if ("month".equals(range)) {
+                        expenseData.put("labels", new String[]{"1. Hafta", "2. Hafta", "3. Hafta", "4. Hafta"});
+                        expenseData.put("datasets", new Object[]{
+                            Map.of(
+                                "label", "Gider",
+                                "data", new int[]{110000, 130000, 145000, 155000},
+                                "borderColor", "rgb(239, 68, 68)",
+                                "backgroundColor", "rgba(239, 68, 68, 0.1)",
+                                "tension", 0.4
+                            )
+                        });
+                    } else {
+                        expenseData.put("labels", new String[]{"Ocak", "Şubat", "Mart", "Nisan", "Mayıs", "Haziran"});
+                        expenseData.put("datasets", new Object[]{
+                            Map.of(
+                                "label", "Gider",
+                                "data", new int[]{420000, 470000, 520000, 570000, 620000, 670000},
+                                "borderColor", "rgb(239, 68, 68)",
+                                "backgroundColor", "rgba(239, 68, 68, 0.1)",
+                                "tension", 0.4
+                            )
+                        });
+                    }
+                    
+                    System.out.println("Expense data: " + expenseData);
+                    return ResponseEntity.ok(expenseData);
+                } catch (Exception e) {
+                    System.out.println("Error in getExpenseData: " + e.getMessage());
+                    e.printStackTrace();
+                    Map<String, Object> error = new HashMap<>();
+                    error.put("error", "Gider verileri alınamadı: " + e.getMessage());
+                    return ResponseEntity.badRequest().body(error);
+                }
+            }
+
+            // Kar analizi
+            @GetMapping("/financial/profit")
+            public ResponseEntity<Map<String, Object>> getProfitData(@RequestParam String range) {
+                try {
+                    System.out.println("=== DEBUG: getProfitData called with range: " + range + " ===");
+                    
+                    Map<String, Object> profitData = new HashMap<>();
+                    
+                    if ("week".equals(range)) {
+                        profitData.put("labels", new String[]{"Pzt", "Sal", "Çar", "Per", "Cum", "Cmt", "Paz"});
+                        profitData.put("datasets", new Object[]{
+                            Map.of(
+                                "label", "Kar",
+                                "data", new int[]{30000, 34000, 32000, 40000, 36000, 44000, 47000},
+                                "backgroundColor", "rgba(59, 130, 246, 0.8)"
+                            )
+                        });
+                    } else if ("month".equals(range)) {
+                        profitData.put("labels", new String[]{"1. Hafta", "2. Hafta", "3. Hafta", "4. Hafta"});
+                        profitData.put("datasets", new Object[]{
+                            Map.of(
+                                "label", "Kar",
+                                "data", new int[]{210000, 250000, 275000, 295000},
+                                "backgroundColor", "rgba(59, 130, 246, 0.8)"
+                            )
+                        });
+                    } else {
+                        profitData.put("labels", new String[]{"Ocak", "Şubat", "Mart", "Nisan", "Mayıs", "Haziran"});
+                        profitData.put("datasets", new Object[]{
+                            Map.of(
+                                "label", "Kar",
+                                "data", new int[]{780000, 880000, 980000, 1080000, 1180000, 1280000},
+                                "backgroundColor", "rgba(59, 130, 246, 0.8)"
+                            )
+                        });
+                    }
+                    
+                    System.out.println("Profit data: " + profitData);
+                    return ResponseEntity.ok(profitData);
+                } catch (Exception e) {
+                    System.out.println("Error in getProfitData: " + e.getMessage());
+                    e.printStackTrace();
+                    Map<String, Object> error = new HashMap<>();
+                    error.put("error", "Kar verileri alınamadı: " + e.getMessage());
+                    return ResponseEntity.badRequest().body(error);
+                }
+            }
+
+            // Gider kategorileri
+            @GetMapping("/financial/expense-categories")
+            public ResponseEntity<Map<String, Object>> getExpenseCategories() {
+                try {
+                    System.out.println("=== DEBUG: getExpenseCategories called ===");
+                    
+                    Map<String, Object> categoryData = new HashMap<>();
+                    categoryData.put("labels", new String[]{"Personel", "Pazarlama", "Teknoloji", "Ofis", "Diğer"});
+                    categoryData.put("datasets", new Object[]{
+                        Map.of(
+                            "label", "Gider Dağılımı",
+                            "data", new int[]{40, 25, 20, 10, 5},
+                            "backgroundColor", new String[]{
+                                "rgba(239, 68, 68, 0.8)",
+                                "rgba(245, 158, 11, 0.8)",
+                                "rgba(59, 130, 246, 0.8)",
+                                "rgba(16, 185, 129, 0.8)",
+                                "rgba(139, 92, 246, 0.8)"
+                            }
+                        )
+                    });
+                    
+                    System.out.println("Expense categories: " + categoryData);
+                    return ResponseEntity.ok(categoryData);
+                } catch (Exception e) {
+                    System.out.println("Error in getExpenseCategories: " + e.getMessage());
+                    e.printStackTrace();
+                    Map<String, Object> error = new HashMap<>();
+                    error.put("error", "Gider kategorileri alınamadı: " + e.getMessage());
+                    return ResponseEntity.badRequest().body(error);
+                }
+            }
+
+            // Finansal işlemler
+            @GetMapping("/financial/transactions")
+            public ResponseEntity<List<Map<String, Object>>> getTransactions() {
+                try {
+                    System.out.println("=== DEBUG: getTransactions called ===");
+                    
+                    List<Map<String, Object>> transactions = new ArrayList<>();
+                    
+                    // Örnek işlemler
+                    Map<String, Object> transaction1 = new HashMap<>();
+                    transaction1.put("id", "1");
+                    transaction1.put("title", "Sipariş Geliri");
+                    transaction1.put("description", "#12345 siparişi tamamlandı");
+                    transaction1.put("type", "REVENUE");
+                    transaction1.put("amount", 1250.00);
+                    transaction1.put("date", "2024-01-15T10:30:00");
+                    transaction1.put("status", "COMPLETED");
+                    transactions.add(transaction1);
+                    
+                    Map<String, Object> transaction2 = new HashMap<>();
+                    transaction2.put("id", "2");
+                    transaction2.put("title", "Pazarlama Gideri");
+                    transaction2.put("description", "Google Ads reklam ödemesi");
+                    transaction2.put("type", "EXPENSE");
+                    transaction2.put("amount", 500.00);
+                    transaction2.put("date", "2024-01-15T09:15:00");
+                    transaction2.put("status", "COMPLETED");
+                    transactions.add(transaction2);
+                    
+                    Map<String, Object> transaction3 = new HashMap<>();
+                    transaction3.put("id", "3");
+                    transaction3.put("title", "İade İşlemi");
+                    transaction3.put("description", "#12344 siparişi iade edildi");
+                    transaction3.put("type", "REFUND");
+                    transaction3.put("amount", 850.00);
+                    transaction3.put("date", "2024-01-14T16:45:00");
+                    transaction3.put("status", "COMPLETED");
+                    transactions.add(transaction3);
+                    
+                    Map<String, Object> transaction4 = new HashMap<>();
+                    transaction4.put("id", "4");
+                    transaction4.put("title", "Personel Maaşı");
+                    transaction4.put("description", "Ocak ayı personel maaşları");
+                    transaction4.put("type", "EXPENSE");
+                    transaction4.put("amount", 15000.00);
+                    transaction4.put("date", "2024-01-14T08:00:00");
+                    transaction4.put("status", "PENDING");
+                    transactions.add(transaction4);
+                    
+                    Map<String, Object> transaction5 = new HashMap<>();
+                    transaction5.put("id", "5");
+                    transaction5.put("title", "Toplu Sipariş Geliri");
+                    transaction5.put("description", "Kurumsal müşteri siparişi");
+                    transaction5.put("type", "REVENUE");
+                    transaction5.put("amount", 5000.00);
+                    transaction5.put("date", "2024-01-13T14:20:00");
+                    transaction5.put("status", "COMPLETED");
+                    transactions.add(transaction5);
+                    
+                    System.out.println("Transactions: " + transactions);
+                    return ResponseEntity.ok(transactions);
+                } catch (Exception e) {
+                    System.out.println("Error in getTransactions: " + e.getMessage());
+                    e.printStackTrace();
+                    return ResponseEntity.badRequest().build();
+                }
+            }
+
+            // Bütçe verileri
+            @GetMapping("/financial/budget")
+            public ResponseEntity<Map<String, Object>> getBudget() {
+                try {
+                    System.out.println("=== DEBUG: getBudget called ===");
+                    
+                    Map<String, Object> budget = new HashMap<>();
+                    budget.put("total", 100000.00);
+                    budget.put("used", 75000.00);
+                    budget.put("remaining", 25000.00);
+                    budget.put("percentage", 75);
+                    
+                    System.out.println("Budget: " + budget);
+                    return ResponseEntity.ok(budget);
+                } catch (Exception e) {
+                    System.out.println("Error in getBudget: " + e.getMessage());
+                    e.printStackTrace();
+                    Map<String, Object> error = new HashMap<>();
+                    error.put("error", "Bütçe verileri alınamadı: " + e.getMessage());
+                    return ResponseEntity.badRequest().body(error);
+                }
+            }
 }
