@@ -60,13 +60,18 @@ public class ElasticsearchController {
             @RequestParam(required = false) Double maxPrice,
             @RequestParam(required = false) String storeName) {
         
-        if (elasticsearchService == null) {
+        try {
+            if (elasticsearchService == null) {
+                return ResponseEntity.ok(List.of());
+            }
+            
+            List<ProductDocument> results = elasticsearchService.advancedSearch(query, category, minPrice, maxPrice, storeName);
+            
+            return ResponseEntity.ok(results);
+        } catch (Exception e) {
+            // Elasticsearch hatası durumunda boş liste döndür
             return ResponseEntity.ok(List.of());
         }
-        
-        List<ProductDocument> results = elasticsearchService.advancedSearch(query, category, minPrice, maxPrice, storeName);
-        
-        return ResponseEntity.ok(results);
     }
     
     /**
@@ -119,13 +124,57 @@ public class ElasticsearchController {
      */
     @GetMapping("/status")
     public ResponseEntity<Boolean> getStatus() {
-        if (elasticsearchService == null) {
+        try {
+            if (elasticsearchService == null) {
+                return ResponseEntity.ok(false);
+            }
+            
+            boolean isAvailable = elasticsearchService.isElasticsearchAvailable();
+            
+            return ResponseEntity.ok(isAvailable);
+        } catch (Exception e) {
+            // Elasticsearch bağlantı hatası durumunda false döndür
             return ResponseEntity.ok(false);
         }
-        
-        boolean isAvailable = elasticsearchService.isElasticsearchAvailable();
-        
-        return ResponseEntity.ok(isAvailable);
+    }
+
+    /**
+     * Manuel olarak tüm ürünleri Elasticsearch'e indexler
+     */
+    @PostMapping("/reindex")
+    public ResponseEntity<String> reindexAllProducts() {
+        try {
+            if (elasticsearchService == null) {
+                return ResponseEntity.ok("Elasticsearch servisi mevcut değil");
+            }
+            
+            elasticsearchService.indexAllProducts();
+            return ResponseEntity.ok("Tüm ürünler başarıyla indexlendi!");
+        } catch (Exception e) {
+            return ResponseEntity.ok("Indexleme hatası: " + e.getMessage());
+        }
+    }
+    
+    /**
+     * Elasticsearch test endpoint'i
+     */
+    @GetMapping("/test")
+    public ResponseEntity<String> test() {
+        try {
+            if (elasticsearchService == null) {
+                return ResponseEntity.ok("Elasticsearch service is null");
+            }
+            
+            boolean isAvailable = elasticsearchService.isElasticsearchAvailable();
+            
+            if (isAvailable) {
+                return ResponseEntity.ok("Elasticsearch is available and working");
+            } else {
+                return ResponseEntity.ok("Elasticsearch is not available");
+            }
+        } catch (Exception e) {
+            return ResponseEntity.ok("Elasticsearch error: " + e.getMessage());
+        }
     }
     
     /**

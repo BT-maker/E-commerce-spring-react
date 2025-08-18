@@ -87,7 +87,7 @@ const StorePage = () => {
   };
 
   if (loading) return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-white">
       {/* Store Header Skeleton */}
       <div className="bg-white shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -120,7 +120,7 @@ const StorePage = () => {
   );
 
   if (error) return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+    <div className="min-h-screen bg-white flex items-center justify-center">
       <div className="text-center">
         <div className="text-red-500 text-xl mb-4">{error}</div>
         <Link to="/" className="text-blue-600 hover:text-blue-800">
@@ -131,7 +131,7 @@ const StorePage = () => {
   );
 
   if (!store) return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+    <div className="min-h-screen bg-white flex items-center justify-center">
       <div className="text-center">
         <div className="text-gray-500 text-xl mb-4">Mağaza bulunamadı.</div>
         <Link to="/" className="text-blue-600 hover:text-blue-800">
@@ -142,13 +142,13 @@ const StorePage = () => {
   );
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-white">
       <PageTitle title={`${store.name} Mağazası`} />
       <MetaTags 
         title={`${store.name} Mağazası`}
         description={`${store.name} mağazasının ürünlerini keşfedin. ${store.description || 'Kaliteli ürünler ve güvenilir alışveriş deneyimi.'}`}
         keywords={`${store.name}, ${store.name} mağazası, mağaza ürünleri, alışveriş, e-ticaret`}
-        image={store.bannerUrl || store.logoUrl}
+        image={store.banner || store.logo}
         type="website"
         siteName={`${store.name} - E-Ticaret`}
       />
@@ -156,21 +156,23 @@ const StorePage = () => {
       {/* Store Header */}
       <div className="bg-white shadow-sm">
         {/* Banner Image */}
-        {store.bannerUrl && (
-          <div className="relative h-48 md:h-64 bg-gradient-to-r from-blue-600 to-purple-600">
-            <img 
-              src={store.bannerUrl} 
-              alt={`${store.name} Banner`}
-              className="w-full h-full object-cover"
-              onError={(e) => {
-                e.target.style.display = 'none';
-                e.target.nextSibling.style.display = 'flex';
-              }}
-            />
-            <div className="hidden absolute inset-0 bg-gradient-to-r from-blue-600 to-purple-600 items-center justify-center">
-              <div className="text-white text-center">
-                <Package size={48} className="mx-auto mb-2" />
-                <h1 className="text-2xl font-bold">{store.name}</h1>
+        {store.banner && (
+          <div className="relative h-56 md:h-64 lg:h-96 overflow-hidden bg-white  py-2">
+            <div className="max-w-[1200px] mx-auto h-full">
+                             <img 
+                 src={store.banner} 
+                 alt={`${store.name} Banner`}
+                 className="w-full h-full object-cover rounded-lg"
+                onError={(e) => {
+                  e.target.style.display = 'none';
+                  e.target.nextSibling.style.display = 'flex';
+                }}
+              />
+              <div className="hidden absolute inset-0 bg-gradient-to-r from-blue-600 to-purple-600 items-center justify-center">
+                <div className="text-white text-center">
+                  <Package size={48} className="mx-auto mb-2" />
+                  <h1 className="text-2xl font-bold">{store.name}</h1>
+                </div>
               </div>
             </div>
           </div>
@@ -181,19 +183,19 @@ const StorePage = () => {
           <div className="flex flex-col md:flex-row items-start md:items-center space-y-4 md:space-y-0 md:space-x-6">
             {/* Store Logo */}
             <div className="flex-shrink-0">
-              {store.logoUrl ? (
+              {store.logo ? (
                 <img 
-                  src={store.logoUrl} 
+                  src={store.logo} 
                   alt={`${store.name} Logo`}
-                  className="w-20 h-20 md:w-24 md:h-24 rounded-lg object-cover border-2 border-gray-200"
+                  className="w-24 h-24 md:w-32 md:h-32 rounded-xl object-cover border-4 border-white shadow-lg"
                   onError={(e) => {
                     e.target.style.display = 'none';
                     e.target.nextSibling.style.display = 'flex';
                   }}
                 />
               ) : null}
-              <div className={`w-20 h-20 md:w-24 md:h-24 rounded-lg border-2 border-gray-200 flex items-center justify-center bg-gradient-to-br from-blue-500 to-purple-600 ${store.logoUrl ? 'hidden' : ''}`}>
-                <Package size={32} className="text-white" />
+              <div className={`w-24 h-24 md:w-32 md:h-32 rounded-xl border-4 border-white shadow-lg flex items-center justify-center bg-gradient-to-br from-blue-500 to-purple-600 ${store.logo ? 'hidden' : ''}`}>
+                <Package size={40} className="text-white" />
               </div>
             </div>
 

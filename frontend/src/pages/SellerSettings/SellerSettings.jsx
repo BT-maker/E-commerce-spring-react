@@ -79,13 +79,17 @@ const SellerSettings = () => {
       if (response.ok) {
         const data = await response.json();
         
-        // Base64 verilerini tamamen temizle ve sadece geçerli URL'leri kabul et
-        const cleanLogo = data.logo && data.logo.startsWith('http') && !data.logo.includes('data:image') ? data.logo : '';
-        const cleanBanner = data.banner && data.banner.startsWith('http') && !data.banner.includes('data:image') ? data.banner : '';
+        // URL ve base64 verilerini kabul et
+        const cleanLogo = data.logo && typeof data.logo === 'string' && data.logo.trim() !== '' ? data.logo.trim() : '';
+        const cleanBanner = data.banner && typeof data.banner === 'string' && data.banner.trim() !== '' ? data.banner.trim() : '';
         
         console.log('Original logo:', data.logo);
+        console.log('Original logo type:', typeof data.logo);
+        console.log('Original logo length:', data.logo ? data.logo.length : 'null/undefined');
         console.log('Cleaned logo:', cleanLogo);
         console.log('Original banner:', data.banner);
+        console.log('Original banner type:', typeof data.banner);
+        console.log('Original banner length:', data.banner ? data.banner.length : 'null/undefined');
         console.log('Cleaned banner:', cleanBanner);
         
         setStoreData({
@@ -139,8 +143,13 @@ const SellerSettings = () => {
 
     try {
       // URL validasyonu
-      const logoUrl = storeData.logo.trim();
-      const bannerUrl = storeData.banner.trim();
+      const logoUrl = storeData.logo ? storeData.logo.trim() : '';
+      const bannerUrl = storeData.banner ? storeData.banner.trim() : '';
+      
+      console.log('Validating logo URL:', logoUrl);
+      console.log('Logo URL validation result:', isValidUrl(logoUrl));
+      console.log('Validating banner URL:', bannerUrl);
+      console.log('Banner URL validation result:', isValidUrl(bannerUrl));
       
       if (logoUrl && !isValidUrl(logoUrl)) {
         setError('Geçerli bir logo URL\'si girin');
@@ -191,18 +200,37 @@ const SellerSettings = () => {
 
   // URL validasyon fonksiyonu
   const isValidUrl = (string) => {
-    if (!string || string.trim() === '') return true; // Boş URL'ler geçerli
+    // Boş, null, undefined veya sadece boşluk içeren string'ler geçerli
+    if (!string || typeof string !== 'string' || string.trim() === '') {
+      return true;
+    }
     
-    // Base64 kontrolü
-    if (string.includes('data:image') || string.includes('base64')) {
+    const trimmedString = string.trim();
+    
+    // Base64 kontrolü - base64 verilerini de kabul et
+    if (trimmedString.includes('data:image') || trimmedString.includes('base64')) {
+      // Base64 formatını kontrol et
+      const base64Pattern = /^data:image\/(jpeg|jpg|png|gif|webp);base64,/i;
+      return base64Pattern.test(trimmedString);
+    }
+    
+    // URL protokolü kontrolü - http ve https destekle
+    if (!trimmedString.startsWith('http://') && !trimmedString.startsWith('https://')) {
+      return false;
+    }
+    
+    // URL uzunluğu kontrolü (çok uzun URL'ler için)
+    if (trimmedString.length > 2000) {
       return false;
     }
     
     try {
-      new URL(string);
+      new URL(trimmedString);
       return true;
     } catch (_) {
-      return false;
+      // URL constructor başarısız olursa, basit bir regex kontrolü yap
+      const urlPattern = /^https?:\/\/.+/i;
+      return urlPattern.test(trimmedString);
     }
   };
 
@@ -518,9 +546,9 @@ const SellerSettings = () => {
                   <div className="form-group">
                     <label htmlFor="storeLogo">Mağaza Logosu URL</label>
                     <div className="image-input-group">
-                      {storeData.logo && storeData.logo.startsWith('http') && (
-                        <img src={storeData.logo} alt="Logo" className="preview-image" />
-                      )}
+                                             {storeData.logo && (
+                         <img src={storeData.logo} alt="Logo" className="preview-image" />
+                       )}
                       <div className="input-group">
                         <FaImage className="input-icon" />
                         <input
@@ -529,7 +557,7 @@ const SellerSettings = () => {
                           value={storeData.logo || ''}
                           onChange={(e) => setStoreData({...storeData, logo: e.target.value})}
                           className="form-input"
-                          placeholder="https://example.com/logo.png"
+                                                     placeholder="https://example.com/logo.png veya base64 resim verisi"
                         />
                       </div>
                     </div>
@@ -538,9 +566,9 @@ const SellerSettings = () => {
                   <div className="form-group">
                     <label htmlFor="storeBanner">Mağaza Banner'ı URL</label>
                     <div className="image-input-group">
-                      {storeData.banner && storeData.banner.startsWith('http') && (
-                        <img src={storeData.banner} alt="Banner" className="preview-image" />
-                      )}
+                                             {storeData.banner && (
+                         <img src={storeData.banner} alt="Banner" className="preview-image" />
+                       )}
                       <div className="input-group">
                         <FaImage className="input-icon" />
                         <input
@@ -549,7 +577,7 @@ const SellerSettings = () => {
                           value={storeData.banner || ''}
                           onChange={(e) => setStoreData({...storeData, banner: e.target.value})}
                           className="form-input"
-                          placeholder="https://example.com/banner.png"
+                                                     placeholder="https://example.com/banner.png veya base64 resim verisi"
                         />
                       </div>
                     </div>

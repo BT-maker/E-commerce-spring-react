@@ -56,10 +56,10 @@ public class Store {
     @Column(name = "working_hours")
     private String workingHours;
 
-    @Column(name = "logo_url")
+    @Column(name = "logo_url", columnDefinition = "TEXT")
     private String logo;
 
-    @Column(name = "banner_url")
+    @Column(name = "banner_url", columnDefinition = "TEXT")
     private String banner;
 
     @OneToOne(fetch = FetchType.LAZY)

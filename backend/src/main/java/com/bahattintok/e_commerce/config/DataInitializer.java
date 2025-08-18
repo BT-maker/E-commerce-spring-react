@@ -24,6 +24,7 @@ import com.bahattintok.e_commerce.repository.ReviewRepository;
 import com.bahattintok.e_commerce.repository.RoleRepository;
 import com.bahattintok.e_commerce.repository.StoreRepository;
 import com.bahattintok.e_commerce.repository.UserRepository;
+import com.bahattintok.e_commerce.service.ElasticsearchService;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -57,6 +58,9 @@ public class DataInitializer implements CommandLineRunner {
 
     @Autowired
     private ReviewRepository reviewRepository;
+
+    @Autowired(required = false)
+    private ElasticsearchService elasticsearchService;
 
     @Override
     public void run(String... args) throws Exception {
@@ -147,6 +151,17 @@ public class DataInitializer implements CommandLineRunner {
         );
 
         productRepository.saveAll(products);
+
+        // Elasticsearch'e ürünleri indexle
+        if (elasticsearchService != null) {
+            try {
+                log.info("Ürünler Elasticsearch'e indexleniyor...");
+                elasticsearchService.indexAllProducts();
+                log.info("Elasticsearch indexing tamamlandı!");
+            } catch (Exception e) {
+                log.warn("Elasticsearch indexing hatası: {}", e.getMessage());
+            }
+        }
 
         // Test siparişleri ekle
         Order testOrder1 = new Order();

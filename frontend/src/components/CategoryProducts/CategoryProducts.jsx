@@ -84,7 +84,24 @@ const CategoryProducts = () => {
 
     fetch(url)
       .then((res) => {
-        if (!res.ok) throw new Error("Ürünler alınamadı");
+        if (!res.ok) {
+          // Elasticsearch hatası durumunda normal API'ye fallback yap
+          if (elasticsearchAvailable && res.status === 500) {
+            console.warn('Elasticsearch hatası, normal API\'ye geçiliyor...');
+            setElasticsearchAvailable(false);
+            
+            // Normal API URL'si oluştur
+            let fallbackUrl = `http://localhost:8082/api/products?categoryId=${id}&page=${page}&size=${PAGE_SIZE}`;
+            if (sort) fallbackUrl += `&sort=${sort}`;
+            if (minPrice && minPrice.trim() !== '') fallbackUrl += `&minPrice=${minPrice}`;
+            if (maxPrice && maxPrice.trim() !== '') fallbackUrl += `&maxPrice=${maxPrice}`;
+            if (selectedStore) fallbackUrl += `&storeName=${encodeURIComponent(selectedStore)}`;
+            if (searchQuery.trim()) fallbackUrl += `&search=${encodeURIComponent(searchQuery.trim())}`;
+            
+            return fetch(fallbackUrl);
+          }
+          throw new Error("Ürünler alınamadı");
+        }
         return res.json();
       })
       .then((data) => {
@@ -104,6 +121,7 @@ const CategoryProducts = () => {
         setLoading(false);
       })
       .catch((err) => {
+        console.error('Ürün yükleme hatası:', err);
         setError(err.message);
         setLoading(false);
       });

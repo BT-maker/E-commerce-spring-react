@@ -120,6 +120,11 @@ const ElasticSearch = () => {
           setResults(data);
           setTotalPages(1);
         }
+      } else if (response.status === 500) {
+        // Elasticsearch hatası durumunda kullanıcıya bilgi ver
+        setError('Elasticsearch şu anda kullanılamıyor. Lütfen daha sonra tekrar deneyin.');
+        setResults([]);
+        setTotalPages(1);
       } else {
         throw new Error('Arama yapılamadı');
       }
