@@ -22,6 +22,7 @@ import AdminProducts from './pages/AdminProducts/AdminProducts.jsx';
 import AdminOrders from './pages/AdminOrders/AdminOrders.jsx';
 import AdminReports from './pages/AdminReports/AdminReports.jsx';
 import AdminFinancial from './pages/AdminFinancial/AdminFinancial.jsx';
+import AdminEmail from './pages/AdminEmail/AdminEmail.jsx';
 import SearchResults from './components/SearchResults/SearchResults.jsx';
 import ElasticSearch from './components/ElasticSearch/ElasticSearch.jsx';
 import AdminRoute from './components/AdminRoute/AdminRoute.jsx';
@@ -340,6 +341,14 @@ function App() {
                     <AdminRoute>
                       <AdminLayout>
                         <AdminFinancial />
+                      </AdminLayout>
+                    </AdminRoute>
+                  } />
+                  
+                  <Route path="/admin/email" element={
+                    <AdminRoute>
+                      <AdminLayout>
+                        <AdminEmail />
                       </AdminLayout>
                     </AdminRoute>
                   } />

@@ -16,7 +16,8 @@ import {
   X,
   Search,
   Bell,
-  User
+  User,
+  Mail
 } from "lucide-react";
 import "./AdminLayout.css";
 import toast from 'react-hot-toast';
@@ -63,6 +64,11 @@ const AdminLayout = ({ children }) => {
       path: "/admin/reports",
       name: "Raporlar",
       icon: BarChart3
+    },
+    {
+      path: "/admin/email",
+      name: "Email Yönetimi",
+      icon: Mail
     },
     {
       path: "/admin/settings",
