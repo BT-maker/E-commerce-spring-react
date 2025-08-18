@@ -907,7 +907,7 @@ public class SellerController {
             Map<String, Object> dashboardData = new HashMap<>();
             
             // Welcome message
-            dashboardData.put("welcomeMessage", "Hoş geldin, " + currentUser.getUsername() + "!");
+            dashboardData.put("welcomeMessage", "Hoş geldin");
             dashboardData.put("storeName", sellerStore.getName());
             dashboardData.put("today", today.toString());
             

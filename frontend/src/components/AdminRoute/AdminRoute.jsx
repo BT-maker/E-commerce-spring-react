@@ -6,7 +6,7 @@ const AdminRoute = ({ children }) => {
   const { isLoggedIn, user, loading } = useContext(AuthContext);
   const location = useLocation();
 
-  console.log('AdminRoute - isLoggedIn:', isLoggedIn, 'user:', user, 'role:', user?.role?.name, 'pathname:', location.pathname);
+  console.log('AdminRoute - isLoggedIn:', isLoggedIn, 'user:', user, 'role:', user?.role, 'pathname:', location.pathname);
 
   // Eğer zaten admin/login sayfasındaysak, AdminRoute'u bypass et
   if (location.pathname === '/admin/login') {
@@ -30,9 +30,9 @@ const AdminRoute = ({ children }) => {
     return <Navigate to="/admin/login" replace />;
   }
 
-  // Admin rolü kontrolü - sadece giriş yapmış kullanıcılar için
-  if (user && user.role?.name !== 'ADMIN') {
-    console.log('AdminRoute - Yetkisiz erişim. User role:', user?.role?.name);
+  // Admin rolü kontrolü - role string olarak geliyor
+  if (user && user.role !== 'ADMIN') {
+    console.log('AdminRoute - Yetkisiz erişim. User role:', user?.role);
     return (
       <div className="min-h-screen flex items-center justify-center bg-background-primary">
         <div className="text-center max-w-md mx-auto p-6">

@@ -432,7 +432,7 @@ const SellerSettings = () => {
                 <div className="form-group">
                   <label htmlFor="storeName">Mağaza Adı *</label>
                   <div className="input-group">
-                    <FaStore className="input-icon" />
+                    
                     <input
                       type="text"
                       id="storeName"
@@ -460,7 +460,7 @@ const SellerSettings = () => {
                 <div className="form-group">
                   <label htmlFor="storeAddress">Adres</label>
                   <div className="input-group">
-                    <FaMapMarkerAlt className="input-icon" />
+                    
                     <input
                       type="text"
                       id="storeAddress"
@@ -480,7 +480,7 @@ const SellerSettings = () => {
                   <div className="form-group">
                     <label htmlFor="storePhone">Telefon</label>
                     <div className="input-group">
-                      <FaPhone className="input-icon" />
+                      
                       <input
                         type="tel"
                         id="storePhone"
@@ -495,7 +495,7 @@ const SellerSettings = () => {
                   <div className="form-group">
                     <label htmlFor="storeEmail">E-posta</label>
                     <div className="input-group">
-                      <FaEnvelope className="input-icon" />
+                      
                       <input
                         type="email"
                         id="storeEmail"
@@ -511,7 +511,7 @@ const SellerSettings = () => {
                 <div className="form-group">
                   <label htmlFor="storeWebsite">Web Sitesi</label>
                   <div className="input-group">
-                    <FaGlobe className="input-icon" />
+                    
                     <input
                       type="url"
                       id="storeWebsite"
@@ -526,7 +526,7 @@ const SellerSettings = () => {
                 <div className="form-group">
                   <label htmlFor="workingHours">Çalışma Saatleri</label>
                   <div className="input-group">
-                    <FaClock className="input-icon" />
+                    
                     <input
                       type="text"
                       id="workingHours"
@@ -550,7 +550,7 @@ const SellerSettings = () => {
                          <img src={storeData.logo} alt="Logo" className="preview-image" />
                        )}
                       <div className="input-group">
-                        <FaImage className="input-icon" />
+                        
                         <input
                           type="url"
                           id="storeLogo"
@@ -570,7 +570,6 @@ const SellerSettings = () => {
                          <img src={storeData.banner} alt="Banner" className="preview-image" />
                        )}
                       <div className="input-group">
-                        <FaImage className="input-icon" />
                         <input
                           type="url"
                           id="storeBanner"
@@ -610,7 +609,7 @@ const SellerSettings = () => {
                 <div className="form-group">
                   <label htmlFor="username">Kullanıcı Adı</label>
                   <div className="input-group">
-                    <FaUser className="input-icon" />
+                    
                     <input
                       type="text"
                       id="username"
@@ -625,7 +624,7 @@ const SellerSettings = () => {
                 <div className="form-group">
                   <label htmlFor="userEmail">E-posta</label>
                   <div className="input-group">
-                    <FaEnvelope className="input-icon" />
+                    
                     <input
                       type="email"
                       id="userEmail"
@@ -651,7 +650,7 @@ const SellerSettings = () => {
                 <div className="form-group">
                   <label htmlFor="currentPassword">Mevcut Şifre *</label>
                   <div className="input-group">
-                    <FaShieldAlt className="input-icon" />
+                    
                     <input
                       type={showPassword ? "text" : "password"}
                       id="currentPassword"
@@ -674,7 +673,7 @@ const SellerSettings = () => {
                 <div className="form-group">
                   <label htmlFor="newPassword">Yeni Şifre *</label>
                   <div className="input-group">
-                    <FaShieldAlt className="input-icon" />
+                    
                     <input
                       type={showNewPassword ? "text" : "password"}
                       id="newPassword"
@@ -697,7 +696,7 @@ const SellerSettings = () => {
                 <div className="form-group">
                   <label htmlFor="confirmPassword">Yeni Şifre Tekrar *</label>
                   <div className="input-group">
-                    <FaShieldAlt className="input-icon" />
+                    
                     <input
                       type={showNewPassword ? "text" : "password"}
                       id="confirmPassword"

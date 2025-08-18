@@ -5,7 +5,7 @@ import { Navigate } from 'react-router-dom';
 const SellerRoute = ({ children }) => {
   const { isLoggedIn, user, loading } = useContext(AuthContext);
 
-  console.log('SellerRoute - isLoggedIn:', isLoggedIn, 'user:', user, 'role:', user?.role);
+  console.log('SellerRoute - isLoggedIn:', isLoggedIn, 'user:', user, 'role:', user?.role, 'role.name:', user?.role?.name);
 
   if (loading) {
     return (

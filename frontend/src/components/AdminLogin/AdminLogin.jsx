@@ -7,16 +7,6 @@ import toast from 'react-hot-toast';
 import PageTitle from '../PageTitle/PageTitle';
 import MetaTags from '../MetaTags/MetaTags';
 
-// SHA-256 hash fonksiyonu
-const hashPassword = async (password) => {
-  const encoder = new TextEncoder();
-  const data = encoder.encode(password);
-  const hashBuffer = await crypto.subtle.digest('SHA-256', data);
-  const hashArray = Array.from(new Uint8Array(hashBuffer));
-  const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-  return hashHex;
-};
-
 const AdminLogin = () => {
   const [form, setForm] = useState({
     email: "",
@@ -44,12 +34,10 @@ const AdminLogin = () => {
 
     setLoading(true);
     try {
-      // Şifreyi hash'le
-      const hashedPassword = await hashPassword(form.password);
-      
+      // Backend plain password bekliyor, hash'leme yapmıyoruz
       const requestBody = {
         email: form.email,
-        password: hashedPassword
+        password: form.password
       };
 
       const res = await fetch("http://localhost:8082/api/auth/admin/signin", {

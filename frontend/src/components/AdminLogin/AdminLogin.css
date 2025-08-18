@@ -3,7 +3,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: #ff6000;
   padding: 2rem;
 }
 
@@ -25,7 +25,7 @@
   left: 0;
   right: 0;
   height: 4px;
-  background: linear-gradient(90deg, #667eea, #764ba2);
+
 }
 
 .admin-login-header {
@@ -34,7 +34,8 @@
 }
 
 .admin-icon {
-  background: linear-gradient(135deg, #667eea, #764ba2);
+  background: #ff6000;
+
   border-radius: 50%;
   width: 80px;
   height: 80px;
@@ -102,7 +103,7 @@
 
 .form-input:focus {
   outline: none;
-  border-color: #667eea;
+  border-color: #ff6000;
   box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
 }
 
