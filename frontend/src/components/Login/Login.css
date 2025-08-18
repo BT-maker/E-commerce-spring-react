@@ -36,7 +36,7 @@
   color: var(--text-primary);
 }
 .login-input:focus {
-  border: 1.5px solid var(--accent-color);
+  border: 1.5px solid var(--border-focus);
   background: white;
 }
 .login-btn {
@@ -49,15 +49,12 @@
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s;
+  
 }
 .login-btn:hover {
-  background: #ea580c;
+  background: linear-gradient(135deg, rgba(255, 96, 0, 0.8), rgba(255, 140, 0, 0.8));
 }
 
-.login-btn:hover:not(:disabled) {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(255, 96, 0, 0.3);
-}
 
 .login-btn:disabled {
   opacity: 0.7;
@@ -73,7 +70,7 @@
   color: var(--text-secondary);
 }
 .login-link {
-  color: var(--accent-color);
+  color: var(--orange-500);
   text-decoration: none;
   font-weight: 500;
   transition: color 0.2s;
@@ -92,7 +89,7 @@
   color: var(--text-secondary);
 }
 .seller-link {
-  color: var(--accent-color);
+  color: var(--orange-500);
   text-decoration: none;
   font-weight: 500;
   transition: color 0.2s;
