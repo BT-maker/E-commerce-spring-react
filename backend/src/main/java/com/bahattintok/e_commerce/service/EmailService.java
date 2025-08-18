@@ -1,0 +1,179 @@
+package com.bahattintok.e_commerce.service;
+
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.stereotype.Service;
+import org.thymeleaf.TemplateEngine;
+import org.thymeleaf.context.Context;
+
+import jakarta.mail.MessagingException;
+import jakarta.mail.internet.MimeMessage;
+
+@Service
+public class EmailService {
+
+    @Autowired
+    private JavaMailSender mailSender;
+
+    @Autowired
+    private TemplateEngine templateEngine;
+
+    @Value("${email.from}")
+    private String fromEmail;
+
+    @Value("${email.from.name}")
+    private String fromName;
+
+    /**
+     * Basit text email gönderir
+     */
+    public void sendSimpleEmail(String to, String subject, String content) {
+        try {
+            MimeMessage message = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+            
+            helper.setFrom(fromEmail);
+            helper.setTo(to);
+            helper.setSubject(subject);
+            helper.setText(content, false); // false = plain text
+            
+            mailSender.send(message);
+            System.out.println("Email sent successfully to: " + to);
+        } catch (MessagingException e) {
+            System.err.println("Error sending email: " + e.getMessage());
+            throw new RuntimeException("Email gönderilemedi", e);
+        }
+    }
+
+    /**
+     * HTML email gönderir
+     */
+    public void sendHtmlEmail(String to, String subject, String htmlContent) {
+        try {
+            MimeMessage message = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+            
+            helper.setFrom(fromEmail);
+            helper.setTo(to);
+            helper.setSubject(subject);
+            helper.setText(htmlContent, true); // true = HTML
+            
+            mailSender.send(message);
+            System.out.println("HTML email sent successfully to: " + to);
+        } catch (MessagingException e) {
+            System.err.println("Error sending HTML email: " + e.getMessage());
+            throw new RuntimeException("HTML email gönderilemedi", e);
+        }
+    }
+
+    /**
+     * Thymeleaf template kullanarak email gönderir
+     */
+    public void sendTemplateEmail(String to, String subject, String templateName, Map<String, Object> variables) {
+        try {
+            Context context = new Context();
+            context.setVariables(variables);
+            
+            String htmlContent = templateEngine.process(templateName, context);
+            sendHtmlEmail(to, subject, htmlContent);
+        } catch (Exception e) {
+            System.err.println("Error sending template email: " + e.getMessage());
+            throw new RuntimeException("Template email gönderilemedi", e);
+        }
+    }
+
+    /**
+     * Sipariş onay emaili gönderir
+     */
+    public void sendOrderConfirmationEmail(String to, String customerName, String orderNumber, double totalAmount) {
+        Map<String, Object> variables = Map.of(
+            "customerName", customerName,
+            "orderNumber", orderNumber,
+            "totalAmount", String.format("%.2f", totalAmount),
+            "orderDate", java.time.LocalDateTime.now().format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"))
+        );
+        
+        sendTemplateEmail(to, "Sipariş Onayı - #" + orderNumber, "order-confirmation", variables);
+    }
+
+    /**
+     * Şifre sıfırlama emaili gönderir
+     */
+    public void sendPasswordResetEmail(String to, String resetToken, String username) {
+        String resetLink = "http://localhost:5173/reset-password?token=" + resetToken;
+        
+        Map<String, Object> variables = Map.of(
+            "username", username,
+            "resetLink", resetLink,
+            "expiryTime", "24 saat"
+        );
+        
+        sendTemplateEmail(to, "Şifre Sıfırlama", "password-reset", variables);
+    }
+
+    /**
+     * Hoş geldin emaili gönderir
+     */
+    public void sendWelcomeEmail(String to, String customerName) {
+        Map<String, Object> variables = Map.of(
+            "customerName", customerName,
+            "loginLink", "http://localhost:5173/login"
+        );
+        
+        sendTemplateEmail(to, "E-Commerce Platform'a Hoş Geldiniz!", "welcome", variables);
+    }
+
+    /**
+     * Sipariş durumu güncelleme emaili gönderir
+     */
+    public void sendOrderStatusUpdateEmail(String to, String customerName, String orderNumber, String status) {
+        Map<String, Object> variables = Map.of(
+            "customerName", customerName,
+            "orderNumber", orderNumber,
+            "status", status,
+            "orderLink", "http://localhost:5173/orders"
+        );
+        
+        sendTemplateEmail(to, "Sipariş Durumu Güncellendi - #" + orderNumber, "order-status-update", variables);
+    }
+
+    /**
+     * Ürün stok uyarısı emaili gönderir
+     */
+    public void sendLowStockAlertEmail(String to, String productName, int currentStock) {
+        Map<String, Object> variables = Map.of(
+            "productName", productName,
+            "currentStock", currentStock,
+            "adminPanelLink", "http://localhost:5173/admin/products"
+        );
+        
+        sendTemplateEmail(to, "Düşük Stok Uyarısı - " + productName, "low-stock-alert", variables);
+    }
+
+    /**
+     * Test emaili gönderir
+     */
+    public void sendTestEmail(String to) {
+        String subject = "Test Email - E-Commerce Platform";
+        String content = """
+            Merhaba!
+            
+            Bu bir test emailidir. E-Commerce platform email sistemi çalışıyor.
+            
+            Tarih: %s
+            Saat: %s
+            
+            Saygılarımızla,
+            E-Commerce Platform
+            """.formatted(
+                java.time.LocalDate.now().format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy")),
+                java.time.LocalTime.now().format(java.time.format.DateTimeFormatter.ofPattern("HH:mm"))
+            );
+        
+        sendSimpleEmail(to, subject, content);
+    }
+}

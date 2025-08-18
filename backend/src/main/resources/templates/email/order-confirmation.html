@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sipariş Onayı</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+        .container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .header {
+            text-align: center;
+            border-bottom: 3px solid #FF6000;
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+        }
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            color: #FF6000;
+            margin-bottom: 10px;
+        }
+        .order-number {
+            background-color: #FF6000;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            display: inline-block;
+            margin: 20px 0;
+            font-weight: bold;
+        }
+        .order-details {
+            background-color: #f9f9f9;
+            padding: 20px;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+        .total-amount {
+            font-size: 18px;
+            font-weight: bold;
+            color: #FF6000;
+            text-align: center;
+            margin: 20px 0;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #ddd;
+            color: #666;
+        }
+        .button {
+            display: inline-block;
+            background-color: #FF6000;
+            color: white;
+            padding: 12px 30px;
+            text-decoration: none;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo">E-Commerce Platform</div>
+            <h1>Sipariş Onayı</h1>
+        </div>
+        
+        <p>Merhaba <strong th:text="${customerName}">Müşteri</strong>,</p>
+        
+        <p>Siparişiniz başarıyla alındı ve işleme alındı. Sipariş detayları aşağıda yer almaktadır:</p>
+        
+        <div class="order-number" th:text="'Sipariş No: ' + ${orderNumber}">Sipariş No: ORD-123456</div>
+        
+        <div class="order-details">
+            <p><strong>Sipariş Tarihi:</strong> <span th:text="${orderDate}">15/01/2024 14:30</span></p>
+            <p><strong>Sipariş Durumu:</strong> <span style="color: #28a745;">Onaylandı</span></p>
+        </div>
+        
+        <div class="total-amount">
+            <p>Toplam Tutar: <span th:text="${totalAmount} + ' ₺'">1,250.00 ₺</span></p>
+        </div>
+        
+        <p>Siparişiniz hazırlandığında size tekrar bilgilendirme yapılacaktır. Siparişinizi takip etmek için aşağıdaki butona tıklayabilirsiniz:</p>
+        
+        <div style="text-align: center;">
+            <a href="http://localhost:5173/orders" class="button">Siparişlerimi Görüntüle</a>
+        </div>
+        
+        <p>Herhangi bir sorunuz olursa bizimle iletişime geçebilirsiniz.</p>
+        
+        <div class="footer">
+            <p>Teşekkürler,<br>
+            <strong>E-Commerce Platform</strong></p>
+            <p style="font-size: 12px; color: #999;">
+                Bu email otomatik olarak gönderilmiştir. Lütfen yanıtlamayınız.
+            </p>
+        </div>
+    </div>
+</body>
+</html>

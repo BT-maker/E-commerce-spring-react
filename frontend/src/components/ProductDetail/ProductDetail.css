@@ -749,7 +749,7 @@
 }
 
 .submit-btn {
-  background: #ff6000;
+  background: #ff6000 !important;
   color: white;
 }
 
