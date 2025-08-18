@@ -108,7 +108,8 @@ public class DataInitializer implements CommandLineRunner {
 
         // Test kullanıcısı ekle (şifre: password)
         User testUser = new User();
-        testUser.setUsername("testuser");
+        testUser.setFirstName("Test");
+        testUser.setLastName("User");
         testUser.setEmail("test@example.com");
         
         // "password" şifresini direkt BCrypt ile hash'le
@@ -120,7 +121,8 @@ public class DataInitializer implements CommandLineRunner {
 
         // Test satıcısı ekle (şifre: password)
         User testSeller = new User();
-        testSeller.setUsername("testseller");
+        testSeller.setFirstName("Test");
+        testSeller.setLastName("Seller");
         testSeller.setEmail("seller@example.com");
         
         // "password" şifresini direkt BCrypt ile hash'le
@@ -132,7 +134,6 @@ public class DataInitializer implements CommandLineRunner {
 
         // Test admin kullanıcısı ekle (şifre: password)
         User testAdmin = new User();
-        testAdmin.setUsername("admin");
         testAdmin.setEmail("admin@example.com");
         testAdmin.setFirstName("Admin");
         testAdmin.setLastName("User");
