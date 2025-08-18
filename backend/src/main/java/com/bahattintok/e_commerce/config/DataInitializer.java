@@ -130,6 +130,20 @@ public class DataInitializer implements CommandLineRunner {
         testSeller.setRole(sellerRole);
         userRepository.save(testSeller);
 
+        // Test admin kullanıcısı ekle (şifre: password)
+        User testAdmin = new User();
+        testAdmin.setUsername("admin");
+        testAdmin.setEmail("admin@example.com");
+        testAdmin.setFirstName("Admin");
+        testAdmin.setLastName("User");
+        
+        // "password" şifresini direkt BCrypt ile hash'le
+        String encodedAdminPassword = new org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder().encode("password");
+        testAdmin.setPassword(encodedAdminPassword);
+        
+        testAdmin.setRole(adminRole);
+        userRepository.save(testAdmin);
+
         // Test mağazası ekle
         Store testStore = new Store();
         testStore.setName("Test Mağazası");

@@ -35,6 +35,7 @@ export const AuthProvider = ({ children }) => {
       console.log('Email kontrolü:', response.data.email);
       console.log('FirstName kontrolü:', response.data.firstName);
       console.log('LastName kontrolü:', response.data.lastName);
+      console.log('Role kontrolü:', response.data.role);
         setIsLoggedIn(true);
         setUser(response.data);
       } catch (error) {
@@ -64,7 +65,7 @@ export const AuthProvider = ({ children }) => {
         email: userData.email || '', // AuthResponse'da email yok, /me endpoint'inden gelecek
         firstName: userData.firstName || '',
         lastName: userData.lastName || '',
-        role: userData.role ? { name: userData.role } : null, // Role objesi olarak formatla
+        role: userData.role || null, // Role string olarak geliyor
         phone: userData.phone || '',
         birthDate: userData.birthDate || '',
         address1: userData.address1 || '',
