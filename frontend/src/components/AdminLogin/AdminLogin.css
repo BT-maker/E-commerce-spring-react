@@ -133,7 +133,7 @@
 
 .login-btn {
   width: 100%;
-  background: linear-gradient(135deg, #667eea, #764ba2);
+  background: #ff6000;
   color: white;
   border: none;
   padding: 1rem 2rem;
@@ -145,9 +145,13 @@
   margin-top: 1rem;
 }
 
+.login-btn:hover {
+  background: #ea580c;
+}
+
 .login-btn:hover:not(:disabled) {
   transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+  box-shadow: 0 8px 20px rgba(255, 96, 0, 0.3);
 }
 
 .login-btn:disabled {
