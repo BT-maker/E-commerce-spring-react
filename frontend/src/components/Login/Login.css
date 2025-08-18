@@ -40,7 +40,7 @@
   background: white;
 }
 .login-btn {
-  background: linear-gradient(135deg, rgba(255, 96, 0), #ff8c00);
+  background: #ff6000;
   color: white;
   border: none;
   padding: 1rem 2rem;
@@ -51,7 +51,7 @@
   transition: all 0.3s;
 }
 .login-btn:hover {
-  background: #ff8c00;
+  background: #ea580c;
 }
 
 .login-btn:hover:not(:disabled) {

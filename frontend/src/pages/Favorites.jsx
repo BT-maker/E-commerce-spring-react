@@ -90,7 +90,7 @@ const Favorites = () => {
           <p className="text-gray-600 mb-6">Beğendiğiniz ürünleri favorilere ekleyerek buradan kolayca erişebilirsiniz.</p>
           <Link 
             to="/" 
-            className="inline-flex items-center gap-2 px-6 py-3 bg-green-600 text-white font-semibold rounded-lg hover:bg-green-700 transition-colors"
+            className="inline-flex items-center gap-2 px-6 py-3 bg-orange-500 text-white font-semibold rounded-lg hover:bg-orange-700 transition-colors"
           >
             <ShoppingCart size={20} />
             Alışverişe Başla
