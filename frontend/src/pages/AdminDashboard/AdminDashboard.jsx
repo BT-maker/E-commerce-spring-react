@@ -27,40 +27,85 @@ const AdminDashboard = () => {
     monthlyGrowth: 0
   });
   const [recentOrders, setRecentOrders] = useState([]);
+  const [ordersPagination, setOrdersPagination] = useState({
+    currentPage: 0,
+    totalPages: 0,
+    totalOrders: 0,
+    hasNext: false,
+    hasPrevious: false
+  });
+  const [quickStats, setQuickStats] = useState({
+    weeklyOrders: 0,
+    monthlyRevenue: 0,
+    newUsers: 0
+  });
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     fetchDashboardData();
   }, []);
 
-  const fetchDashboardData = async () => {
+  const fetchDashboardData = async (page = 0) => {
     try {
-      const token = localStorage.getItem('token');
-      
       // Dashboard istatistiklerini getir
-      const statsResponse = await fetch("http://localhost:8080/api/admin/dashboard/stats", {
+      const statsResponse = await fetch("http://localhost:8082/api/admin/dashboard/stats", {
         headers: {
-          'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
-        }
+        },
+        credentials: 'include'
       });
       
       if (statsResponse.ok) {
         const statsData = await statsResponse.json();
+        console.log("Stats data received:", statsData);
         setStats(statsData);
+      } else {
+        console.error("Stats response not ok:", statsResponse.status);
+        const errorText = await statsResponse.text();
+        console.error("Error response:", errorText);
       }
 
-      // Son siparişleri getir
-      const ordersResponse = await fetch("http://localhost:8080/api/admin/dashboard/recent-orders", {
+      // Son siparişleri getir (sayfalama ile)
+      const ordersResponse = await fetch(`http://localhost:8082/api/admin/dashboard/recent-orders?page=${page}&size=6`, {
         headers: {
-          'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
-        }
+        },
+        credentials: 'include'
       });
       
       if (ordersResponse.ok) {
         const ordersData = await ordersResponse.json();
-        setRecentOrders(ordersData);
+        console.log("Orders data received:", ordersData);
+        setRecentOrders(ordersData.orders);
+        setOrdersPagination({
+          currentPage: ordersData.currentPage,
+          totalPages: ordersData.totalPages,
+          totalOrders: ordersData.totalOrders,
+          hasNext: ordersData.hasNext,
+          hasPrevious: ordersData.hasPrevious
+        });
+      } else {
+        console.error("Orders response not ok:", ordersResponse.status);
+        const errorText = await ordersResponse.text();
+        console.error("Orders error response:", errorText);
+      }
+
+      // Hızlı istatistikleri getir
+      const quickStatsResponse = await fetch("http://localhost:8082/api/admin/dashboard/quick-stats", {
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        credentials: 'include'
+      });
+      
+      if (quickStatsResponse.ok) {
+        const quickStatsData = await quickStatsResponse.json();
+        console.log("Quick stats data received:", quickStatsData);
+        setQuickStats(quickStatsData);
+      } else {
+        console.error("Quick stats response not ok:", quickStatsResponse.status);
+        const errorText = await quickStatsResponse.text();
+        console.error("Quick stats error response:", errorText);
       }
     } catch (error) {
       console.error("Dashboard veri yükleme hatası:", error);
@@ -69,10 +114,14 @@ const AdminDashboard = () => {
     }
   };
 
+  const handlePageChange = (newPage) => {
+    fetchDashboardData(newPage);
+  };
+
   const StatCard = ({ title, value, icon: Icon, change, changeType }) => (
     <div className="stat-card">
       <div className="stat-header">
-        <div className="stat-icon">
+        <div className="stat-icon-white">
           <Icon size={24} />
         </div>
         {change && (
@@ -83,8 +132,9 @@ const AdminDashboard = () => {
         )}
       </div>
       <div className="stat-content">
-        <h3 className="stat-value">{value.toLocaleString()}</h3>
         <p className="stat-title">{title}</p>
+        <h1 className="stat-value">{value.toLocaleString()}</h1>
+        
       </div>
     </div>
   );
@@ -189,25 +239,53 @@ const AdminDashboard = () => {
       {/* Grafikler ve Detaylar */}
       <div className="dashboard-content">
         <div className="content-grid">
-          {/* Son Siparişler */}
-          <div className="content-card">
-            <div className="card-header">
-              <h3>Son Siparişler</h3>
-              <button className="view-all-btn">Tümünü Gör</button>
-            </div>
-            <div className="orders-list">
-              {recentOrders.length > 0 ? (
-                recentOrders.map((order) => (
-                  <OrderCard key={order.id} order={order} />
-                ))
-              ) : (
-                <div className="empty-state">
-                  <ShoppingCart size={48} />
-                  <p>Henüz sipariş bulunmuyor</p>
-                </div>
-              )}
-            </div>
-          </div>
+                     {/* Son Siparişler */}
+           <div className="content-card">
+             <div className="card-header">
+               <h3>Son Siparişler</h3>
+               <div className="header-info">
+                 <span className="orders-count">Toplam {ordersPagination.totalOrders} sipariş</span>
+                 <button className="view-all-btn">Tümünü Gör</button>
+               </div>
+             </div>
+             <div className="orders-list">
+               {recentOrders.length > 0 ? (
+                 recentOrders.map((order) => (
+                   <OrderCard key={order.id} order={order} />
+                 ))
+               ) : (
+                 <div className="empty-state">
+                   <ShoppingCart size={48} />
+                   <p>Henüz sipariş bulunmuyor</p>
+                 </div>
+               )}
+             </div>
+             
+             {/* Sayfalama */}
+             {ordersPagination.totalPages > 1 && (
+               <div className="pagination">
+                 <button 
+                   className={`pagination-btn ${!ordersPagination.hasPrevious ? 'disabled' : ''}`}
+                   onClick={() => handlePageChange(ordersPagination.currentPage - 1)}
+                   disabled={!ordersPagination.hasPrevious}
+                 >
+                   Önceki
+                 </button>
+                 
+                 <div className="page-info">
+                   Sayfa {ordersPagination.currentPage + 1} / {ordersPagination.totalPages}
+                 </div>
+                 
+                 <button 
+                   className={`pagination-btn ${!ordersPagination.hasNext ? 'disabled' : ''}`}
+                   onClick={() => handlePageChange(ordersPagination.currentPage + 1)}
+                   disabled={!ordersPagination.hasNext}
+                 >
+                   Sonraki
+                 </button>
+               </div>
+             )}
+           </div>
 
           {/* Hızlı İstatistikler */}
           <div className="content-card">
@@ -221,7 +299,7 @@ const AdminDashboard = () => {
                   <BarChart3 size={20} />
                 </div>
                 <div className="quick-stat-content">
-                  <span className="quick-stat-value">1,234</span>
+                  <span className="quick-stat-value">{quickStats.weeklyOrders.toLocaleString()}</span>
                   <span className="quick-stat-label">Bu Hafta Sipariş</span>
                 </div>
               </div>
@@ -230,7 +308,7 @@ const AdminDashboard = () => {
                   <PieChart size={20} />
                 </div>
                 <div className="quick-stat-content">
-                  <span className="quick-stat-value">₺45,678</span>
+                  <span className="quick-stat-value">₺{quickStats.monthlyRevenue.toLocaleString()}</span>
                   <span className="quick-stat-label">Bu Ay Gelir</span>
                 </div>
               </div>
@@ -239,7 +317,7 @@ const AdminDashboard = () => {
                   <Users size={20} />
                 </div>
                 <div className="quick-stat-content">
-                  <span className="quick-stat-value">89</span>
+                  <span className="quick-stat-value">{quickStats.newUsers.toLocaleString()}</span>
                   <span className="quick-stat-label">Yeni Kullanıcı</span>
                 </div>
               </div>

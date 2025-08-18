@@ -13,9 +13,16 @@ const AdminOrders = () => {
     const [statusFilter, setStatusFilter] = useState("all");
     const [selectedOrder, setSelectedOrder] = useState(null);
     const [showModal, setShowModal] = useState(false);
+    const [stats, setStats] = useState({
+        totalOrders: 0,
+        pendingOrders: 0,
+        completedOrders: 0,
+        totalRevenue: 0
+    });
 
     useEffect(() => {
         fetchOrders();
+        fetchOrderStats();
     }, []);
 
     useEffect(() => {
@@ -24,18 +31,21 @@ const AdminOrders = () => {
 
     const fetchOrders = async () => {
         try {
-            const token = localStorage.getItem('token');
-            const response = await fetch('http://localhost:8080/api/admin/orders', {
+            const response = await fetch('http://localhost:8082/api/admin/orders', {
                 headers: {
-                    'Authorization': `Bearer ${token}`,
                     'Content-Type': 'application/json'
-                }
+                },
+                credentials: 'include'
             });
 
             if (response.ok) {
                 const data = await response.json();
+                console.log("Orders data received:", data);
                 setOrders(data);
             } else {
+                console.error("Orders response not ok:", response.status);
+                const errorText = await response.text();
+                console.error("Orders error response:", errorText);
                 toast.error('Siparişler yüklenirken hata oluştu');
             }
         } catch (error) {
@@ -43,6 +53,29 @@ const AdminOrders = () => {
             toast.error('Siparişler yüklenirken hata oluştu');
         } finally {
             setLoading(false);
+        }
+    };
+
+    const fetchOrderStats = async () => {
+        try {
+            const response = await fetch('http://localhost:8082/api/admin/orders/stats', {
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                credentials: 'include'
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                console.log("Order stats received:", data);
+                setStats(data);
+            } else {
+                console.error("Order stats response not ok:", response.status);
+                const errorText = await response.text();
+                console.error("Order stats error response:", errorText);
+            }
+        } catch (error) {
+            console.error('Error fetching order stats:', error);
         }
     };
 
@@ -69,19 +102,21 @@ const AdminOrders = () => {
 
     const updateOrderStatus = async (orderId, newStatus) => {
         try {
-            const token = localStorage.getItem('token');
-            const response = await fetch(`http://localhost:8080/api/admin/orders/${orderId}/status?status=${newStatus}`, {
+            const response = await fetch(`http://localhost:8082/api/admin/orders/${orderId}/status?status=${newStatus}`, {
                 method: 'PUT',
                 headers: {
-                    'Authorization': `Bearer ${token}`,
                     'Content-Type': 'application/json'
-                }
+                },
+                credentials: 'include'
             });
 
             if (response.ok) {
                 toast.success(`Sipariş durumu ${getStatusText(newStatus)} olarak güncellendi`);
                 fetchOrders(); // Refresh the list
             } else {
+                console.error("Update status response not ok:", response.status);
+                const errorText = await response.text();
+                console.error("Update status error response:", errorText);
                 toast.error('Sipariş durumu güncellenirken hata oluştu');
             }
         } catch (error) {
@@ -204,8 +239,8 @@ const AdminOrders = () => {
                             <ShoppingCart />
                         </div>
                         <div className="stat-content">
-                            <h3>Toplam Sipariş</h3>
-                            <p>{orders.length}</p>
+                            <h3>TOPLAM SİPARİŞ</h3>
+                            <p>{stats.totalOrders}</p>
                         </div>
                     </div>
                     <div className="stat-card">
@@ -213,8 +248,8 @@ const AdminOrders = () => {
                             <Clock />
                         </div>
                         <div className="stat-content">
-                            <h3>Bekleyen</h3>
-                            <p>{orders.filter(o => o.status === 'PENDING').length}</p>
+                            <h3>BEKLEYEN</h3>
+                            <p>{stats.pendingOrders}</p>
                         </div>
                     </div>
                     <div className="stat-card">
@@ -222,8 +257,8 @@ const AdminOrders = () => {
                             <CheckCircle />
                         </div>
                         <div className="stat-content">
-                            <h3>Tamamlanan</h3>
-                            <p>{orders.filter(o => o.status === 'COMPLETED').length}</p>
+                            <h3>TAMAMLANAN</h3>
+                            <p>{stats.completedOrders}</p>
                         </div>
                     </div>
                     <div className="stat-card">
@@ -231,8 +266,8 @@ const AdminOrders = () => {
                             <DollarSign />
                         </div>
                         <div className="stat-content">
-                            <h3>Toplam Gelir</h3>
-                            <p>{formatPrice(orders.reduce((sum, order) => sum + parseFloat(order.totalPrice), 0))}</p>
+                            <h3>TOPLAM GELİR</h3>
+                            <p>₺{stats.totalRevenue.toLocaleString()}</p>
                         </div>
                     </div>
                 </div>

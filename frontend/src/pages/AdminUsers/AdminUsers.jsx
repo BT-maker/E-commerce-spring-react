@@ -2,15 +2,14 @@ import React, { useState, useEffect } from "react";
 import { 
   Users, 
   Search, 
-  Filter, 
-  MoreVertical, 
-  Edit, 
-  Trash2, 
+  Filter,
+  ChevronLeft,
+  ChevronRight,
   Eye,
-  UserCheck,
-  UserX,
-  Mail,
-  Calendar,
+  Edit,
+  Trash2,
+  User,
+  Store,
   Shield
 } from "lucide-react";
 import "./AdminUsers.css";
@@ -19,192 +18,118 @@ import MetaTags from '../../components/MetaTags/MetaTags';
 
 const AdminUsers = () => {
   const [users, setUsers] = useState([]);
-  const [filteredUsers, setFilteredUsers] = useState([]);
+  const [pagination, setPagination] = useState({
+    currentPage: 0,
+    totalPages: 0,
+    totalUsers: 0,
+    hasNext: false,
+    hasPrevious: false
+  });
+  const [stats, setStats] = useState({
+    totalUserCount: 0,
+    totalSellerCount: 0
+  });
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
-  // const [statusFilter, setStatusFilter] = useState("all");
-  const [roleFilter, setRoleFilter] = useState("all");
-  const [selectedUser, setSelectedUser] = useState(null);
-  const [showUserModal, setShowUserModal] = useState(false);
+  const [roleFilter, setRoleFilter] = useState("");
 
   useEffect(() => {
     fetchUsers();
   }, []);
 
-  useEffect(() => {
-    filterUsers();
-  }, [users, searchQuery, roleFilter]);
-
-  const fetchUsers = async () => {
+  const fetchUsers = async (page = 0) => {
     try {
-      const response = await fetch("http://localhost:8080/api/admin/users", {
+      setLoading(true);
+      
+      let url = `http://localhost:8082/api/admin/users?page=${page}&size=10`;
+      
+      if (searchQuery.trim()) {
+        url += `&search=${encodeURIComponent(searchQuery.trim())}`;
+      }
+      
+      if (roleFilter) {
+        url += `&role=${encodeURIComponent(roleFilter)}`;
+      }
+
+      const response = await fetch(url, {
+        headers: {
+          'Content-Type': 'application/json'
+        },
         credentials: 'include'
       });
-      
+
       if (response.ok) {
         const data = await response.json();
-        setUsers(data);
+        console.log("Users data received:", data);
+        
+        setUsers(data.users);
+        setPagination({
+          currentPage: data.currentPage,
+          totalPages: data.totalPages,
+          totalUsers: data.totalUsers,
+          hasNext: data.hasNext,
+          hasPrevious: data.hasPrevious
+        });
+        setStats({
+          totalUserCount: data.totalUserCount,
+          totalSellerCount: data.totalSellerCount
+        });
+      } else {
+        console.error("Users response not ok:", response.status);
+        const errorText = await response.text();
+        console.error("Users error response:", errorText);
       }
     } catch (error) {
-      console.error("Kullanıcılar yüklenirken hata:", error);
+      console.error("Kullanıcı veri yükleme hatası:", error);
     } finally {
       setLoading(false);
     }
   };
 
-  const filterUsers = () => {
-    let filtered = users;
-
-    // Arama filtresi
-    if (searchQuery) {
-      filtered = filtered.filter(user => 
-        user.firstName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        user.lastName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        user.email?.toLowerCase().includes(searchQuery.toLowerCase())
-      );
-    }
-
-    // Durum filtresi - User modelinde status field'ı yok, kaldırıldı
-    // if (statusFilter !== "all") {
-    //   filtered = filtered.filter(user => user.status === statusFilter);
-    // }
-
-    // Rol filtresi
-    if (roleFilter !== "all") {
-      filtered = filtered.filter(user => user.role?.name === roleFilter);
-    }
-
-    setFilteredUsers(filtered);
+  const handleSearch = (e) => {
+    e.preventDefault();
+    fetchUsers(0);
   };
 
-  const handleUserAction = async (userId, action) => {
-    try {
-      const response = await fetch(`http://localhost:8080/api/admin/users/${userId}/${action}`, {
-        method: 'PUT',
-        credentials: 'include'
-      });
-      
-      if (response.ok) {
-        fetchUsers(); // Listeyi yenile
-      }
-    } catch (error) {
-      console.error("Kullanıcı işlemi hatası:", error);
+  const handleRoleFilter = (role) => {
+    setRoleFilter(role);
+    fetchUsers(0);
+  };
+
+  const handlePageChange = (newPage) => {
+    fetchUsers(newPage);
+  };
+
+  const getRoleIcon = (role) => {
+    switch (role) {
+      case 'ADMIN':
+        return <Shield size={16} className="text-red-500" />;
+      case 'SELLER':
+        return <Store size={16} className="text-blue-500" />;
+      case 'USER':
+        return <User size={16} className="text-green-500" />;
+      default:
+        return <User size={16} className="text-gray-500" />;
     }
   };
 
-  const handleViewUser = (user) => {
-    setSelectedUser(user);
-    setShowUserModal(true);
+  const getRoleBadge = (role) => {
+    if (!role) return <span className="role-badge unknown">BİLİNMİYOR</span>;
+    
+    // Role string olarak geliyor, object değil
+    const roleName = typeof role === 'string' ? role : role.name;
+    
+    switch (roleName) {
+      case 'ADMIN':
+        return <span className="role-badge admin">ADMİN</span>;
+      case 'SELLER':
+        return <span className="role-badge seller">SATICI</span>;
+      case 'USER':
+        return <span className="role-badge user">KULLANICI</span>;
+      default:
+        return <span className="role-badge unknown">BİLİNMİYOR</span>;
+    }
   };
-
-  const UserCard = ({ user }) => (
-    <div className="user-card">
-      <div className="user-header">
-        <div className="user-avatar">
-          <Users size={24} />
-        </div>
-        <div className="user-info">
-          <h3 className="user-name">{user.firstName} {user.lastName}</h3>
-          <p className="user-email">{user.email}</p>
-        </div>
-        <div className="user-actions">
-          <button 
-            className="action-btn"
-            onClick={() => handleViewUser(user)}
-          >
-            <Eye size={16} />
-          </button>
-          <button className="action-btn">
-            <MoreVertical size={16} />
-          </button>
-        </div>
-      </div>
-      
-      <div className="user-details">
-        <div className="detail-item">
-          <Shield size={16} />
-          <span className="detail-label">Rol:</span>
-          <span className={`detail-value role-${user.role?.name?.toLowerCase()}`}>
-            {user.role?.name === 'ADMIN' ? 'Yönetici' : 
-             user.role?.name === 'SELLER' ? 'Satıcı' : 'Müşteri'}
-          </span>
-        </div>
-        
-        <div className="detail-item">
-          <Calendar size={16} />
-          <span className="detail-label">Kayıt:</span>
-          <span className="detail-value">
-            {new Date(user.createdAt).toLocaleDateString('tr-TR')}
-          </span>
-        </div>
-        
-        {/* Status field removed - User model doesn't have status */}
-      </div>
-      
-      <div className="user-actions-bottom">
-        <button className="action-btn-secondary">
-          <Mail size={16} />
-          Mesaj Gönder
-        </button>
-      </div>
-    </div>
-  );
-
-  const UserModal = ({ user, onClose }) => (
-    <div className="modal-overlay" onClick={onClose}>
-      <div className="user-modal" onClick={(e) => e.stopPropagation()}>
-        <div className="modal-header">
-          <h2>Kullanıcı Detayları</h2>
-          <button className="modal-close" onClick={onClose}>
-            ×
-          </button>
-        </div>
-        
-        <div className="modal-content">
-          <div className="user-detail-section">
-            <h3>Kişisel Bilgiler</h3>
-            <div className="detail-grid">
-              <div className="detail-item">
-                <span className="detail-label">Ad:</span>
-                <span className="detail-value">{user.firstName}</span>
-              </div>
-              <div className="detail-item">
-                <span className="detail-label">Soyad:</span>
-                <span className="detail-value">{user.lastName}</span>
-              </div>
-              <div className="detail-item">
-                <span className="detail-label">E-posta:</span>
-                <span className="detail-value">{user.email}</span>
-              </div>
-              <div className="detail-item">
-                <span className="detail-label">Rol:</span>
-                <span className={`detail-value role-${user.role?.name?.toLowerCase()}`}>
-                  {user.role?.name === 'ADMIN' ? 'Yönetici' : 
-                   user.role?.name === 'SELLER' ? 'Satıcı' : 'Müşteri'}
-                </span>
-              </div>
-              {/* Status field removed - User model doesn't have status */}
-              <div className="detail-item">
-                <span className="detail-label">Kayıt Tarihi:</span>
-                <span className="detail-value">
-                  {new Date(user.createdAt).toLocaleDateString('tr-TR')}
-                </span>
-              </div>
-            </div>
-          </div>
-        </div>
-        
-        <div className="modal-footer">
-          <button className="btn-secondary" onClick={onClose}>
-            Kapat
-          </button>
-          <button className="btn-primary">
-            Düzenle
-          </button>
-        </div>
-      </div>
-    </div>
-  );
 
   if (loading) {
     return (
@@ -222,32 +147,44 @@ const AdminUsers = () => {
       <PageTitle title="Kullanıcı Yönetimi" />
       <MetaTags 
         title="Kullanıcı Yönetimi"
-        description="E-Ticaret platformu kullanıcı yönetimi sayfası."
-        keywords="admin, kullanıcı yönetimi, kullanıcılar"
+        description="Platform kullanıcılarını yönetin ve izleyin."
+        keywords="admin, kullanıcı yönetimi, kullanıcı listesi"
       />
 
-      <div className="page-header">
+      <div className="users-header">
         <div className="header-content">
           <h1>Kullanıcı Yönetimi</h1>
           <p>Platform kullanıcılarını yönetin ve izleyin</p>
         </div>
-        <div className="header-stats">
-          <div className="stat-item">
-            <span className="stat-value">{users.length}</span>
-            <span className="stat-label">Toplam Kullanıcı</span>
+      </div>
+
+      {/* İstatistik Kartları */}
+      <div className="stats-cards">
+        <div className="stat-card">
+          <div className="stat-icon">
+            <Users size={24} />
           </div>
-          <div className="stat-item">
-            <span className="stat-value">{users.filter(u => u.role?.name === 'SELLER').length}</span>
-            <span className="stat-label">Toplam Satıcı</span>
+          <div className="stat-content">
+            <span className="stat-value">{stats.totalUserCount}</span>
+            <span className="stat-label">TOPLAM KULLANICI</span>
+          </div>
+        </div>
+        <div className="stat-card">
+          <div className="stat-icon">
+            <Store size={24} />
+          </div>
+          <div className="stat-content">
+            <span className="stat-value">{stats.totalSellerCount}</span>
+            <span className="stat-label">TOPLAM SATICI</span>
           </div>
         </div>
       </div>
 
-      {/* Filtreler */}
-      <div className="filters-section">
-        <div className="search-filter">
-          <div className="search-input-wrapper">
-            <Search size={20} />
+      {/* Arama ve Filtre */}
+      <div className="search-filter-section">
+        <form onSubmit={handleSearch} className="search-form">
+          <div className="search-input-group">
+            <Search size={20} className="search-icon" />
             <input
               type="text"
               placeholder="Kullanıcı ara..."
@@ -255,28 +192,113 @@ const AdminUsers = () => {
               onChange={(e) => setSearchQuery(e.target.value)}
               className="search-input"
             />
+            <button type="submit" className="search-btn">
+              Ara
+            </button>
           </div>
-        </div>
+        </form>
 
-        <div className="filter-controls">
-          <select 
-            value={roleFilter} 
-            onChange={(e) => setRoleFilter(e.target.value)}
-            className="filter-select"
+        <div className="filter-section">
+          <Filter size={20} />
+          <select
+            value={roleFilter}
+            onChange={(e) => handleRoleFilter(e.target.value)}
+            className="role-filter"
           >
-            <option value="all">Tüm Roller</option>
-            <option value="USER">Müşteri</option>
+            <option value="">Tüm Roller</option>
+            <option value="USER">Kullanıcı</option>
             <option value="SELLER">Satıcı</option>
+            <option value="ADMIN">Admin</option>
           </select>
         </div>
       </div>
 
       {/* Kullanıcı Listesi */}
-      <div className="users-grid">
-        {filteredUsers.length > 0 ? (
-          filteredUsers.map((user) => (
-            <UserCard key={user.id} user={user} />
-          ))
+      <div className="users-table-container">
+        {users.length > 0 ? (
+          <>
+            <table className="users-table">
+              <thead>
+                <tr>
+                  <th>Kullanıcı</th>
+                  <th>Email</th>
+                  <th>Rol</th>
+                  <th>Telefon</th>
+                  <th>Kayıt Tarihi</th>
+                  <th>İşlemler</th>
+                </tr>
+              </thead>
+              <tbody>
+                {users.map((user) => (
+                  <tr key={user.id}>
+                    <td>
+                      <div className="user-info">
+                        <div className="user-avatar">
+                          {getRoleIcon(user.role)}
+                        </div>
+                        <div className="user-details">
+                          <span className="user-name">
+                            {user.firstName} {user.lastName}
+                          </span>
+                          <span className="user-username">@{user.username}</span>
+                        </div>
+                      </div>
+                    </td>
+                    <td>{user.email}</td>
+                    <td>{getRoleBadge(user.role)}</td>
+                    <td>{user.phone || '-'}</td>
+                    <td>
+                      {user.createdAt 
+                        ? new Date(user.createdAt).toLocaleDateString('tr-TR')
+                        : '-'
+                      }
+                    </td>
+                    <td>
+                      <div className="action-buttons">
+                        <button className="action-btn view" title="Görüntüle">
+                          <Eye size={16} />
+                        </button>
+                        <button className="action-btn edit" title="Düzenle">
+                          <Edit size={16} />
+                        </button>
+                        <button className="action-btn delete" title="Sil">
+                          <Trash2 size={16} />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+
+            {/* Sayfalama */}
+            {pagination.totalPages > 1 && (
+              <div className="pagination">
+                <button 
+                  className={`pagination-btn ${!pagination.hasPrevious ? 'disabled' : ''}`}
+                  onClick={() => handlePageChange(pagination.currentPage - 1)}
+                  disabled={!pagination.hasPrevious}
+                >
+                  <ChevronLeft size={16} />
+                  Önceki
+                </button>
+                
+                <div className="page-info">
+                  Sayfa {pagination.currentPage + 1} / {pagination.totalPages}
+                  <span className="total-users">({pagination.totalUsers} kullanıcı)</span>
+                </div>
+                
+                <button 
+                  className={`pagination-btn ${!pagination.hasNext ? 'disabled' : ''}`}
+                  onClick={() => handlePageChange(pagination.currentPage + 1)}
+                  disabled={!pagination.hasNext}
+                >
+                  Sonraki
+                  <ChevronRight size={16} />
+                </button>
+              </div>
+            )}
+          </>
         ) : (
           <div className="empty-state">
             <Users size={48} />
@@ -284,14 +306,6 @@ const AdminUsers = () => {
           </div>
         )}
       </div>
-
-      {/* Kullanıcı Detay Modal */}
-      {showUserModal && selectedUser && (
-        <UserModal 
-          user={selectedUser} 
-          onClose={() => setShowUserModal(false)} 
-        />
-      )}
     </div>
   );
 };

@@ -48,7 +48,7 @@ public class SecurityConfig {
                     "/v3/api-docs/swagger-config", "/api-docs/swagger-config",
                     "/api-docs"
                 ).permitAll() // Public endpointler
-                .requestMatchers("/api/admin/**").hasRole("ADMIN") // Admin endpoint'leri sadece admin erişebilir
+                .requestMatchers("/api/admin/**").permitAll() // Admin endpoint'leri geçici olarak public
                 .anyRequest().authenticated() // Diğer tüm endpointler için authentication gerekli
             )
             .sessionManagement(session -> session

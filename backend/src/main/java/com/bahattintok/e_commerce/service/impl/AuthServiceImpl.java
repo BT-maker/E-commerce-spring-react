@@ -137,6 +137,7 @@ public class AuthServiceImpl implements AuthService {
                 .orElseThrow(() -> new RuntimeException("User not found"));
         
         System.out.println("Veritabanındaki hash: " + user.getPassword());
+        System.out.println("User role: " + (user.getRole() != null ? user.getRole().getName() : "null"));
         
         // Plain password'ü veritabanındaki BCrypt hash ile karşılaştır
         boolean passwordMatches = passwordEncoder.matches(plainPassword, user.getPassword());
@@ -154,7 +155,7 @@ public class AuthServiceImpl implements AuthService {
         String token = jwtUtil.generateToken(userDetails);
         
         // Role adını doğru şekilde al
-        String roleName = user.getRole().getName();
+        String roleName = user.getRole() != null ? user.getRole().getName() : "USER";
         
         System.out.println("Token oluşturuldu: " + token.substring(0, 20) + "...");
         System.out.println("Role: " + roleName);

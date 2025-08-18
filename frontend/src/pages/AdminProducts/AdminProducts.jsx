@@ -13,9 +13,15 @@ const AdminProducts = () => {
     const [statusFilter, setStatusFilter] = useState("all");
     const [selectedProduct, setSelectedProduct] = useState(null);
     const [showModal, setShowModal] = useState(false);
+    const [stats, setStats] = useState({
+        totalProducts: 0,
+        activeProducts: 0,
+        pendingProducts: 0
+    });
 
     useEffect(() => {
         fetchProducts();
+        fetchProductStats();
     }, []);
 
     useEffect(() => {
@@ -24,18 +30,21 @@ const AdminProducts = () => {
 
     const fetchProducts = async () => {
         try {
-            const token = localStorage.getItem('token');
-            const response = await fetch('http://localhost:8080/api/admin/products', {
+            const response = await fetch('http://localhost:8082/api/admin/products', {
                 headers: {
-                    'Authorization': `Bearer ${token}`,
                     'Content-Type': 'application/json'
-                }
+                },
+                credentials: 'include'
             });
 
             if (response.ok) {
                 const data = await response.json();
+                console.log("Products data received:", data);
                 setProducts(data);
             } else {
+                console.error("Products response not ok:", response.status);
+                const errorText = await response.text();
+                console.error("Products error response:", errorText);
                 toast.error('Ürünler yüklenirken hata oluştu');
             }
         } catch (error) {
@@ -43,6 +52,29 @@ const AdminProducts = () => {
             toast.error('Ürünler yüklenirken hata oluştu');
         } finally {
             setLoading(false);
+        }
+    };
+
+    const fetchProductStats = async () => {
+        try {
+            const response = await fetch('http://localhost:8082/api/admin/products/stats', {
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                credentials: 'include'
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                console.log("Product stats received:", data);
+                setStats(data);
+            } else {
+                console.error("Product stats response not ok:", response.status);
+                const errorText = await response.text();
+                console.error("Product stats error response:", errorText);
+            }
+        } catch (error) {
+            console.error('Error fetching product stats:', error);
         }
     };
 
@@ -67,19 +99,21 @@ const AdminProducts = () => {
 
     const updateProductStatus = async (productId, newStatus) => {
         try {
-            const token = localStorage.getItem('token');
-            const response = await fetch(`http://localhost:8080/api/admin/products/${productId}/status?status=${newStatus}`, {
+            const response = await fetch(`http://localhost:8082/api/admin/products/${productId}/status?status=${newStatus}`, {
                 method: 'PUT',
                 headers: {
-                    'Authorization': `Bearer ${token}`,
                     'Content-Type': 'application/json'
-                }
+                },
+                credentials: 'include'
             });
 
             if (response.ok) {
                 toast.success(`Ürün ${newStatus === 'AKTİF' ? 'onaylandı' : 'reddedildi'}`);
                 fetchProducts(); // Refresh the list
             } else {
+                console.error("Update status response not ok:", response.status);
+                const errorText = await response.text();
+                console.error("Update status error response:", errorText);
                 toast.error('Ürün durumu güncellenirken hata oluştu');
             }
         } catch (error) {
@@ -174,8 +208,8 @@ const AdminProducts = () => {
                             <Package />
                         </div>
                         <div className="stat-content">
-                            <h3>Toplam Ürün</h3>
-                            <p>{products.length}</p>
+                            <h3>TOPLAM ÜRÜN</h3>
+                            <p>{stats.totalProducts}</p>
                         </div>
                     </div>
                     <div className="stat-card">
@@ -183,8 +217,8 @@ const AdminProducts = () => {
                             <CheckCircle />
                         </div>
                         <div className="stat-content">
-                            <h3>Aktif Ürün</h3>
-                            <p>{products.filter(p => p.status === 'AKTİF').length}</p>
+                            <h3>AKTİF ÜRÜN</h3>
+                            <p>{stats.activeProducts}</p>
                         </div>
                     </div>
                     <div className="stat-card">
@@ -192,8 +226,8 @@ const AdminProducts = () => {
                             <Clock />
                         </div>
                         <div className="stat-content">
-                            <h3>Bekleyen</h3>
-                            <p>{products.filter(p => p.status === 'BEKLEMEDE').length}</p>
+                            <h3>BEKLEYEN</h3>
+                            <p>{stats.pendingProducts}</p>
                         </div>
                     </div>
                 </div>

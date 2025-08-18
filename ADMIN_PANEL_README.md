@@ -149,7 +149,7 @@ npm run dev
 ## 🎨 Tasarım Özellikleri
 
 ### Renk Paleti
-- **Primary**: #667eea (Mavi)
+- **Primary**: #FF6000 (Mavi)
 - **Secondary**: #764ba2 (Mor)
 - **Success**: #38a169 (Yeşil)
 - **Danger**: #e53e3e (Kırmızı)

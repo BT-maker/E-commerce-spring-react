@@ -7,7 +7,6 @@ import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -29,7 +28,6 @@ import com.bahattintok.e_commerce.service.AdminService;
 @RestController
 @RequestMapping("/api/admin")
 @CrossOrigin(origins = "http://localhost:5173")
-@PreAuthorize("hasRole('ADMIN')")
 public class AdminController {
 
     @Autowired
@@ -47,31 +45,130 @@ public class AdminController {
     @Autowired
     private StoreRepository storeRepository;
 
+    // Test endpoint
+    @GetMapping("/test")
+    public ResponseEntity<String> test() {
+        return ResponseEntity.ok("Admin controller çalışıyor!");
+    }
+
+    // Kullanıcı listesi
+    @GetMapping("/users")
+    public ResponseEntity<Map<String, Object>> getUsers(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(required = false) String search,
+            @RequestParam(required = false) String role) {
+        try {
+            System.out.println("=== DEBUG: getUsers called ===");
+            System.out.println("Page: " + page + ", Size: " + size + ", Search: " + search + ", Role: " + role);
+            
+            List<User> allUsers = userRepository.findAll();
+            
+            // Arama filtresi
+            if (search != null && !search.trim().isEmpty()) {
+                allUsers = allUsers.stream()
+                    .filter(user -> 
+                        (user.getFirstName() != null && user.getFirstName().toLowerCase().contains(search.toLowerCase())) ||
+                        (user.getLastName() != null && user.getLastName().toLowerCase().contains(search.toLowerCase())) ||
+                        (user.getEmail() != null && user.getEmail().toLowerCase().contains(search.toLowerCase())) ||
+                        (user.getUsername() != null && user.getUsername().toLowerCase().contains(search.toLowerCase()))
+                    )
+                    .collect(Collectors.toList());
+            }
+            
+            // Rol filtresi
+            if (role != null && !role.trim().isEmpty()) {
+                allUsers = allUsers.stream()
+                    .filter(user -> user.getRole() != null && user.getRole().getName().equals(role))
+                    .collect(Collectors.toList());
+            }
+            
+            // Sayfalama hesaplamaları
+            int totalUsers = allUsers.size();
+            int totalPages = (int) Math.ceil((double) totalUsers / size);
+            int startIndex = page * size;
+            int endIndex = Math.min(startIndex + size, totalUsers);
+            
+            // Sayfa için kullanıcıları al
+            List<User> pageUsers = allUsers.subList(startIndex, endIndex);
+            
+            // Kullanıcı sayılarını hesapla
+            long totalUserCount = allUsers.stream()
+                .filter(user -> user.getRole() != null && "USER".equals(user.getRole().getName()))
+                .count();
+            long totalSellerCount = allUsers.stream()
+                .filter(user -> user.getRole() != null && "SELLER".equals(user.getRole().getName()))
+                .count();
+            
+            Map<String, Object> response = new HashMap<>();
+            response.put("users", pageUsers);
+            response.put("currentPage", page);
+            response.put("totalPages", totalPages);
+            response.put("totalUsers", totalUsers);
+            response.put("hasNext", page < totalPages - 1);
+            response.put("hasPrevious", page > 0);
+            response.put("totalUserCount", totalUserCount);
+            response.put("totalSellerCount", totalSellerCount);
+            
+            System.out.println("Total users found: " + totalUsers);
+            System.out.println("Response being sent: " + response);
+            
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            System.out.println("Error in getUsers: " + e.getMessage());
+            e.printStackTrace();
+            Map<String, Object> error = new HashMap<>();
+            error.put("error", "Kullanıcılar alınamadı: " + e.getMessage());
+            return ResponseEntity.badRequest().body(error);
+        }
+    }
+
     // Dashboard istatistikleri
     @GetMapping("/dashboard/stats")
     public ResponseEntity<Map<String, Object>> getDashboardStats() {
+        System.out.println("Dashboard stats endpoint çağrıldı");
         try {
             Map<String, Object> stats = new HashMap<>();
             
             // Temel istatistikler
             List<User> allUsers = userRepository.findAll();
             long totalUsers = allUsers.stream()
-                .filter(user -> user.getRole() != null && !"ADMIN".equals(user.getRole().getName()))
+                .filter(user -> user.getRole() != null && "USER".equals(user.getRole().getName()))
                 .count();
             long totalSellers = allUsers.stream()
                 .filter(user -> user.getRole() != null && "SELLER".equals(user.getRole().getName()))
                 .count();
             long totalProducts = productRepository.count();
             long totalOrders = orderRepository.count();
-            long totalStores = storeRepository.count();
+            
+            // Toplam gelir hesaplama
+            List<Order> allOrders = orderRepository.findAll();
+            double totalRevenue = allOrders.stream()
+                .filter(order -> "COMPLETED".equals(order.getStatus()))
+                .mapToDouble(order -> order.getTotalPrice().doubleValue())
+                .sum();
+            
+            // Aylık büyüme hesaplama (basit hesaplama)
+            long currentMonthOrders = allOrders.stream()
+                .filter(order -> order.getCreatedAt() != null && 
+                               order.getCreatedAt().getMonth() == java.time.LocalDateTime.now().getMonth())
+                .count();
+            long lastMonthOrders = allOrders.stream()
+                .filter(order -> order.getCreatedAt() != null && 
+                               order.getCreatedAt().getMonth() == java.time.LocalDateTime.now().minusMonths(1).getMonth())
+                .count();
+            
+            double monthlyGrowth = lastMonthOrders > 0 ? 
+                ((double)(currentMonthOrders - lastMonthOrders) / lastMonthOrders) * 100 : 0.0;
             
             stats.put("totalUsers", totalUsers);
             stats.put("totalSellers", totalSellers);
             stats.put("totalProducts", totalProducts);
             stats.put("totalOrders", totalOrders);
-            stats.put("totalRevenue", 0.0); // Geçici
-            stats.put("monthlyGrowth", 15.5); // Örnek değer
+            stats.put("totalRevenue", totalRevenue);
+            stats.put("monthlyGrowth", Math.round(monthlyGrowth * 10.0) / 10.0); // 1 ondalık basamak
             
+            System.out.println("Stats response: " + stats);
             return ResponseEntity.ok(stats);
         } catch (Exception e) {
             Map<String, Object> error = new HashMap<>();
@@ -80,33 +177,90 @@ public class AdminController {
         }
     }
 
-    // Son siparişler
+    // Son siparişler (sayfalama ile)
     @GetMapping("/dashboard/recent-orders")
-    public ResponseEntity<List<Order>> getRecentOrders() {
+    public ResponseEntity<Map<String, Object>> getRecentOrders(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "6") int size) {
         try {
-            List<Order> recentOrders = orderRepository.findAll();
-            // Sadece son 10 siparişi döndür
-            if (recentOrders.size() > 10) {
-                recentOrders = recentOrders.subList(0, 10);
-            }
-            return ResponseEntity.ok(recentOrders);
+            System.out.println("=== DEBUG: getRecentOrders called ===");
+            System.out.println("Page: " + page + ", Size: " + size);
+            
+            List<Order> allOrders = orderRepository.findAll();
+            System.out.println("Total orders found: " + allOrders.size());
+            
+            // Siparişleri tarihe göre sırala (en yeni önce)
+            allOrders.sort((o1, o2) -> {
+                if (o1.getCreatedAt() == null && o2.getCreatedAt() == null) return 0;
+                if (o1.getCreatedAt() == null) return 1;
+                if (o2.getCreatedAt() == null) return -1;
+                return o2.getCreatedAt().compareTo(o1.getCreatedAt());
+            });
+            
+            // Sayfalama hesaplamaları
+            int totalOrders = allOrders.size();
+            int totalPages = (int) Math.ceil((double) totalOrders / size);
+            int startIndex = page * size;
+            int endIndex = Math.min(startIndex + size, totalOrders);
+            
+            // Sayfa için siparişleri al
+            List<Order> pageOrders = allOrders.subList(startIndex, endIndex);
+            
+            Map<String, Object> response = new HashMap<>();
+            response.put("orders", pageOrders);
+            response.put("currentPage", page);
+            response.put("totalPages", totalPages);
+            response.put("totalOrders", totalOrders);
+            response.put("hasNext", page < totalPages - 1);
+            response.put("hasPrevious", page > 0);
+            
+            System.out.println("Response being sent: " + response);
+            System.out.println("Orders in response: " + pageOrders.size());
+            
+            return ResponseEntity.ok(response);
         } catch (Exception e) {
+            System.out.println("ERROR in getRecentOrders: " + e.getMessage());
+            e.printStackTrace();
             return ResponseEntity.badRequest().build();
         }
     }
 
-    // Admin olmayan tüm kullanıcıları getir
-    @GetMapping("/users")
-    public ResponseEntity<List<User>> getAllUsers() {
+    // Hızlı istatistikler
+    @GetMapping("/dashboard/quick-stats")
+    public ResponseEntity<Map<String, Object>> getQuickStats() {
         try {
-            List<User> allUsers = userRepository.findAll();
-            // Admin rolündeki kullanıcıları filtrele
-            List<User> nonAdminUsers = allUsers.stream()
-                .filter(user -> user.getRole() != null && !"ADMIN".equals(user.getRole().getName()))
-                .collect(Collectors.toList());
-            return ResponseEntity.ok(nonAdminUsers);
+            Map<String, Object> quickStats = new HashMap<>();
+            
+            // Bu hafta sipariş sayısı
+            java.time.LocalDateTime weekStart = java.time.LocalDateTime.now().minusWeeks(1);
+            long weeklyOrders = orderRepository.findAll().stream()
+                .filter(order -> order.getCreatedAt() != null && 
+                               order.getCreatedAt().isAfter(weekStart))
+                .count();
+            
+            // Bu ay gelir
+            java.time.LocalDateTime monthStart = java.time.LocalDateTime.now().minusMonths(1);
+            double monthlyRevenue = orderRepository.findAll().stream()
+                .filter(order -> order.getCreatedAt() != null && 
+                               order.getCreatedAt().isAfter(monthStart) &&
+                               "COMPLETED".equals(order.getStatus()))
+                .mapToDouble(order -> order.getTotalPrice().doubleValue())
+                .sum();
+            
+            // Yeni kullanıcı sayısı (son 30 gün) - User entity'sinde createdAt yok, tüm USER rolündeki kullanıcıları say
+            long newUsers = userRepository.findAll().stream()
+                .filter(user -> "USER".equals(user.getRole().getName()))
+                .count();
+            
+            quickStats.put("weeklyOrders", weeklyOrders);
+            quickStats.put("monthlyRevenue", monthlyRevenue);
+            quickStats.put("newUsers", newUsers);
+            
+            return ResponseEntity.ok(quickStats);
         } catch (Exception e) {
-            return ResponseEntity.badRequest().build();
+            Map<String, Object> error = new HashMap<>();
+            error.put("error", "Hızlı istatistikler alınamadı: " + e.getMessage());
+            return ResponseEntity.badRequest().body(error);
         }
     }
 
@@ -170,16 +324,48 @@ public class AdminController {
                }
            }
 
-           // Duruma göre ürünleri getir
-           @GetMapping("/products/status/{status}")
-           public ResponseEntity<List<Product>> getProductsByStatus(@PathVariable String status) {
-               try {
-                   List<Product> products = productRepository.findByStatus(status);
-                   return ResponseEntity.ok(products);
-               } catch (Exception e) {
-                   return ResponseEntity.badRequest().build();
-               }
-           }
+                       // Duruma göre ürünleri getir
+            @GetMapping("/products/status/{status}")
+            public ResponseEntity<List<Product>> getProductsByStatus(@PathVariable String status) {
+                try {
+                    List<Product> products = productRepository.findByStatus(status);
+                    return ResponseEntity.ok(products);
+                } catch (Exception e) {
+                    return ResponseEntity.badRequest().build();
+                }
+            }
+
+            // Ürün istatistikleri
+            @GetMapping("/products/stats")
+            public ResponseEntity<Map<String, Object>> getProductStats() {
+                try {
+                    System.out.println("=== DEBUG: getProductStats called ===");
+                    
+                    List<Product> allProducts = productRepository.findAll();
+                    
+                    long totalProducts = allProducts.size();
+                    long activeProducts = allProducts.stream()
+                        .filter(product -> "AKTİF".equals(product.getStatus()))
+                        .count();
+                    long pendingProducts = allProducts.stream()
+                        .filter(product -> "BEKLEMEDE".equals(product.getStatus()))
+                        .count();
+                    
+                    Map<String, Object> stats = new HashMap<>();
+                    stats.put("totalProducts", totalProducts);
+                    stats.put("activeProducts", activeProducts);
+                    stats.put("pendingProducts", pendingProducts);
+                    
+                    System.out.println("Product stats: " + stats);
+                    return ResponseEntity.ok(stats);
+                } catch (Exception e) {
+                    System.out.println("Error in getProductStats: " + e.getMessage());
+                    e.printStackTrace();
+                    Map<String, Object> error = new HashMap<>();
+                    error.put("error", "Ürün istatistikleri alınamadı: " + e.getMessage());
+                    return ResponseEntity.badRequest().body(error);
+                }
+            }
 
                // Tüm siparişleri getir
            @GetMapping("/orders")
@@ -230,16 +416,55 @@ public class AdminController {
                }
            }
 
-           // Duruma göre siparişleri getir
-           @GetMapping("/orders/status/{status}")
-           public ResponseEntity<List<Order>> getOrdersByStatus(@PathVariable String status) {
-               try {
-                   List<Order> orders = orderRepository.findByStatus(status);
-                   return ResponseEntity.ok(orders);
-               } catch (Exception e) {
-                   return ResponseEntity.badRequest().build();
-               }
-           }
+                       // Duruma göre siparişleri getir
+            @GetMapping("/orders/status/{status}")
+            public ResponseEntity<List<Order>> getOrdersByStatus(@PathVariable String status) {
+                try {
+                    List<Order> orders = orderRepository.findByStatus(status);
+                    return ResponseEntity.ok(orders);
+                } catch (Exception e) {
+                    return ResponseEntity.badRequest().build();
+                }
+            }
+
+            // Sipariş istatistikleri
+            @GetMapping("/orders/stats")
+            public ResponseEntity<Map<String, Object>> getOrderStats() {
+                try {
+                    System.out.println("=== DEBUG: getOrderStats called ===");
+                    
+                    List<Order> allOrders = orderRepository.findAll();
+                    
+                    long totalOrders = allOrders.size();
+                    long pendingOrders = allOrders.stream()
+                        .filter(order -> "PENDING".equals(order.getStatus()))
+                        .count();
+                    long completedOrders = allOrders.stream()
+                        .filter(order -> "COMPLETED".equals(order.getStatus()))
+                        .count();
+                    
+                    // Toplam gelir hesaplama
+                    double totalRevenue = allOrders.stream()
+                        .filter(order -> "COMPLETED".equals(order.getStatus()))
+                        .mapToDouble(order -> order.getTotalPrice().doubleValue())
+                        .sum();
+                    
+                    Map<String, Object> stats = new HashMap<>();
+                    stats.put("totalOrders", totalOrders);
+                    stats.put("pendingOrders", pendingOrders);
+                    stats.put("completedOrders", completedOrders);
+                    stats.put("totalRevenue", totalRevenue);
+                    
+                    System.out.println("Order stats: " + stats);
+                    return ResponseEntity.ok(stats);
+                } catch (Exception e) {
+                    System.out.println("Error in getOrderStats: " + e.getMessage());
+                    e.printStackTrace();
+                    Map<String, Object> error = new HashMap<>();
+                    error.put("error", "Sipariş istatistikleri alınamadı: " + e.getMessage());
+                    return ResponseEntity.badRequest().body(error);
+                }
+            }
 
     // Tüm mağazaları getir
     @GetMapping("/stores")

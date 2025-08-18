@@ -36,7 +36,7 @@
   display: flex;
   align-items: center;
   gap: 0.75rem;
-  color: #667eea;
+  color: #FF6000;
   font-weight: 700;
   font-size: 1.25rem;
 }
@@ -76,14 +76,14 @@
 
 .nav-item:hover {
   background: #f7fafc;
-  color: #667eea;
-  border-left-color: #667eea;
+  color: #FF6000;
+  border-left-color: #FF6000;
 }
 
 .nav-item.active {
   background: #edf2f7;
-  color: #667eea;
-  border-left-color: #667eea;
+  color: #FF6000;
+  border-left-color: #FF6000;
   font-weight: 600;
 }
 

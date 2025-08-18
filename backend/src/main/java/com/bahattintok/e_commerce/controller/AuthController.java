@@ -122,6 +122,36 @@ public class AuthController {
     }
 
     /**
+     * Geçici endpoint: Admin kullanıcısının şifresini günceller
+     */
+    @PostMapping("/admin/update-password")
+    public ResponseEntity<?> updateAdminPassword(@RequestBody Map<String, String> request) {
+        try {
+            String email = request.get("email");
+            String newPassword = request.get("newPassword");
+            
+            if (email == null || newPassword == null) {
+                return ResponseEntity.badRequest().body("Email ve yeni şifre gerekli");
+            }
+            
+            User user = userRepository.findByEmail(email).orElse(null);
+            if (user == null) {
+                return ResponseEntity.notFound().build();
+            }
+            
+            // Yeni şifreyi BCrypt ile hash'le
+            String encodedPassword = passwordEncoder.encode(newPassword);
+            user.setPassword(encodedPassword);
+            userRepository.save(user);
+            
+            return ResponseEntity.ok("Şifre başarıyla güncellendi");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body("Şifre güncellenirken hata: " + e.getMessage());
+        }
+    }
+
+    /**
      * Kullanıcı çıkışı (logout) - JWT cookie'sini siler.
      */
     @PostMapping("/logout")

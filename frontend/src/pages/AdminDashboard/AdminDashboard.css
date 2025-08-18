@@ -17,7 +17,7 @@
   width: 40px;
   height: 40px;
   border: 4px solid #e2e8f0;
-  border-top: 4px solid #667eea;
+  border-top: 4px solid #FF6000;
   border-radius: 50%;
   animation: spin 1s linear infinite;
 }
@@ -55,7 +55,7 @@
   align-items: center;
   gap: 0.5rem;
   padding: 0.75rem 1.5rem;
-  background: linear-gradient(135deg, #667eea, #764ba2);
+  background: rgb(255, 96, 0);
   color: white;
   border: none;
   border-radius: 8px;
@@ -93,7 +93,7 @@
 }
 
 .stat-header {
-  display: flex;
+  display: block;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 1rem;
@@ -106,8 +106,20 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #667eea, #764ba2);
+  background: rgb(255, 96, 0);
   color: white;
+}
+
+.stat-icon-white {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: white;
+  color: rgb(255, 96, 0);
+  border: 2px solid rgb(255, 96, 0);
 }
 
 .stat-change {
@@ -115,6 +127,7 @@
   align-items: center;
   gap: 0.25rem;
   padding: 0.25rem 0.5rem;
+  margin-top: 10px;
   border-radius: 6px;
   font-size: 0.875rem;
   font-weight: 600;
@@ -135,14 +148,16 @@
 }
 
 .stat-value {
-  font-size: 2rem;
+  font-size: 1.5rem;
   font-weight: 700;
   color: #2d3748;
   margin-bottom: 0.5rem;
+  margin-left: 10px;
+  margin-top: 15px;
 }
 
 .stat-title {
-  color: #718096;
+  color: #ffffff !important;
   font-size: 0.875rem;
   font-weight: 500;
 }
@@ -183,7 +198,7 @@
 
 .view-all-btn {
   padding: 0.5rem 1rem;
-  background: #667eea;
+  background: #FF6000;
   color: white;
   border: none;
   border-radius: 6px;
@@ -212,7 +227,7 @@
 }
 
 .order-card:hover {
-  border-color: #667eea;
+  border-color: #FF6000;
   box-shadow: 0 2px 8px rgba(102, 126, 234, 0.1);
 }
 
@@ -290,7 +305,7 @@
 }
 
 .quick-stat:hover {
-  border-color: #667eea;
+  border-color: #FF6000;
   background: #f7fafc;
 }
 
@@ -301,7 +316,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #667eea, #764ba2);
+  background: rgb(255, 96, 0);
   color: white;
 }
 
@@ -380,4 +395,59 @@
   .content-card {
     padding: 1rem;
   }
+}
+
+/* Sayfalama Stilleri */
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 1.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid #e2e8f0;
+}
+
+.pagination-btn {
+  padding: 0.5rem 1rem;
+  background: rgb(255, 96, 0);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 0.875rem;
+}
+
+.pagination-btn:hover:not(.disabled) {
+  background: rgb(230, 86, 0);
+  transform: translateY(-1px);
+}
+
+.pagination-btn.disabled {
+  background: #cbd5e0;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.page-info {
+  font-size: 0.875rem;
+  color: #718096;
+  font-weight: 500;
+  min-width: 100px;
+  text-align: center;
+}
+
+/* Header Info Stilleri */
+.header-info {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.orders-count {
+  font-size: 0.875rem;
+  color: #718096;
+  font-weight: 500;
 }
