@@ -47,6 +47,8 @@ import FAQ from './pages/FAQ.jsx';
 import DiscountedProducts from './pages/DiscountedProducts.jsx';
 import NotFound from './pages/NotFound.jsx';
 import VerifyAccount from './pages/VerifyAccount.jsx';
+import ForgotPassword from './components/ForgotPassword/ForgotPassword.jsx';
+import ResetPassword from './components/ResetPassword/ResetPassword.jsx';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { CartProvider } from './context/CartContext.jsx';
 import { AuthProvider } from './context/AuthContext.jsx';
@@ -208,6 +210,8 @@ function App() {
                 } />
                 
                 <Route path="/verify-account" element={<VerifyAccount />} />
+            <Route path="/forgot-password" element={<ForgotPassword />} />
+            <Route path="/reset-password" element={<ResetPassword />} />
                 
                 <Route path="/seller/login" element={
                   <main className="min-h-screen bg-background-primary">

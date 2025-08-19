@@ -131,22 +131,22 @@ public class AuthServiceImpl implements AuthService {
      */
     @Override
     public AuthResponse signIn(SignInRequest request) {
-        // Frontend'den gelen plain password'ü kullan
+        // Frontend'den gelen plain text şifreyi al
         String plainPassword = request.getPassword();
         
         // DEBUG: Password'ü logla
         System.out.println("=== DEBUG: SIGNIN ===");
         System.out.println("Email: " + request.getEmail());
-        System.out.println("Frontend'den gelen password: " + plainPassword);
+        System.out.println("Frontend'den gelen plain text şifre: " + plainPassword);
         
         // Kullanıcıyı email ile bul
         User user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new RuntimeException("User not found"));
         
-        System.out.println("Veritabanındaki hash: " + user.getPassword());
+        System.out.println("Veritabanındaki BCrypt hash: " + user.getPassword());
         System.out.println("User role: " + (user.getRole() != null ? user.getRole().getName() : "null"));
         
-        // Plain password'ü veritabanındaki BCrypt hash ile karşılaştır
+        // Frontend'den gelen plain text şifreyi veritabanındaki BCrypt hash ile karşılaştır
         boolean passwordMatches = passwordEncoder.matches(plainPassword, user.getPassword());
         System.out.println("Şifre eşleşiyor mu: " + passwordMatches);
         
@@ -197,7 +197,7 @@ public class AuthServiceImpl implements AuthService {
             throw new RuntimeException("Access denied. Admin privileges required.");
         }
         
-        // Plain password'ü veritabanındaki BCrypt hash ile karşılaştır
+        // Frontend'den gelen plain text şifreyi veritabanındaki BCrypt hash ile karşılaştır
         boolean passwordMatches = passwordEncoder.matches(plainPassword, user.getPassword());
         System.out.println("Şifre eşleşiyor mu: " + passwordMatches);
         
@@ -245,7 +245,7 @@ public class AuthServiceImpl implements AuthService {
             throw new RuntimeException("Access denied. Seller privileges required.");
         }
         
-        // Plain password'ü veritabanındaki BCrypt hash ile karşılaştır
+        // Frontend'den gelen plain text şifreyi veritabanındaki BCrypt hash ile karşılaştır
         boolean passwordMatches = passwordEncoder.matches(plainPassword, user.getPassword());
         System.out.println("Şifre eşleşiyor mu: " + passwordMatches);
         

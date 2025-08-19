@@ -118,11 +118,11 @@ public class EmailService {
     /**
      * Şifre sıfırlama emaili gönderir
      */
-    public void sendPasswordResetEmail(String to, String resetToken, String username) {
+    public void sendPasswordResetEmail(String to, String resetToken, String customerName) {
         String resetLink = "http://localhost:5173/reset-password?token=" + resetToken;
         
         Map<String, Object> variables = Map.of(
-            "username", username,
+            "customerName", customerName,
             "resetLink", resetLink,
             "expiryTime", "24 saat"
         );

@@ -25,22 +25,28 @@ public class PasswordUtil {
     }
     
     /**
-     * Frontend'den gelen hash'lenmiş şifre ile veritabanındaki hash'i karşılaştırır.
-     * Frontend SHA-256 gönderiyor, veritabanında BCrypt var.
+     * Frontend'den gelen BCrypt hash'lenmiş şifre ile veritabanındaki hash'i karşılaştırır.
+     * Her iki tarafta da BCrypt kullanılıyor.
      */
     public static boolean matchesHashedPassword(String hashedPassword, String encodedPassword) {
-        // Frontend'den gelen SHA-256 hash'ini kontrol et
-        // SHA-256("password") = 5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8
-        if ("5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8".equals(hashedPassword)) {
-            // Bu "password" kelimesinin SHA-256 hash'i, BCrypt ile karşılaştır
-            boolean result = bcryptEncoder.matches("password", encodedPassword);
-            System.out.println("PasswordUtil: SHA-256 hash detected, comparing 'password' with BCrypt hash");
-            System.out.println("PasswordUtil: Result = " + result);
-            return result;
-        }
+        System.out.println("PasswordUtil: Frontend'den gelen BCrypt hash: " + hashedPassword);
+        System.out.println("PasswordUtil: Veritabanındaki BCrypt hash: " + encodedPassword);
         
-        // Diğer durumlar için normal karşılaştırma
-        return bcryptEncoder.matches(hashedPassword, encodedPassword);
+        // Her iki tarafta da BCrypt kullanıldığı için direkt karşılaştırma yapılamaz
+        // BCrypt her seferinde farklı salt kullandığı için aynı şifre farklı hash'ler üretir
+        // Bu yüzden BCrypt'in matches metodunu kullanarak karşılaştırma yapıyoruz
+        
+        // Frontend'den gelen BCrypt hash'ini decode edip, veritabanındaki hash ile karşılaştır
+        // Bu yaklaşım doğru değil çünkü BCrypt hash'i decode edilemez
+        
+        // Doğru yaklaşım: Frontend'den plain text şifre almak
+        // Ama güvenlik için frontend'den hash'lenmiş şifre alıyoruz
+        // Bu durumda frontend'den gelen BCrypt hash'ini direkt karşılaştırmak mümkün değil
+        
+        // Geçici çözüm: Frontend'den plain text şifre almak
+        // Bu güvenli değil ama şimdilik çalışır
+        System.out.println("PasswordUtil: BCrypt hash'leri karşılaştırılamaz, plain text gerekli");
+        return false;
     }
     
     /**

@@ -23,6 +23,7 @@ import com.bahattintok.e_commerce.model.User;
 import com.bahattintok.e_commerce.repository.UserRepository;
 import com.bahattintok.e_commerce.service.AuthService;
 import com.bahattintok.e_commerce.service.EmailService;
+import com.bahattintok.e_commerce.util.PasswordUtil;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -37,6 +38,12 @@ public class AuthController {
 
     @Autowired
     private EmailService emailService;
+    
+    @Autowired
+    private org.springframework.security.crypto.password.PasswordEncoder passwordEncoder;
+    
+    // Şifre sıfırlama token'larını geçici olarak sakla (gerçek uygulamada veritabanında saklanmalı)
+    private final Map<String, String> passwordResetTokens = new HashMap<>();
 
     @PostMapping("/signup")
     public ResponseEntity<AuthResponse> signUp(@RequestBody SignUpRequest request) {
@@ -227,6 +234,176 @@ public class AuthController {
             errorResponse.put("success", false);
             errorResponse.put("message", "Hesap doğrulama işlemi başarısız: " + e.getMessage());
             return ResponseEntity.badRequest().body(errorResponse);
+        }
+    }
+
+    @PostMapping("/forgot-password")
+    public ResponseEntity<Map<String, Object>> forgotPassword(@RequestBody Map<String, String> request) {
+        try {
+            String email = request.get("email");
+            System.out.println("=== ŞİFRE UNUTTUM DEBUG ===");
+            System.out.println("Gelen email: " + email);
+            
+            if (email == null || email.trim().isEmpty()) {
+                System.out.println("Email null veya boş");
+                Map<String, Object> errorResponse = new HashMap<>();
+                errorResponse.put("success", false);
+                errorResponse.put("message", "E-posta adresi gerekli");
+                return ResponseEntity.badRequest().body(errorResponse);
+            }
+
+            // Kullanıcıyı bul
+            User user = userRepository.findByEmail(email).orElse(null);
+            System.out.println("Bulunan kullanıcı: " + (user != null ? user.getEmail() : "null"));
+            
+            if (user == null) {
+                // Güvenlik için kullanıcı bulunamasa bile başarılı mesajı döndür
+                System.out.println("Kullanıcı bulunamadı, güvenlik mesajı döndürülüyor");
+                Map<String, Object> response = new HashMap<>();
+                response.put("success", true);
+                response.put("message", "Şifre sıfırlama bağlantısı e-posta adresinize gönderildi");
+                return ResponseEntity.ok(response);
+            }
+
+            // Şifre sıfırlama token'ı oluştur
+            String resetToken = java.util.UUID.randomUUID().toString();
+            System.out.println("Oluşturulan token: " + resetToken);
+            
+            // Token'ı geçici olarak sakla
+            passwordResetTokens.put(resetToken, email);
+            System.out.println("Token saklandı. Toplam token sayısı: " + passwordResetTokens.size());
+            
+            // Şifre sıfırlama e-postası gönder
+            try {
+                emailService.sendPasswordResetEmail(email, resetToken, user.getFirstName() + " " + user.getLastName());
+            } catch (Exception emailError) {
+                System.err.println("Şifre sıfırlama e-postası gönderilemedi: " + emailError.getMessage());
+            }
+
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", true);
+            response.put("message", "Şifre sıfırlama bağlantısı e-posta adresinize gönderildi");
+            
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            Map<String, Object> errorResponse = new HashMap<>();
+            errorResponse.put("success", false);
+            errorResponse.put("message", "Şifre sıfırlama işlemi başarısız: " + e.getMessage());
+            return ResponseEntity.badRequest().body(errorResponse);
+        }
+    }
+
+    @PostMapping("/reset-password")
+    public ResponseEntity<Map<String, Object>> resetPassword(@RequestBody Map<String, String> request) {
+        try {
+            String token = request.get("token");
+            String newPassword = request.get("newPassword");
+            
+            System.out.println("=== ŞİFRE SIFIRLAMA DEBUG ===");
+            System.out.println("Gelen token: " + token);
+            System.out.println("Mevcut token'lar: " + passwordResetTokens.keySet());
+            
+            if (token == null || token.trim().isEmpty()) {
+                System.out.println("Token null veya boş");
+                Map<String, Object> errorResponse = new HashMap<>();
+                errorResponse.put("success", false);
+                errorResponse.put("message", "Geçersiz token");
+                return ResponseEntity.badRequest().body(errorResponse);
+            }
+            
+            if (newPassword == null || newPassword.trim().isEmpty()) {
+                System.out.println("Yeni şifre null veya boş");
+                Map<String, Object> errorResponse = new HashMap<>();
+                errorResponse.put("success", false);
+                errorResponse.put("message", "Yeni şifre gerekli");
+                return ResponseEntity.badRequest().body(errorResponse);
+            }
+
+            // Token'dan e-posta adresini al
+            String email = passwordResetTokens.get(token);
+            System.out.println("Token için bulunan email: " + email);
+            
+            if (email == null) {
+                System.out.println("Token bulunamadı!");
+                Map<String, Object> errorResponse = new HashMap<>();
+                errorResponse.put("success", false);
+                errorResponse.put("message", "Geçersiz veya süresi dolmuş token");
+                return ResponseEntity.badRequest().body(errorResponse);
+            }
+
+            // Kullanıcıyı bul
+            User user = userRepository.findByEmail(email).orElse(null);
+            if (user == null) {
+                Map<String, Object> errorResponse = new HashMap<>();
+                errorResponse.put("success", false);
+                errorResponse.put("message", "Kullanıcı bulunamadı");
+                return ResponseEntity.badRequest().body(errorResponse);
+            }
+
+            // Şifreyi güncelle - Frontend'den gelen SHA-256 hash'ini BCrypt'e çevir
+            String hashedPassword = passwordEncoder.encode(newPassword);
+            user.setPassword(hashedPassword);
+            userRepository.save(user);
+
+            // Token'ı sil
+            passwordResetTokens.remove(token);
+
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", true);
+            response.put("message", "Şifreniz başarıyla güncellendi");
+            
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            Map<String, Object> errorResponse = new HashMap<>();
+            errorResponse.put("success", false);
+            errorResponse.put("message", "Şifre güncelleme işlemi başarısız: " + e.getMessage());
+            return ResponseEntity.badRequest().body(errorResponse);
+        }
+    }
+
+    // Test endpoint'i - sadece geliştirme için
+    @GetMapping("/debug/tokens")
+    public ResponseEntity<Map<String, Object>> debugTokens() {
+        Map<String, Object> response = new HashMap<>();
+        response.put("tokenCount", passwordResetTokens.size());
+        response.put("tokens", passwordResetTokens);
+        return ResponseEntity.ok(response);
+    }
+    
+    // Debug endpoint'i - şifre test için
+    @GetMapping("/debug/password-test")
+    public ResponseEntity<Map<String, Object>> debugPasswordTest() {
+        try {
+            User user = userRepository.findByEmail("bahattok5@gmail.com").orElse(null);
+            if (user == null) {
+                Map<String, Object> response = new HashMap<>();
+                response.put("error", "Kullanıcı bulunamadı");
+                return ResponseEntity.ok(response);
+            }
+            
+            String dbHash = user.getPassword();
+            String testHash = "13d5894c7cfe9b3f085f8591faf676c280d147447b641645db9d61d675d4fcd0";
+            
+            // Test 1: Direkt karşılaştırma
+            boolean directMatch = passwordEncoder.matches(testHash, dbHash);
+            
+            // Test 2: SHA-256 hash'ini BCrypt'e çevirip karşılaştırma
+            String bcryptFromSha256 = PasswordUtil.encodeHashedPassword(testHash);
+            boolean bcryptMatch = passwordEncoder.matches(testHash, bcryptFromSha256);
+            
+            Map<String, Object> response = new HashMap<>();
+            response.put("userEmail", user.getEmail());
+            response.put("dbHash", dbHash);
+            response.put("testHash", testHash);
+            response.put("directMatch", directMatch);
+            response.put("bcryptFromSha256", bcryptFromSha256);
+            response.put("bcryptMatch", bcryptMatch);
+            
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            Map<String, Object> response = new HashMap<>();
+            response.put("error", e.getMessage());
+            return ResponseEntity.ok(response);
         }
     }
 }

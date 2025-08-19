@@ -6,16 +6,7 @@ import api from "../../services/api";
 import toast from 'react-hot-toast';
 import PageTitle from '../PageTitle/PageTitle';
 import MetaTags from '../MetaTags/MetaTags';
-
-// SHA-256 hash fonksiyonu
-const hashPassword = async (password) => {
-  const encoder = new TextEncoder();
-  const data = encoder.encode(password);
-  const hashBuffer = await crypto.subtle.digest('SHA-256', data);
-  const hashArray = Array.from(new Uint8Array(hashBuffer));
-  const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-  return hashHex;
-};
+// Plain text şifre gönderiyoruz, backend'de BCrypt ile hash'lenecek
 
 const Login = () => {
   const [form, setForm] = useState({
@@ -42,13 +33,12 @@ const Login = () => {
     try {
       console.log('Customer login denemesi:', form.email);
       
-      // Şifreyi hash'le
-      const hashedPassword = await hashPassword(form.password);
-      console.log('Şifre hash\'lendi:', hashedPassword.substring(0, 10) + '...');
+      // Plain text şifreyi gönder, backend'de BCrypt ile hash'lenecek
+      console.log('Plain text şifre gönderiliyor');
       
       const response = await api.post('/auth/signin', {
         email: form.email,
-        password: hashedPassword // Hash'lenmiş şifreyi gönder
+        password: form.password // Plain text şifreyi gönder
       }, { withCredentials: true });
       
       console.log('Login başarılı:', response.data);
@@ -103,6 +93,13 @@ const Login = () => {
           disabled={loading}
         />
         <button type="submit" className="login-btn" disabled={loading}>{loading ? "Giriş Yapılıyor..." : "Giriş Yap"}</button>
+        
+        <div className="forgot-password-link">
+          <Link to="/forgot-password" className="forgot-password-text">
+            Şifremi Unuttum
+          </Link>
+        </div>
+        
         <div className="login-link-row">
           <span>Hesabınız yok mu?</span>
           <Link to="/register" className="login-link">Kayıt Ol</Link>
