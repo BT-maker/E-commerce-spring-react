@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.bahattintok.e_commerce.event.OrderShippedEvent;
 import com.bahattintok.e_commerce.model.Order;
 import com.bahattintok.e_commerce.model.Product;
 import com.bahattintok.e_commerce.model.Store;
@@ -45,6 +47,9 @@ public class AdminController {
 
     @Autowired
     private StoreRepository storeRepository;
+
+    @Autowired
+    private ApplicationEventPublisher eventPublisher;
 
     // Test endpoint
     @GetMapping("/test")
@@ -1026,4 +1031,40 @@ public class AdminController {
                     return ResponseEntity.badRequest().body(error);
                 }
             }
+
+    // Sipariş kargoya verildi endpoint'i
+    @PutMapping("/orders/{orderId}/ship")
+    public ResponseEntity<Map<String, Object>> shipOrder(
+            @PathVariable String orderId,
+            @RequestParam String trackingNumber) {
+        try {
+            System.out.println("=== DEBUG: shipOrder called ===");
+            System.out.println("Order ID: " + orderId + ", Tracking Number: " + trackingNumber);
+            
+            Order order = orderRepository.findById(orderId)
+                    .orElseThrow(() -> new RuntimeException("Sipariş bulunamadı: " + orderId));
+            
+            // Sipariş durumunu güncelle
+            order.setStatus("SHIPPED");
+            orderRepository.save(order);
+            
+            // Kargo bilgisi email'i gönder
+            eventPublisher.publishEvent(new OrderShippedEvent(this, order, trackingNumber));
+            
+            Map<String, Object> response = new HashMap<>();
+            response.put("message", "Sipariş kargoya verildi");
+            response.put("orderId", orderId);
+            response.put("trackingNumber", trackingNumber);
+            response.put("status", "SHIPPED");
+            
+            System.out.println("Order shipped successfully: " + response);
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            System.out.println("Error in shipOrder: " + e.getMessage());
+            e.printStackTrace();
+            Map<String, Object> error = new HashMap<>();
+            error.put("error", "Sipariş kargoya verilemedi: " + e.getMessage());
+            return ResponseEntity.badRequest().body(error);
+        }
+    }
 }

@@ -6,9 +6,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.bahattintok.e_commerce.event.OrderPlacedEvent;
 import com.bahattintok.e_commerce.model.Cart;
 import com.bahattintok.e_commerce.model.CartItem;
 import com.bahattintok.e_commerce.model.Order;
@@ -30,6 +32,7 @@ public class OrderServiceImpl implements OrderService {
     private final OrderItemRepository orderItemRepository;
     private final CartRepository cartRepository;
     private final ProductRepository productRepository;
+    private final ApplicationEventPublisher eventPublisher;
 
     @Override
     @Transactional
@@ -64,6 +67,10 @@ public class OrderServiceImpl implements OrderService {
         order.setTotalPrice(total);
         Order savedOrder = orderRepository.save(order);
         orderItemRepository.saveAll(order.getItems());
+        
+        // Sipariş onay email'i gönder
+        eventPublisher.publishEvent(new OrderPlacedEvent(this, savedOrder));
+        
         // Sepeti temizle
         cart.getItems().clear();
         cartRepository.save(cart);
@@ -113,6 +120,9 @@ public class OrderServiceImpl implements OrderService {
 
         Order savedOrder = orderRepository.save(order);
         orderItemRepository.saveAll(order.getItems());
+        
+        // Sipariş onay email'i gönder
+        eventPublisher.publishEvent(new OrderPlacedEvent(this, savedOrder));
 
         // Sepeti temizle
         Cart cart = cartRepository.findByUser(user).orElse(null);

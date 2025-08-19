@@ -62,23 +62,6 @@ const AdminLogin = () => {
       // Login işlemi - userData olarak gönder
       await login(data);
       
-      // Kullanıcı bilgilerini tam olarak almak için /me endpoint'ini çağır
-      try {
-        const userRes = await fetch("http://localhost:8082/api/auth/me", {
-          method: "GET",
-          credentials: 'include'
-        });
-        
-        if (userRes.ok) {
-          const userData = await userRes.json();
-          console.log('Tam kullanıcı bilgileri alındı:', userData);
-          // Kullanıcı bilgilerini güncelle
-          await login(userData);
-        }
-      } catch (userErr) {
-        console.log('Kullanıcı bilgileri alınamadı:', userErr);
-      }
-      
       toast.success("Admin paneline hoş geldiniz!");
       navigate("/admin/dashboard");
     } catch (err) {

@@ -87,7 +87,22 @@ public class EmailService {
     }
 
     /**
-     * Sipariş onay emaili gönderir
+     * Sipariş onay emaili gönderir (Order objesi ile)
+     */
+    public void sendOrderConfirmationEmail(com.bahattintok.e_commerce.model.Order order) {
+        Map<String, Object> variables = Map.of(
+            "customerName", order.getUser().getFirstName() + " " + order.getUser().getLastName(),
+            "orderNumber", order.getId().toString(),
+            "totalAmount", String.format("%.2f", order.getTotalPrice()),
+            "orderDate", order.getCreatedAt().format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")),
+            "orderItems", order.getOrderItems()
+        );
+        
+        sendTemplateEmail(order.getUser().getEmail(), "Sipariş Onayı - #" + order.getId(), "email/order-confirmation", variables);
+    }
+
+    /**
+     * Sipariş onay emaili gönderir (eski metod - geriye uyumluluk için)
      */
     public void sendOrderConfirmationEmail(String to, String customerName, String orderNumber, double totalAmount) {
         Map<String, Object> variables = Map.of(
@@ -97,7 +112,7 @@ public class EmailService {
             "orderDate", java.time.LocalDateTime.now().format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"))
         );
         
-        sendTemplateEmail(to, "Sipariş Onayı - #" + orderNumber, "order-confirmation", variables);
+        sendTemplateEmail(to, "Sipariş Onayı - #" + orderNumber, "email/order-confirmation", variables);
     }
 
     /**
@@ -112,7 +127,7 @@ public class EmailService {
             "expiryTime", "24 saat"
         );
         
-        sendTemplateEmail(to, "Şifre Sıfırlama", "password-reset", variables);
+        sendTemplateEmail(to, "Şifre Sıfırlama", "email/password-reset", variables);
     }
 
     /**
@@ -124,7 +139,7 @@ public class EmailService {
             "loginLink", "http://localhost:5173/login"
         );
         
-        sendTemplateEmail(to, "E-Commerce Platform'a Hoş Geldiniz!", "welcome", variables);
+        sendTemplateEmail(to, "E-Commerce Platform'a Hoş Geldiniz!", "email/welcome", variables);
     }
 
     /**
@@ -138,7 +153,7 @@ public class EmailService {
             "orderLink", "http://localhost:5173/orders"
         );
         
-        sendTemplateEmail(to, "Sipariş Durumu Güncellendi - #" + orderNumber, "order-status-update", variables);
+        sendTemplateEmail(to, "Sipariş Durumu Güncellendi - #" + orderNumber, "email/order-status-update", variables);
     }
 
     /**
@@ -151,7 +166,37 @@ public class EmailService {
             "adminPanelLink", "http://localhost:5173/admin/products"
         );
         
-        sendTemplateEmail(to, "Düşük Stok Uyarısı - " + productName, "low-stock-alert", variables);
+        sendTemplateEmail(to, "Düşük Stok Uyarısı - " + productName, "email/low-stock-alert", variables);
+    }
+
+    /**
+     * Sipariş kargoya verildi emaili gönderir
+     */
+    public void sendOrderShippedEmail(com.bahattintok.e_commerce.model.Order order, String trackingNumber) {
+        Map<String, Object> variables = Map.of(
+            "customerName", order.getUser().getFirstName() + " " + order.getUser().getLastName(),
+            "orderNumber", order.getId().toString(),
+            "trackingNumber", trackingNumber,
+            "orderDate", order.getCreatedAt().format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")),
+            "orderItems", order.getOrderItems()
+        );
+        
+        sendTemplateEmail(order.getUser().getEmail(), "Siparişiniz Kargoya Verildi - #" + order.getId(), "email/order-shipped", variables);
+    }
+
+    /**
+     * Hesap doğrulama emaili gönderir
+     */
+    public void sendAccountVerificationEmail(com.bahattintok.e_commerce.model.User user, String verificationToken) {
+        String verificationLink = "http://localhost:5173/verify-account?token=" + verificationToken;
+        
+        Map<String, Object> variables = Map.of(
+            "customerName", user.getFirstName() + " " + user.getLastName(),
+            "verificationLink", verificationLink,
+            "expiryTime", "24 saat"
+        );
+        
+        sendTemplateEmail(user.getEmail(), "Hesabınızı Doğrulayın - " + user.getFirstName(), "email/account-verification", variables);
     }
 
     /**

@@ -1,12 +1,18 @@
 package com.bahattintok.e_commerce.controller;
 
-import com.bahattintok.e_commerce.service.EmailService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-
 import java.util.HashMap;
 import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.bahattintok.e_commerce.service.EmailService;
 
 @RestController
 @RequestMapping("/api/email")
@@ -17,10 +23,21 @@ public class EmailController {
     private EmailService emailService;
 
     /**
-     * Test emaili gönderir
+     * Test emaili gönderir - Sadece admin erişimi
      */
     @PostMapping("/test")
-    public ResponseEntity<Map<String, Object>> sendTestEmail(@RequestBody Map<String, String> request) {
+    public ResponseEntity<Map<String, Object>> sendTestEmail(
+            Authentication authentication,
+            @RequestBody Map<String, String> request) {
+        
+        // Admin kontrolü
+        if (authentication == null || !authentication.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"))) {
+            Map<String, Object> error = new HashMap<>();
+            error.put("error", "Admin yetkisi gerekli");
+            return ResponseEntity.status(403).body(error);
+        }
+        
         try {
             String to = request.get("to");
             if (to == null || to.trim().isEmpty()) {
@@ -43,7 +60,7 @@ public class EmailController {
     }
 
     /**
-     * Basit email gönderir
+     * Basit email gönderir - Sistem içi kullanım
      */
     @PostMapping("/simple")
     public ResponseEntity<Map<String, Object>> sendSimpleEmail(@RequestBody Map<String, String> request) {
@@ -81,7 +98,7 @@ public class EmailController {
     }
 
     /**
-     * HTML email gönderir
+     * HTML email gönderir - Sistem içi kullanım
      */
     @PostMapping("/html")
     public ResponseEntity<Map<String, Object>> sendHtmlEmail(@RequestBody Map<String, String> request) {

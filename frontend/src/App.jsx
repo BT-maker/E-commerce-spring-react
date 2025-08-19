@@ -46,6 +46,7 @@ import ReturnExchange from './pages/ReturnExchange.jsx';
 import FAQ from './pages/FAQ.jsx';
 import DiscountedProducts from './pages/DiscountedProducts.jsx';
 import NotFound from './pages/NotFound.jsx';
+import VerifyAccount from './pages/VerifyAccount.jsx';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { CartProvider } from './context/CartContext.jsx';
 import { AuthProvider } from './context/AuthContext.jsx';
@@ -194,17 +195,19 @@ function App() {
                   </>
                 } />
                 
-                                                  <Route path="/login" element={
-                   <>
-                     <Header />
-                     <main className="min-h-screen bg-background-primary">
-                       <div className="container mx-auto px-12 sm:px-16 lg:px-24 py-8">
-                         <Login />
-                       </div>
-                     </main>
-                     <Footer />
-                   </>
-                 } />
+                                                                  <Route path="/login" element={
+                  <>
+                    <Header />
+                    <main className="min-h-screen bg-background-primary">
+                      <div className="container mx-auto px-12 sm:px-16 lg:px-24 py-8">
+                        <Login />
+                      </div>
+                    </main>
+                    <Footer />
+                  </>
+                } />
+                
+                <Route path="/verify-account" element={<VerifyAccount />} />
                 
                 <Route path="/seller/login" element={
                   <main className="min-h-screen bg-background-primary">

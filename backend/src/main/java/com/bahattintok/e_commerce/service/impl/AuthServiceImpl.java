@@ -1,5 +1,6 @@
 package com.bahattintok.e_commerce.service.impl;
 
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -9,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.bahattintok.e_commerce.dto.AuthResponse;
 import com.bahattintok.e_commerce.dto.SignInRequest;
 import com.bahattintok.e_commerce.dto.SignUpRequest;
+import com.bahattintok.e_commerce.event.UserRegisteredEvent;
 import com.bahattintok.e_commerce.model.RoleEntity;
 import com.bahattintok.e_commerce.model.Store;
 import com.bahattintok.e_commerce.model.User;
@@ -36,6 +38,7 @@ public class AuthServiceImpl implements AuthService {
     private final RoleRepository roleRepository;
     private final StoreRepository storeRepository;
     private final CustomUserDetailsService customUserDetailsService;
+    private final ApplicationEventPublisher eventPublisher;
     
     /**
      * Kullanıcı kaydı (signup) işlemi. Yeni kullanıcı oluşturur ve JWT token döner.
@@ -116,6 +119,10 @@ public class AuthServiceImpl implements AuthService {
         UserDetails userDetails = customUserDetailsService.loadUserByUsername(savedUser.getEmail());
         String token = jwtUtil.generateToken(userDetails);
         
+        // Hesap doğrulama email'i gönder
+        String verificationToken = java.util.UUID.randomUUID().toString();
+        eventPublisher.publishEvent(new UserRegisteredEvent(this, savedUser, verificationToken));
+        
         return new AuthResponse(token, savedUser.getFirstName(), savedUser.getLastName(), savedUser.getRole().getName());
     }
     
@@ -162,6 +169,102 @@ public class AuthServiceImpl implements AuthService {
         System.out.println("=== DEBUG END ===");
         
         return new AuthResponse(token, user.getFirstName(), user.getLastName(), roleName);
+    }
+    
+    /**
+     * Admin girişi (signin) işlemi. Sadece ADMIN rolündeki kullanıcılar giriş yapabilir.
+     */
+    @Override
+    public AuthResponse adminSignIn(SignInRequest request) {
+        // Frontend'den gelen plain password'ü kullan
+        String plainPassword = request.getPassword();
+        
+        // DEBUG: Password'ü logla
+        System.out.println("=== DEBUG: ADMIN SIGNIN ===");
+        System.out.println("Email: " + request.getEmail());
+        System.out.println("Frontend'den gelen password: " + plainPassword);
+        
+        // Kullanıcıyı email ile bul
+        User user = userRepository.findByEmail(request.getEmail())
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        
+        System.out.println("Veritabanındaki hash: " + user.getPassword());
+        System.out.println("User role: " + (user.getRole() != null ? user.getRole().getName() : "null"));
+        
+        // ADMIN rolü kontrolü
+        if (user.getRole() == null || !"ADMIN".equals(user.getRole().getName())) {
+            System.out.println("Kullanıcı ADMIN rolüne sahip değil! Role: " + (user.getRole() != null ? user.getRole().getName() : "null"));
+            throw new RuntimeException("Access denied. Admin privileges required.");
+        }
+        
+        // Plain password'ü veritabanındaki BCrypt hash ile karşılaştır
+        boolean passwordMatches = passwordEncoder.matches(plainPassword, user.getPassword());
+        System.out.println("Şifre eşleşiyor mu: " + passwordMatches);
+        
+        if (!passwordMatches) {
+            System.out.println("Şifre eşleşmedi! Hata fırlatılıyor...");
+            throw new RuntimeException("Invalid credentials");
+        }
+        
+        System.out.println("Admin şifre doğru! Token oluşturuluyor...");
+        
+        // UserDetails oluştur (rolleri doğru şekilde yükle)
+        UserDetails userDetails = customUserDetailsService.loadUserByUsername(user.getEmail());
+        String token = jwtUtil.generateToken(userDetails);
+        
+        System.out.println("Admin token oluşturuldu: " + token.substring(0, 20) + "...");
+        System.out.println("Admin Role: " + user.getRole().getName());
+        System.out.println("=== DEBUG END ===");
+        
+        return new AuthResponse(token, user.getFirstName(), user.getLastName(), user.getRole().getName());
+    }
+    
+    /**
+     * Seller girişi (signin) işlemi. Sadece SELLER rolündeki kullanıcılar giriş yapabilir.
+     */
+    @Override
+    public AuthResponse sellerSignIn(SignInRequest request) {
+        // Frontend'den gelen plain password'ü kullan
+        String plainPassword = request.getPassword();
+        
+        // DEBUG: Password'ü logla
+        System.out.println("=== DEBUG: SELLER SIGNIN ===");
+        System.out.println("Email: " + request.getEmail());
+        System.out.println("Frontend'den gelen password: " + plainPassword);
+        
+        // Kullanıcıyı email ile bul
+        User user = userRepository.findByEmail(request.getEmail())
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        
+        System.out.println("Veritabanındaki hash: " + user.getPassword());
+        System.out.println("User role: " + (user.getRole() != null ? user.getRole().getName() : "null"));
+        
+        // SELLER rolü kontrolü
+        if (user.getRole() == null || !"SELLER".equals(user.getRole().getName())) {
+            System.out.println("Kullanıcı SELLER rolüne sahip değil! Role: " + (user.getRole() != null ? user.getRole().getName() : "null"));
+            throw new RuntimeException("Access denied. Seller privileges required.");
+        }
+        
+        // Plain password'ü veritabanındaki BCrypt hash ile karşılaştır
+        boolean passwordMatches = passwordEncoder.matches(plainPassword, user.getPassword());
+        System.out.println("Şifre eşleşiyor mu: " + passwordMatches);
+        
+        if (!passwordMatches) {
+            System.out.println("Şifre eşleşmedi! Hata fırlatılıyor...");
+            throw new RuntimeException("Invalid credentials");
+        }
+        
+        System.out.println("Seller şifre doğru! Token oluşturuluyor...");
+        
+        // UserDetails oluştur (rolleri doğru şekilde yükle)
+        UserDetails userDetails = customUserDetailsService.loadUserByUsername(user.getEmail());
+        String token = jwtUtil.generateToken(userDetails);
+        
+        System.out.println("Seller token oluşturuldu: " + token.substring(0, 20) + "...");
+        System.out.println("Seller Role: " + user.getRole().getName());
+        System.out.println("=== DEBUG END ===");
+        
+        return new AuthResponse(token, user.getFirstName(), user.getLastName(), user.getRole().getName());
     }
     
     /**

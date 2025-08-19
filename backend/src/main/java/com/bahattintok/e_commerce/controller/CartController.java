@@ -44,12 +44,13 @@ public class CartController {
     @Operation(summary = "Get user cart", description = "Retrieve all items in user's cart")
     public ResponseEntity<List<CartItem>> getUserCart(Authentication authentication) {
         if (authentication == null || !authentication.isAuthenticated()) {
-            return ResponseEntity.status(401).body(List.of());
+            return ResponseEntity.status(401).build();
         }
+        
         String email = authentication.getName();
         User user = userRepository.findByEmail(email).orElse(null);
         if (user == null) {
-            return ResponseEntity.status(401).body(List.of());
+            return ResponseEntity.status(401).build();
         }
         List<CartItem> cartItems = cartService.getCartItems(user);
         return ResponseEntity.ok(cartItems);
@@ -63,11 +64,17 @@ public class CartController {
     public ResponseEntity<Void> addToCart(
             Authentication authentication,
             @Valid @RequestBody CartItemRequest request) {
+        
+        if (authentication == null || !authentication.isAuthenticated()) {
+            return ResponseEntity.status(401).build();
+        }
+        
         String email = authentication.getName();
         User user = userRepository.findByEmail(email).orElse(null);
         if (user == null) {
             return ResponseEntity.status(401).build();
         }
+        
         cartService.addToCart(user, request.getProductId(), request.getQuantity());
         return ResponseEntity.ok().build();
     }

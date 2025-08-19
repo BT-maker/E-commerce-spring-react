@@ -18,6 +18,16 @@ public interface AuthService {
     AuthResponse signIn(SignInRequest request);
     
     /**
+     * Admin girişi (signin) işlemi.
+     */
+    AuthResponse adminSignIn(SignInRequest request);
+    
+    /**
+     * Seller girişi (signin) işlemi.
+     */
+    AuthResponse sellerSignIn(SignInRequest request);
+    
+    /**
      * Bu interface şu işlevleri sağlar:
      * 
      * 1. Kullanıcı Kaydı: Yeni kullanıcı oluşturma ve JWT token üretme

@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Düşük Stok Uyarısı</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+        .container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        .header {
+            text-align: center;
+            border-bottom: 2px solid #dc3545;
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+        }
+        .header h1 {
+            color: #dc3545;
+            margin: 0;
+        }
+        .alert-info {
+            background-color: #f8d7da;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+            border-left: 4px solid #dc3545;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+            color: #666;
+        }
+        .btn {
+            display: inline-block;
+            padding: 12px 24px;
+            background-color: #dc3545;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>⚠️ Düşük Stok Uyarısı</h1>
+        </div>
+        
+        <p>Merhaba Admin,</p>
+        
+        <p>Aşağıdaki ürünün stok miktarı kritik seviyeye düştü:</p>
+        
+        <div class="alert-info">
+            <h3>Ürün Bilgileri</h3>
+            <p><strong>Ürün Adı:</strong> <span th:text="${productName}">Ürün Adı</span></p>
+            <p><strong>Mevcut Stok:</strong> <span th:text="${currentStock}">5</span> adet</p>
+        </div>
+        
+        <p>Lütfen stok miktarını kontrol edin ve gerekirse yeniden sipariş verin.</p>
+        
+        <div style="text-align: center; margin: 30px 0;">
+            <a th:href="${adminPanelLink}" class="btn">Admin Paneline Git</a>
+        </div>
+        
+        <p>Bu uyarı otomatik olarak gönderilmiştir.</p>
+        
+        <div class="footer">
+            <p>E-Commerce Platform<br>
+            <strong>Stok Yönetim Sistemi</strong></p>
+        </div>
+    </div>
+</body>
+</html>

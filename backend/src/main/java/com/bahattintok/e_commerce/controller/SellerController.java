@@ -26,6 +26,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.bahattintok.e_commerce.event.OrderStatusChangedEvent;
 import com.bahattintok.e_commerce.model.Campaign;
 import com.bahattintok.e_commerce.model.Order;
 import com.bahattintok.e_commerce.model.OrderItem;
@@ -70,6 +71,9 @@ public class SellerController {
     
     @Autowired(required = false)
     private ElasticsearchService elasticsearchService;
+    
+    @Autowired
+    private org.springframework.context.ApplicationEventPublisher eventPublisher;
 
     // Ürün CRUD Endpoint'leri
 
@@ -1180,9 +1184,17 @@ public class SellerController {
                 return ResponseEntity.badRequest().body(Map.of("error", "You can only update orders that contain your products"));
             }
             
+            // Eski durumu kaydet
+            String oldStatus = order.getStatus();
+            
             // Sipariş durumunu güncelle
             order.setStatus(newStatus);
             orderRepository.save(order);
+            
+            // Sipariş durumu değişikliği event'ini yayınla (sadece durum gerçekten değiştiyse)
+            if (!oldStatus.equals(newStatus)) {
+                eventPublisher.publishEvent(new OrderStatusChangedEvent(this, order, oldStatus, newStatus));
+            }
             
             Map<String, Object> response = new HashMap<>();
             response.put("message", "Order status updated successfully");

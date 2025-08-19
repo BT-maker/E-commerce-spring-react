@@ -37,9 +37,17 @@ api.interceptors.response.use(
 
     if (error.response?.status === 401) {
       const currentPath = window.location.pathname;
-      const protectedRoutes = ['/profile', '/orders', '/admin', '/seller-panel'];
-
-      if (protectedRoutes.some(route => currentPath.startsWith(route))) {
+      
+      // Admin sayfalarından admin login'e yönlendir
+      if (currentPath.startsWith('/admin')) {
+        window.location.href = '/admin/login';
+      }
+      // Seller sayfalarından seller login'e yönlendir
+      else if (currentPath.startsWith('/seller-panel')) {
+        window.location.href = '/seller/login';
+      }
+      // Diğer korumalı sayfalardan normal login'e yönlendir
+      else if (['/profile', '/orders'].some(route => currentPath.startsWith(route))) {
         window.location.href = '/login';
       }
     }

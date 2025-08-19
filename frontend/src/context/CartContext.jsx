@@ -1,24 +1,18 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
+import { AuthContext } from "./AuthContext";
 import api from "../services/api";
 
 export const CartContext = createContext();
 
 export const CartProvider = ({ children }) => {
+  const { isLoggedIn } = useContext(AuthContext);
   const [cartItems, setCartItems] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [cartLoaded, setCartLoaded] = useState(false); // Cart yüklendi mi?
+  const [loading, setLoading] = useState(false);
 
   // Sepeti backend'den çek
-  const fetchCart = async (force = false) => {
-    // İlk render optimizasyonu: daha önce yüklenmişse ve force değilse tekrar çekme
-    if (cartLoaded && !force) return;
-
-    // Backend offline ise cart yükleme
-    if (window.BACKEND_OFFLINE) {
-      console.log('Backend offline, cart yüklenmedi');
+  const fetchCart = async () => {
+    if (!isLoggedIn) {
       setCartItems([]);
-      setCartLoaded(true);
-      setLoading(false);
       return;
     }
 
@@ -26,38 +20,35 @@ export const CartProvider = ({ children }) => {
     try {
       const res = await api.get("/cart", { withCredentials: true });
       setCartItems(Array.isArray(res.data) ? res.data : []);
-      setCartLoaded(true);
     } catch (err) {
+      console.error('Sepet yükleme hatası:', err);
       setCartItems([]);
-      setCartLoaded(true);
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    // Sadece kullanıcı giriş yapmışsa sepeti yükle
-    const token = localStorage.getItem('token') || sessionStorage.getItem('token');
-    if (token) {
-      fetchCart();
-    } else {
-      // Token yoksa direkt loading'i false yap
-      setLoading(false);
-      console.log('Token bulunamadı, cart yükleme atlandı');
-    }
-  }, []); // Sadece component mount olduğunda çalışsın
+    fetchCart();
+  }, [isLoggedIn]);
 
   const addToCart = async (productId, quantity = 1) => {
+    if (!isLoggedIn) {
+      alert('Sepete ürün eklemek için giriş yapmanız gerekiyor.');
+      return;
+    }
+
     try {
       await api.post(
         "/cart",
         { productId, quantity },
         { withCredentials: true }
       );
-      // Sepeti zorunlu olarak yeniden yükle
-      await fetchCart(true);
+      await fetchCart();
+      console.log('Ürün sepete eklendi');
     } catch (error) {
       console.error('Sepete ekleme hatası:', error);
+      alert('Sepete ürün eklenirken bir hata oluştu.');
     }
   };
 

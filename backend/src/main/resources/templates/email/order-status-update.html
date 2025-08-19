@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sipariş Onayı</title>
+    <title>Sipariş Durumu Güncellendi</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -32,26 +32,20 @@
             color: #FF6000;
             margin-bottom: 10px;
         }
-        .order-number {
-            background-color: #FF6000;
+        .status-badge {
+            background-color: #28a745;
             color: white;
             padding: 10px 20px;
             border-radius: 5px;
             display: inline-block;
             margin: 20px 0;
             font-weight: bold;
+            font-size: 18px;
         }
         .order-details {
             background-color: #f9f9f9;
             padding: 20px;
             border-radius: 5px;
-            margin: 20px 0;
-        }
-        .total-amount {
-            font-size: 18px;
-            font-weight: bold;
-            color: #FF6000;
-            text-align: center;
             margin: 20px 0;
         }
         .footer {
@@ -70,46 +64,45 @@
             border-radius: 5px;
             margin: 20px 0;
         }
+        .status-info {
+            background-color: #e7f3ff;
+            border-left: 4px solid #2196F3;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
             <div class="logo">E-Commerce Platform</div>
-            <h1>Sipariş Onayı</h1>
+            <h1>Sipariş Durumu Güncellendi</h1>
         </div>
         
         <p>Merhaba <strong th:text="${customerName}">Müşteri</strong>,</p>
         
-        <p>Siparişiniz başarıyla alındı ve işleme alındı. Sipariş detayları aşağıda yer almaktadır:</p>
+        <p>Siparişinizin durumu güncellenmiştir. Güncel durum bilgileri aşağıda yer almaktadır:</p>
         
-        <div class="order-number" th:text="'Sipariş No: ' + ${orderNumber}">Sipariş No: ORD-123456</div>
+        <div class="status-badge" th:text="${status}">Hazırlanıyor</div>
         
         <div class="order-details">
-            <p><strong>Sipariş Tarihi:</strong> <span th:text="${orderDate}">15/01/2024 14:30</span></p>
-            <p><strong>Sipariş Durumu:</strong> <span style="color: #28a745;">Onaylandı</span></p>
-            
-            <div th:if="${orderItems != null and !orderItems.empty}" style="margin-top: 20px;">
-                <h3 style="color: #333; border-bottom: 1px solid #ddd; padding-bottom: 10px;">Sipariş Ürünleri:</h3>
-                <div th:each="item : ${orderItems}" style="border: 1px solid #eee; padding: 15px; margin: 10px 0; border-radius: 5px; background-color: white;">
-                    <div style="display: flex; justify-content: space-between; align-items: center;">
-                        <div>
-                            <p style="margin: 0; font-weight: bold; color: #333;" th:text="${item.product.name}">Ürün Adı</p>
-                            <p style="margin: 5px 0; color: #666;" th:text="'Miktar: ' + ${item.quantity} + ' adet'">Miktar: 1 adet</p>
-                        </div>
-                        <div style="text-align: right;">
-                            <p style="margin: 0; font-weight: bold; color: #FF6000;" th:text="${item.price} + ' ₺'">150.00 ₺</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            <p><strong>Sipariş Numarası:</strong> <span th:text="${orderNumber}">ORD-123456</span></p>
+            <p><strong>Güncelleme Tarihi:</strong> <span th:text="${#dates.format(#dates.createNow(), 'dd/MM/yyyy HH:mm')}">15/01/2024 14:30</span></p>
         </div>
         
-        <div class="total-amount">
-            <p>Toplam Tutar: <span th:text="${totalAmount} + ' ₺'">1,250.00 ₺</span></p>
+        <div class="status-info">
+            <h3>Durum Açıklaması:</h3>
+            <p th:if="${status == 'PENDING'}">Siparişiniz alındı ve işleme alındı. Satıcı tarafından onay bekleniyor.</p>
+            <p th:if="${status == 'CONFIRMED'}">Siparişiniz onaylandı ve hazırlanmaya başlandı.</p>
+            <p th:if="${status == 'PREPARING'}">Siparişiniz hazırlanıyor. Kısa süre içinde kargoya verilecek.</p>
+            <p th:if="${status == 'SHIPPED'}">Siparişiniz kargoya verildi. Takip numarası ile takip edebilirsiniz.</p>
+            <p th:if="${status == 'DELIVERED'}">Siparişiniz teslim edildi. İyi alışverişler!</p>
+            <p th:if="${status == 'CANCELLED'}">Siparişiniz iptal edildi. Detaylar için müşteri hizmetleri ile iletişime geçebilirsiniz.</p>
+            <p th:if="${status == 'RETURNED'}">Siparişiniz iade edildi. İade işlemi tamamlandı.</p>
         </div>
         
-        <p>Siparişiniz hazırlandığında size tekrar bilgilendirme yapılacaktır. Siparişinizi takip etmek için aşağıdaki butona tıklayabilirsiniz:</p>
+        <p>Siparişinizi takip etmek ve detayları görüntülemek için aşağıdaki butona tıklayabilirsiniz:</p>
         
         <div style="text-align: center;">
             <a href="http://localhost:5173/orders" class="button">Siparişlerimi Görüntüle</a>

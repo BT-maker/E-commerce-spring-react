@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Siparişiniz Kargoya Verildi</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+        .container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        .header {
+            text-align: center;
+            border-bottom: 2px solid #007bff;
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+        }
+        .header h1 {
+            color: #007bff;
+            margin: 0;
+        }
+        .order-info {
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+        .tracking-info {
+            background-color: #e7f3ff;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+            border-left: 4px solid #007bff;
+        }
+        .tracking-number {
+            font-size: 18px;
+            font-weight: bold;
+            color: #007bff;
+        }
+        .order-items {
+            margin: 20px 0;
+        }
+        .order-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #eee;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+            color: #666;
+        }
+        .btn {
+            display: inline-block;
+            padding: 12px 24px;
+            background-color: #007bff;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚚 Siparişiniz Kargoya Verildi!</h1>
+        </div>
+        
+        <p>Merhaba <strong th:text="${customerName}">Müşteri</strong>,</p>
+        
+        <p>Siparişiniz başarıyla kargoya verildi. Aşağıda sipariş detaylarını bulabilirsiniz:</p>
+        
+        <div class="order-info">
+            <h3>Sipariş Bilgileri</h3>
+            <p><strong>Sipariş Numarası:</strong> <span th:text="${orderNumber}">#12345</span></p>
+            <p><strong>Sipariş Tarihi:</strong> <span th:text="${orderDate}">01/01/2024</span></p>
+        </div>
+        
+        <div class="tracking-info">
+            <h3>📦 Kargo Takip Bilgisi</h3>
+            <p><strong>Takip Numarası:</strong> <span class="tracking-number" th:text="${trackingNumber}">TRK123456789</span></p>
+            <p>Bu takip numarası ile kargo firmasının web sitesinden siparişinizi takip edebilirsiniz.</p>
+        </div>
+        
+        <div class="order-items">
+            <h3>Sipariş İçeriği</h3>
+            <div th:each="item : ${orderItems}" class="order-item">
+                <span th:text="${item.product.name}">Ürün Adı</span>
+                <span th:text="${item.quantity + ' adet'}">1 adet</span>
+            </div>
+        </div>
+        
+        <p><strong>Tahmini Teslimat Süresi:</strong> 2-4 iş günü</p>
+        
+        <p>Herhangi bir sorunuz olursa müşteri hizmetlerimizle iletişime geçebilirsiniz.</p>
+        
+        <div style="text-align: center; margin: 30px 0;">
+            <a href="http://localhost:5173/orders" class="btn">Siparişlerimi Görüntüle</a>
+        </div>
+        
+        <div class="footer">
+            <p>Teşekkürler,<br>
+            <strong>E-Commerce Platform</strong></p>
+            <p>Bu email otomatik olarak gönderilmiştir.</p>
+        </div>
+    </div>
+</body>
+</html>

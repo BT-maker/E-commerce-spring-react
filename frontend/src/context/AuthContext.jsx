@@ -8,78 +8,31 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
-        const checkAuth = async () => {
-    console.log('Auth kontrol ediliyor...');
+  const checkAuth = async () => {
+    setLoading(true);
 
-    // Backend offline ise auth kontrolü yapma
-    if (window.BACKEND_OFFLINE) {
-      console.log('Backend offline, auth kontrolü atlandı');
-      setIsLoggedIn(false);
-      setUser(null);
-      setLoading(false);
-      return;
-    }
-
-    // Eğer admin/login sayfasındaysak auth kontrolü yapma
-    if (window.location.pathname === '/admin/login') {
-      console.log('Admin login sayfasında, auth kontrolü atlandı');
-      setIsLoggedIn(false);
-      setUser(null);
-      setLoading(false);
-      return;
-    }
-    
     try {
-        const response = await api.get('/auth/me', { withCredentials: true });
-      console.log('Auth başarılı:', response.data);
-      console.log('Email kontrolü:', response.data.email);
-      console.log('FirstName kontrolü:', response.data.firstName);
-      console.log('LastName kontrolü:', response.data.lastName);
-      console.log('Role kontrolü:', response.data.role);
-        setIsLoggedIn(true);
-        setUser(response.data);
-      } catch (error) {
-        // 401 hatası normal bir durum (kullanıcı giriş yapmamış)
-        if (error.response?.status === 401) {
-          console.log('Kullanıcı giriş yapmamış (normal durum)');
-        } else {
-          console.log('Auth hatası:', error.response?.status, error.response?.data);
-        }
-        setIsLoggedIn(false);
-        setUser(null);
-      } finally {
-        setLoading(false);
-      }
-    };
+      const response = await api.get('/auth/me', { withCredentials: true });
+      setIsLoggedIn(true);
+      setUser(response.data);
+    } catch (error) {
+      setIsLoggedIn(false);
+      setUser(null);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    // Her zaman auth kontrolü yap (cookie'den token okunacak)
     checkAuth();
-  }, []); // Sadece component mount olduğunda çalışsın
+  }, []);
 
   const login = async (userData = null) => {
-    console.log('Login fonksiyonu çağrıldı, userData:', userData);
     if (userData) {
-      // Backend'den gelen AuthResponse'u doğru formata çevir
-      const formattedUserData = {
-        email: userData.email || '', // AuthResponse'da email yok, /me endpoint'inden gelecek
-        firstName: userData.firstName || '',
-        lastName: userData.lastName || '',
-        role: userData.role || null, // Role string olarak geliyor
-        phone: userData.phone || '',
-        birthDate: userData.birthDate || '',
-        address1: userData.address1 || '',
-        address2: userData.address2 || ''
-      };
-      
-      console.log('User data ile login yapılıyor:', formattedUserData);
       setIsLoggedIn(true);
-      setUser(formattedUserData);
+      setUser(userData);
       setLoading(false);
-      console.log('Login state güncellendi - isLoggedIn: true, user:', formattedUserData);
     } else {
-      // Verilmemişse auth kontrolü yap
-      console.log('User data yok, auth kontrolü yapılıyor');
       await checkAuth();
     }
   };
@@ -99,10 +52,8 @@ export const AuthProvider = ({ children }) => {
     try {
       const response = await api.put('/auth/me', profileData, { withCredentials: true });
       
-      // Güncellenmiş kullanıcı bilgilerini state'e kaydet
       if (response.data && response.data.user) {
         setUser(response.data.user);
-        console.log('Kullanıcı bilgileri güncellendi:', response.data.user);
       }
       
       return { success: true, message: response.data?.message || "Profil başarıyla güncellendi" };

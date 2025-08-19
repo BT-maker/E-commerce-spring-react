@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hesabınızı Doğrulayın</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+        .container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        .header {
+            text-align: center;
+            border-bottom: 2px solid #28a745;
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+        }
+        .header h1 {
+            color: #28a745;
+            margin: 0;
+        }
+        .verification-box {
+            background-color: #d4edda;
+            padding: 20px;
+            border-radius: 5px;
+            margin: 20px 0;
+            border-left: 4px solid #28a745;
+        }
+        .btn {
+            display: inline-block;
+            padding: 15px 30px;
+            background-color: #28a745;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            margin: 20px 0;
+            font-weight: bold;
+        }
+        .btn:hover {
+            background-color: #218838;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+            color: #666;
+        }
+        .warning {
+            background-color: #fff3cd;
+            border: 1px solid #ffeaa7;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>✅ Hesabınızı Doğrulayın</h1>
+        </div>
+        
+        <p>Merhaba <strong th:text="${customerName}">Kullanıcı</strong>,</p>
+        
+        <p>E-Commerce Platform'a hoş geldiniz! Hesabınızı aktifleştirmek için aşağıdaki butona tıklayın:</p>
+        
+        <div class="verification-box">
+            <h3>🔐 Hesap Doğrulama</h3>
+            <p>Hesabınızı doğrulamak için aşağıdaki butona tıklayın. Bu işlem hesabınızı aktifleştirecek ve platformun tüm özelliklerini kullanmanızı sağlayacaktır.</p>
+        </div>
+        
+        <div style="text-align: center;">
+            <a th:href="${verificationLink}" class="btn">Hesabımı Doğrula</a>
+        </div>
+        
+        <div class="warning">
+            <h4>⚠️ Önemli Bilgi</h4>
+            <p>Bu doğrulama linki <strong th:text="${expiryTime}">24 saat</strong> geçerlidir. Süre dolduktan sonra yeni bir doğrulama linki talep etmeniz gerekecektir.</p>
+        </div>
+        
+        <p>Eğer buton çalışmıyorsa, aşağıdaki linki tarayıcınıza kopyalayabilirsiniz:</p>
+        <p style="word-break: break-all; background-color: #f8f9fa; padding: 10px; border-radius: 5px;">
+            <a th:href="${verificationLink}" th:text="${verificationLink}">https://example.com/verify</a>
+        </p>
+        
+        <p>Bu email'i siz talep etmediyseniz, lütfen dikkate almayın.</p>
+        
+        <div class="footer">
+            <p>Teşekkürler,<br>
+            <strong>E-Commerce Platform</strong></p>
+            <p>Bu email otomatik olarak gönderilmiştir.</p>
+        </div>
+    </div>
+</body>
+</html>
