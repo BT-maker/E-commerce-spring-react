@@ -1,4 +1,4 @@
-import React, { useState, useContext } from "react";
+import React, { useState, useContext, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../../context/AuthContext";
 import { Shield, Eye, EyeOff, AlertCircle } from "lucide-react";
@@ -16,7 +16,14 @@ const AdminLogin = () => {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
-  const { login } = useContext(AuthContext);
+  const { login, isLoggedIn, user, loading: authLoading } = useContext(AuthContext);
+
+  // Eğer zaten giriş yapmışsa ve admin ise dashboard'a yönlendir
+  useEffect(() => {
+    if (isLoggedIn && user && user.role === 'ADMIN') {
+      navigate('/admin/dashboard');
+    }
+  }, [isLoggedIn, user, navigate]);
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -80,7 +87,22 @@ const AdminLogin = () => {
         keywords="admin, giriş, yönetim paneli, e-ticaret admin"
       />
       
-      <div className="admin-login-card">
+      {/* Loading durumu */}
+      {authLoading && (
+        <div className="admin-login-card">
+          <div className="admin-login-header">
+            <div className="admin-icon">
+              <Shield size={48} />
+            </div>
+            <h1>Admin Girişi</h1>
+            <p>Backend bağlantısı kontrol ediliyor...</p>
+          </div>
+        </div>
+      )}
+      
+      {/* Normal form */}
+      {!authLoading && (
+        <div className="admin-login-card">
         <div className="admin-login-header">
           <div className="admin-icon">
             <Shield size={48} />
@@ -147,6 +169,7 @@ const AdminLogin = () => {
           <span>Bu sayfa sadece yetkili admin kullanıcıları içindir.</span>
         </div>
       </div>
+      )}
     </div>
   );
 };

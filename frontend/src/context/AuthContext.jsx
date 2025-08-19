@@ -24,7 +24,13 @@ export const AuthProvider = ({ children }) => {
   };
 
   useEffect(() => {
-    checkAuth();
+    // Sadece sayfa ilk yüklendiğinde kontrol et, sürekli kontrol etme
+    const token = document.cookie.includes('jwt=');
+    if (token) {
+      checkAuth();
+    } else {
+      setLoading(false);
+    }
   }, []);
 
   const login = async (userData = null) => {
