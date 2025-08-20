@@ -53,23 +53,88 @@
 
 .header-stats {
   display: flex;
-  gap: 2rem;
+  gap: 1.5rem;
 }
 
-.stat-item {
-  text-align: center;
+.admin-sellers .stat-item {
+  background: white !important;
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  transition: transform 0.2s, box-shadow 0.2s;
+  color: #2d3748;
+  min-width: 200px;
 }
 
-.stat-value {
+/* Farklı kartlar için farklı sol kenarlık renkleri */
+.admin-sellers .stat-item:nth-child(1) {
+  border-left: 4px solid #3b82f6 !important;
+}
+
+.admin-sellers .stat-item:nth-child(2) {
+  border-left: 4px solid #10b981 !important;
+}
+
+.admin-sellers .stat-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+/* Farklı kartlar için farklı sol kenarlık renkleri */
+.admin-sellers .stat-item:nth-child(1) {
+  border-left: 4px solid #3b82f6;
+}
+
+.admin-sellers .stat-item:nth-child(2) {
+  border-left: 4px solid #10b981;
+}
+
+/* Hover efektinde border-left rengini değiştir */
+.admin-sellers .stat-item:nth-child(1):hover {
+  border-left: 4px solid #2563eb;
+}
+
+.admin-sellers .stat-item:nth-child(2):hover {
+  border-left: 4px solid #059669;
+}
+
+.admin-sellers .stat-icon {
+  width: 3rem;
+  height: 3rem;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white !important;
+}
+
+.admin-sellers .stat-icon.total {
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+}
+
+.admin-sellers .stat-icon.active {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+}
+
+.admin-sellers .stat-content {
+  color: #2d3748;
+}
+
+.admin-sellers .stat-value {
   display: block;
-  font-size: 2rem;
+  font-size: 1.5rem;
   font-weight: 700;
-  color: #FF6000;
+  color: #2d3748 !important;
+  margin-bottom: 0.25rem;
 }
 
-.stat-label {
+.admin-sellers .stat-label {
   font-size: 0.875rem;
-  color: #718096;
+  color: #64748b !important;
+  font-weight: 500;
 }
 
 /* Filters Section */
@@ -174,7 +239,7 @@
   width: 48px;
   height: 48px;
   border-radius: 50%;
-  background: rgb(255, 96, 0));
+  background: rgb(255, 96, 0);
   display: flex;
   align-items: center;
   justify-content: center;

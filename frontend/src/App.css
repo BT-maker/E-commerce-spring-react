@@ -85,6 +85,10 @@
   /* Border Renkleri */
   --border-color: #e5e7eb;
   --border-focus: #ff6000;
+
+  /* Accent Renkleri */
+  --accent-color: #ff6000;
+  --accent-hover: #ea580c;
 }
 
 

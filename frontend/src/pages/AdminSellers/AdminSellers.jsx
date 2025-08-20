@@ -174,12 +174,22 @@ const AdminSellers = () => {
         </div>
         <div className="header-stats">
           <div className="stat-item">
-            <span className="stat-value">{sellers.length}</span>
-            <span className="stat-label">Toplam Satıcı</span>
+            <div className="stat-icon total">
+              <Store size={24} />
+            </div>
+            <div className="stat-content">
+              <span className="stat-value">{sellers.length}</span>
+              <span className="stat-label">Toplam Satıcı</span>
+            </div>
           </div>
           <div className="stat-item">
-            <span className="stat-value">{sellers.filter(s => s.status === 'ACTIVE').length}</span>
-            <span className="stat-label">Aktif Satıcı</span>
+            <div className="stat-icon active">
+              <UserCheck size={24} />
+            </div>
+            <div className="stat-content">
+              <span className="stat-value">{sellers.filter(s => s.status === 'ACTIVE').length}</span>
+              <span className="stat-label">Aktif Satıcı</span>
+            </div>
           </div>
         </div>
       </div>
