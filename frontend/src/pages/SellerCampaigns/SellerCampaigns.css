@@ -113,7 +113,7 @@
   transform: translateY(-2px);
 }
 
-.stat-icon {
+.seller-campaigns .stat-icon {
   width: 50px;
   height: 50px;
   background: rgba(255, 255, 255, 0.2);
@@ -127,11 +127,11 @@
   border: 1px solid rgba(255, 255, 255, 0.3);
 }
 
-.stat-icon.active {
+.seller-campaigns .stat-icon.active {
   background: rgba(5, 150, 105, 0.8);
 }
 
-.stat-icon.pending {
+.seller-campaigns .stat-icon.pending {
   background: rgba(217, 119, 6, 0.8);
 }
 

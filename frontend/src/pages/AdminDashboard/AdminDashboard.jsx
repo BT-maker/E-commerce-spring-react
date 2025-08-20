@@ -120,21 +120,17 @@ const AdminDashboard = () => {
 
   const StatCard = ({ title, value, icon: Icon, change, changeType }) => (
     <div className="stat-card">
-      <div className="stat-header">
-        <div className="stat-icon-white">
-          <Icon size={24} />
-        </div>
-        {change && (
-          <div className={`stat-change ${changeType}`}>
-            {changeType === 'positive' ? <ArrowUpRight size={16} /> : <ArrowDownRight size={16} />}
-            <span>{change}%</span>
-          </div>
-        )}
+      <div className="card-icon">
+        <Icon size={24} />
       </div>
-      <div className="stat-content">
-        <p className="stat-title">{title}</p>
-        <h1 className="stat-value">{value.toLocaleString()}</h1>
-        
+      <div className="card-content">
+        <h3>{title}</h3>
+        <p>{value.toLocaleString()}</p>
+        {change && (
+          <span className={`growth ${changeType}`}>
+            {changeType === 'positive' ? '+' : ''}{change}%
+          </span>
+        )}
       </div>
     </div>
   );

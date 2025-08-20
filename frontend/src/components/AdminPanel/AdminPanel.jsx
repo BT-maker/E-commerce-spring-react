@@ -23,7 +23,7 @@ const AdminPanel = () => {
   }
 
   return (
-    <div className="min-h-[70vh] max-w-5xl mx-auto mt-10 bg-white rounded-xl shadow flex flex-col md:flex-row">
+    <div className="admin-panel min-h-[70vh] max-w-5xl mx-auto mt-10 bg-white rounded-xl shadow flex flex-col md:flex-row">
       <PageTitle title="Admin Paneli" />
       <MetaTags 
         title="Admin Paneli"

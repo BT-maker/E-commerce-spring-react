@@ -58,7 +58,7 @@
   margin-bottom: 2rem;
 }
 
-.stat-card {
+.admin-users .stat-card {
   background: white;
   border-radius: 12px;
   padding: 1.5rem;
@@ -70,12 +70,21 @@
   transition: all 0.3s ease;
 }
 
-.stat-card:hover {
+.admin-users .stat-card:hover {
   transform: translateY(-2px);
   box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
 }
 
-.stat-icon {
+/* Farklı kartlar için farklı sol kenarlık renkleri */
+.admin-users .stat-card:nth-child(1) {
+  border-left: 4px solid #10b981;
+}
+
+.admin-users .stat-card:nth-child(2) {
+  border-left: 4px solid #3b82f6;
+}
+
+.admin-users .stat-icon {
   width: 48px;
   height: 48px;
   border-radius: 12px;
@@ -83,25 +92,34 @@
   align-items: center;
   justify-content: center;
   background: rgb(255, 96, 0);
-  color: white;
+  color: white !important;
 }
 
-.stat-content {
+.admin-users .stat-content {
   display: flex;
   flex-direction: column;
 }
 
-.stat-value {
+.admin-users .stat-value {
   font-size: 1.5rem;
   font-weight: 700;
-  color: #2d3748;
+  color: #2d3748 !important;
   margin-bottom: 0.25rem;
 }
 
-.stat-label {
+.admin-users .stat-label {
   font-size: 0.875rem;
-  color: #718096;
+  color: #718096 !important;
   font-weight: 500;
+}
+
+/* Her kart için farklı gradient renkler */
+.admin-users .stat-card:nth-child(1) .stat-icon {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+}
+
+.admin-users .stat-card:nth-child(2) .stat-icon {
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
 }
 
 /* Arama ve Filtre */

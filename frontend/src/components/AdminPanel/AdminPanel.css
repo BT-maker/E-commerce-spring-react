@@ -73,28 +73,103 @@
   margin-bottom: 2rem;
 }
 
-.stat-card {
-  background: var(--bg-secondary);
-  border: 1px solid var(--border-color);
-  border-radius: 8px;
+.admin-panel .stat-card {
+  background: white;
   padding: 1.5rem;
-  text-align: center;
-  transition: all 0.2s ease;
+  border-radius: 12px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  color: black;
+  transition: transform 0.2s, box-shadow 0.2s;
 }
 
-.stat-card:hover {
+.admin-panel .stat-card:hover {
   transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
 }
 
-.stat-value {
+/* Farklı kartlar için farklı renkler */
+.admin-panel .stat-card:nth-child(1) {
+  border-left: 4px solid #10b981;
+}
+
+.admin-panel .stat-card:nth-child(2) {
+  border-left: 4px solid #3b82f6;
+}
+
+.admin-panel .stat-card:nth-child(3) {
+  border-left: 4px solid #f59e0b;
+}
+
+.admin-panel .stat-card:nth-child(4) {
+  border-left: 4px solid #ef4444;
+}
+
+.admin-panel .card-icon {
+  width: 3rem;
+  height: 3rem;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+}
+
+/* Her kart için farklı gradient renkler */
+.admin-panel .stat-card:nth-child(1) .card-icon {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+}
+
+.admin-panel .stat-card:nth-child(2) .card-icon {
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+}
+
+.admin-panel .stat-card:nth-child(3) .card-icon {
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+}
+
+.admin-panel .stat-card:nth-child(4) .card-icon {
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+}
+
+.admin-panel .card-content h3 {
+  font-size: 0.9rem;
+  color: #64748b;
+  margin: 0 0 0.5rem 0;
+  font-weight: 500;
+}
+
+.admin-panel .card-content p {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #2d3748;
+  margin: 0 0 0.25rem 0;
+}
+
+.growth {
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+
+.growth.positive {
+  color: #10b981;
+}
+
+.growth.negative {
+  color: #ef4444;
+}
+
+/* Eski stat-value ve stat-label stilleri - artık kullanılmıyor */
+.admin-panel .stat-value {
   font-size: 2rem;
   font-weight: 700;
   color: var(--accent-color);
   margin-bottom: 0.5rem;
 }
 
-.stat-label {
+.admin-panel .stat-label {
   color: var(--text-secondary);
   font-size: 0.9rem;
   text-transform: uppercase;
@@ -318,40 +393,3 @@
     padding: 0.5rem;
   }
 }
-
-/* Dark mode uyumluluğu */
-.dark .admin-panel {
-  background: var(--bg-secondary);
-  border-color: var(--border-color);
-}
-
-.dark .admin-sidebar {
-  background: var(--bg-tertiary);
-  border-color: var(--border-color);
-}
-
-.dark .stat-card {
-  background: var(--bg-tertiary);
-  border-color: var(--border-color);
-}
-
-.dark .admin-form {
-  background: var(--bg-tertiary);
-  border-color: var(--border-color);
-}
-
-.dark .form-input,
-.dark .form-select,
-.dark .form-textarea {
-  background: var(--bg-primary);
-  border-color: var(--border-color);
-  color: var(--text-primary);
-}
-
-.dark .admin-table th {
-  background: var(--bg-tertiary);
-}
-
-.dark .admin-table tr:hover {
-  background: var(--bg-tertiary);
-} 

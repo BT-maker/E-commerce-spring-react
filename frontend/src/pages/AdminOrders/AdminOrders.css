@@ -132,7 +132,7 @@
     margin-bottom: 2rem;
 }
 
-.stat-card {
+.admin-orders .stat-card {
     background: white;
     border-radius: 12px;
     padding: 1.5rem;
@@ -141,50 +141,72 @@
     align-items: center;
     gap: 1rem;
     transition: transform 0.2s, box-shadow 0.2s;
+    color: #1e293b;
 }
 
-.stat-card:hover {
+/* Farklı kartlar için farklı sol kenarlık renkleri */
+.admin-orders .stat-card:nth-child(1) {
+    border-left: 4px solid #3b82f6;
+}
+
+.admin-orders .stat-card:nth-child(2) {
+    border-left: 4px solid #f59e0b;
+}
+
+.admin-orders .stat-card:nth-child(3) {
+    border-left: 4px solid #10b981;
+}
+
+.admin-orders .stat-card:nth-child(4) {
+    border-left: 4px solid #0ea5e9;
+}
+
+.admin-orders .stat-card:hover {
     transform: translateY(-2px);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
-.stat-icon {
+.admin-orders .stat-icon {
     width: 3rem;
     height: 3rem;
     border-radius: 8px;
     background: #e0f2fe;
-    color: #0284c7;
+    color: #0284c7 !important;
     display: flex;
     align-items: center;
     justify-content: center;
 }
 
-.stat-icon.pending {
+.admin-orders .stat-icon.pending {
     background: #fef3c7;
-    color: #d97706;
+    color: #d97706 !important;
 }
 
-.stat-icon.completed {
+.admin-orders .stat-icon.completed {
     background: #dcfce7;
-    color: #16a34a;
+    color: #16a34a !important;
 }
 
-.stat-icon.revenue {
+.admin-orders .stat-icon.revenue {
     background: #f0f9ff;
-    color: #0ea5e9;
+    color: #0ea5e9 !important;
 }
 
-.stat-content h3 {
+.admin-orders .stat-content {
+    color: #1e293b;
+}
+
+.admin-orders .stat-content h3 {
     font-size: 0.875rem;
-    color: #64748b;
+    color: #64748b !important;
     margin: 0 0 0.25rem 0;
     font-weight: 500;
 }
 
-.stat-content p {
+.admin-orders .stat-content p {
     font-size: 1.5rem;
     font-weight: 700;
-    color: #ffffff !important;
+    color: #1e293b !important;
     margin: 0;
 }
 

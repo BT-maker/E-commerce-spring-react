@@ -112,7 +112,7 @@
   transform: translateY(-2px);
 }
 
-.stat-icon {
+.seller-stock .stat-icon {
   width: 50px;
   height: 50px;
   background: rgba(255, 255, 255, 0.2);
@@ -126,11 +126,11 @@
   border: 1px solid rgba(255, 255, 255, 0.3);
 }
 
-.stat-icon.critical {
+.seller-stock .stat-icon.critical {
   background: rgba(220, 38, 38, 0.8);
 }
 
-.stat-icon.warning {
+.seller-stock .stat-icon.warning {
   background: rgba(234, 88, 12, 0.8);
 }
 

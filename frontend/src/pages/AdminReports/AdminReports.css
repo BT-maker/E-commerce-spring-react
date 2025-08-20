@@ -108,7 +108,7 @@
   gap: 1.5rem;
 }
 
-.stat-card {
+.admin-reports .stat-card {
   background: white;
   padding: 1.5rem;
   border-radius: 12px;
@@ -116,45 +116,73 @@
   display: flex;
   align-items: center;
   gap: 1rem;
+  transition: transform 0.2s, box-shadow 0.2s;
+  color: #2d3748;
 }
 
-.stat-icon {
+.admin-reports .stat-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+/* Farklı kartlar için farklı sol kenarlık renkleri */
+.admin-reports .stat-card:nth-child(1) {
+  border-left: 4px solid #10b981;
+}
+
+.admin-reports .stat-card:nth-child(2) {
+  border-left: 4px solid #3b82f6;
+}
+
+.admin-reports .stat-card:nth-child(3) {
+  border-left: 4px solid #8b5cf6;
+}
+
+.admin-reports .stat-card:nth-child(4) {
+  border-left: 4px solid #f59e0b;
+}
+
+.admin-reports .stat-icon {
   width: 3rem;
   height: 3rem;
   border-radius: 10px;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: white;
+  color: white !important;
 }
 
-.stat-icon.revenue {
+.admin-reports .stat-icon.revenue {
   background: linear-gradient(135deg, #10b981 0%, #059669 100%);
 }
 
-.stat-icon.orders {
+.admin-reports .stat-icon.orders {
   background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
 }
 
-.stat-icon.users {
+.admin-reports .stat-icon.users {
   background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
 }
 
-.stat-icon.products {
+.admin-reports .stat-icon.products {
   background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
 }
 
-.stat-content h3 {
+.admin-reports .stat-content {
+  color: #2d3748;
+}
+
+.admin-reports .stat-content h3 {
   font-size: 0.9rem;
-  color: #64748b;
+  color: #64748b !important;
   margin: 0 0 0.5rem 0;
   font-weight: 500;
 }
 
-.stat-content p {
+.admin-reports .stat-content p {
   font-size: 1.5rem;
   font-weight: 700;
-  color: #2d3748;
+  color: #2d3748 !important;
   margin: 0 0 0.25rem 0;
 }
 
