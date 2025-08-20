@@ -54,6 +54,8 @@ public class CategoryController {
     public ResponseEntity<Category> updateCategory(@PathVariable String id, @RequestBody Category categoryDetails) {
         Category category = categoryRepository.findById(id).orElseThrow(() -> new RuntimeException("Category not found"));
         category.setName(categoryDetails.getName());
+        category.setDescription(categoryDetails.getDescription());
+        category.setImageUrl(categoryDetails.getImageUrl());
         Category updatedCategory = categoryRepository.save(category);
         return ResponseEntity.ok(updatedCategory);
     }

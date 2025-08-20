@@ -19,6 +19,7 @@ import AdminDashboard from './pages/AdminDashboard/AdminDashboard.jsx';
 import AdminUsers from './pages/AdminUsers/AdminUsers.jsx';
 import AdminSellers from './pages/AdminSellers/AdminSellers.jsx';
 import AdminProducts from './pages/AdminProducts/AdminProducts.jsx';
+import AdminCategories from './pages/AdminCategories/AdminCategories.jsx';
 import AdminOrders from './pages/AdminOrders/AdminOrders.jsx';
 import AdminReports from './pages/AdminReports/AdminReports.jsx';
 import AdminFinancial from './pages/AdminFinancial/AdminFinancial.jsx';
@@ -316,6 +317,14 @@ function App() {
                     <AdminRoute>
                       <AdminLayout>
                         <AdminSellers />
+                      </AdminLayout>
+                    </AdminRoute>
+                  } />
+                  
+                  <Route path="/admin/categories" element={
+                    <AdminRoute>
+                      <AdminLayout>
+                        <AdminCategories />
                       </AdminLayout>
                     </AdminRoute>
                   } />

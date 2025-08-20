@@ -36,6 +36,18 @@ public class Category {
     private String name;
     
     /**
+     * Kategori açıklaması (opsiyonel)
+     */
+    @Column(columnDefinition = "TEXT")
+    private String description;
+    
+    /**
+     * Kategori resim URL'i (opsiyonel)
+     */
+    @Column(columnDefinition = "TEXT")
+    private String imageUrl;
+    
+    /**
      * Id getter metodu
      */
     public String getId() {

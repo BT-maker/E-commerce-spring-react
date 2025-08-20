@@ -17,7 +17,8 @@ import {
   Search,
   Bell,
   User,
-  Mail
+  Mail,
+  FolderOpen
 } from "lucide-react";
 import "./AdminLayout.css";
 import toast from 'react-hot-toast';
@@ -44,6 +45,11 @@ const AdminLayout = ({ children }) => {
       path: "/admin/sellers",
       name: "Satıcı Yönetimi",
       icon: Store
+    },
+    {
+      path: "/admin/categories",
+      name: "Kategori Yönetimi",
+      icon: FolderOpen
     },
     {
       path: "/admin/products",
