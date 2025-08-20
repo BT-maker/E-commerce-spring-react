@@ -221,4 +221,53 @@ public class EmailService {
         
         sendSimpleEmail(to, subject, content);
     }
+
+    /**
+     * Kategori isteği oluşturulduğunda admin'e email gönderir
+     */
+    public void sendCategoryRequestCreatedEmail(String to, String subject, String categoryName, 
+                                               String description, String sellerName, String createdAt) {
+        Map<String, Object> variables = Map.of(
+            "categoryName", categoryName,
+            "description", description != null ? description : "Açıklama belirtilmemiş",
+            "sellerName", sellerName,
+            "createdAt", createdAt
+        );
+        
+        sendTemplateEmail(to, subject, "email/category-request-created", variables);
+    }
+
+    /**
+     * Kategori isteği onaylandığında satıcıya email gönderir
+     */
+    public void sendCategoryRequestApprovedEmail(String to, String subject, String categoryName, 
+                                                String description, String approvedAt, String adminName, String sellerName) {
+        Map<String, Object> variables = Map.of(
+            "categoryName", categoryName,
+            "description", description != null ? description : "Açıklama belirtilmemiş",
+            "approvedAt", approvedAt,
+            "adminName", adminName,
+            "sellerName", sellerName
+        );
+        
+        sendTemplateEmail(to, subject, "email/category-request-approved", variables);
+    }
+
+    /**
+     * Kategori isteği reddedildiğinde satıcıya email gönderir
+     */
+    public void sendCategoryRequestRejectedEmail(String to, String subject, String categoryName, 
+                                                String description, String rejectedAt, String adminName, 
+                                                String sellerName, String rejectionReason) {
+        Map<String, Object> variables = Map.of(
+            "categoryName", categoryName,
+            "description", description != null ? description : "Açıklama belirtilmemiş",
+            "rejectedAt", rejectedAt,
+            "adminName", adminName,
+            "sellerName", sellerName,
+            "rejectionReason", rejectionReason
+        );
+        
+        sendTemplateEmail(to, subject, "email/category-request-rejected", variables);
+    }
 }

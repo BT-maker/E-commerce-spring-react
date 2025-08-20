@@ -18,6 +18,16 @@ public interface CategoryRepository extends JpaRepository<Category, String> {
     Optional<Category> findByName(String name);
     
     /**
+     * Kategori adına göre kategori bulur (büyük/küçük harf duyarsız).
+     */
+    Optional<Category> findByNameIgnoreCase(String name);
+    
+    /**
+     * Kategori adının var olup olmadığını kontrol eder (büyük/küçük harf duyarsız).
+     */
+    boolean existsByNameIgnoreCase(String name);
+    
+    /**
      * Bu repository şu işlevleri sağlar:
      * 
      * 1. Temel CRUD İşlemleri: Category entity'si için standart veritabanı işlemleri

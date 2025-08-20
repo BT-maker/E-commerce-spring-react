@@ -1,5 +1,6 @@
 import React, { createContext, useState, useEffect } from "react";
 import api from "../services/api";
+import webSocketService from "../services/webSocketService";
 
 export const AuthContext = createContext();
 
@@ -36,6 +37,14 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  // Cookie'den token alma fonksiyonu
+  const getCookie = (name) => {
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    if (parts.length === 2) return parts.pop().split(';').shift();
+    return null;
+  };
+
   useEffect(() => {
     console.log('=== AUTH CONTEXT USEEFFECT ===');
     console.log('Cookie kontrolü:', document.cookie.includes('jwt_token='));
@@ -68,6 +77,12 @@ export const AuthProvider = ({ children }) => {
       setIsLoggedIn(true);
       setUser(user);
       setLoading(false);
+      
+      // WebSocket bağlantısını başlat
+      const token = getCookie('jwt_token');
+      if (token) {
+        webSocketService.connect(token);
+      }
     } else {
       console.log('userData yok, checkAuth çağrılıyor...');
       await checkAuth();
@@ -80,6 +95,10 @@ export const AuthProvider = ({ children }) => {
     } catch (error) {
       console.log('Logout hatası:', error);
     }
+    
+    // WebSocket bağlantısını kes
+    webSocketService.disconnect();
+    
     setIsLoggedIn(false);
     setUser(null);
     setLoading(false);

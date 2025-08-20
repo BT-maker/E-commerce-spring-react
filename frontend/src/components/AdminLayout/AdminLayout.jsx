@@ -52,6 +52,11 @@ const AdminLayout = ({ children }) => {
       icon: FolderOpen
     },
     {
+      path: "/admin/category-requests",
+      name: "Kategori İstekleri",
+      icon: Bell
+    },
+    {
       path: "/admin/products",
       name: "Ürün Yönetimi",
       icon: Package

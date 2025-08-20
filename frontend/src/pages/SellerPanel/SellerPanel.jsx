@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { FaShoppingCart, FaChartLine, FaExclamationTriangle, FaStar, FaPlus, FaList, FaBoxes, FaComments } from 'react-icons/fa';
+import SellerCategoryRequest from '../../components/SellerCategoryRequest/SellerCategoryRequest';
 import './SellerPanel.css';
 
 const SellerPanel = () => {
@@ -279,6 +280,12 @@ const SellerPanel = () => {
               </div>
             )}
           </div>
+        </div>
+
+        {/* Category Requests */}
+        <div className="dashboard-section">
+          <h2>Kategori İstekleri</h2>
+          <SellerCategoryRequest />
         </div>
       </div>
     </div>

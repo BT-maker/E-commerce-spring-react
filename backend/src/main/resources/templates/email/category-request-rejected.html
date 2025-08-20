@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Kategori İsteği Reddedildi</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .header {
+            background-color: #ef4444;
+            color: white;
+            padding: 20px;
+            text-align: center;
+            border-radius: 8px 8px 0 0;
+        }
+        .content {
+            background-color: #f9fafb;
+            padding: 20px;
+            border-radius: 0 0 8px 8px;
+        }
+        .info-box {
+            background-color: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 6px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        .rejection-box {
+            background-color: #fee2e2;
+            border: 1px solid #ef4444;
+            border-radius: 6px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        .button {
+            display: inline-block;
+            background-color: #3b82f6;
+            color: white;
+            padding: 12px 24px;
+            text-decoration: none;
+            border-radius: 6px;
+            margin-top: 15px;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 20px;
+            color: #6b7280;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>❌ Kategori İsteği Reddedildi</h1>
+    </div>
+    
+    <div class="content">
+        <p>Merhaba <span th:text="${sellerName}">Satıcı</span>,</p>
+        
+        <div class="rejection-box">
+            <h3>⚠️ Maalesef...</h3>
+            <p>Kategori isteğiniz reddedilmiştir. Aşağıda red sebebini bulabilirsiniz.</p>
+        </div>
+        
+        <div class="info-box">
+            <h3>📋 Reddedilen İstek</h3>
+            <p><strong>Kategori Adı:</strong> <span th:text="${categoryName}">Kategori Adı</span></p>
+            <p><strong>Açıklama:</strong> <span th:text="${description}">Açıklama</span></p>
+            <p><strong>Red Tarihi:</strong> <span th:text="${rejectedAt}">Tarih</span></p>
+            <p><strong>Reddeden Admin:</strong> <span th:text="${adminName}">Admin Adı</span></p>
+        </div>
+        
+        <div class="info-box">
+            <h3>📝 Red Sebebi</h3>
+            <p><span th:text="${rejectionReason}">Red sebebi</span></p>
+        </div>
+        
+        <p>Yeni bir kategori isteği oluşturmak için satıcı panelinizi ziyaret edebilirsiniz. Lütfen red sebebini dikkate alarak yeni bir istek oluşturun.</p>
+        
+        <a href="http://localhost:3000/seller-panel" class="button">
+            Satıcı Paneli'ne Git
+        </a>
+        
+        <div class="footer">
+            <p>Bu email otomatik olarak gönderilmiştir. Lütfen yanıtlamayınız.</p>
+            <p>© 2024 E-Commerce Platform. Tüm hakları saklıdır.</p>
+        </div>
+    </div>
+</body>
+</html>
