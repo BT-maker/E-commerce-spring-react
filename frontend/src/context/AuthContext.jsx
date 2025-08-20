@@ -9,36 +9,67 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   const checkAuth = async () => {
+    console.log('=== CHECK AUTH BAŞLADI ===');
     setLoading(true);
 
     try {
+      console.log('API isteği gönderiliyor...');
       const response = await api.get('/auth/me', { withCredentials: true });
-      setIsLoggedIn(true);
-      setUser(response.data);
+      console.log('API response:', response.data);
+      
+      if (response.data) {
+        console.log('Kullanıcı bulundu, login yapılıyor...');
+        setIsLoggedIn(true);
+        setUser(response.data);
+      } else {
+        console.log('Kullanıcı bulunamadı');
+        setIsLoggedIn(false);
+        setUser(null);
+      }
     } catch (error) {
+      console.log('Auth check hatası:', error.response?.status, error.response?.data);
       setIsLoggedIn(false);
       setUser(null);
     } finally {
+      console.log('Loading false yapılıyor');
       setLoading(false);
     }
   };
 
   useEffect(() => {
+    console.log('=== AUTH CONTEXT USEEFFECT ===');
+    console.log('Cookie kontrolü:', document.cookie.includes('jwt_token='));
+    console.log('Tüm cookie\'ler:', document.cookie);
+    
     // Sadece sayfa ilk yüklendiğinde kontrol et, sürekli kontrol etme
-    const token = document.cookie.includes('jwt=');
+    const token = document.cookie.includes('jwt_token=');
     if (token) {
+      console.log('Token bulundu, checkAuth çağrılıyor...');
       checkAuth();
     } else {
+      console.log('Token bulunamadı, loading false yapılıyor');
       setLoading(false);
     }
   }, []);
 
   const login = async (userData = null) => {
+    console.log('=== LOGIN FONKSİYONU ===');
+    console.log('userData:', userData);
+    
     if (userData) {
+      // Backend'den gelen AuthResponse'u user objesine dönüştür
+      const user = {
+        firstName: userData.firstName,
+        lastName: userData.lastName,
+        role: userData.role,
+        email: userData.email || null
+      };
+      console.log('Oluşturulan user objesi:', user);
       setIsLoggedIn(true);
-      setUser(userData);
+      setUser(user);
       setLoading(false);
     } else {
+      console.log('userData yok, checkAuth çağrılıyor...');
       await checkAuth();
     }
   };
@@ -76,9 +107,6 @@ export const AuthProvider = ({ children }) => {
   );
 };
 
-import { useContext } from "react";
-export const useAuth = () => useContext(AuthContext);
-
 /**
  * Bu context şu işlevleri sağlar:
  * 
@@ -92,3 +120,6 @@ export const useAuth = () => useContext(AuthContext);
  * 
  * Bu context sayesinde kullanıcı authentication sistemi tüm uygulamada tutarlı şekilde çalışır!
  */
+
+import { useContext } from "react";
+export const useAuth = () => useContext(AuthContext);

@@ -63,8 +63,9 @@ public class AuthController {
             
             // JWT token'ı cookie olarak set et
             ResponseCookie cookie = ResponseCookie.from("jwt_token", response.getToken())
-                    .httpOnly(true)
+                    .httpOnly(false) // JavaScript'ten okunabilir olması için false
                     .secure(false) // Development için false, production'da true olmalı
+                    .domain("localhost") // Frontend ile aynı domain
                     .path("/")
                     .maxAge(24 * 60 * 60) // 24 saat
                     .sameSite("Lax")
@@ -85,8 +86,9 @@ public class AuthController {
             
             // JWT token'ı cookie olarak set et
             ResponseCookie cookie = ResponseCookie.from("jwt_token", response.getToken())
-                    .httpOnly(true)
+                    .httpOnly(false) // JavaScript'ten okunabilir olması için false
                     .secure(false) // Development için false, production'da true olmalı
+                    .domain("localhost") // Frontend ile aynı domain
                     .path("/")
                     .maxAge(24 * 60 * 60) // 24 saat
                     .sameSite("Lax")
@@ -107,8 +109,9 @@ public class AuthController {
             
             // JWT token'ı cookie olarak set et
             ResponseCookie cookie = ResponseCookie.from("jwt_token", response.getToken())
-                    .httpOnly(true)
+                    .httpOnly(false) // JavaScript'ten okunabilir olması için false
                     .secure(false) // Development için false, production'da true olmalı
+                    .domain("localhost") // Frontend ile aynı domain
                     .path("/")
                     .maxAge(24 * 60 * 60) // 24 saat
                     .sameSite("Lax")
@@ -129,8 +132,9 @@ public class AuthController {
             
             // JWT token'ı cookie olarak set et
             ResponseCookie cookie = ResponseCookie.from("jwt_token", response.getToken())
-                    .httpOnly(true)
+                    .httpOnly(false) // JavaScript'ten okunabilir olması için false
                     .secure(false) // Development için false, production'da true olmalı
+                    .domain("localhost") // Frontend ile aynı domain
                     .path("/")
                     .maxAge(24 * 60 * 60) // 24 saat
                     .sameSite("Lax")
@@ -182,8 +186,9 @@ public class AuthController {
         try {
             // JWT token cookie'sini sil
             ResponseCookie cookie = ResponseCookie.from("jwt_token", "")
-                    .httpOnly(true)
+                    .httpOnly(false) // JavaScript'ten okunabilir olması için false
                     .secure(false)
+                    .domain("localhost") // Frontend ile aynı domain
                     .path("/")
                     .maxAge(0) // Cookie'yi hemen sil
                     .sameSite("Lax")

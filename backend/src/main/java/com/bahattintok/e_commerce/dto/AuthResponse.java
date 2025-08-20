@@ -30,6 +30,11 @@ public class AuthResponse {
     private String role;
     
     /**
+     * Kullanıcının email adresi
+     */
+    private String email;
+    
+    /**
      * Bu DTO şu işlevleri sağlar:
      * 
      * 1. JWT Token: Kimlik doğrulama için gerekli token bilgisi

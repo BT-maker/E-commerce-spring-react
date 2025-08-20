@@ -20,7 +20,6 @@ const AdminRoute = ({ children }) => {
 
   // Loading durumunda loading göster
   if (loading) {
-    console.log('Loading durumunda, loading component gösteriliyor');
     return (
       <div className="min-h-screen flex items-center justify-center bg-background-primary">
         <div className="text-center">

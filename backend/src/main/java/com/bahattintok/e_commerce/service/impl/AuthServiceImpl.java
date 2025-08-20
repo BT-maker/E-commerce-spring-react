@@ -123,7 +123,7 @@ public class AuthServiceImpl implements AuthService {
         String verificationToken = java.util.UUID.randomUUID().toString();
         eventPublisher.publishEvent(new UserRegisteredEvent(this, savedUser, verificationToken));
         
-        return new AuthResponse(token, savedUser.getFirstName(), savedUser.getLastName(), savedUser.getRole().getName());
+        return new AuthResponse(token, savedUser.getFirstName(), savedUser.getLastName(), savedUser.getRole().getName(), savedUser.getEmail());
     }
     
     /**
@@ -168,7 +168,7 @@ public class AuthServiceImpl implements AuthService {
         System.out.println("Role: " + roleName);
         System.out.println("=== DEBUG END ===");
         
-        return new AuthResponse(token, user.getFirstName(), user.getLastName(), roleName);
+        return new AuthResponse(token, user.getFirstName(), user.getLastName(), roleName, user.getEmail());
     }
     
     /**
@@ -216,7 +216,7 @@ public class AuthServiceImpl implements AuthService {
         System.out.println("Admin Role: " + user.getRole().getName());
         System.out.println("=== DEBUG END ===");
         
-        return new AuthResponse(token, user.getFirstName(), user.getLastName(), user.getRole().getName());
+        return new AuthResponse(token, user.getFirstName(), user.getLastName(), user.getRole().getName(), user.getEmail());
     }
     
     /**
@@ -264,7 +264,7 @@ public class AuthServiceImpl implements AuthService {
         System.out.println("Seller Role: " + user.getRole().getName());
         System.out.println("=== DEBUG END ===");
         
-        return new AuthResponse(token, user.getFirstName(), user.getLastName(), user.getRole().getName());
+        return new AuthResponse(token, user.getFirstName(), user.getLastName(), user.getRole().getName(), user.getEmail());
     }
     
     /**
