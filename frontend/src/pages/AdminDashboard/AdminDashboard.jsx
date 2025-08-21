@@ -92,8 +92,12 @@ const AdminDashboard = () => {
     }
   }, [user]);
 
-  const fetchDashboardData = async (page = 0) => {
+  const fetchDashboardData = async (page = 0, showLoading = false) => {
     try {
+      if (showLoading) {
+        setLoading(true);
+      }
+      
       // Dashboard istatistiklerini getir
       const statsResponse = await fetch("http://localhost:8082/api/admin/dashboard/stats", {
         headers: {
@@ -282,9 +286,19 @@ const AdminDashboard = () => {
           <p>Platform genel durumu ve istatistikler</p>
         </div>
         <div className="header-actions">
-          <button className="refresh-btn" onClick={fetchDashboardData}>
-            <Activity size={20} />
-            Yenile
+          <button 
+            className="refresh-btn" 
+            onClick={() => {
+              fetchDashboardData(0, true);
+              toast.success('Dashboard yenileniyor...', {
+                duration: 2000,
+                position: 'top-right'
+              });
+            }}
+            disabled={loading}
+          >
+            <Activity size={20} className={loading ? 'animate-spin' : ''} />
+            {loading ? 'Yenileniyor...' : 'Yenile'}
           </button>
         </div>
       </div>
