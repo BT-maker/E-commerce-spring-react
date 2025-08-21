@@ -74,21 +74,23 @@
 }
 
 /* Hızlı Aksiyon Butonları */
-.quick-actions {
-  position: absolute;
-  top: 12px;
-  right: 12px;
+.product-card .quick-actions {
+  position: absolute !important;
+  top: 12px !important;
+  right: 12px !important;
+  left: auto !important;
   display: flex;
   flex-direction: column;
   gap: 8px;
   opacity: 0;
-  transform: translateX(20px);
+  transform: scale(0.8);
   transition: all 0.3s ease;
+  z-index: 10;
 }
 
 .product-card:hover .quick-actions {
   opacity: 1;
-  transform: translateX(0);
+  transform: scale(1);
 }
 
 .quick-action-btn {
@@ -375,10 +377,12 @@
     font-size: 0.85rem;
   }
   
-  .quick-actions {
-    top: 8px;
-    right: 8px;
+  .product-card .quick-actions {
+    top: 8px !important;
+    right: 8px !important;
+    left: auto !important;
     gap: 6px;
+    transform: scale(0.8);
   }
   
   .quick-action-btn {
@@ -405,7 +409,13 @@
     transform: translateY(-2px);
   }
   
+  .product-card .quick-actions {
+    right: 8px !important;
+    left: auto !important;
+    transform: scale(0.8);
+  }
+  
   .product-card:hover .quick-actions {
-    opacity: 1;
+    transform: scale(1);
   }
 } 
