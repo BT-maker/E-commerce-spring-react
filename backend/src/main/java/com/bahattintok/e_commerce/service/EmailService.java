@@ -270,4 +270,20 @@ public class EmailService {
         
         sendTemplateEmail(to, subject, "email/category-request-rejected", variables);
     }
+
+    /**
+     * Yeni satıcı kaydı olduğunda admin'e bildirim emaili gönderir
+     */
+    public void sendSellerRegistrationNotification(String to, String sellerName, String sellerEmail, 
+                                                  String sellerPhone, String registrationDate, String adminPanelUrl) {
+        Map<String, Object> variables = Map.of(
+            "sellerName", sellerName,
+            "sellerEmail", sellerEmail,
+            "sellerPhone", sellerPhone,
+            "registrationDate", registrationDate,
+            "adminPanelUrl", adminPanelUrl
+        );
+        
+        sendTemplateEmail(to, "🆕 Yeni Satıcı Kaydı - " + sellerName, "email/seller-registration-notification", variables);
+    }
 }

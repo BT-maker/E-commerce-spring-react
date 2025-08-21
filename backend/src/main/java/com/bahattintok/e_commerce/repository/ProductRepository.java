@@ -90,10 +90,22 @@ public interface ProductRepository extends JpaRepository<Product, String> {
     List<Product> findActiveProducts();
     
     /**
+     * Sadece onaylanmış satıcıların aktif ürünlerini getirir.
+     */
+    @Query("SELECT p FROM Product p JOIN p.store s JOIN s.seller u WHERE p.status = 'AKTİF' AND u.sellerStatus IN ('APPROVED', 'ACTIVE')")
+    List<Product> findActiveProductsFromApprovedSellers();
+    
+    /**
      * Sadece aktif ürünleri sayfalı getirir.
      */
     @Query("SELECT p FROM Product p WHERE p.status = 'AKTİF'")
     Page<Product> findActiveProducts(Pageable pageable);
+    
+    /**
+     * Sadece onaylanmış satıcıların aktif ürünlerini sayfalı getirir.
+     */
+    @Query("SELECT p FROM Product p JOIN p.store s JOIN s.seller u WHERE p.status = 'AKTİF' AND u.sellerStatus IN ('APPROVED', 'ACTIVE')")
+    Page<Product> findActiveProductsFromApprovedSellers(Pageable pageable);
     
     /**
      * Mağazaya ait aktif ürünleri getirir.

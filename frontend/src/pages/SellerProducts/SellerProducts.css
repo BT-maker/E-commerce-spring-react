@@ -2,6 +2,53 @@
   padding: 0;
 }
 
+/* Satıcı Onay Uyarısı */
+.seller-approval-warning {
+  background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+  border: 1px solid #f59e0b;
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+  box-shadow: 0 4px 12px rgba(245, 158, 11, 0.15);
+}
+
+.warning-content {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+}
+
+.warning-icon {
+  font-size: 1.5rem;
+  color: #d97706;
+  margin-top: 0.25rem;
+  flex-shrink: 0;
+}
+
+.warning-text h3 {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #92400e;
+  margin-bottom: 0.5rem;
+}
+
+.warning-text p {
+  color: #78350f;
+  margin-bottom: 1rem;
+  line-height: 1.5;
+}
+
+.status-info {
+  background: rgba(255, 255, 255, 0.7);
+  padding: 0.5rem 0.75rem;
+  border-radius: 6px;
+  border: 1px solid #fbbf24;
+}
+
+.status-info strong {
+  color: #92400e;
+}
+
 .seller-products-loading {
   display: flex;
   flex-direction: column;
@@ -125,6 +172,18 @@
 .add-product-btn:hover {
   transform: translateY(-2px);
   box-shadow: 0 8px 20px rgba(255, 96, 0, 0.3);
+}
+
+.add-product-btn:disabled {
+  background: linear-gradient(135deg, #9ca3af 0%, #6b7280 100%);
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.add-product-btn:disabled:hover {
+  transform: none;
+  box-shadow: none;
 }
 
 /* Filters */

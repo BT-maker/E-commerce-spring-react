@@ -177,11 +177,35 @@ public class Product {
             return false;
         }
         
-        if (discountEndDate != null && java.time.LocalDateTime.now().isAfter(discountEndDate)) {
+        // İndirim bitiş tarihi kontrolü
+        if (discountEndDate != null && discountEndDate.isBefore(java.time.LocalDateTime.now())) {
             return false;
         }
         
         return true;
+    }
+    
+    /**
+     * Satıcının onaylanmış olup olmadığını kontrol eder
+     */
+    @JsonProperty("isSellerApproved")
+    public boolean isSellerApproved() {
+        if (store == null || store.getSeller() == null) {
+            return false;
+        }
+        
+        User seller = store.getSeller();
+        return seller.getSellerStatus() != null && 
+               (seller.getSellerStatus().name().equals("APPROVED") || 
+                seller.getSellerStatus().name().equals("ACTIVE"));
+    }
+    
+    /**
+     * Ürünün yayınlanabilir olup olmadığını kontrol eder
+     */
+    @JsonProperty("isPublishable")
+    public boolean isPublishable() {
+        return isSellerApproved() && "AKTİF".equals(status);
     }
     
     /**

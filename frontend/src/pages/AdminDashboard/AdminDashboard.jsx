@@ -1,4 +1,8 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
+import { useNavigate } from "react-router-dom";
+import { AuthContext } from '../../context/AuthContext';
+import webSocketService from '../../services/webSocketService';
+import toast from 'react-hot-toast';
 import { 
   Users, 
   Store, 
@@ -11,13 +15,18 @@ import {
   BarChart3,
   PieChart,
   ArrowUpRight,
-  ArrowDownRight
+  ArrowDownRight,
+  Bell,
+  AlertCircle,
+  CheckCircle,
+  X
 } from "lucide-react";
 import "./AdminDashboard.css";
 import PageTitle from '../../components/PageTitle/PageTitle';
 import MetaTags from '../../components/MetaTags/MetaTags';
 
 const AdminDashboard = () => {
+  const { user } = useContext(AuthContext);
   const [stats, setStats] = useState({
     totalUsers: 0,
     totalSellers: 0,
@@ -26,11 +35,11 @@ const AdminDashboard = () => {
     totalRevenue: 0,
     monthlyGrowth: 0
   });
-  const [recentOrders, setRecentOrders] = useState([]);
-  const [ordersPagination, setOrdersPagination] = useState({
+  const [notifications, setNotifications] = useState([]);
+  const [notificationsPagination, setNotificationsPagination] = useState({
     currentPage: 0,
     totalPages: 0,
-    totalOrders: 0,
+    totalNotifications: 0,
     hasNext: false,
     hasPrevious: false
   });
@@ -44,6 +53,44 @@ const AdminDashboard = () => {
   useEffect(() => {
     fetchDashboardData();
   }, []);
+
+  // WebSocket bildirimleri için useEffect
+  useEffect(() => {
+    if (user && user.role === 'ADMIN') {
+      // Admin bildirimlerini dinle
+      webSocketService.subscribe('/user/queue/notifications', (notification) => {
+        console.log('Yeni admin bildirimi:', notification);
+        
+        // Toast bildirimi göster
+        toast.success(notification.title + ': ' + notification.message, {
+          duration: 5000,
+          position: 'top-right'
+        });
+        
+        // Bildirimleri yenile
+        fetchDashboardData();
+      });
+
+      // Genel admin bildirimlerini dinle
+      webSocketService.subscribe('/topic/admin-notifications', (notification) => {
+        console.log('Genel admin bildirimi:', notification);
+        
+        // Toast bildirimi göster
+        toast.success(notification.title + ': ' + notification.message, {
+          duration: 5000,
+          position: 'top-right'
+        });
+        
+        // Bildirimleri yenile
+        fetchDashboardData();
+      });
+
+      return () => {
+        webSocketService.unsubscribe('/user/queue/notifications');
+        webSocketService.unsubscribe('/topic/admin-notifications');
+      };
+    }
+  }, [user]);
 
   const fetchDashboardData = async (page = 0) => {
     try {
@@ -65,29 +112,38 @@ const AdminDashboard = () => {
         console.error("Error response:", errorText);
       }
 
-      // Son siparişleri getir (sayfalama ile)
-      const ordersResponse = await fetch(`http://localhost:8082/api/admin/dashboard/recent-orders?page=${page}&size=6`, {
+      // Bildirimleri getir (sayfalama ile)
+      const notificationsResponse = await fetch(`http://localhost:8082/api/admin/dashboard/notifications?page=${page}&size=6`, {
         headers: {
           'Content-Type': 'application/json'
         },
         credentials: 'include'
       });
       
-      if (ordersResponse.ok) {
-        const ordersData = await ordersResponse.json();
-        console.log("Orders data received:", ordersData);
-        setRecentOrders(ordersData.orders);
-        setOrdersPagination({
-          currentPage: ordersData.currentPage,
-          totalPages: ordersData.totalPages,
-          totalOrders: ordersData.totalOrders,
-          hasNext: ordersData.hasNext,
-          hasPrevious: ordersData.hasPrevious
+      if (notificationsResponse.ok) {
+        const notificationsData = await notificationsResponse.json();
+        console.log("Notifications data received:", notificationsData);
+        setNotifications(notificationsData.notifications || []);
+        setNotificationsPagination({
+          currentPage: notificationsData.currentPage || 0,
+          totalPages: notificationsData.totalPages || 0,
+          totalNotifications: notificationsData.totalNotifications || 0,
+          hasNext: notificationsData.hasNext || false,
+          hasPrevious: notificationsData.hasPrevious || false
         });
       } else {
-        console.error("Orders response not ok:", ordersResponse.status);
-        const errorText = await ordersResponse.text();
-        console.error("Orders error response:", errorText);
+        console.error("Notifications response not ok:", notificationsResponse.status);
+        const errorText = await notificationsResponse.text();
+        console.error("Notifications error response:", errorText);
+        // Fallback: Boş bildirim listesi
+        setNotifications([]);
+        setNotificationsPagination({
+          currentPage: 0,
+          totalPages: 0,
+          totalNotifications: 0,
+          hasNext: false,
+          hasPrevious: false
+        });
       }
 
       // Hızlı istatistikleri getir
@@ -118,6 +174,36 @@ const AdminDashboard = () => {
     fetchDashboardData(newPage);
   };
 
+  const getNotificationIcon = (type) => {
+    switch (type?.toLowerCase()) {
+      case 'success':
+      case 'approved':
+        return <CheckCircle size={16} className="text-green-500" />;
+      case 'error':
+      case 'rejected':
+        return <X size={16} className="text-red-500" />;
+      case 'warning':
+        return <AlertCircle size={16} className="text-yellow-500" />;
+      default:
+        return <Bell size={16} className="text-blue-500" />;
+    }
+  };
+
+  const getNotificationClass = (type) => {
+    switch (type?.toLowerCase()) {
+      case 'success':
+      case 'approved':
+        return 'notification-success';
+      case 'error':
+      case 'rejected':
+        return 'notification-error';
+      case 'warning':
+        return 'notification-warning';
+      default:
+        return 'notification-info';
+    }
+  };
+
   const StatCard = ({ title, value, icon: Icon, change, changeType }) => (
     <div className="stat-card">
       <div className="card-icon">
@@ -135,23 +221,40 @@ const AdminDashboard = () => {
     </div>
   );
 
-  const OrderCard = ({ order }) => (
-    <div className="order-card">
-      <div className="order-header">
-        <span className="order-id">#{order.id?.substring(0, 8) || 'N/A'}</span>
-        <span className={`order-status ${order.status?.toLowerCase() || 'unknown'}`}>
-          {order.status || 'UNKNOWN'}
-        </span>
+  const NotificationCard = ({ notification }) => {
+    const navigate = useNavigate();
+    
+    const handleNotificationClick = () => {
+      if (notification.categoryRequestId) {
+        // Kategori isteği bildirimi ise kategori yönetimi sayfasına yönlendir
+        navigate('/admin/categories');
+      } else if (notification.orderId) {
+        // Sipariş bildirimi ise sipariş yönetimi sayfasına yönlendir
+        navigate('/admin/orders');
+      } else if (notification.sellerId) {
+        // Satıcı bildirimi ise satıcı yönetimi sayfasına yönlendir
+        navigate('/admin/sellers');
+      }
+    };
+    
+    return (
+      <div 
+        className={`notification-card ${getNotificationClass(notification.type)} ${notification.categoryRequestId || notification.orderId || notification.sellerId ? 'clickable' : ''}`}
+        onClick={handleNotificationClick}
+      >
+        <div className="notification-icon">
+          {getNotificationIcon(notification.type)}
+        </div>
+        <div className="notification-content">
+          <div className="notification-title">{notification.title || 'Bildirim'}</div>
+          <div className="notification-message">{notification.message || 'Bildirim mesajı'}</div>
+          <div className="notification-time">
+            {notification.createdAt ? new Date(notification.createdAt).toLocaleDateString('tr-TR') : 'Yeni'}
+          </div>
+        </div>
       </div>
-      <div className="order-details">
-        <p className="customer-name">
-          {order.user?.firstName} {order.user?.lastName} ({order.user?.email})
-        </p>
-        <p className="order-amount">₺{order.totalPrice?.toLocaleString() || '0'}</p>
-        <p className="order-date">{new Date(order.createdAt).toLocaleDateString('tr-TR')}</p>
-      </div>
-    </div>
-  );
+    );
+  };
 
   if (loading) {
     return (
@@ -235,47 +338,47 @@ const AdminDashboard = () => {
       {/* Grafikler ve Detaylar */}
       <div className="dashboard-content">
         <div className="content-grid">
-                     {/* Son Siparişler */}
+                     {/* Bildirimler */}
            <div className="content-card">
              <div className="card-header">
-               <h3>Son Siparişler</h3>
+               <h3>Bildirimler</h3>
                <div className="header-info">
-                 <span className="orders-count">Toplam {ordersPagination.totalOrders} sipariş</span>
+                 <span className="notifications-count">Toplam {notificationsPagination.totalNotifications} bildirim</span>
                  <button className="view-all-btn">Tümünü Gör</button>
                </div>
              </div>
-             <div className="orders-list">
-               {recentOrders.length > 0 ? (
-                 recentOrders.map((order) => (
-                   <OrderCard key={order.id} order={order} />
+             <div className="notifications-list">
+               {notifications.length > 0 ? (
+                 notifications.map((notification, index) => (
+                   <NotificationCard key={notification.id || index} notification={notification} />
                  ))
                ) : (
                  <div className="empty-state">
-                   <ShoppingCart size={48} />
-                   <p>Henüz sipariş bulunmuyor</p>
+                   <Bell size={48} />
+                   <p>Henüz bildirim bulunmuyor</p>
                  </div>
                )}
              </div>
              
              {/* Sayfalama */}
-             {ordersPagination.totalPages > 1 && (
+             {notificationsPagination.totalPages > 1 && (
                <div className="pagination">
                  <button 
-                   className={`pagination-btn ${!ordersPagination.hasPrevious ? 'disabled' : ''}`}
-                   onClick={() => handlePageChange(ordersPagination.currentPage - 1)}
-                   disabled={!ordersPagination.hasPrevious}
+                   className={`pagination-btn ${!notificationsPagination.hasPrevious ? 'disabled' : ''}`}
+                   onClick={() => handlePageChange(notificationsPagination.currentPage - 1)}
+                   disabled={!notificationsPagination.hasPrevious}
                  >
                    Önceki
                  </button>
                  
                  <div className="page-info">
-                   Sayfa {ordersPagination.currentPage + 1} / {ordersPagination.totalPages}
+                   Sayfa {notificationsPagination.currentPage + 1} / {notificationsPagination.totalPages}
                  </div>
                  
                  <button 
-                   className={`pagination-btn ${!ordersPagination.hasNext ? 'disabled' : ''}`}
-                   onClick={() => handlePageChange(ordersPagination.currentPage + 1)}
-                   disabled={!ordersPagination.hasNext}
+                   className={`pagination-btn ${!notificationsPagination.hasNext ? 'disabled' : ''}`}
+                   onClick={() => handlePageChange(notificationsPagination.currentPage + 1)}
+                   disabled={!notificationsPagination.hasNext}
                  >
                    Sonraki
                  </button>

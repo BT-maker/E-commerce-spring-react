@@ -237,78 +237,110 @@
   background: #5a67d8;
 }
 
-/* Sipariş Listesi */
-.orders-list {
+/* Bildirim Listesi */
+.notifications-list {
   display: flex;
   flex-direction: column;
   gap: 1rem;
 }
 
-.order-card {
+.notification-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
   padding: 1rem;
   border: 1px solid #e2e8f0;
   border-radius: 8px;
   transition: all 0.3s ease;
+  background: white;
 }
 
-.order-card:hover {
+.notification-card:hover {
   border-color: #FF6000;
   box-shadow: 0 2px 8px rgba(102, 126, 234, 0.1);
 }
 
-.order-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 0.5rem;
+.notification-card.clickable {
+  cursor: pointer;
+  transition: all 0.3s ease;
 }
 
-.order-id {
+.notification-card.clickable:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);
+  border-color: #FF6000;
+}
+
+.notification-icon {
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f7fafc;
+}
+
+.notification-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.notification-title {
   font-weight: 600;
   color: #2d3748;
-}
-
-.order-status {
-  padding: 0.25rem 0.75rem;
-  border-radius: 20px;
-  font-size: 0.75rem;
-  font-weight: 600;
-  text-transform: uppercase;
-}
-
-.order-status.pending {
-  background: #fef5e7;
-  color: #d69e2e;
-}
-
-.order-status.completed {
-  background: #c6f6d5;
-  color: #22543d;
-}
-
-.order-status.cancelled {
-  background: #fed7d7;
-  color: #c53030;
-}
-
-.order-details {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+  margin-bottom: 0.25rem;
   font-size: 0.875rem;
 }
 
-.customer-name {
-  font-weight: 500;
-  color: #4a5568;
+.notification-message {
+  color: #64748b;
+  font-size: 0.75rem;
+  line-height: 1.4;
+  margin-bottom: 0.5rem;
 }
 
-.order-amount {
-  font-weight: 600;
-  color: #2d3748;
+.notification-time {
+  color: #a0aec0;
+  font-size: 0.75rem;
 }
 
-.order-date {
+/* Bildirim Türleri */
+.notification-success {
+  border-left: 4px solid #10b981;
+}
+
+.notification-success .notification-icon {
+  background: #d1fae5;
+}
+
+.notification-error {
+  border-left: 4px solid #ef4444;
+}
+
+.notification-error .notification-icon {
+  background: #fee2e2;
+}
+
+.notification-warning {
+  border-left: 4px solid #f59e0b;
+}
+
+.notification-warning .notification-icon {
+  background: #fef3c7;
+}
+
+.notification-info {
+  border-left: 4px solid #3b82f6;
+}
+
+.notification-info .notification-icon {
+  background: #dbeafe;
+}
+
+.notifications-count {
+  font-size: 0.875rem;
   color: #718096;
 }
 

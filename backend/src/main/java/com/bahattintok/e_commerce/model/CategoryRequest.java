@@ -4,7 +4,9 @@ import java.time.LocalDateTime;
 
 import org.hibernate.annotations.GenericGenerator;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -78,17 +80,17 @@ public class CategoryRequest {
     /**
      * İsteği oluşturan satıcı
      */
-    @ManyToOne(fetch = jakarta.persistence.FetchType.LAZY)
+    @ManyToOne(fetch = jakarta.persistence.FetchType.EAGER)
     @JoinColumn(name = "seller_id", nullable = false)
-    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler", "password", "role"})
     private User seller;
     
     /**
      * İsteği işleyen admin (onay/red)
      */
-    @ManyToOne(fetch = jakarta.persistence.FetchType.LAZY)
+    @ManyToOne(fetch = jakarta.persistence.FetchType.EAGER)
     @JoinColumn(name = "admin_id")
-    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler", "password", "role"})
     private User admin;
     
     /**
@@ -98,5 +100,71 @@ public class CategoryRequest {
         PENDING,    // Beklemede
         APPROVED,   // Onaylandı
         REJECTED    // Reddedildi
+    }
+    
+    /**
+     * Satıcı adını getirir (JSON serialization için)
+     */
+    @JsonProperty("sellerName")
+    public String getSellerName() {
+        if (seller != null) {
+            if (seller.getFirstName() != null && seller.getLastName() != null) {
+                return seller.getFirstName() + " " + seller.getLastName();
+            } else {
+                return seller.getEmail();
+            }
+        }
+        return null;
+    }
+    
+    /**
+     * Satıcı email'ini getirir (JSON serialization için)
+     */
+    @JsonProperty("sellerEmail")
+    public String getSellerEmail() {
+        return seller != null ? seller.getEmail() : null;
+    }
+    
+    /**
+     * İstek durumunu getirir (JSON serialization için)
+     */
+    @JsonProperty("statusText")
+    public String getStatusText() {
+        if (status != null) {
+            switch (status) {
+                case PENDING:
+                    return "PENDING";
+                case APPROVED:
+                    return "APPROVED";
+                case REJECTED:
+                    return "REJECTED";
+                default:
+                    return "UNKNOWN";
+            }
+        }
+        return "UNKNOWN";
+    }
+    
+    /**
+     * Status getter metodu (JSON serialization için)
+     */
+    @JsonProperty("status")
+    @JsonFormat(shape = JsonFormat.Shape.STRING)
+    public String getStatus() {
+        return status != null ? status.name() : "UNKNOWN";
+    }
+    
+    /**
+     * Status setter metodu
+     */
+    public void setStatus(CategoryRequestStatus status) {
+        this.status = status;
+    }
+    
+    /**
+     * Status enum değerini getirir (iç kullanım için)
+     */
+    public CategoryRequestStatus getStatusEnum() {
+        return status;
     }
 }

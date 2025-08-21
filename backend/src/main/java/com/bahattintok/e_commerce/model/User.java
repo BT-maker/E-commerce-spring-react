@@ -8,8 +8,12 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import com.bahattintok.e_commerce.model.enums.SellerStatus;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
@@ -102,7 +106,37 @@ public class User implements UserDetails {
     @Column(name = "registration_date", nullable = false)
     private java.time.LocalDateTime registrationDate = java.time.LocalDateTime.now();
     
-
+    /**
+     * Satıcı durumu (sadece SELLER rolündeki kullanıcılar için)
+     */
+    @Enumerated(EnumType.STRING)
+    @Column(name = "seller_status")
+    private SellerStatus sellerStatus = SellerStatus.PENDING;
+    
+    /**
+     * Satıcı başvuru tarihi
+     */
+    @Column(name = "seller_application_date")
+    private java.time.LocalDateTime sellerApplicationDate;
+    
+    /**
+     * Onay tarihi
+     */
+    @Column(name = "approval_date")
+    private java.time.LocalDateTime approvalDate;
+    
+    /**
+     * Onaylayan admin
+     */
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "approved_by")
+    private User approvedBy;
+    
+    /**
+     * Red sebebi
+     */
+    @Column(name = "rejection_reason", columnDefinition = "TEXT")
+    private String rejectionReason;
     
     /**
      * Kullanıcının rolü (RoleEntity ile ilişki)
@@ -306,6 +340,76 @@ public class User implements UserDetails {
      */
     public void setRegistrationDate(java.time.LocalDateTime registrationDate) {
         this.registrationDate = registrationDate;
+    }
+    
+    /**
+     * SellerStatus getter metodu
+     */
+    public SellerStatus getSellerStatus() {
+        return sellerStatus;
+    }
+    
+    /**
+     * SellerStatus setter metodu
+     */
+    public void setSellerStatus(SellerStatus sellerStatus) {
+        this.sellerStatus = sellerStatus;
+    }
+    
+    /**
+     * SellerApplicationDate getter metodu
+     */
+    public java.time.LocalDateTime getSellerApplicationDate() {
+        return sellerApplicationDate;
+    }
+    
+    /**
+     * SellerApplicationDate setter metodu
+     */
+    public void setSellerApplicationDate(java.time.LocalDateTime sellerApplicationDate) {
+        this.sellerApplicationDate = sellerApplicationDate;
+    }
+    
+    /**
+     * ApprovalDate getter metodu
+     */
+    public java.time.LocalDateTime getApprovalDate() {
+        return approvalDate;
+    }
+    
+    /**
+     * ApprovalDate setter metodu
+     */
+    public void setApprovalDate(java.time.LocalDateTime approvalDate) {
+        this.approvalDate = approvalDate;
+    }
+    
+    /**
+     * ApprovedBy getter metodu
+     */
+    public User getApprovedBy() {
+        return approvedBy;
+    }
+    
+    /**
+     * ApprovedBy setter metodu
+     */
+    public void setApprovedBy(User approvedBy) {
+        this.approvedBy = approvedBy;
+    }
+    
+    /**
+     * RejectionReason getter metodu
+     */
+    public String getRejectionReason() {
+        return rejectionReason;
+    }
+    
+    /**
+     * RejectionReason setter metodu
+     */
+    public void setRejectionReason(String rejectionReason) {
+        this.rejectionReason = rejectionReason;
     }
     
     /**

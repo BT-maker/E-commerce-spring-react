@@ -4,10 +4,13 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import com.bahattintok.e_commerce.model.RoleEntity;
 import com.bahattintok.e_commerce.model.User;
+import com.bahattintok.e_commerce.model.enums.SellerStatus;
 
 /**
  * User (kullanıcı) ile ilgili veritabanı işlemlerini yapan repository.
@@ -38,6 +41,24 @@ public interface UserRepository extends JpaRepository<User, String> {
      */
     List<User> findByFirstNameContainingIgnoreCaseOrLastNameContainingIgnoreCaseOrEmailContainingIgnoreCase(
         String firstName, String lastName, String email);
+    
+    /**
+     * Rol adına göre kullanıcıları getirir.
+     */
+    @Query("SELECT u FROM User u JOIN u.role r WHERE r.name = :roleName")
+    List<User> findByRoleName(@Param("roleName") String roleName);
+    
+    /**
+     * Rol adı ve satıcı durumuna göre kullanıcıları getirir.
+     */
+    @Query("SELECT u FROM User u JOIN u.role r WHERE r.name = :roleName AND u.sellerStatus = :sellerStatus")
+    List<User> findByRoleNameAndSellerStatus(@Param("roleName") String roleName, @Param("sellerStatus") SellerStatus sellerStatus);
+    
+    /**
+     * Rol adı ve kayıt tarihine göre kullanıcıları getirir.
+     */
+    @Query("SELECT u FROM User u JOIN u.role r WHERE r.name = :roleName AND u.registrationDate > :date")
+    List<User> findByRoleNameAndRegistrationDateAfter(@Param("roleName") String roleName, @Param("date") java.time.LocalDateTime date);
     
     /**
      * Bu repository şu işlevleri sağlar:

@@ -10,23 +10,30 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.bahattintok.e_commerce.event.OrderShippedEvent;
+import com.bahattintok.e_commerce.model.CategoryRequest;
 import com.bahattintok.e_commerce.model.Order;
 import com.bahattintok.e_commerce.model.Product;
 import com.bahattintok.e_commerce.model.Store;
 import com.bahattintok.e_commerce.model.User;
+import com.bahattintok.e_commerce.model.enums.SellerStatus;
+import com.bahattintok.e_commerce.repository.CategoryRequestRepository;
 import com.bahattintok.e_commerce.repository.OrderRepository;
 import com.bahattintok.e_commerce.repository.ProductRepository;
 import com.bahattintok.e_commerce.repository.StoreRepository;
 import com.bahattintok.e_commerce.repository.UserRepository;
 import com.bahattintok.e_commerce.service.AdminService;
+import com.bahattintok.e_commerce.service.SystemSettingsService;
 
 @RestController
 @RequestMapping("/api/admin")
@@ -49,7 +56,13 @@ public class AdminController {
     private StoreRepository storeRepository;
 
     @Autowired
+    private CategoryRequestRepository categoryRequestRepository;
+
+    @Autowired
     private ApplicationEventPublisher eventPublisher;
+
+    @Autowired
+    private SystemSettingsService systemSettingsService;
 
     // Test endpoint
     @GetMapping("/test")
@@ -270,16 +283,7 @@ public class AdminController {
         }
     }
 
-    // Tüm satıcıları getir
-    @GetMapping("/sellers")
-    public ResponseEntity<List<User>> getAllSellers() {
-        try {
-            List<User> sellers = userRepository.findAll(); // Geçici olarak tüm kullanıcıları döndür
-            return ResponseEntity.ok(sellers);
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().build();
-        }
-    }
+
 
                // Tüm ürünleri getir
            @GetMapping("/products")
@@ -1032,6 +1036,181 @@ public class AdminController {
                 }
             }
 
+    // Dashboard bildirimleri endpoint'i
+    @GetMapping("/dashboard/notifications")
+    public ResponseEntity<Map<String, Object>> getNotifications(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "6") int size) {
+        try {
+            System.out.println("=== DEBUG: getNotifications called ===");
+            System.out.println("Page: " + page + ", Size: " + size);
+            
+            List<Map<String, Object>> notifications = new ArrayList<>();
+            
+            // Gerçek kategori isteklerini al
+            List<CategoryRequest> categoryRequests = categoryRequestRepository.findAll();
+            System.out.println("Found " + categoryRequests.size() + " category requests");
+            
+            // Onay bekleyen satıcıları al
+            List<User> pendingSellers = userRepository.findByRoleNameAndSellerStatus("SELLER", SellerStatus.PENDING);
+            System.out.println("Found " + pendingSellers.size() + " pending sellers");
+            
+            // Son 7 günde kayıt olan tüm seller'ları al
+            java.time.LocalDateTime sevenDaysAgo = java.time.LocalDateTime.now().minusDays(7);
+            List<User> recentSellers = userRepository.findByRoleNameAndRegistrationDateAfter("SELLER", sevenDaysAgo);
+            System.out.println("Found " + recentSellers.size() + " recent sellers");
+            
+            // Satıcı bildirimlerini ekle
+            for (User seller : pendingSellers) {
+                Map<String, Object> notification = new HashMap<>();
+                notification.put("id", "SELLER-" + seller.getId());
+                notification.put("title", "🆕 Yeni Satıcı Başvurusu");
+                notification.put("message", String.format("'%s %s' satıcı başvurusu bekliyor (Email: %s)",
+                        seller.getFirstName(), seller.getLastName(), seller.getEmail()));
+                notification.put("type", "warning");
+                notification.put("createdAt", seller.getSellerApplicationDate() != null ? 
+                    seller.getSellerApplicationDate().toString() : java.time.LocalDateTime.now().toString());
+                notification.put("sellerId", seller.getId());
+                notification.put("isNewRegistration", true);
+                notifications.add(notification);
+            }
+            
+            // Son kayıt olan seller'ları da ekle (onay beklemeyenler)
+            for (User seller : recentSellers) {
+                if (seller.getSellerStatus() != SellerStatus.PENDING) {
+                    Map<String, Object> notification = new HashMap<>();
+                    notification.put("id", "SELLER-NEW-" + seller.getId());
+                    notification.put("title", "📝 Yeni Satıcı Kaydı");
+                    notification.put("message", String.format("'%s %s' satıcı olarak kayıt oldu (Email: %s)",
+                            seller.getFirstName(), seller.getLastName(), seller.getEmail()));
+                    notification.put("type", "info");
+                    notification.put("createdAt", seller.getRegistrationDate() != null ? 
+                        seller.getRegistrationDate().toString() : java.time.LocalDateTime.now().toString());
+                    notification.put("sellerId", seller.getId());
+                    notification.put("isNewRegistration", true);
+                    notifications.add(notification);
+                }
+            }
+            
+            // Kategori isteklerini bildirimlere dönüştür
+            for (CategoryRequest request : categoryRequests) {
+                Map<String, Object> notification = new HashMap<>();
+                notification.put("id", request.getId());
+                notification.put("title", "Kategori İsteği: " + request.getCategoryName());
+                notification.put("message", request.getDescription() + " - " + 
+                    (request.getSeller() != null ? 
+                        (request.getSeller().getFirstName() != null ? 
+                            request.getSeller().getFirstName() + " " + 
+                            (request.getSeller().getLastName() != null ? request.getSeller().getLastName() : "") 
+                            : request.getSeller().getEmail()) 
+                        : "Bilinmeyen Satıcı"));
+                
+                // Duruma göre bildirim türünü belirle
+                String notificationType = "info";
+                if (request.getStatus() != null) {
+                    switch (request.getStatus().toString()) {
+                        case "PENDING":
+                            notificationType = "warning";
+                            break;
+                        case "APPROVED":
+                            notificationType = "success";
+                            break;
+                        case "REJECTED":
+                            notificationType = "error";
+                            break;
+                        default:
+                            notificationType = "info";
+                    }
+                }
+                
+                notification.put("type", notificationType);
+                notification.put("createdAt", request.getCreatedAt() != null ? 
+                    request.getCreatedAt().toString() : java.time.LocalDateTime.now().toString());
+                notification.put("categoryRequestId", request.getId());
+                notification.put("status", request.getStatus().toString());
+                
+                notifications.add(notification);
+            }
+            
+            // Sipariş bildirimleri ekle (son 5 sipariş)
+            List<Order> recentOrders = orderRepository.findAll();
+            if (recentOrders.size() > 5) {
+                recentOrders = recentOrders.subList(0, 5);
+            }
+            
+            for (Order order : recentOrders) {
+                Map<String, Object> notification = new HashMap<>();
+                notification.put("id", "order_" + order.getId());
+                notification.put("title", "Sipariş: " + order.getStatus());
+                notification.put("message", "#" + order.getId().substring(0, 8) + " siparişi " + 
+                    (order.getUser() != null ? 
+                        (order.getUser().getFirstName() != null ? 
+                            order.getUser().getFirstName() + " " + 
+                            (order.getUser().getLastName() != null ? order.getUser().getLastName() : "") 
+                            : order.getUser().getEmail()) 
+                        : "Bilinmeyen Müşteri") + " tarafından verildi");
+                
+                String notificationType = "info";
+                switch (order.getStatus()) {
+                    case "COMPLETED":
+                        notificationType = "success";
+                        break;
+                    case "PENDING":
+                        notificationType = "warning";
+                        break;
+                    case "CANCELLED":
+                        notificationType = "error";
+                        break;
+                    default:
+                        notificationType = "info";
+                }
+                
+                notification.put("type", notificationType);
+                notification.put("createdAt", order.getCreatedAt() != null ? 
+                    order.getCreatedAt().toString() : java.time.LocalDateTime.now().toString());
+                notification.put("orderId", order.getId());
+                
+                notifications.add(notification);
+            }
+            
+            // Bildirimleri tarihe göre sırala (en yeni önce)
+            notifications.sort((n1, n2) -> {
+                String date1 = (String) n1.get("createdAt");
+                String date2 = (String) n2.get("createdAt");
+                if (date1 == null && date2 == null) return 0;
+                if (date1 == null) return 1;
+                if (date2 == null) return -1;
+                return date2.compareTo(date1);
+            });
+            
+            // Sayfalama hesaplamaları
+            int totalNotifications = notifications.size();
+            int totalPages = (int) Math.ceil((double) totalNotifications / size);
+            int startIndex = page * size;
+            int endIndex = Math.min(startIndex + size, totalNotifications);
+            
+            // Sayfa için bildirimleri al
+            List<Map<String, Object>> pageNotifications = notifications.subList(startIndex, endIndex);
+            
+            Map<String, Object> response = new HashMap<>();
+            response.put("notifications", pageNotifications);
+            response.put("currentPage", page);
+            response.put("totalPages", totalPages);
+            response.put("totalNotifications", totalNotifications);
+            response.put("hasNext", page < totalPages - 1);
+            response.put("hasPrevious", page > 0);
+            
+            System.out.println("Notifications: " + response);
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            System.out.println("Error in getNotifications: " + e.getMessage());
+            e.printStackTrace();
+            Map<String, Object> error = new HashMap<>();
+            error.put("error", "Bildirimler alınamadı: " + e.getMessage());
+            return ResponseEntity.badRequest().body(error);
+        }
+    }
+
     // Sipariş kargoya verildi endpoint'i
     @PutMapping("/orders/{orderId}/ship")
     public ResponseEntity<Map<String, Object>> shipOrder(
@@ -1067,4 +1246,417 @@ public class AdminController {
             return ResponseEntity.badRequest().body(error);
         }
     }
+
+    // ==================== SATICI ONAY SİSTEMİ ENDPOINT'LERİ ====================
+
+    // Satıcı listesi (onay bekleyenler dahil)
+    @GetMapping("/sellers")
+    public ResponseEntity<Map<String, Object>> getSellers(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(required = false) String status,
+            @RequestParam(required = false) String search) {
+        try {
+            System.out.println("=== DEBUG: getSellers called ===");
+            System.out.println("Page: " + page + ", Size: " + size + ", Status: " + status + ", Search: " + search);
+            
+            List<User> allSellers = userRepository.findByRoleName("SELLER");
+            
+            // Durum filtresi
+            if (status != null && !status.trim().isEmpty()) {
+                allSellers = allSellers.stream()
+                    .filter(seller -> seller.getSellerStatus() != null && 
+                            seller.getSellerStatus().name().equals(status))
+                    .collect(Collectors.toList());
+            }
+            
+            // Arama filtresi
+            if (search != null && !search.trim().isEmpty()) {
+                allSellers = allSellers.stream()
+                    .filter(seller -> 
+                        (seller.getFirstName() != null && seller.getFirstName().toLowerCase().contains(search.toLowerCase())) ||
+                        (seller.getLastName() != null && seller.getLastName().toLowerCase().contains(search.toLowerCase())) ||
+                        (seller.getEmail() != null && seller.getEmail().toLowerCase().contains(search.toLowerCase()))
+                    )
+                    .collect(Collectors.toList());
+            }
+            
+            // Sayfalama hesaplamaları
+            int totalSellers = allSellers.size();
+            int totalPages = (int) Math.ceil((double) totalSellers / size);
+            int startIndex = page * size;
+            int endIndex = Math.min(startIndex + size, totalSellers);
+            
+            // Sayfa için satıcıları al
+            List<User> pageSellers = allSellers.subList(startIndex, endIndex);
+            
+            // Satıcı verilerini hazırla
+            List<Map<String, Object>> sellersData = pageSellers.stream().map(seller -> {
+                Map<String, Object> sellerData = new HashMap<>();
+                sellerData.put("id", seller.getId());
+                sellerData.put("firstName", seller.getFirstName());
+                sellerData.put("lastName", seller.getLastName());
+                sellerData.put("email", seller.getEmail());
+                sellerData.put("phone", seller.getPhone());
+                sellerData.put("registrationDate", seller.getRegistrationDate());
+                sellerData.put("sellerStatus", seller.getSellerStatus() != null ? seller.getSellerStatus().name() : "PENDING");
+                sellerData.put("sellerApplicationDate", seller.getSellerApplicationDate());
+                sellerData.put("approvalDate", seller.getApprovalDate());
+                sellerData.put("rejectionReason", seller.getRejectionReason());
+                
+                // Onaylayan admin bilgisi
+                if (seller.getApprovedBy() != null) {
+                    Map<String, Object> adminData = new HashMap<>();
+                    adminData.put("id", seller.getApprovedBy().getId());
+                    adminData.put("firstName", seller.getApprovedBy().getFirstName());
+                    adminData.put("lastName", seller.getApprovedBy().getLastName());
+                    adminData.put("email", seller.getApprovedBy().getEmail());
+                    sellerData.put("approvedBy", adminData);
+                }
+                
+                return sellerData;
+            }).collect(Collectors.toList());
+            
+            Map<String, Object> response = new HashMap<>();
+            response.put("sellers", sellersData);
+            response.put("currentPage", page);
+            response.put("totalPages", totalPages);
+            response.put("totalSellers", totalSellers);
+            response.put("hasNext", page < totalPages - 1);
+            response.put("hasPrevious", page > 0);
+            
+            System.out.println("Sellers: " + response);
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            System.out.println("Error in getSellers: " + e.getMessage());
+            e.printStackTrace();
+            Map<String, Object> error = new HashMap<>();
+            error.put("error", "Satıcılar alınamadı: " + e.getMessage());
+            return ResponseEntity.badRequest().body(error);
+        }
+    }
+
+    // Satıcı onaylama
+    @PostMapping("/sellers/{sellerId}/approve")
+    public ResponseEntity<Map<String, Object>> approveSeller(
+            @PathVariable String sellerId,
+            @RequestBody Map<String, Object> request) {
+        try {
+            System.out.println("=== DEBUG: approveSeller called ===");
+            System.out.println("Seller ID: " + sellerId);
+            
+            User seller = userRepository.findById(sellerId)
+                    .orElseThrow(() -> new RuntimeException("Satıcı bulunamadı: " + sellerId));
+            
+            // Satıcı durumunu güncelle
+            seller.setSellerStatus(SellerStatus.ACTIVE);
+            seller.setApprovalDate(java.time.LocalDateTime.now());
+            
+            // Onaylayan admin bilgisini ekle (şimdilik null, gerçek uygulamada authentication'dan alınacak)
+            // seller.setApprovedBy(currentAdmin);
+            
+            userRepository.save(seller);
+            
+            Map<String, Object> response = new HashMap<>();
+            response.put("message", "Satıcı başarıyla onaylandı");
+            response.put("sellerId", sellerId);
+            response.put("status", "ACTIVE");
+            response.put("approvalDate", seller.getApprovalDate());
+            
+            System.out.println("Seller approved successfully: " + response);
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            System.out.println("Error in approveSeller: " + e.getMessage());
+            e.printStackTrace();
+            Map<String, Object> error = new HashMap<>();
+            error.put("error", "Satıcı onaylanamadı: " + e.getMessage());
+            return ResponseEntity.badRequest().body(error);
+        }
+    }
+
+    // Satıcı reddetme
+    @PostMapping("/sellers/{sellerId}/reject")
+    public ResponseEntity<Map<String, Object>> rejectSeller(
+            @PathVariable String sellerId,
+            @RequestBody Map<String, Object> request) {
+        try {
+            System.out.println("=== DEBUG: rejectSeller called ===");
+            System.out.println("Seller ID: " + sellerId);
+            
+            String rejectionReason = (String) request.get("rejectionReason");
+            if (rejectionReason == null || rejectionReason.trim().isEmpty()) {
+                throw new RuntimeException("Red sebebi belirtilmelidir");
+            }
+            
+            User seller = userRepository.findById(sellerId)
+                    .orElseThrow(() -> new RuntimeException("Satıcı bulunamadı: " + sellerId));
+            
+            // Satıcı durumunu güncelle
+            seller.setSellerStatus(SellerStatus.REJECTED);
+            seller.setRejectionReason(rejectionReason);
+            
+            userRepository.save(seller);
+            
+            Map<String, Object> response = new HashMap<>();
+            response.put("message", "Satıcı başvurusu reddedildi");
+            response.put("sellerId", sellerId);
+            response.put("status", "REJECTED");
+            response.put("rejectionReason", rejectionReason);
+            
+            System.out.println("Seller rejected successfully: " + response);
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            System.out.println("Error in rejectSeller: " + e.getMessage());
+            e.printStackTrace();
+            Map<String, Object> error = new HashMap<>();
+            error.put("error", "Satıcı reddedilemedi: " + e.getMessage());
+            return ResponseEntity.badRequest().body(error);
+        }
+    }
+
+    // Satıcı aktifleştirme/pasifleştirme
+    @PostMapping("/sellers/{sellerId}/toggle-status")
+    public ResponseEntity<Map<String, Object>> toggleSellerStatus(
+            @PathVariable String sellerId) {
+        try {
+            System.out.println("=== DEBUG: toggleSellerStatus called ===");
+            System.out.println("Seller ID: " + sellerId);
+            
+            User seller = userRepository.findById(sellerId)
+                    .orElseThrow(() -> new RuntimeException("Satıcı bulunamadı: " + sellerId));
+            
+            // Sadece onaylanmış satıcıların durumu değiştirilebilir
+            if (seller.getSellerStatus() != SellerStatus.APPROVED && 
+                seller.getSellerStatus() != SellerStatus.ACTIVE && 
+                seller.getSellerStatus() != SellerStatus.INACTIVE) {
+                throw new RuntimeException("Sadece onaylanmış satıcıların durumu değiştirilebilir");
+            }
+            
+            // Durumu değiştir
+            SellerStatus newStatus;
+            if (seller.getSellerStatus() == SellerStatus.APPROVED || 
+                seller.getSellerStatus() == SellerStatus.ACTIVE) {
+                newStatus = SellerStatus.INACTIVE;
+            } else {
+                newStatus = SellerStatus.ACTIVE;
+            }
+            
+            seller.setSellerStatus(newStatus);
+            userRepository.save(seller);
+            
+            Map<String, Object> response = new HashMap<>();
+            response.put("message", "Satıcı durumu güncellendi");
+            response.put("sellerId", sellerId);
+            response.put("status", newStatus.name());
+            
+            System.out.println("Seller status toggled successfully: " + response);
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            System.out.println("Error in toggleSellerStatus: " + e.getMessage());
+            e.printStackTrace();
+            Map<String, Object> error = new HashMap<>();
+            error.put("error", "Satıcı durumu değiştirilemedi: " + e.getMessage());
+            return ResponseEntity.badRequest().body(error);
+        }
+    }
+
+    // Onay bekleyen satıcı sayısı
+    @GetMapping("/sellers/pending-count")
+    public ResponseEntity<Map<String, Object>> getPendingSellersCount() {
+        try {
+            long pendingCount = userRepository.findByRoleNameAndSellerStatus("SELLER", SellerStatus.PENDING).size();
+            
+            Map<String, Object> response = new HashMap<>();
+            response.put("pendingCount", pendingCount);
+            
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            System.out.println("Error in getPendingSellersCount: " + e.getMessage());
+            e.printStackTrace();
+            Map<String, Object> error = new HashMap<>();
+            error.put("error", "Onay bekleyen satıcı sayısı alınamadı: " + e.getMessage());
+                         return ResponseEntity.badRequest().body(error);
+         }
+     }
+
+     // ==================== SİSTEM AYARLARI ENDPOİNTLERİ ====================
+
+     // Tüm sistem ayarlarını getir
+     @GetMapping("/system-settings")
+     public ResponseEntity<Map<String, Object>> getAllSystemSettings() {
+         try {
+             System.out.println("=== DEBUG: getAllSystemSettings called ===");
+             
+             List<com.bahattintok.e_commerce.model.SystemSettings> settings = systemSettingsService.getAllSettings();
+             List<String> categories = systemSettingsService.getAllCategories();
+             
+             Map<String, Object> response = new HashMap<>();
+             response.put("settings", settings);
+             response.put("categories", categories);
+             
+             System.out.println("System settings: " + response);
+             return ResponseEntity.ok(response);
+         } catch (Exception e) {
+             System.out.println("Error in getAllSystemSettings: " + e.getMessage());
+             e.printStackTrace();
+             Map<String, Object> error = new HashMap<>();
+             error.put("error", "Sistem ayarları alınamadı: " + e.getMessage());
+             return ResponseEntity.badRequest().body(error);
+         }
+     }
+
+     // Kategoriye göre ayarları getir
+     @GetMapping("/system-settings/category/{category}")
+     public ResponseEntity<List<com.bahattintok.e_commerce.model.SystemSettings>> getSettingsByCategory(@PathVariable String category) {
+         try {
+             System.out.println("=== DEBUG: getSettingsByCategory called with category: " + category + " ===");
+             
+             List<com.bahattintok.e_commerce.model.SystemSettings> settings = systemSettingsService.getSettingsByCategory(category);
+             
+             System.out.println("Settings for category " + category + ": " + settings);
+             return ResponseEntity.ok(settings);
+         } catch (Exception e) {
+             System.out.println("Error in getSettingsByCategory: " + e.getMessage());
+             e.printStackTrace();
+             return ResponseEntity.badRequest().build();
+         }
+     }
+
+     // Tekil ayar güncelle
+     @PutMapping("/system-settings/{key}")
+     public ResponseEntity<Map<String, Object>> updateSystemSetting(
+             @PathVariable String key,
+             @RequestBody Map<String, String> request) {
+         try {
+             System.out.println("=== DEBUG: updateSystemSetting called ===");
+             System.out.println("Key: " + key + ", Request: " + request);
+             
+             String value = request.get("value");
+             if (value == null) {
+                 throw new RuntimeException("Değer belirtilmelidir");
+             }
+             
+             // Mevcut kullanıcıyı al (gerçek uygulamada authentication'dan alınacak)
+             User currentUser = userRepository.findAll().stream()
+                     .filter(user -> "ADMIN".equals(user.getRole().getName()))
+                     .findFirst()
+                     .orElse(null);
+             
+             com.bahattintok.e_commerce.model.SystemSettings updatedSetting = systemSettingsService.updateSetting(key, value, currentUser);
+             
+             Map<String, Object> response = new HashMap<>();
+             response.put("message", "Ayar başarıyla güncellendi");
+             response.put("setting", updatedSetting);
+             
+             System.out.println("Setting updated successfully: " + response);
+             return ResponseEntity.ok(response);
+         } catch (Exception e) {
+             System.out.println("Error in updateSystemSetting: " + e.getMessage());
+             e.printStackTrace();
+             Map<String, Object> error = new HashMap<>();
+             error.put("error", "Ayar güncellenemedi: " + e.getMessage());
+             return ResponseEntity.badRequest().body(error);
+         }
+     }
+
+     // Birden fazla ayar güncelle
+     @PutMapping("/system-settings/batch")
+     public ResponseEntity<Map<String, Object>> updateMultipleSystemSettings(@RequestBody Map<String, String> settings) {
+         try {
+             System.out.println("=== DEBUG: updateMultipleSystemSettings called ===");
+             System.out.println("Settings: " + settings);
+             
+             // Mevcut kullanıcıyı al (gerçek uygulamada authentication'dan alınacak)
+             User currentUser = userRepository.findAll().stream()
+                     .filter(user -> "ADMIN".equals(user.getRole().getName()))
+                     .findFirst()
+                     .orElse(null);
+             
+             List<com.bahattintok.e_commerce.model.SystemSettings> updatedSettings = systemSettingsService.updateMultipleSettings(settings, currentUser);
+             
+             Map<String, Object> response = new HashMap<>();
+             response.put("message", "Ayarlar başarıyla güncellendi");
+             response.put("updatedCount", updatedSettings.size());
+             response.put("settings", updatedSettings);
+             
+             System.out.println("Settings updated successfully: " + response);
+             return ResponseEntity.ok(response);
+         } catch (Exception e) {
+             System.out.println("Error in updateMultipleSystemSettings: " + e.getMessage());
+             e.printStackTrace();
+             Map<String, Object> error = new HashMap<>();
+             error.put("error", "Ayarlar güncellenemedi: " + e.getMessage());
+             return ResponseEntity.badRequest().body(error);
+         }
+     }
+
+     // Yeni ayar oluştur
+     @PostMapping("/system-settings")
+     public ResponseEntity<Map<String, Object>> createSystemSetting(@RequestBody com.bahattintok.e_commerce.model.SystemSettings setting) {
+         try {
+             System.out.println("=== DEBUG: createSystemSetting called ===");
+             System.out.println("Setting: " + setting);
+             
+             com.bahattintok.e_commerce.model.SystemSettings createdSetting = systemSettingsService.createSetting(setting);
+             
+             Map<String, Object> response = new HashMap<>();
+             response.put("message", "Ayar başarıyla oluşturuldu");
+             response.put("setting", createdSetting);
+             
+             System.out.println("Setting created successfully: " + response);
+             return ResponseEntity.ok(response);
+         } catch (Exception e) {
+             System.out.println("Error in createSystemSetting: " + e.getMessage());
+             e.printStackTrace();
+             Map<String, Object> error = new HashMap<>();
+             error.put("error", "Ayar oluşturulamadı: " + e.getMessage());
+             return ResponseEntity.badRequest().body(error);
+         }
+     }
+
+     // Ayar sil
+     @DeleteMapping("/system-settings/{key}")
+     public ResponseEntity<Map<String, Object>> deleteSystemSetting(@PathVariable String key) {
+         try {
+             System.out.println("=== DEBUG: deleteSystemSetting called ===");
+             System.out.println("Key: " + key);
+             
+             systemSettingsService.deleteSetting(key);
+             
+             Map<String, Object> response = new HashMap<>();
+             response.put("message", "Ayar başarıyla silindi");
+             response.put("key", key);
+             
+             System.out.println("Setting deleted successfully: " + response);
+             return ResponseEntity.ok(response);
+         } catch (Exception e) {
+             System.out.println("Error in deleteSystemSetting: " + e.getMessage());
+             e.printStackTrace();
+             Map<String, Object> error = new HashMap<>();
+             error.put("error", "Ayar silinemedi: " + e.getMessage());
+             return ResponseEntity.badRequest().body(error);
+         }
+     }
+
+     // Varsayılan ayarları oluştur
+     @PostMapping("/system-settings/initialize")
+     public ResponseEntity<Map<String, Object>> initializeDefaultSettings() {
+         try {
+             System.out.println("=== DEBUG: initializeDefaultSettings called ===");
+             
+             systemSettingsService.initializeDefaultSettings();
+             
+             Map<String, Object> response = new HashMap<>();
+             response.put("message", "Varsayılan ayarlar başarıyla oluşturuldu");
+             
+             System.out.println("Default settings initialized successfully: " + response);
+             return ResponseEntity.ok(response);
+         } catch (Exception e) {
+             System.out.println("Error in initializeDefaultSettings: " + e.getMessage());
+             e.printStackTrace();
+             Map<String, Object> error = new HashMap<>();
+             error.put("error", "Varsayılan ayarlar oluşturulamadı: " + e.getMessage());
+             return ResponseEntity.badRequest().body(error);
+         }
+     }
 }

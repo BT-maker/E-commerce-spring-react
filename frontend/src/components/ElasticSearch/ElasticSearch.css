@@ -262,7 +262,7 @@
 }
 
 .filter-panel {
-  position: sticky !important;
+  position: sticky ;
   top: 100px !important; /* Header yüksekliği + ekstra boşluk */
   z-index: 20 !important;
   height: fit-content;

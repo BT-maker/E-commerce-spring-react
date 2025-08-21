@@ -110,7 +110,7 @@ public class CategoryRequestServiceImpl implements CategoryRequestService {
     public CategoryRequest approveRequest(String requestId, User admin) {
         CategoryRequest request = getRequestById(requestId);
         
-        if (request.getStatus() != CategoryRequestStatus.PENDING) {
+        if (request.getStatusEnum() != CategoryRequestStatus.PENDING) {
             throw new RuntimeException("Bu istek zaten işlenmiştir.");
         }
         
@@ -143,7 +143,7 @@ public class CategoryRequestServiceImpl implements CategoryRequestService {
     public CategoryRequest rejectRequest(String requestId, String rejectionReason, User admin) {
         CategoryRequest request = getRequestById(requestId);
         
-        if (request.getStatus() != CategoryRequestStatus.PENDING) {
+        if (request.getStatusEnum() != CategoryRequestStatus.PENDING) {
             throw new RuntimeException("Bu istek zaten işlenmiştir.");
         }
         

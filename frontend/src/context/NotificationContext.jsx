@@ -1,9 +1,12 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import api from '../services/api';
+import webSocketService from '../services/webSocketService';
+import { useAuth } from './AuthContext';
 
 export const NotificationContext = createContext();
 
 export const NotificationProvider = ({ children }) => {
+  const { user } = useAuth();
   const [notifications, setNotifications] = useState([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [loading, setLoading] = useState(false);
@@ -70,6 +73,56 @@ export const NotificationProvider = ({ children }) => {
       console.log('Token bulunamadı, bildirimler yüklenmedi');
     }
   }, []);
+
+  // WebSocket bildirimleri için useEffect
+  useEffect(() => {
+    if (user) {
+      // Kullanıcı bildirimlerini dinle
+      webSocketService.subscribe('/user/queue/notifications', (notification) => {
+        console.log('Yeni bildirim:', notification);
+        
+        // Bildirimi listeye ekle
+        const newNotification = {
+          id: notification.id || Date.now().toString(),
+          title: notification.title || 'Yeni Bildirim',
+          message: notification.message || 'Bildirim mesajı',
+          type: notification.type || 'SYSTEM',
+          read: false,
+          createdAt: notification.createdAt || new Date().toISOString(),
+          ...notification
+        };
+        
+        addNotification(newNotification);
+      });
+
+      // Admin ise admin bildirimlerini de dinle
+      if (user.role === 'ADMIN') {
+        webSocketService.subscribe('/topic/admin-notifications', (notification) => {
+          console.log('Yeni admin bildirimi:', notification);
+          
+          // Bildirimi listeye ekle
+          const newNotification = {
+            id: notification.id || Date.now().toString(),
+            title: notification.title || 'Yeni Admin Bildirimi',
+            message: notification.message || 'Admin bildirimi',
+            type: 'SELLER_REGISTRATION',
+            read: false,
+            createdAt: notification.createdAt || new Date().toISOString(),
+            ...notification
+          };
+          
+          addNotification(newNotification);
+        });
+      }
+
+      return () => {
+        webSocketService.unsubscribe('/user/queue/notifications');
+        if (user.role === 'ADMIN') {
+          webSocketService.unsubscribe('/topic/admin-notifications');
+        }
+      };
+    }
+  }, [user]);
 
   return (
     <NotificationContext.Provider value={{

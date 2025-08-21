@@ -1,10 +1,17 @@
-import React, { useState, useEffect } from 'react';
-import { Plus, Edit, Trash2, Search, Filter, Package } from 'lucide-react';
+import React, { useState, useEffect, useContext } from 'react';
+import { Plus, Edit, Trash2, Search, Filter, Package, CheckCircle, X, Clock, Eye, AlertCircle, FolderOpen, Bell } from 'lucide-react';
 import api from '../../services/api';
+import categoryRequestApi from '../../services/categoryRequestApi';
+import webSocketService from '../../services/webSocketService';
+import { AuthContext } from '../../context/AuthContext';
 import toast from 'react-hot-toast';
 import './AdminCategories.css';
 
 const AdminCategories = () => {
+  const { user } = useContext(AuthContext);
+  const [activeTab, setActiveTab] = useState('categories'); // 'categories' veya 'requests'
+  
+  // Kategori state'leri
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
@@ -16,9 +23,55 @@ const AdminCategories = () => {
     imageUrl: ''
   });
 
+  // Kategori istekleri state'leri
+  const [requests, setRequests] = useState([]);
+  const [requestsLoading, setRequestsLoading] = useState(true);
+  const [selectedStatus, setSelectedStatus] = useState('ALL');
+  const [currentPage, setCurrentPage] = useState(0);
+  const [totalPages, setTotalPages] = useState(0);
+  const [selectedRequest, setSelectedRequest] = useState(null);
+  const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
+  const [isRejectModalOpen, setIsRejectModalOpen] = useState(false);
+  const [rejectionReason, setRejectionReason] = useState('');
+  const [processingRequest, setProcessingRequest] = useState(null);
+
   useEffect(() => {
-    fetchCategories();
-  }, []);
+    if (activeTab === 'categories') {
+      fetchCategories();
+    } else if (activeTab === 'requests') {
+      fetchRequests();
+    }
+  }, [activeTab]);
+
+  // WebSocket bildirimleri için useEffect
+  useEffect(() => {
+    if (user && user.role === 'ADMIN' && activeTab === 'requests') {
+      // Kategori istek bildirimlerini dinle
+      webSocketService.subscribe('/user/queue/category-requests', (notification) => {
+        console.log('Yeni kategori istek bildirimi:', notification);
+        toast.success(notification.message);
+        fetchRequests(); // Listeyi yenile
+      });
+
+      // Genel topic'i de dinle
+      webSocketService.subscribe('/topic/category-requests', (notification) => {
+        console.log('Genel kategori istek bildirimi:', notification);
+        toast.success(notification.message);
+        fetchRequests(); // Listeyi yenile
+      });
+
+      return () => {
+        webSocketService.unsubscribe('/user/queue/category-requests');
+        webSocketService.unsubscribe('/topic/category-requests');
+      };
+    }
+  }, [user, activeTab]);
+
+  useEffect(() => {
+    if (activeTab === 'requests') {
+      fetchRequests();
+    }
+  }, [selectedStatus, currentPage, activeTab]);
 
   const fetchCategories = async () => {
     try {
@@ -30,6 +83,25 @@ const AdminCategories = () => {
       toast.error('Kategoriler yüklenirken hata oluştu');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchRequests = async () => {
+    setRequestsLoading(true);
+    try {
+      let response;
+      if (selectedStatus === 'ALL') {
+        response = await categoryRequestApi.getAllRequests(currentPage, 10);
+      } else {
+        response = await categoryRequestApi.getRequestsByStatus(selectedStatus, currentPage, 10);
+      }
+      setRequests(response.content || []);
+      setTotalPages(response.totalPages || 0);
+    } catch (error) {
+      console.error('İstekler alınamadı:', error);
+      toast.error('İstekler yüklenirken hata oluştu');
+    } finally {
+      setRequestsLoading(false);
     }
   };
 
@@ -80,6 +152,92 @@ const AdminCategories = () => {
     }
   };
 
+  const handleApprove = async (requestId) => {
+    setProcessingRequest(requestId);
+    try {
+      await categoryRequestApi.approveRequest(requestId);
+      toast.success('İstek başarıyla onaylandı!');
+      fetchRequests();
+    } catch (error) {
+      const errorMessage = error.response?.data?.message || 'İstek onaylanamadı';
+      toast.error(errorMessage);
+    } finally {
+      setProcessingRequest(null);
+    }
+  };
+
+  const handleReject = async () => {
+    if (!rejectionReason.trim()) {
+      toast.error('Red sebebi gereklidir');
+      return;
+    }
+
+    setProcessingRequest(selectedRequest.id);
+    try {
+      await categoryRequestApi.rejectRequest(selectedRequest.id, rejectionReason);
+      toast.success('İstek başarıyla reddedildi!');
+      setIsRejectModalOpen(false);
+      setRejectionReason('');
+      setSelectedRequest(null);
+      fetchRequests();
+    } catch (error) {
+      const errorMessage = error.response?.data?.message || 'İstek reddedilemedi';
+      toast.error(errorMessage);
+    } finally {
+      setProcessingRequest(null);
+    }
+  };
+
+  const handleViewDetails = (request) => {
+    setSelectedRequest(request);
+    setIsDetailModalOpen(true);
+  };
+
+  const getStatusIcon = (status) => {
+    if (!status) return <AlertCircle className="w-4 h-4 text-gray-500" />;
+    
+    switch (status.toUpperCase()) {
+      case 'PENDING':
+        return <Clock className="w-4 h-4 text-yellow-500" />;
+      case 'APPROVED':
+        return <CheckCircle className="w-4 h-4 text-green-500" />;
+      case 'REJECTED':
+        return <X className="w-4 h-4 text-red-500" />;
+      default:
+        return <AlertCircle className="w-4 h-4 text-gray-500" />;
+    }
+  };
+
+  const getStatusText = (status) => {
+    if (!status) return 'Bilinmiyor';
+    
+    switch (status.toUpperCase()) {
+      case 'PENDING':
+        return 'Beklemede';
+      case 'APPROVED':
+        return 'Onaylandı';
+      case 'REJECTED':
+        return 'Reddedildi';
+      default:
+        return 'Bilinmiyor';
+    }
+  };
+
+  const getStatusClass = (status) => {
+    if (!status) return 'status-unknown';
+    
+    switch (status.toUpperCase()) {
+      case 'PENDING':
+        return 'status-pending';
+      case 'APPROVED':
+        return 'status-approved';
+      case 'REJECTED':
+        return 'status-rejected';
+      default:
+        return 'status-unknown';
+    }
+  };
+
   const filteredCategories = categories.filter(category =>
     category.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
     (category.description && category.description.toLowerCase().includes(searchQuery.toLowerCase()))
@@ -92,142 +250,377 @@ const AdminCategories = () => {
 
   return (
     <div className="admin-categories">
-      <div className="categories-header">
-        <div className="header-left">
-          <h1>Kategori Yönetimi</h1>
-          <p>Ürün kategorilerini yönetin</p>
-        </div>
-        <button 
-          className="add-category-btn"
-          onClick={() => {
-            resetForm();
-            setShowModal(true);
-          }}
+      {/* Submenü */}
+      <div className="submenu">
+        <button
+          className={`submenu-item ${activeTab === 'categories' ? 'active' : ''}`}
+          onClick={() => setActiveTab('categories')}
         >
-          <Plus size={20} />
-          Yeni Kategori
+          <FolderOpen size={20} />
+          Kategoriler
+        </button>
+        <button
+          className={`submenu-item ${activeTab === 'requests' ? 'active' : ''}`}
+          onClick={() => setActiveTab('requests')}
+        >
+          <Bell size={20} />
+          Kategori İstekleri
         </button>
       </div>
 
-      <div className="categories-filters">
-        <div className="search-box">
-          <Search size={20} />
-          <input
-            type="text"
-            placeholder="Kategori ara..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-          />
-        </div>
-        <div className="filter-stats">
-          <span>Toplam: {categories.length} kategori</span>
-          <span>Gösterilen: {filteredCategories.length} kategori</span>
-        </div>
-      </div>
-
-      {loading ? (
-        <div className="loading-container">
-          <div className="loading-spinner"></div>
-          <p>Kategoriler yükleniyor...</p>
-        </div>
-      ) : (
-        <div className="categories-grid">
-          {filteredCategories.map((category) => (
-            <div key={category.id} className="category-card">
-              <div className="category-image">
-                {category.imageUrl ? (
-                  <img src={category.imageUrl} alt={category.name} />
-                ) : (
-                  <div className="no-image">
-                    <Package size={40} />
-                  </div>
-                )}
-              </div>
-              <div className="category-content">
-                <h3>{category.name}</h3>
-                <p>{category.description || 'Açıklama yok'}</p>
-                <div className="category-stats">
-                  <span>Ürün Sayısı: {category.productCount || 0}</span>
-                </div>
-              </div>
-              <div className="category-actions">
-                <button 
-                  className="edit-btn"
-                  onClick={() => handleEdit(category)}
-                >
-                  <Edit size={16} />
-                </button>
-                <button 
-                  className="delete-btn"
-                  onClick={() => handleDelete(category.id)}
-                >
-                  <Trash2 size={16} />
-                </button>
-              </div>
+      {/* Kategoriler Tab */}
+      {activeTab === 'categories' && (
+        <>
+          <div className="categories-header">
+            <div className="header-left">
+              <h1>Kategori Yönetimi</h1>
+              <p>Ürün kategorilerini yönetin</p>
             </div>
-          ))}
-        </div>
+            <button 
+              className="add-button"
+              onClick={() => {
+                resetForm();
+                setShowModal(true);
+              }}
+            >
+              <Plus size={20} />
+              Yeni Kategori
+            </button>
+          </div>
+
+          {/* Arama */}
+          <div className="search-section">
+            <div className="search-input-wrapper">
+              <Search size={20} className="search-icon" />
+              <input
+                type="text"
+                placeholder="Kategori ara..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="search-input"
+              />
+            </div>
+          </div>
+
+          {/* Kategori Listesi */}
+          <div className="categories-list">
+            {loading ? (
+              <div className="loading">Kategoriler yükleniyor...</div>
+            ) : filteredCategories.length === 0 ? (
+              <div className="empty-state">
+                <Package size={48} />
+                <p>Kategori bulunamadı</p>
+              </div>
+            ) : (
+              <div className="categories-grid">
+                {filteredCategories.map((category) => (
+                  <div key={category.id} className="category-card">
+                    <div className="category-image">
+                      {category.imageUrl ? (
+                        <img src={category.imageUrl} alt={category.name} />
+                      ) : (
+                        <Package size={48} color="#64748b" />
+                      )}
+                    </div>
+                    <div className="category-content">
+                      <h3>{category.name}</h3>
+                      <p>{category.description || 'Bu kategori için henüz açıklama eklenmemiş.'}</p>
+                    </div>
+                    <div className="category-actions">
+                      <button
+                        className="action-btn edit"
+                        onClick={() => handleEdit(category)}
+                        title="Düzenle"
+                      >
+                        <Edit size={18} />
+                      </button>
+                      <button
+                        className="action-btn delete"
+                        onClick={() => handleDelete(category.id)}
+                        title="Sil"
+                      >
+                        <Trash2 size={18} />
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </>
       )}
 
-      {/* Modal */}
-      {showModal && (
-        <div className="modal-overlay" onClick={() => setShowModal(false)}>
-          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-            <div className="modal-header">
-              <h2>{editingCategory ? 'Kategori Düzenle' : 'Yeni Kategori Ekle'}</h2>
-              <button 
-                className="modal-close"
-                onClick={() => setShowModal(false)}
+      {/* Kategori İstekleri Tab */}
+      {activeTab === 'requests' && (
+        <>
+          <div className="categories-header">
+            <div className="header-left">
+              <h1>Kategori İstekleri</h1>
+              <p>Satıcıların kategori isteklerini yönetin</p>
+            </div>
+          </div>
+
+          {/* Filtre */}
+          <div className="filter-section">
+            <Filter size={20} />
+            <select
+              value={selectedStatus}
+              onChange={(e) => setSelectedStatus(e.target.value)}
+              className="status-filter"
+            >
+              <option value="ALL">Tüm İstekler</option>
+              <option value="PENDING">Bekleyen</option>
+              <option value="APPROVED">Onaylanan</option>
+              <option value="REJECTED">Reddedilen</option>
+            </select>
+          </div>
+
+          {/* İstekler Listesi */}
+          <div className="requests-list">
+            {requestsLoading ? (
+              <div className="loading">İstekler yükleniyor...</div>
+            ) : requests.length === 0 ? (
+              <div className="empty-state">
+                <Bell size={48} />
+                <p>Kategori isteği bulunamadı</p>
+              </div>
+            ) : (
+              <div className="requests-table">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Satıcı</th>
+                      <th>Kategori Adı</th>
+                      <th>Açıklama</th>
+                      <th>Durum</th>
+                      <th>Tarih</th>
+                      <th>İşlemler</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {requests.map((request) => (
+                      <tr key={request.id}>
+                                                 <td>
+                           <div className="seller-info">
+                             <span className="seller-name">
+                               {request.sellerName || request.seller?.firstName && request.seller?.lastName 
+                                 ? `${request.seller.firstName} ${request.seller.lastName}`
+                                 : request.seller?.email || 'Bilinmeyen Satıcı'}
+                             </span>
+                             <span className="seller-email">{request.sellerEmail || request.seller?.email || 'Email bilgisi yok'}</span>
+                           </div>
+                         </td>
+                        <td>{request.categoryName}</td>
+                        <td>
+                          <div className="description-cell">
+                            {request.description || 'Açıklama yok'}
+                          </div>
+                        </td>
+                                                 <td>
+                           <span className={`status-badge ${getStatusClass(request.status || request.statusText)}`}>
+                             {getStatusIcon(request.status || request.statusText)}
+                             {getStatusText(request.status || request.statusText)}
+                           </span>
+                         </td>
+                        <td>
+                          {new Date(request.createdAt).toLocaleDateString('tr-TR')}
+                        </td>
+                        <td>
+                          <div className="request-actions">
+                            <button
+                              className="action-btn view"
+                              onClick={() => handleViewDetails(request)}
+                              title="Detayları Görüntüle"
+                            >
+                              <Eye size={16} />
+                            </button>
+                            {request.status === 'PENDING' && (
+                              <>
+                                <button
+                                  className="action-btn approve"
+                                  onClick={() => handleApprove(request.id)}
+                                  disabled={processingRequest === request.id}
+                                  title="Onayla"
+                                >
+                                  <CheckCircle size={16} />
+                                </button>
+                                <button
+                                  className="action-btn reject"
+                                  onClick={() => {
+                                    setSelectedRequest(request);
+                                    setIsRejectModalOpen(true);
+                                  }}
+                                  disabled={processingRequest === request.id}
+                                  title="Reddet"
+                                >
+                                  <X size={16} />
+                                </button>
+                              </>
+                            )}
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+
+          {/* Sayfalama */}
+          {totalPages > 1 && (
+            <div className="pagination">
+              <button
+                className="pagination-btn"
+                onClick={() => setCurrentPage(Math.max(0, currentPage - 1))}
+                disabled={currentPage === 0}
               >
-                ×
+                Önceki
+              </button>
+              <span className="page-info">
+                Sayfa {currentPage + 1} / {totalPages}
+              </span>
+              <button
+                className="pagination-btn"
+                onClick={() => setCurrentPage(Math.min(totalPages - 1, currentPage + 1))}
+                disabled={currentPage === totalPages - 1}
+              >
+                Sonraki
               </button>
             </div>
-            
-            <form onSubmit={handleSubmit} className="category-form">
+          )}
+        </>
+      )}
+
+      {/* Kategori Modal */}
+      {showModal && (
+        <div className="modal-overlay">
+          <div className="modal">
+            <div className="modal-header">
+              <h2>{editingCategory ? 'Kategori Düzenle' : 'Yeni Kategori Ekle'}</h2>
+              <button className="close-btn" onClick={() => setShowModal(false)}>
+                <X size={20} />
+              </button>
+            </div>
+            <form onSubmit={handleSubmit} className="modal-form">
               <div className="form-group">
-                <label htmlFor="name">Kategori Adı *</label>
+                <label>Kategori Adı</label>
                 <input
                   type="text"
-                  id="name"
                   value={formData.name}
                   onChange={(e) => setFormData({...formData, name: e.target.value})}
                   required
-                  placeholder="Kategori adını girin"
                 />
               </div>
-              
               <div className="form-group">
-                <label htmlFor="description">Açıklama</label>
+                <label>Açıklama</label>
                 <textarea
-                  id="description"
                   value={formData.description}
                   onChange={(e) => setFormData({...formData, description: e.target.value})}
-                  placeholder="Kategori açıklaması (opsiyonel)"
-                  rows="3"
+                  rows={3}
                 />
               </div>
-              
               <div className="form-group">
-                <label htmlFor="imageUrl">Resim URL</label>
+                <label>Görsel URL</label>
                 <input
                   type="url"
-                  id="imageUrl"
                   value={formData.imageUrl}
                   onChange={(e) => setFormData({...formData, imageUrl: e.target.value})}
-                  placeholder="https://example.com/image.jpg"
                 />
               </div>
-              
-              <div className="form-actions">
-                <button 
-                  type="button" 
-                  className="cancel-btn"
-                  onClick={() => setShowModal(false)}
-                >
+              <div className="modal-actions">
+                <button type="button" onClick={() => setShowModal(false)} className="cancel-btn">
                   İptal
                 </button>
-                <button type="submit" className="save-btn">
+                <button type="submit" className="submit-btn">
                   {editingCategory ? 'Güncelle' : 'Ekle'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* İstek Detay Modal */}
+      {isDetailModalOpen && selectedRequest && (
+        <div className="modal-overlay">
+          <div className="modal">
+            <div className="modal-header">
+              <h2>Kategori İsteği Detayları</h2>
+              <button className="close-btn" onClick={() => setIsDetailModalOpen(false)}>
+                <X size={20} />
+              </button>
+            </div>
+                         <div className="modal-content">
+               <div className="detail-group">
+                 <label>Satıcı:</label>
+                 <p>
+                   {selectedRequest.sellerName || selectedRequest.seller?.firstName && selectedRequest.seller?.lastName 
+                     ? `${selectedRequest.seller.firstName} ${selectedRequest.seller.lastName}`
+                     : selectedRequest.seller?.email || 'Bilinmeyen Satıcı'}
+                 </p>
+               </div>
+               <div className="detail-group">
+                 <label>Email:</label>
+                 <p>{selectedRequest.sellerEmail || selectedRequest.seller?.email || 'Email bilgisi yok'}</p>
+               </div>
+              <div className="detail-group">
+                <label>Kategori Adı:</label>
+                <p>{selectedRequest.categoryName}</p>
+              </div>
+              <div className="detail-group">
+                <label>Açıklama:</label>
+                <p>{selectedRequest.description || 'Açıklama yok'}</p>
+              </div>
+                             <div className="detail-group">
+                 <label>Durum:</label>
+                 <span className={`status-badge ${getStatusClass(selectedRequest.status || selectedRequest.statusText)}`}>
+                   {getStatusIcon(selectedRequest.status || selectedRequest.statusText)}
+                   {getStatusText(selectedRequest.status || selectedRequest.statusText)}
+                 </span>
+               </div>
+              <div className="detail-group">
+                <label>Oluşturulma Tarihi:</label>
+                <p>{new Date(selectedRequest.createdAt).toLocaleString('tr-TR')}</p>
+              </div>
+              {selectedRequest.rejectionReason && (
+                <div className="detail-group">
+                  <label>Red Sebebi:</label>
+                  <p className="rejection-reason">{selectedRequest.rejectionReason}</p>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Red Modal */}
+      {isRejectModalOpen && selectedRequest && (
+        <div className="modal-overlay">
+          <div className="modal">
+            <div className="modal-header">
+              <h2>İsteği Reddet</h2>
+              <button className="close-btn" onClick={() => setIsRejectModalOpen(false)}>
+                <X size={20} />
+              </button>
+            </div>
+            <form onSubmit={(e) => { e.preventDefault(); handleReject(); }} className="modal-form">
+              <div className="form-group">
+                <label>Red Sebebi</label>
+                <textarea
+                  value={rejectionReason}
+                  onChange={(e) => setRejectionReason(e.target.value)}
+                  placeholder="Red sebebini yazın..."
+                  rows={4}
+                  required
+                />
+              </div>
+              <div className="modal-actions">
+                <button type="button" onClick={() => setIsRejectModalOpen(false)} className="cancel-btn">
+                  İptal
+                </button>
+                <button type="submit" className="submit-btn reject">
+                  Reddet
                 </button>
               </div>
             </form>

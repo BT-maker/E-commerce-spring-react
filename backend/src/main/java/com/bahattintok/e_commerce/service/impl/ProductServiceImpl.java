@@ -43,19 +43,19 @@ public class ProductServiceImpl implements ProductService {
     private ElasticsearchService elasticsearchService;
     
     /**
-     * Tüm ürünleri getirir.
+     * Tüm ürünleri getirir (sadece onaylanmış satıcıların).
      */
     @Override
     public List<Product> getAllProducts() {
-        return productRepository.findActiveProducts();
+        return productRepository.findActiveProductsFromApprovedSellers();
     }
     
     /**
-     * Tüm ürünleri sayfalı getirir.
+     * Tüm ürünleri sayfalı getirir (sadece onaylanmış satıcıların).
      */
     @Override
     public Page<Product> getAllProducts(Pageable pageable) {
-        return productRepository.findActiveProducts(pageable);
+        return productRepository.findActiveProductsFromApprovedSellers(pageable);
     }
     
     /**
@@ -72,12 +72,30 @@ public class ProductServiceImpl implements ProductService {
      */
     @Override
     public Product createProduct(ProductRequest request) {
+        // Mevcut kullanıcıyı al
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String currentUsername = authentication.getName();
+        User currentUser = userRepository.findByEmail(currentUsername)
+                .orElseThrow(() -> new RuntimeException("Kullanıcı bulunamadı"));
+        
+        // Kullanıcının mağazasını bul
+        Store store = storeRepository.findBySeller(currentUser)
+                .orElseThrow(() -> new RuntimeException("Mağaza bulunamadı"));
+        
+        // Satıcı onay kontrolü
+        if (currentUser.getSellerStatus() == null || 
+            (!currentUser.getSellerStatus().name().equals("APPROVED") && 
+             !currentUser.getSellerStatus().name().equals("ACTIVE"))) {
+            throw new RuntimeException("Ürün yayınlamak için satıcı hesabınızın onaylanmış olması gerekiyor. Lütfen admin onayını bekleyin.");
+        }
+        
         Product product = new Product();
         product.setName(request.getName());
         product.setPrice(request.getPrice());
         product.setDescription(request.getDescription());
         product.setStock(request.getStock());
         product.setImageUrl(request.getImageUrl());
+        product.setStoreId(store.getId()); // Mağaza ID'sini set et
         Category category = categoryRepository.findById(request.getCategoryId())
                 .orElseThrow(() -> new RuntimeException("Category not found"));
         product.setCategory(category);
@@ -103,6 +121,29 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public Product updateProduct(String id, ProductRequest request) {
         Product product = getProductById(id);
+        
+        // Mevcut kullanıcıyı al
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String currentUsername = authentication.getName();
+        User currentUser = userRepository.findByEmail(currentUsername)
+                .orElseThrow(() -> new RuntimeException("Kullanıcı bulunamadı"));
+        
+        // Kullanıcının mağazasını bul
+        Store store = storeRepository.findBySeller(currentUser)
+                .orElseThrow(() -> new RuntimeException("Mağaza bulunamadı"));
+        
+        // Satıcı onay kontrolü
+        if (currentUser.getSellerStatus() == null || 
+            (!currentUser.getSellerStatus().name().equals("APPROVED") && 
+             !currentUser.getSellerStatus().name().equals("ACTIVE"))) {
+            throw new RuntimeException("Ürün güncellemek için satıcı hesabınızın onaylanmış olması gerekiyor. Lütfen admin onayını bekleyin.");
+        }
+        
+        // Ürünün bu satıcıya ait olduğunu kontrol et
+        if (!store.getId().equals(product.getStoreId())) {
+            throw new RuntimeException("Bu ürünü güncelleme yetkiniz yok");
+        }
+        
         product.setName(request.getName());
         product.setPrice(request.getPrice());
         product.setDescription(request.getDescription());
@@ -132,8 +173,28 @@ public class ProductServiceImpl implements ProductService {
      */
     @Override
     public void deleteProduct(String id) {
-        if (!productRepository.existsById(id)) {
-            throw new RuntimeException("Product not found");
+        Product product = getProductById(id);
+        
+        // Mevcut kullanıcıyı al
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String currentUsername = authentication.getName();
+        User currentUser = userRepository.findByEmail(currentUsername)
+                .orElseThrow(() -> new RuntimeException("Kullanıcı bulunamadı"));
+        
+        // Kullanıcının mağazasını bul
+        Store store = storeRepository.findBySeller(currentUser)
+                .orElseThrow(() -> new RuntimeException("Mağaza bulunamadı"));
+        
+        // Satıcı onay kontrolü
+        if (currentUser.getSellerStatus() == null || 
+            (!currentUser.getSellerStatus().name().equals("APPROVED") && 
+             !currentUser.getSellerStatus().name().equals("ACTIVE"))) {
+            throw new RuntimeException("Ürün silmek için satıcı hesabınızın onaylanmış olması gerekiyor. Lütfen admin onayını bekleyin.");
+        }
+        
+        // Ürünün bu satıcıya ait olduğunu kontrol et
+        if (!store.getId().equals(product.getStoreId())) {
+            throw new RuntimeException("Bu ürünü silme yetkiniz yok");
         }
         
         // Önce Elasticsearch'ten sil (eğer varsa)
@@ -150,23 +211,23 @@ public class ProductServiceImpl implements ProductService {
     }
     
     /**
-     * Kategori adına göre ürünleri getirir.
+     * Kategori adına göre ürünleri getirir (sadece onaylanmış satıcıların).
      */
     @Override
     public List<Product> getProductsByCategory(String category) {
         return productRepository.findByCategory(category).stream()
-                .filter(product -> "AKTİF".equals(product.getStatus()))
+                .filter(product -> "AKTİF".equals(product.getStatus()) && product.isSellerApproved())
                 .collect(Collectors.toList());
     }
     
     /**
-     * İsme göre arama yapar (sayfalı).
+     * İsme göre arama yapar (sayfalı, sadece onaylanmış satıcıların).
      */
     @Override
     public Page<Product> searchProducts(String keyword, Pageable pageable) {
         Page<Product> products = productRepository.searchProducts(keyword, pageable);
         List<Product> activeProducts = products.getContent().stream()
-                .filter(product -> "AKTİF".equals(product.getStatus()))
+                .filter(product -> "AKTİF".equals(product.getStatus()) && product.isSellerApproved())
                 .collect(Collectors.toList());
         return new PageImpl<>(activeProducts, pageable, activeProducts.size());
     }

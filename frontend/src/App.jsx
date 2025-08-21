@@ -20,11 +20,12 @@ import AdminUsers from './pages/AdminUsers/AdminUsers.jsx';
 import AdminSellers from './pages/AdminSellers/AdminSellers.jsx';
 import AdminProducts from './pages/AdminProducts/AdminProducts.jsx';
 import AdminCategories from './pages/AdminCategories/AdminCategories.jsx';
-import AdminCategoryRequests from './pages/AdminCategoryRequests/AdminCategoryRequests.jsx';
+
 import AdminOrders from './pages/AdminOrders/AdminOrders.jsx';
 import AdminReports from './pages/AdminReports/AdminReports.jsx';
 import AdminFinancial from './pages/AdminFinancial/AdminFinancial.jsx';
 import AdminEmail from './pages/AdminEmail/AdminEmail.jsx';
+import AdminSystemSettings from './pages/AdminSystemSettings/AdminSystemSettings.jsx';
 import SearchResults from './components/SearchResults/SearchResults.jsx';
 import ElasticSearch from './components/ElasticSearch/ElasticSearch.jsx';
 import AdminRoute from './components/AdminRoute/AdminRoute.jsx';
@@ -330,13 +331,7 @@ function App() {
                     </AdminRoute>
                   } />
                   
-                  <Route path="/admin/category-requests" element={
-                    <AdminRoute>
-                      <AdminLayout>
-                        <AdminCategoryRequests />
-                      </AdminLayout>
-                    </AdminRoute>
-                  } />
+
                   
                   <Route path="/admin/products" element={
                     <AdminRoute>
@@ -374,6 +369,14 @@ function App() {
                     <AdminRoute>
                       <AdminLayout>
                         <AdminEmail />
+                      </AdminLayout>
+                    </AdminRoute>
+                  } />
+                  
+                  <Route path="/admin/settings" element={
+                    <AdminRoute>
+                      <AdminLayout>
+                        <AdminSystemSettings />
                       </AdminLayout>
                     </AdminRoute>
                   } />

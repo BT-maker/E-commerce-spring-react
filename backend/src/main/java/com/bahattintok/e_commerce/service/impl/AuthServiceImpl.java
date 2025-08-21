@@ -10,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.bahattintok.e_commerce.dto.AuthResponse;
 import com.bahattintok.e_commerce.dto.SignInRequest;
 import com.bahattintok.e_commerce.dto.SignUpRequest;
+import com.bahattintok.e_commerce.event.SellerRegistrationEvent;
 import com.bahattintok.e_commerce.event.UserRegisteredEvent;
 import com.bahattintok.e_commerce.model.RoleEntity;
 import com.bahattintok.e_commerce.model.Store;
@@ -97,6 +98,12 @@ public class AuthServiceImpl implements AuthService {
         
         user.setRole(role);
         
+        // Eğer seller ise onay durumunu PENDING yap
+        if ("seller".equals(request.getUserType())) {
+            user.setSellerStatus(com.bahattintok.e_commerce.model.enums.SellerStatus.PENDING);
+            user.setSellerApplicationDate(java.time.LocalDateTime.now());
+        }
+        
         User savedUser = userRepository.save(user);
         
         // Eğer seller ise mağaza oluştur
@@ -122,6 +129,11 @@ public class AuthServiceImpl implements AuthService {
         // Hesap doğrulama email'i gönder
         String verificationToken = java.util.UUID.randomUUID().toString();
         eventPublisher.publishEvent(new UserRegisteredEvent(this, savedUser, verificationToken));
+        
+        // Eğer seller ise admin'lere bildirim gönder
+        if ("seller".equals(request.getUserType())) {
+            eventPublisher.publishEvent(new SellerRegistrationEvent(this, savedUser));
+        }
         
         return new AuthResponse(token, savedUser.getFirstName(), savedUser.getLastName(), savedUser.getRole().getName(), savedUser.getEmail());
     }
@@ -243,6 +255,14 @@ public class AuthServiceImpl implements AuthService {
         if (user.getRole() == null || !"SELLER".equals(user.getRole().getName())) {
             System.out.println("Kullanıcı SELLER rolüne sahip değil! Role: " + (user.getRole() != null ? user.getRole().getName() : "null"));
             throw new RuntimeException("Access denied. Seller privileges required.");
+        }
+        
+        // Seller onay durumu kontrolü
+        if (user.getSellerStatus() == null || 
+            user.getSellerStatus() == com.bahattintok.e_commerce.model.enums.SellerStatus.PENDING ||
+            user.getSellerStatus() == com.bahattintok.e_commerce.model.enums.SellerStatus.REJECTED) {
+            System.out.println("Seller henüz onaylanmamış! Status: " + (user.getSellerStatus() != null ? user.getSellerStatus().name() : "null"));
+            throw new RuntimeException("Your seller account is pending approval or has been rejected. Please contact admin.");
         }
         
         // Frontend'den gelen plain text şifreyi veritabanındaki BCrypt hash ile karşılaştır

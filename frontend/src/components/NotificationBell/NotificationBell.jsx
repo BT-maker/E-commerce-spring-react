@@ -34,6 +34,8 @@ const NotificationBell = () => {
         return { icon: Star, color: 'text-[#ff6000]', bgColor: 'bg-[rgba(255,96,0,0.1)]' };
       case 'CART':
         return { icon: ShoppingCart, color: 'text-[#ff6000]', bgColor: 'bg-[rgba(255,96,0,0.1)]' };
+      case 'SELLER_REGISTRATION':
+        return { icon: AlertCircle, color: 'text-yellow-600', bgColor: 'bg-yellow-50' };
       default:
         return { icon: Bell, color: 'text-[#ff6000]', bgColor: 'bg-[rgba(255,96,0,0.1)]' };
     }

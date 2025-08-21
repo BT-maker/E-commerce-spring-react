@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Yeni Satıcı Kaydı</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f8f9fa;
+        }
+        .container {
+            background-color: #ffffff;
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .header {
+            text-align: center;
+            border-bottom: 2px solid #ff6000;
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+        }
+        .header h1 {
+            color: #ff6000;
+            margin: 0;
+            font-size: 24px;
+        }
+        .content {
+            margin-bottom: 30px;
+        }
+        .seller-info {
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            border-left: 4px solid #ff6000;
+        }
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            padding: 8px 0;
+            border-bottom: 1px solid #e9ecef;
+        }
+        .info-row:last-child {
+            border-bottom: none;
+        }
+        .label {
+            font-weight: bold;
+            color: #495057;
+        }
+        .value {
+            color: #6c757d;
+        }
+        .action-button {
+            display: inline-block;
+            background-color: #ff6000;
+            color: white;
+            padding: 12px 24px;
+            text-decoration: none;
+            border-radius: 6px;
+            font-weight: bold;
+            margin-top: 20px;
+        }
+        .action-button:hover {
+            background-color: #e55a00;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #e9ecef;
+            color: #6c757d;
+            font-size: 14px;
+        }
+        .urgent {
+            background-color: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 6px;
+            padding: 15px;
+            margin: 20px 0;
+            color: #856404;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🆕 Yeni Satıcı Kaydı</h1>
+            <p>E-Ticaret platformunuza yeni bir satıcı kayıt oldu!</p>
+        </div>
+        
+        <div class="content">
+            <div class="urgent">
+                <strong>⚠️ Dikkat:</strong> Bu satıcının onaylanması gerekiyor. Lütfen admin panelinden kontrol edin.
+            </div>
+            
+            <div class="seller-info">
+                <h3>📋 Satıcı Bilgileri</h3>
+                <div class="info-row">
+                    <span class="label">Ad Soyad:</span>
+                    <span class="value">{{sellerName}}</span>
+                </div>
+                <div class="info-row">
+                    <span class="label">Email:</span>
+                    <span class="value">{{sellerEmail}}</span>
+                </div>
+                <div class="info-row">
+                    <span class="label">Telefon:</span>
+                    <span class="value">{{sellerPhone}}</span>
+                </div>
+                <div class="info-row">
+                    <span class="label">Kayıt Tarihi:</span>
+                    <span class="value">{{registrationDate}}</span>
+                </div>
+                <div class="info-row">
+                    <span class="label">Durum:</span>
+                    <span class="value" style="color: #f39c12; font-weight: bold;">⏳ Onay Bekliyor</span>
+                </div>
+            </div>
+            
+            <p>Bu satıcıyı onaylamak veya reddetmek için admin panelini kullanabilirsiniz.</p>
+            
+            <div style="text-align: center;">
+                <a href="{{adminPanelUrl}}" class="action-button">
+                    🔗 Admin Paneline Git
+                </a>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p>Bu email otomatik olarak gönderilmiştir. Lütfen yanıtlamayınız.</p>
+            <p>© 2024 E-Ticaret Platformu. Tüm hakları saklıdır.</p>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { FaPlus, FaEdit, FaTrash, FaEye, FaSearch, FaTimes, FaBox, FaExclamationTriangle } from 'react-icons/fa';
+import { FaPlus, FaEdit, FaTrash, FaEye, FaSearch, FaTimes, FaBox, FaExclamationTriangle, FaUserClock } from 'react-icons/fa';
 import { MdDelete, MdEdit, MdVisibility } from "react-icons/md";
 import ProductModal from '../../components/ProductModal/ProductModal';
 import './SellerProducts.css?v=1.0.2'; // Force cache refresh
@@ -19,6 +19,7 @@ const SellerProducts = () => {
   const [categories, setCategories] = useState([]);
   const [modalLoading, setModalLoading] = useState(false);
   const [showSuggestions, setShowSuggestions] = useState(false); // Öneriler için
+  const [sellerStatus, setSellerStatus] = useState(null); // Satıcı durumu
   
   // Sayfalama state'leri
   const [currentPage, setCurrentPage] = useState(0);
@@ -74,6 +75,27 @@ const SellerProducts = () => {
       setError('Ürün verileri yüklenirken bir hata oluştu.');
     } finally {
       setLoading(false);
+    }
+  };
+
+  // Satıcı durumunu kontrol et
+  const checkSellerStatus = async () => {
+    try {
+      const response = await fetch('http://localhost:8082/api/auth/me', {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include'
+      });
+
+      if (response.ok) {
+        const userData = await response.json();
+        setSellerStatus(userData.sellerStatus);
+        console.log('Satıcı durumu:', userData.sellerStatus);
+      }
+    } catch (err) {
+      console.error('Satıcı durumu kontrol edilirken hata:', err);
     }
   };
 
@@ -280,6 +302,7 @@ const SellerProducts = () => {
   useEffect(() => {
     fetchAllProducts();
     fetchCategories();
+    checkSellerStatus();
   }, []);
 
   // Filtreleme değişikliklerinde anlık filtreleme
@@ -458,6 +481,26 @@ const SellerProducts = () => {
 
   return (
     <div className="seller-products">
+      {/* Satıcı Onay Durumu Uyarısı */}
+      {sellerStatus && sellerStatus !== 'APPROVED' && sellerStatus !== 'ACTIVE' && (
+        <div className="seller-approval-warning">
+          <div className="warning-content">
+            <FaUserClock className="warning-icon" />
+            <div className="warning-text">
+              <h3>Hesabınız Onay Bekliyor</h3>
+              <p>
+                Ürün yayınlamak için satıcı hesabınızın admin tarafından onaylanması gerekiyor. 
+                Onaylandıktan sonra ürünlerinizi yayınlayabileceksiniz.
+              </p>
+              <div className="status-info">
+                <strong>Mevcut Durum:</strong> {sellerStatus === 'PENDING' ? 'Beklemede' : 
+                  sellerStatus === 'REJECTED' ? 'Reddedildi' : sellerStatus}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Header */}
       <div className="products-header">
         <div className="header-content">
@@ -465,7 +508,11 @@ const SellerProducts = () => {
             <h2>Ürünlerim</h2>
           </div>
         </div>
-        <button className="add-product-btn" onClick={() => setShowModal(true)}>
+        <button 
+          className="add-product-btn" 
+          onClick={() => setShowModal(true)}
+          disabled={sellerStatus && sellerStatus !== 'APPROVED' && sellerStatus !== 'ACTIVE'}
+        >
           <FaPlus /> Yeni Ürün Ekle
         </button>
       </div>
