@@ -96,6 +96,12 @@ public class User implements UserDetails {
     @Column(name = "birth_date")
     private String birthDate;
     
+    /**
+     * Kullanıcının kayıt tarihi
+     */
+    @Column(name = "registration_date", nullable = false)
+    private java.time.LocalDateTime registrationDate = java.time.LocalDateTime.now();
+    
 
     
     /**
@@ -286,6 +292,20 @@ public class User implements UserDetails {
      */
     public void setAddress2(String address2) {
         this.address2 = address2;
+    }
+    
+    /**
+     * RegistrationDate getter metodu
+     */
+    public java.time.LocalDateTime getRegistrationDate() {
+        return registrationDate;
+    }
+    
+    /**
+     * RegistrationDate setter metodu
+     */
+    public void setRegistrationDate(java.time.LocalDateTime registrationDate) {
+        this.registrationDate = registrationDate;
     }
     
     /**

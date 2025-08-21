@@ -248,8 +248,14 @@ const AdminUsers = () => {
                     <td>{getRoleBadge(user.role)}</td>
                     <td>{user.phone || '-'}</td>
                     <td>
-                      {user.createdAt 
-                        ? new Date(user.createdAt).toLocaleDateString('tr-TR')
+                      {user.registrationDate 
+                        ? new Date(user.registrationDate).toLocaleDateString('tr-TR', {
+                            year: 'numeric',
+                            month: 'long',
+                            day: 'numeric',
+                            hour: '2-digit',
+                            minute: '2-digit'
+                          })
                         : '-'
                       }
                     </td>

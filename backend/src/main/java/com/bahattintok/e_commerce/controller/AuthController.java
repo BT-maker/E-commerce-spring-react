@@ -172,6 +172,7 @@ public class AuthController {
             userResponse.put("address1", user.getAddress1());
             userResponse.put("address2", user.getAddress2());
             userResponse.put("birthDate", user.getBirthDate());
+            userResponse.put("registrationDate", user.getRegistrationDate());
             userResponse.put("role", user.getRole().getName()); // RoleEntity'den name'i al
             
             return ResponseEntity.ok(userResponse);
