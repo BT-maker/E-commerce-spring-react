@@ -360,18 +360,29 @@
   color: #718096;
 }
 
+/* Hızlı İstatistikler Kartı */
+.quick-stats-card {
+  background: white;
+  border-radius: 12px;
+  padding: 1.2rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e2e8f0;
+  max-height: 380px;
+  overflow-y: auto;
+}
+
 /* Hızlı İstatistikler */
 .quick-stats {
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: 0.8rem;
 }
 
 .quick-stat {
   display: flex;
   align-items: center;
-  gap: 1rem;
-  padding: 1rem;
+  gap: 0.8rem;
+  padding: 0.8rem;
   border: 1px solid #e2e8f0;
   border-radius: 8px;
   transition: all 0.3s ease;
@@ -383,8 +394,8 @@
 }
 
 .quick-stat-icon {
-  width: 40px;
-  height: 40px;
+  width: 35px;
+  height: 35px;
   border-radius: 8px;
   display: flex;
   align-items: center;

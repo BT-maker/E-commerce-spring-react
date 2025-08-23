@@ -274,35 +274,35 @@ const AdminSellers = () => {
           <h1>Satıcı Yönetimi</h1>
           <p>Platform satıcılarını yönetin ve izleyin</p>
         </div>
-        <div className="header-stats">
-          <div className="stat-item">
-            <div className="stat-icon total">
-              <Store size={24} />
-            </div>
-            <div className="stat-content">
-              <span className="stat-value">{sellers.length}</span>
-              <span className="stat-label">Toplam Satıcı</span>
-            </div>
-          </div>
-          <div className="stat-item">
-            <div className="stat-icon active">
-              <UserCheck size={24} />
-            </div>
-            <div className="stat-content">
-              <span className="stat-value">{sellers.filter(s => s.sellerStatus === 'ACTIVE').length}</span>
-              <span className="stat-label">Aktif Satıcı</span>
-            </div>
-          </div>
-          <div className="stat-item">
-            <div className="stat-icon pending">
-              <Clock size={24} />
-            </div>
-            <div className="stat-content">
-              <span className="stat-value">{sellers.filter(s => s.sellerStatus === 'PENDING').length}</span>
-              <span className="stat-label">Onay Bekleyen</span>
-            </div>
-          </div>
-        </div>
+                 <div className="header-stats">
+           <div className="admin-seller-stat-item admin-seller-stat-item-total">
+             <div className="stat-icon total">
+               <Store size={24} />
+             </div>
+             <div className="stat-content">
+               <span className="stat-value">{sellers.length}</span>
+               <span className="stat-label">Toplam Satıcı</span>
+             </div>
+           </div>
+           <div className="admin-seller-stat-item admin-seller-stat-item-active">
+             <div className="stat-icon active">
+               <UserCheck size={24} />
+             </div>
+             <div className="stat-content">
+               <span className="stat-value">{sellers.filter(s => s.sellerStatus === 'ACTIVE').length}</span>
+               <span className="stat-label">Aktif Satıcı</span>
+             </div>
+           </div>
+           <div className="admin-seller-stat-item admin-seller-stat-item-pending">
+             <div className="stat-icon pending">
+               <Clock size={24} />
+             </div>
+             <div className="stat-content">
+               <span className="stat-value">{sellers.filter(s => s.sellerStatus === 'PENDING').length}</span>
+               <span className="stat-label">Onay Bekleyen</span>
+             </div>
+           </div>
+         </div>
       </div>
 
       {/* Filtreler */}

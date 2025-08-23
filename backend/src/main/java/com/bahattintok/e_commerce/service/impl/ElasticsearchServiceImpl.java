@@ -13,10 +13,22 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.bahattintok.e_commerce.model.Category;
+import com.bahattintok.e_commerce.model.CategoryDocument;
 import com.bahattintok.e_commerce.model.Product;
 import com.bahattintok.e_commerce.model.ProductDocument;
+import com.bahattintok.e_commerce.model.Store;
+import com.bahattintok.e_commerce.model.StoreDocument;
+import com.bahattintok.e_commerce.model.User;
+import com.bahattintok.e_commerce.model.UserDocument;
+import com.bahattintok.e_commerce.repository.CategoryRepository;
+import com.bahattintok.e_commerce.repository.CategorySearchRepository;
 import com.bahattintok.e_commerce.repository.ProductRepository;
 import com.bahattintok.e_commerce.repository.ProductSearchRepository;
+import com.bahattintok.e_commerce.repository.StoreRepository;
+import com.bahattintok.e_commerce.repository.StoreSearchRepository;
+import com.bahattintok.e_commerce.repository.UserRepository;
+import com.bahattintok.e_commerce.repository.UserSearchRepository;
 import com.bahattintok.e_commerce.service.ElasticsearchService;
 
 import lombok.extern.slf4j.Slf4j;
@@ -34,8 +46,26 @@ public class ElasticsearchServiceImpl implements ElasticsearchService {
     @Autowired(required = false)
     private ProductSearchRepository productSearchRepository;
     
+    @Autowired(required = false)
+    private CategorySearchRepository categorySearchRepository;
+    
+    @Autowired(required = false)
+    private StoreSearchRepository storeSearchRepository;
+    
+    @Autowired(required = false)
+    private UserSearchRepository userSearchRepository;
+    
     @Autowired
     private ProductRepository productRepository;
+    
+    @Autowired
+    private CategoryRepository categoryRepository;
+    
+    @Autowired
+    private StoreRepository storeRepository;
+    
+    @Autowired
+    private UserRepository userRepository;
     
     @Override
     public void indexAllProducts() {
@@ -298,6 +328,363 @@ public class ElasticsearchServiceImpl implements ElasticsearchService {
             log.info("Index başarıyla yeniden oluşturuldu");
         } catch (Exception e) {
             log.error("Index yeniden oluşturulurken hata oluştu", e);
+        }
+    }
+    
+    // ==================== CATEGORY METHODS ====================
+    
+    @Override
+    public void indexAllCategories() {
+        if (categorySearchRepository == null) {
+            log.warn("Elasticsearch is not enabled, skipping category indexing");
+            return;
+        }
+        
+        try {
+            log.info("Tüm kategoriler Elasticsearch'e indexleniyor...");
+            List<Category> categories = categoryRepository.findAll();
+            
+            for (Category category : categories) {
+                indexCategory(category);
+            }
+            
+            log.info("{} kategori başarıyla indexlendi", categories.size());
+        } catch (Exception e) {
+            log.error("Kategoriler indexlenirken hata oluştu", e);
+        }
+    }
+    
+    @Override
+    public void indexCategory(Category category) {
+        if (categorySearchRepository == null) {
+            log.warn("Elasticsearch is not enabled, skipping category indexing");
+            return;
+        }
+        
+        try {
+            CategoryDocument document = CategoryDocument.fromCategory(category);
+            categorySearchRepository.save(document);
+            log.debug("Kategori indexlendi: {}", category.getName());
+        } catch (Exception e) {
+            log.error("Kategori indexlenirken hata oluştu: {}", category.getName(), e);
+        }
+    }
+    
+    @Override
+    public void deleteCategory(String categoryId) {
+        if (categorySearchRepository == null) {
+            log.warn("Elasticsearch is not enabled, skipping category deletion");
+            return;
+        }
+        
+        try {
+            categorySearchRepository.deleteById(categoryId);
+            log.debug("Kategori Elasticsearch'ten silindi: {}", categoryId);
+        } catch (Exception e) {
+            log.error("Kategori silinirken hata oluştu: {}", categoryId, e);
+        }
+    }
+    
+    @Override
+    public void updateCategory(Category category) {
+        if (categorySearchRepository == null) {
+            log.warn("Elasticsearch is not enabled, skipping category update");
+            return;
+        }
+        
+        try {
+            CategoryDocument document = CategoryDocument.fromCategory(category);
+            categorySearchRepository.save(document);
+            log.debug("Kategori güncellendi: {}", category.getName());
+        } catch (Exception e) {
+            log.error("Kategori güncellenirken hata oluştu: {}", category.getName(), e);
+        }
+    }
+    
+    @Override
+    public Page<CategoryDocument> searchCategoriesByKeyword(String keyword, Pageable pageable) {
+        if (categorySearchRepository == null) {
+            log.warn("Elasticsearch is not enabled, returning empty results");
+            return Page.empty(pageable);
+        }
+        
+        try {
+            if (keyword == null || keyword.trim().isEmpty()) {
+                return categorySearchRepository.findAll(pageable);
+            }
+            
+            return categorySearchRepository.searchByKeyword(keyword.trim(), pageable);
+        } catch (Exception e) {
+            log.error("Kategori araması yapılırken hata oluştu: {}", keyword, e);
+            return Page.empty(pageable);
+        }
+    }
+    
+    @Override
+    public List<CategoryDocument> findPopularCategories() {
+        if (categorySearchRepository == null) {
+            log.warn("Elasticsearch is not enabled, returning empty results");
+            return List.of();
+        }
+        
+        try {
+            return categorySearchRepository.findPopularCategories();
+        } catch (Exception e) {
+            log.error("Popüler kategoriler aranırken hata oluştu", e);
+            return List.of();
+        }
+    }
+    
+    // ==================== STORE METHODS ====================
+    
+    @Override
+    public void indexAllStores() {
+        if (storeSearchRepository == null) {
+            log.warn("Elasticsearch is not enabled, skipping store indexing");
+            return;
+        }
+        
+        try {
+            log.info("Tüm mağazalar Elasticsearch'e indexleniyor...");
+            List<Store> stores = storeRepository.findAll();
+            
+            for (Store store : stores) {
+                indexStore(store);
+            }
+            
+            log.info("{} mağaza başarıyla indexlendi", stores.size());
+        } catch (Exception e) {
+            log.error("Mağazalar indexlenirken hata oluştu", e);
+        }
+    }
+    
+    @Override
+    public void indexStore(Store store) {
+        if (storeSearchRepository == null) {
+            log.warn("Elasticsearch is not enabled, skipping store indexing");
+            return;
+        }
+        
+        try {
+            StoreDocument document = StoreDocument.fromStore(store);
+            storeSearchRepository.save(document);
+            log.debug("Mağaza indexlendi: {}", store.getName());
+        } catch (Exception e) {
+            log.error("Mağaza indexlenirken hata oluştu: {}", store.getName(), e);
+        }
+    }
+    
+    @Override
+    public void deleteStore(String storeId) {
+        if (storeSearchRepository == null) {
+            log.warn("Elasticsearch is not enabled, skipping store deletion");
+            return;
+        }
+        
+        try {
+            storeSearchRepository.deleteById(storeId);
+            log.debug("Mağaza Elasticsearch'ten silindi: {}", storeId);
+        } catch (Exception e) {
+            log.error("Mağaza silinirken hata oluştu: {}", storeId, e);
+        }
+    }
+    
+    @Override
+    public void updateStore(Store store) {
+        if (storeSearchRepository == null) {
+            log.warn("Elasticsearch is not enabled, skipping store update");
+            return;
+        }
+        
+        try {
+            StoreDocument document = StoreDocument.fromStore(store);
+            storeSearchRepository.save(document);
+            log.debug("Mağaza güncellendi: {}", store.getName());
+        } catch (Exception e) {
+            log.error("Mağaza güncellenirken hata oluştu: {}", store.getName(), e);
+        }
+    }
+    
+    @Override
+    public Page<StoreDocument> searchStoresByKeyword(String keyword, Pageable pageable) {
+        if (storeSearchRepository == null) {
+            log.warn("Elasticsearch is not enabled, returning empty results");
+            return Page.empty(pageable);
+        }
+        
+        try {
+            if (keyword == null || keyword.trim().isEmpty()) {
+                return storeSearchRepository.findAll(pageable);
+            }
+            
+            return storeSearchRepository.searchByKeyword(keyword.trim(), pageable);
+        } catch (Exception e) {
+            log.error("Mağaza araması yapılırken hata oluştu: {}", keyword, e);
+            return Page.empty(pageable);
+        }
+    }
+    
+    @Override
+    public List<StoreDocument> findPopularStores() {
+        if (storeSearchRepository == null) {
+            log.warn("Elasticsearch is not enabled, returning empty results");
+            return List.of();
+        }
+        
+        try {
+            return storeSearchRepository.findPopularStores();
+        } catch (Exception e) {
+            log.error("Popüler mağazalar aranırken hata oluştu", e);
+            return List.of();
+        }
+    }
+    
+    // ==================== USER METHODS ====================
+    
+    @Override
+    public void indexAllUsers() {
+        if (userSearchRepository == null) {
+            log.warn("Elasticsearch is not enabled, skipping user indexing");
+            return;
+        }
+        
+        try {
+            log.info("Tüm kullanıcılar Elasticsearch'e indexleniyor...");
+            List<User> users = userRepository.findAll();
+            
+            for (User user : users) {
+                indexUser(user);
+            }
+            
+            log.info("{} kullanıcı başarıyla indexlendi", users.size());
+        } catch (Exception e) {
+            log.error("Kullanıcılar indexlenirken hata oluştu", e);
+        }
+    }
+    
+    @Override
+    public void indexUser(User user) {
+        if (userSearchRepository == null) {
+            log.warn("Elasticsearch is not enabled, skipping user indexing");
+            return;
+        }
+        
+        try {
+            UserDocument document = UserDocument.fromUser(user);
+            userSearchRepository.save(document);
+            log.debug("Kullanıcı indexlendi: {}", user.getEmail());
+        } catch (Exception e) {
+            log.error("Kullanıcı indexlenirken hata oluştu: {}", user.getEmail(), e);
+        }
+    }
+    
+    @Override
+    public void deleteUser(String userId) {
+        if (userSearchRepository == null) {
+            log.warn("Elasticsearch is not enabled, skipping user deletion");
+            return;
+        }
+        
+        try {
+            userSearchRepository.deleteById(userId);
+            log.debug("Kullanıcı Elasticsearch'ten silindi: {}", userId);
+        } catch (Exception e) {
+            log.error("Kullanıcı silinirken hata oluştu: {}", userId, e);
+        }
+    }
+    
+    @Override
+    public void updateUser(User user) {
+        if (userSearchRepository == null) {
+            log.warn("Elasticsearch is not enabled, skipping user update");
+            return;
+        }
+        
+        try {
+            UserDocument document = UserDocument.fromUser(user);
+            userSearchRepository.save(document);
+            log.debug("Kullanıcı güncellendi: {}", user.getEmail());
+        } catch (Exception e) {
+            log.error("Kullanıcı güncellenirken hata oluştu: {}", user.getEmail(), e);
+        }
+    }
+    
+    @Override
+    public Page<UserDocument> searchUsersByKeyword(String keyword, Pageable pageable) {
+        if (userSearchRepository == null) {
+            log.warn("Elasticsearch is not enabled, returning empty results");
+            return Page.empty(pageable);
+        }
+        
+        try {
+            if (keyword == null || keyword.trim().isEmpty()) {
+                return userSearchRepository.findAll(pageable);
+            }
+            
+            return userSearchRepository.searchByKeyword(keyword.trim(), pageable);
+        } catch (Exception e) {
+            log.error("Kullanıcı araması yapılırken hata oluştu: {}", keyword, e);
+            return Page.empty(pageable);
+        }
+    }
+    
+    @Override
+    public List<UserDocument> findSellers() {
+        if (userSearchRepository == null) {
+            log.warn("Elasticsearch is not enabled, returning empty results");
+            return List.of();
+        }
+        
+        try {
+            return userSearchRepository.findByRoleOrderByRegistrationDateDesc("SELLER");
+        } catch (Exception e) {
+            log.error("Satıcılar aranırken hata oluştu", e);
+            return List.of();
+        }
+    }
+    
+    @Override
+    public List<UserDocument> findPendingSellers() {
+        if (userSearchRepository == null) {
+            log.warn("Elasticsearch is not enabled, returning empty results");
+            return List.of();
+        }
+        
+        try {
+            return userSearchRepository.findByRoleAndSellerStatusOrderBySellerApplicationDateDesc("SELLER", "PENDING");
+        } catch (Exception e) {
+            log.error("Onay bekleyen satıcılar aranırken hata oluştu", e);
+            return List.of();
+        }
+    }
+    
+    @Override
+    public List<UserDocument> findTopCustomers() {
+        if (userSearchRepository == null) {
+            log.warn("Elasticsearch is not enabled, returning empty results");
+            return List.of();
+        }
+        
+        try {
+            return userSearchRepository.findTopCustomers();
+        } catch (Exception e) {
+            log.error("En çok sipariş veren kullanıcılar aranırken hata oluştu", e);
+            return List.of();
+        }
+    }
+    
+    @Override
+    public List<UserDocument> findTopSpenders() {
+        if (userSearchRepository == null) {
+            log.warn("Elasticsearch is not enabled, returning empty results");
+            return List.of();
+        }
+        
+        try {
+            return userSearchRepository.findTopSpenders();
+        } catch (Exception e) {
+            log.error("En çok harcama yapan kullanıcılar aranırken hata oluştu", e);
+            return List.of();
         }
     }
 } 

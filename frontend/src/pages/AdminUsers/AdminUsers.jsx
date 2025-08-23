@@ -260,15 +260,15 @@ const AdminUsers = () => {
                       }
                     </td>
                     <td>
-                      <div className="action-buttons">
-                        <button className="action-btn view" title="Görüntüle">
-                          <Eye size={16} />
+                      <div className="admin-user-action-buttons">
+                        <button className="admin-user-action-btn admin-user-view-btn" title="Görüntüle">
+                          <Eye size={20} />
                         </button>
-                        <button className="action-btn edit" title="Düzenle">
-                          <Edit size={16} />
+                        <button className="admin-user-action-btn admin-user-edit-btn" title="Düzenle">
+                          <Edit size={20} />
                         </button>
-                        <button className="action-btn delete" title="Sil">
-                          <Trash2 size={16} />
+                        <button className="admin-user-action-btn admin-user-delete-btn" title="Sil">
+                          <Trash2 size={20} />
                         </button>
                       </div>
                     </td>

@@ -401,7 +401,7 @@ const AdminDashboard = () => {
            </div>
 
           {/* Hızlı İstatistikler */}
-          <div className="content-card">
+          <div className="quick-stats-card">
             <div className="card-header">
               <h3>Hızlı İstatistikler</h3>
               <Calendar size={20} />

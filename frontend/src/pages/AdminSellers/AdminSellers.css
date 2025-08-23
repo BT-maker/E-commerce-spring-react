@@ -35,16 +35,19 @@
   gap: 1rem;
 }
 
-.stat-item {
+.admin-seller-stat-item {
   display: flex;
   align-items: center;
   gap: 0.75rem;
   padding: 1rem;
   border-radius: 8px;
   min-width: 140px;
+  background: white;
+  border-left: 4px solid transparent;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-.stat-item .stat-icon {
+.admin-seller-stat-item .stat-icon {
   width: 48px;
   height: 48px;
   border-radius: 50%;
@@ -54,29 +57,29 @@
   color: white;
 }
 
-.stat-item .stat-icon.total {
+.admin-seller-stat-item .stat-icon.total {
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
 }
 
-.stat-item .stat-icon.active {
+.admin-seller-stat-item .stat-icon.active {
   background: linear-gradient(135deg, #10b981 0%, #059669 100%);
 }
 
-.stat-item .stat-content {
+.admin-seller-stat-item .stat-content {
   display: flex;
   flex-direction: column;
 }
 
-.stat-value {
+.admin-seller-stat-item .stat-value {
   font-size: 1.5rem;
   font-weight: 700;
   color: #1e293b;
   line-height: 1;
 }
 
-.stat-label {
+.admin-seller-stat-item .stat-label {
   font-size: 0.875rem;
-  color: #64748b;
+  color: #000000 !important;
   margin-top: 0.25rem;
 }
 
@@ -174,6 +177,8 @@
   align-items: center;
   gap: 1rem;
   margin-bottom: 1.5rem;
+  border-radius: 30px;
+  padding: 10px;
 }
 
 .seller-avatar {
@@ -196,7 +201,7 @@
 .seller-name {
   font-size: 1.125rem;
   font-weight: 600;
-  color: #1e293b;
+  color: #ffffff !important;
   margin-bottom: 0.25rem;
   white-space: nowrap;
   overflow: hidden;
@@ -204,7 +209,7 @@
 }
 
 .seller-email {
-  color: #64748b;
+  color: #ffffff !important;
   font-size: 0.875rem;
   white-space: nowrap;
   overflow: hidden;
@@ -611,8 +616,21 @@
 }
 
 /* Pending Status Icon */
-.stat-item .stat-icon.pending {
+.admin-seller-stat-item .stat-icon.pending {
   background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+}
+
+/* Stat Item Border Colors */
+.admin-seller-stat-item-total {
+  border-left-color: #667eea !important;
+}
+
+.admin-seller-stat-item-active {
+  border-left-color: #10b981 !important;
+}
+
+.admin-seller-stat-item-pending {
+  border-left-color: #f59e0b !important;
 }
 
 /* Responsive Design */
@@ -644,7 +662,7 @@
     flex-direction: column;
   }
   
-  .stat-item {
+  .admin-seller-stat-item {
     min-width: auto;
     flex: 1;
   }
