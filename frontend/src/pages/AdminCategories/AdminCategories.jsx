@@ -328,14 +328,14 @@ const AdminCategories = () => {
                     </div>
                     <div className="category-actions">
                       <button
-                        className="action-btn edit"
+                        className="admin-category-action-btn admin-category-edit-btn"
                         onClick={() => handleEdit(category)}
                         title="Düzenle"
                       >
                         <Edit size={18} />
                       </button>
                       <button
-                        className="action-btn delete"
+                        className="admin-category-action-btn admin-category-delete-btn"
                         onClick={() => handleDelete(category.id)}
                         title="Sil"
                       >
@@ -428,7 +428,7 @@ const AdminCategories = () => {
                         <td>
                           <div className="request-actions">
                             <button
-                              className="action-btn view"
+                              className="admin-category-action-btn admin-category-view-btn"
                               onClick={() => handleViewDetails(request)}
                               title="Detayları Görüntüle"
                             >
@@ -437,7 +437,7 @@ const AdminCategories = () => {
                             {request.status === 'PENDING' && (
                               <>
                                 <button
-                                  className="action-btn approve"
+                                  className="admin-category-action-btn admin-category-approve-btn"
                                   onClick={() => handleApprove(request.id)}
                                   disabled={processingRequest === request.id}
                                   title="Onayla"
@@ -445,7 +445,7 @@ const AdminCategories = () => {
                                   <CheckCircle size={16} />
                                 </button>
                                 <button
-                                  className="action-btn reject"
+                                  className="admin-category-action-btn admin-category-reject-btn"
                                   onClick={() => {
                                     setSelectedRequest(request);
                                     setIsRejectModalOpen(true);
