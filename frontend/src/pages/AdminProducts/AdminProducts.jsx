@@ -1,180 +1,136 @@
-import React, { useState, useEffect } from "react";
-import { Package, Search, Filter, MoreVertical, Edit, Trash2, Eye, CheckCircle, XCircle, DollarSign, ShoppingBag, Calendar, Store, Clock } from "lucide-react";
-import "./AdminProducts.css";
-import PageTitle from '../../components/PageTitle/PageTitle';
-import MetaTags from '../../components/MetaTags/MetaTags';
-import toast from 'react-hot-toast';
+import React, { useState, useEffect } from 'react';
+import { Package, Search, Filter, Eye, CheckCircle, XCircle, ShoppingBag, Store, Clock } from 'lucide-react';
+import './AdminProducts.css';
 
 const AdminProducts = () => {
     const [products, setProducts] = useState([]);
-    const [filteredProducts, setFilteredProducts] = useState([]);
+    const [stats, setStats] = useState({});
     const [loading, setLoading] = useState(true);
-    const [searchTerm, setSearchTerm] = useState("");
-    const [statusFilter, setStatusFilter] = useState("all");
+    const [searchTerm, setSearchTerm] = useState('');
+    const [statusFilter, setStatusFilter] = useState('all');
     const [selectedProduct, setSelectedProduct] = useState(null);
     const [showModal, setShowModal] = useState(false);
-    const [stats, setStats] = useState({
-        totalProducts: 0,
-        activeProducts: 0,
-        pendingProducts: 0
-    });
 
-    useEffect(() => {
-        fetchProducts();
-        fetchProductStats();
-    }, []);
+    // Fiyat formatı
+    const formatPrice = (price) => {
+        return new Intl.NumberFormat('tr-TR', {
+            style: 'currency',
+            currency: 'TRY',
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+        }).format(price);
+    };
 
-    useEffect(() => {
-        filterProducts();
-    }, [products, searchTerm, statusFilter]);
-
+    // Ürünleri getir
     const fetchProducts = async () => {
         try {
+            console.log('Ürünler getiriliyor...');
             const response = await fetch('http://localhost:8082/api/admin/products', {
-                headers: {
-                    'Content-Type': 'application/json'
-                },
                 credentials: 'include'
             });
-
             if (response.ok) {
                 const data = await response.json();
-                console.log("Products data received:", data);
+                console.log('Gelen ürün verisi:', data);
                 setProducts(data);
             } else {
-                console.error("Products response not ok:", response.status);
-                const errorText = await response.text();
-                console.error("Products error response:", errorText);
-                toast.error('Ürünler yüklenirken hata oluştu');
+                console.error('API yanıtı başarısız:', response.status);
             }
         } catch (error) {
-            console.error('Error fetching products:', error);
-            toast.error('Ürünler yüklenirken hata oluştu');
+            console.error('Ürünler yüklenirken hata:', error);
         } finally {
             setLoading(false);
         }
     };
 
-    const fetchProductStats = async () => {
+    // İstatistikleri getir
+    const fetchStats = async () => {
         try {
             const response = await fetch('http://localhost:8082/api/admin/products/stats', {
-                headers: {
-                    'Content-Type': 'application/json'
-                },
                 credentials: 'include'
             });
-
             if (response.ok) {
                 const data = await response.json();
-                console.log("Product stats received:", data);
+                console.log('Gelen istatistik verisi:', data);
                 setStats(data);
-            } else {
-                console.error("Product stats response not ok:", response.status);
-                const errorText = await response.text();
-                console.error("Product stats error response:", errorText);
             }
         } catch (error) {
-            console.error('Error fetching product stats:', error);
+            console.error('İstatistikler yüklenirken hata:', error);
         }
     };
 
-    const filterProducts = () => {
-        let filtered = products;
-
-        // Status filter
-        if (statusFilter !== "all") {
-            filtered = filtered.filter(product => product.status === statusFilter);
-        }
-
-        // Search filter
-        if (searchTerm) {
-            filtered = filtered.filter(product =>
-                product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                product.description?.toLowerCase().includes(searchTerm.toLowerCase())
-            );
-        }
-
-        setFilteredProducts(filtered);
-    };
-
+    // Ürün durumunu güncelle
     const updateProductStatus = async (productId, newStatus) => {
         try {
             const response = await fetch(`http://localhost:8082/api/admin/products/${productId}/status?status=${newStatus}`, {
                 method: 'PUT',
                 headers: {
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
                 },
                 credentials: 'include'
             });
 
             if (response.ok) {
-                toast.success(`Ürün ${newStatus === 'AKTİF' ? 'onaylandı' : 'reddedildi'}`);
-                fetchProducts(); // Refresh the list
-            } else {
-                console.error("Update status response not ok:", response.status);
-                const errorText = await response.text();
-                console.error("Update status error response:", errorText);
-                toast.error('Ürün durumu güncellenirken hata oluştu');
+                await fetchProducts();
+                await fetchStats();
             }
         } catch (error) {
-            console.error('Error updating product status:', error);
-            toast.error('Ürün durumu güncellenirken hata oluştu');
+            console.error('Ürün durumu güncellenirken hata:', error);
         }
     };
 
+    // Durum badge'i
+    const getStatusBadge = (status) => {
+        const statusMap = {
+            'AKTİF': { text: 'Aktif', class: 'active' },
+            'PASİF': { text: 'Pasif', class: 'inactive' },
+            'BEKLEMEDE': { text: 'Beklemede', class: 'pending' }
+        };
+        const statusInfo = statusMap[status] || { text: 'Bilinmiyor', class: 'unknown' };
+        return <span className={`status-badge ${statusInfo.class}`}>{statusInfo.text}</span>;
+    };
+
+    // Ürün detaylarını görüntüle
     const viewProductDetails = (product) => {
         setSelectedProduct(product);
         setShowModal(true);
     };
 
-    const getStatusBadge = (status) => {
-        switch (status) {
-            case 'AKTİF':
-                return <span className="status-badge active">Aktif</span>;
-            case 'PASİF':
-                return <span className="status-badge inactive">Pasif</span>;
-            case 'BEKLEMEDE':
-                return <span className="status-badge pending">Beklemede</span>;
-            default:
-                return <span className="status-badge unknown">{status}</span>;
-        }
-    };
+    // Filtrelenmiş ürünler
+    const filteredProducts = products.filter(product => {
+        const matchesSearch = product.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                             product.description?.toLowerCase().includes(searchTerm.toLowerCase());
+        const matchesStatus = statusFilter === 'all' || product.status === statusFilter;
+        return matchesSearch && matchesStatus;
+    });
 
-    const formatPrice = (price) => {
-        return new Intl.NumberFormat('tr-TR', {
-            style: 'currency',
-            currency: 'TRY'
-        }).format(price);
-    };
+    useEffect(() => {
+        fetchProducts();
+        fetchStats();
+    }, []);
 
     if (loading) {
         return (
             <div className="admin-products">
-                <div className="loading">Yükleniyor...</div>
+                <div className="loading">Ürünler yükleniyor...</div>
             </div>
         );
     }
 
     return (
         <div className="admin-products">
-            <PageTitle title="Ürün Yönetimi" />
-            <MetaTags 
-                title="Ürün Yönetimi - Admin Panel"
-                description="E-ticaret platformu ürün yönetimi"
-                keywords="admin, ürün, yönetim, e-ticaret"
-            />
-
+            {/* Header */}
             <div className="admin-products-header">
                 <div className="header-content">
                     <div className="header-title">
                         <Package className="header-icon" />
                         <h1>Ürün Yönetimi</h1>
                     </div>
-                    <p>Platformdaki tüm ürünleri yönetin ve onaylayın</p>
+                    <p>Tüm ürünleri görüntüleyin ve yönetin</p>
                 </div>
             </div>
 
             <div className="admin-products-content">
+                {/* Filtreler */}
                 <div className="filters-section">
                     <div className="search-box">
                         <Search className="search-icon" />
@@ -185,7 +141,6 @@ const AdminProducts = () => {
                             onChange={(e) => setSearchTerm(e.target.value)}
                         />
                     </div>
-
                     <div className="filter-controls">
                         <div className="filter-group">
                             <Filter className="filter-icon" />
@@ -202,176 +157,182 @@ const AdminProducts = () => {
                     </div>
                 </div>
 
+                {/* İstatistikler */}
                 <div className="stats-cards">
                     <div className="stat-card">
-                        <div className="stat-icon">
-                            <Package />
-                        </div>
+                        <Package className="stat-icon" />
                         <div className="stat-content">
-                            <h3>TOPLAM ÜRÜN</h3>
-                            <p>{stats.totalProducts}</p>
+                            <h3>Toplam Ürün</h3>
+                            <p>{stats.totalProducts || products.length}</p>
                         </div>
                     </div>
                     <div className="stat-card">
-                        <div className="stat-icon active">
-                            <CheckCircle />
-                        </div>
+                        <CheckCircle className="stat-icon active" />
                         <div className="stat-content">
-                            <h3>AKTİF ÜRÜN</h3>
-                            <p>{stats.activeProducts}</p>
+                            <h3>Aktif Ürün</h3>
+                            <p>{stats.activeProducts || products.filter(p => p.status === 'AKTİF').length}</p>
                         </div>
                     </div>
                     <div className="stat-card">
-                        <div className="stat-icon pending">
-                            <Clock />
-                        </div>
+                        <Clock className="stat-icon pending" />
                         <div className="stat-content">
-                            <h3>BEKLEYEN</h3>
-                            <p>{stats.pendingProducts}</p>
+                            <h3>Bekleyen</h3>
+                            <p>{stats.pendingProducts || products.filter(p => p.status === 'BEKLEMEDE').length}</p>
                         </div>
                     </div>
                 </div>
 
-                <div className="products-grid">
-                    {filteredProducts.map((product) => (
-                        <div key={product.id} className="product-card">
-                            <div className="product-image">
-                                <img src={product.imageUrl || '/images/default-product.jpg'} alt={product.name} />
-                                {getStatusBadge(product.status)}
-                            </div>
-                            
-                            <div className="product-info">
-                                <h3>{product.name}</h3>
-                                <p className="product-description">
-                                    {product.description?.substring(0, 100)}...
-                                </p>
-                                
-                                <div className="product-details">
-                                    <div className="detail-item">
-                                        <DollarSign className="detail-icon" />
-                                        <span>{formatPrice(product.price)}</span>
-                                    </div>
-                                    <div className="detail-item">
-                                        <ShoppingBag className="detail-icon" />
-                                        <span>Stok: {product.stock}</span>
-                                    </div>
-                                    <div className="detail-item">
-                                        <Store className="detail-icon" />
-                                        <span>Mağaza: {product.storeId || 'N/A'}</span>
-                                    </div>
-                                </div>
-                            </div>
+                {/* Ürün Tablosu */}
+                <div className="products-table-container">
+                    <table className="products-table">
+                        <thead>
+                            <tr>
+                                <th>Ürün</th>
+                                <th>Kategori</th>
+                                <th>Fiyat</th>
+                                <th>Stok</th>
+                                <th>Mağaza</th>
+                                <th>Durum</th>
+                                <th>İşlemler</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {filteredProducts.map(product => (
+                                <tr key={product.id}>
+                                    <td className="product-cell">
+                                        <img 
+                                            src={product.imageUrl || '/img/default-product.jpg'} 
+                                            alt={product.name} 
+                                            className="product-image"
+                                            onError={(e) => {
+                                                e.target.style.display = 'none';
+                                                e.target.nextSibling.style.display = 'flex';
+                                            }}
+                                        />
+                                        <div className="image-placeholder" style={{display: 'none'}}>
+                                            <span className="placeholder-icon">📷</span>
+                                        </div>
+                                        <div className="product-info">
+                                            <h4 className="product-name">{product.name}</h4>
+                                            <p className="product-description">{product.description}</p>
+                                        </div>
+                                    </td>
+                                    <td>{product.category?.name || 'Kategorisiz'}</td>
+                                    <td className="price-cell">
+                                        <span className="currency-icon">₺</span>
+                                        {formatPrice(product.price)}
+                                    </td>
+                                    <td className="stock-cell">
+                                        <span className={`stock-badge ${(product.stock || 0) < 10 ? 'low-stock' : 'normal-stock'}`}>
+                                            {product.stock || 0}
+                                        </span>
+                                    </td>
+                                    <td className="store-cell">
+                                        <div className="store-info">
+                                            <Store className="store-icon" />
+                                            <span>{product.store?.name || product.storeName || 'Bilinmeyen Mağaza'}</span>
+                                        </div>
+                                    </td>
+                                    <td>{getStatusBadge(product.status)}</td>
+                                    <td className="actions-cell">
+                                        <button 
+                                            className="action-btn view-btn"
+                                            onClick={() => viewProductDetails(product)}
+                                            title="Detayları Görüntüle"
+                                        >
+                                            <Eye />
+                                        </button>
+                                        {product.status === 'AKTİF' ? (
+                                            <button 
+                                                className="action-btn deactivate-btn"
+                                                onClick={() => updateProductStatus(product.id, 'PASİF')}
+                                                title="Pasifleştir"
+                                            >
+                                                <XCircle />
+                                            </button>
+                                        ) : (
+                                            <button 
+                                                className="action-btn activate-btn"
+                                                onClick={() => updateProductStatus(product.id, 'AKTİF')}
+                                                title="Aktifleştir"
+                                            >
+                                                <CheckCircle />
+                                            </button>
+                                        )}
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
 
-                            <div className="product-actions">
-                                <button
-                                    className="action-btn view"
-                                    onClick={() => viewProductDetails(product)}
-                                >
-                                    <Eye />
-                                    Detay
-                                </button>
-                                
-                                {product.status === 'BEKLEMEDE' && (
-                                    <>
-                                        <button
-                                            className="action-btn approve"
-                                            onClick={() => updateProductStatus(product.id, 'AKTİF')}
-                                        >
-                                            <CheckCircle />
-                                            Onayla
-                                        </button>
-                                        <button
-                                            className="action-btn reject"
-                                            onClick={() => updateProductStatus(product.id, 'PASİF')}
-                                        >
-                                            <XCircle />
-                                            Reddet
-                                        </button>
-                                    </>
-                                )}
-                                
-                                {product.status === 'AKTİF' && (
-                                    <button
-                                        className="action-btn deactivate"
-                                        onClick={() => updateProductStatus(product.id, 'PASİF')}
-                                    >
-                                        <XCircle />
-                                        Pasifleştir
-                                    </button>
-                                )}
-                                
-                                {product.status === 'PASİF' && (
-                                    <button
-                                        className="action-btn activate"
-                                        onClick={() => updateProductStatus(product.id, 'AKTİF')}
-                                    >
-                                        <CheckCircle />
-                                        Aktifleştir
-                                    </button>
-                                )}
-                            </div>
+                    {filteredProducts.length === 0 && (
+                        <div className="no-products">
+                            <div className="no-products-icon">📦</div>
+                            <h3>Ürün Bulunamadı</h3>
+                            <p>Arama kriterlerinize uygun ürün bulunamadı.</p>
                         </div>
-                    ))}
+                    )}
                 </div>
-
-                {filteredProducts.length === 0 && (
-                    <div className="no-products">
-                        <Package className="no-products-icon" />
-                        <h3>Ürün bulunamadı</h3>
-                        <p>Arama kriterlerinize uygun ürün bulunmuyor.</p>
-                    </div>
-                )}
             </div>
 
-            {/* Product Details Modal */}
+            {/* Detay Modal */}
             {showModal && selectedProduct && (
                 <div className="modal-overlay" onClick={() => setShowModal(false)}>
                     <div className="modal-content" onClick={(e) => e.stopPropagation()}>
                         <div className="modal-header">
                             <h2>Ürün Detayları</h2>
-                            <button className="close-btn" onClick={() => setShowModal(false)}>
-                                <XCircle />
-                            </button>
+                            <button className="close-btn" onClick={() => setShowModal(false)}>×</button>
                         </div>
-                        
                         <div className="modal-body">
                             <div className="product-detail-image">
-                                <img src={selectedProduct.imageUrl || '/images/default-product.jpg'} alt={selectedProduct.name} />
+                                <img 
+                                    src={selectedProduct.imageUrl || '/img/default-product.jpg'} 
+                                    alt={selectedProduct.name}
+                                    onError={(e) => {
+                                        e.target.src = '/img/default-product.jpg';
+                                    }}
+                                />
                             </div>
-                            
                             <div className="product-detail-info">
                                 <h3>{selectedProduct.name}</h3>
-                                <p className="product-description">{selectedProduct.description}</p>
+                                <p>{selectedProduct.description}</p>
                                 
                                 <div className="detail-grid">
+                                    <div className="detail-item">
+                                        <label>Kategori:</label>
+                                        <span>{selectedProduct.category?.name || 'Kategorisiz'}</span>
+                                    </div>
                                     <div className="detail-item">
                                         <label>Fiyat:</label>
                                         <span>{formatPrice(selectedProduct.price)}</span>
                                     </div>
                                     <div className="detail-item">
                                         <label>Stok:</label>
-                                        <span>{selectedProduct.stock}</span>
+                                        <span>{selectedProduct.stock || 0}</span>
                                     </div>
                                     <div className="detail-item">
                                         <label>Durum:</label>
-                                        {getStatusBadge(selectedProduct.status)}
+                                        <span>{getStatusBadge(selectedProduct.status)}</span>
                                     </div>
                                     <div className="detail-item">
-                                        <label>Kategori ID:</label>
-                                        <span>{selectedProduct.categoryId || 'N/A'}</span>
+                                        <label>Mağaza Adı:</label>
+                                        <span>{selectedProduct.store?.name || selectedProduct.storeName || 'Bilinmeyen Mağaza'}</span>
                                     </div>
                                     <div className="detail-item">
                                         <label>Mağaza ID:</label>
-                                        <span>{selectedProduct.storeId || 'N/A'}</span>
+                                        <span>{selectedProduct.store?.id || selectedProduct.storeId || 'Bilinmiyor'}</span>
                                     </div>
                                     <div className="detail-item">
-                                        <label>İndirim:</label>
-                                        <span>{selectedProduct.discountPercentage ? `%${selectedProduct.discountPercentage}` : 'Yok'}</span>
+                                        <label>Ürün ID:</label>
+                                        <span>{selectedProduct.id}</span>
+                                    </div>
+                                    <div className="detail-item">
+                                        <label>Oluşturulma Tarihi:</label>
+                                        <span>{selectedProduct.createdAt ? new Date(selectedProduct.createdAt).toLocaleDateString('tr-TR') : 'Bilinmiyor'}</span>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                        
                         <div className="modal-footer">
                             <button className="btn-secondary" onClick={() => setShowModal(false)}>
                                 Kapat
