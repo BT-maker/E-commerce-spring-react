@@ -315,46 +315,46 @@ const AdminOrders = () => {
                             <div className="table-cell actions">
                                 <div className="action-buttons">
                                     <button
-                                        className="action-btn view"
+                                        className="action-btn view-btn"
                                         onClick={() => viewOrderDetails(order)}
+                                        title="Detayları Görüntüle"
                                     >
                                         <Eye />
-                                        Detay
                                     </button>
                                     
                                     {order.status === 'PENDING' && (
                                         <>
                                             <button
-                                                className="action-btn ship"
+                                                className="action-btn ship-btn"
                                                 onClick={() => updateOrderStatus(order.id, 'SHIPPED')}
+                                                title="Kargoya Ver"
                                             >
                                                 <Package />
-                                                Kargoya Ver
                                             </button>
                                             <button
-                                                className="action-btn complete"
+                                                className="action-btn complete-btn"
                                                 onClick={() => updateOrderStatus(order.id, 'COMPLETED')}
+                                                title="Tamamla"
                                             >
                                                 <CheckCircle />
-                                                Tamamla
                                             </button>
                                             <button
-                                                className="action-btn cancel"
+                                                className="action-btn cancel-btn"
                                                 onClick={() => updateOrderStatus(order.id, 'CANCELLED')}
+                                                title="İptal Et"
                                             >
                                                 <XCircle />
-                                                İptal Et
                                             </button>
                                         </>
                                     )}
                                     
                                     {order.status === 'SHIPPED' && (
                                         <button
-                                            className="action-btn complete"
+                                            className="action-btn complete-btn"
                                             onClick={() => updateOrderStatus(order.id, 'COMPLETED')}
+                                            title="Tamamla"
                                         >
                                             <CheckCircle />
-                                            Tamamla
                                         </button>
                                     )}
                                 </div>

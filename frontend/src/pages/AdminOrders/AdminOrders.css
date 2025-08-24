@@ -4,7 +4,7 @@
     padding: 2rem;
 }
 
-.admin-orders-header {
+.admin-orders .admin-orders-header {
     background: white;
     border-radius: 12px;
     padding: 2rem;
@@ -12,11 +12,11 @@
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
-.header-content {
+.admin-orders .header-content {
     text-align: center;
 }
 
-.header-title {
+.admin-orders .header-title {
     display: flex;
     align-items: center;
     justify-content: center;
@@ -24,31 +24,31 @@
     margin-bottom: 1rem;
 }
 
-.header-title h1 {
+.admin-orders .header-title h1 {
     font-size: 2rem;
     font-weight: 700;
     color: #1e293b;
     margin: 0;
 }
 
-.header-icon {
+.admin-orders .header-icon {
     width: 2.5rem;
     height: 2.5rem;
     color: #3b82f6;
 }
 
-.header-content p {
+.admin-orders .header-content p {
     color: #64748b;
     font-size: 1.1rem;
     margin: 0;
 }
 
-.admin-orders-content {
+.admin-orders .admin-orders-content {
     max-width: 1400px;
     margin: 0 auto;
 }
 
-.filters-section {
+.admin-orders .filters-section {
     background: white;
     border-radius: 12px;
     padding: 1.5rem;
@@ -344,60 +344,93 @@
     height: 1rem;
 }
 
-.action-buttons {
+.admin-orders .action-buttons {
     display: flex;
-    gap: 0.5rem;
-    flex-wrap: wrap;
+    gap: 1rem;
+    align-items: center;
+    justify-content: center;
 }
 
-.action-btn {
+.admin-orders .action-btn {
+    width: 44px;
+    height: 44px;
+    border: 2px solid #e2e8f0;
+    border-radius: 12px;
     display: flex;
     align-items: center;
-    gap: 0.25rem;
-    padding: 0.5rem 0.75rem;
-    border: none;
-    border-radius: 6px;
-    font-size: 0.75rem;
-    font-weight: 500;
+    justify-content: center;
     cursor: pointer;
-    transition: all 0.2s;
-    text-decoration: none;
+    transition: all 0.3s ease;
+    font-weight: 500;
+    background: white;
+    color: #64748b;
+    position: relative;
+    overflow: hidden;
 }
 
-.action-btn.view {
-    background: #e0f2fe;
-    color: #0284c7;
+.admin-orders .action-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
 }
 
-.action-btn.view:hover {
-    background: #bae6fd;
+.admin-orders .action-btn svg {
+    width: 20px;
+    height: 20px;
+    transition: all 0.3s ease;
+    z-index: 1;
+    stroke-width: 2;
 }
 
-.action-btn.ship {
-    background: #dbeafe;
-    color: #2563eb;
+.admin-orders .action-btn.view-btn {
+    color: #3b82f6;
+    border-color: #3b82f6;
+    background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
 }
 
-.action-btn.ship:hover {
-    background: #bfdbfe;
+.admin-orders .action-btn.view-btn:hover {
+    background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+    color: white;
+    border-color: #3b82f6;
+    box-shadow: 0 8px 25px rgba(59, 130, 246, 0.4);
 }
 
-.action-btn.complete {
-    background: #dcfce7;
-    color: #16a34a;
+.admin-orders .action-btn.ship-btn {
+    color: #3b82f6;
+    border-color: #3b82f6;
+    background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
 }
 
-.action-btn.complete:hover {
-    background: #bbf7d0;
+.admin-orders .action-btn.ship-btn:hover {
+    background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+    color: white;
+    border-color: #3b82f6;
+    box-shadow: 0 8px 25px rgba(59, 130, 246, 0.4);
 }
 
-.action-btn.cancel {
-    background: #fee2e2;
-    color: #dc2626;
+.admin-orders .action-btn.complete-btn {
+    color: #10b981;
+    border-color: #10b981;
+    background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
 }
 
-.action-btn.cancel:hover {
-    background: #fecaca;
+.admin-orders .action-btn.complete-btn:hover {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    color: white;
+    border-color: #10b981;
+    box-shadow: 0 8px 25px rgba(16, 185, 129, 0.4);
+}
+
+.admin-orders .action-btn.cancel-btn {
+    color: #ef4444;
+    border-color: #ef4444;
+    background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
+}
+
+.admin-orders .action-btn.cancel-btn:hover {
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    color: white;
+    border-color: #ef4444;
+    box-shadow: 0 8px 25px rgba(239, 68, 68, 0.4);
 }
 
 .no-orders {
@@ -682,7 +715,7 @@
         display: block;
     }
     
-    .action-buttons {
+    .admin-orders .action-buttons {
         justify-content: flex-start;
     }
     
@@ -716,11 +749,16 @@
     }
     
     .action-buttons {
-        flex-direction: column;
+        gap: 0.5rem;
     }
     
-    .action-btn {
-        width: 100%;
-        justify-content: center;
+    .admin-orders .action-btn {
+        width: 40px;
+        height: 40px;
+    }
+    
+    .admin-orders .action-btn svg {
+        width: 18px;
+        height: 18px;
     }
 }

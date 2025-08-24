@@ -359,17 +359,19 @@ const AdminSystemSettings = () => {
                       {renderValueInput(setting)}
                       <div className="edit-actions">
                         <button
-                          className="btn btn-success btn-sm"
+                          className="action-btn save-btn"
                           onClick={() => handleSave(setting.key)}
                           disabled={saving}
+                          title="Kaydet"
                         >
-                          <Check size={14} />
+                          <Check />
                         </button>
                         <button
-                          className="btn btn-secondary btn-sm"
+                          className="action-btn cancel-btn"
                           onClick={handleCancel}
+                          title="İptal"
                         >
-                          <X size={14} />
+                          <X />
                         </button>
                       </div>
                     </div>
@@ -381,17 +383,19 @@ const AdminSystemSettings = () => {
                       <div className="value-actions">
                         {setting.editable && (
                           <button
-                            className="btn btn-secondary btn-sm"
+                            className="action-btn edit-btn"
                             onClick={() => handleEdit(setting)}
+                            title="Düzenle"
                           >
-                            <Edit size={14} />
+                            <Edit />
                           </button>
                         )}
                         <button
-                          className="btn btn-danger btn-sm"
+                          className="action-btn delete-btn"
                           onClick={() => handleDelete(setting.key)}
+                          title="Sil"
                         >
-                          <Trash2 size={14} />
+                          <Trash2 />
                         </button>
                       </div>
                     </div>

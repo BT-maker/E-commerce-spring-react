@@ -97,6 +97,107 @@
   transform: none !important;
 }
 
+/* Action Buttons */
+.value-actions {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.edit-actions {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.action-btn {
+  width: 44px;
+  height: 44px;
+  border: 2px solid #e2e8f0;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-weight: 500;
+  background: white;
+  color: #64748b;
+  position: relative;
+  overflow: hidden;
+}
+
+.action-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+}
+
+.action-btn svg {
+  width: 20px;
+  height: 20px;
+  transition: all 0.3s ease;
+  z-index: 1;
+  stroke-width: 2;
+}
+
+.action-btn.edit-btn {
+  color: #3b82f6;
+  border-color: #3b82f6;
+  background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+}
+
+.action-btn.edit-btn:hover {
+  background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+  color: white;
+  border-color: #3b82f6;
+  box-shadow: 0 8px 25px rgba(59, 130, 246, 0.4);
+}
+
+.action-btn.delete-btn {
+  color: #ef4444;
+  border-color: #ef4444;
+  background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
+}
+
+.action-btn.delete-btn:hover {
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  color: white;
+  border-color: #ef4444;
+  box-shadow: 0 8px 25px rgba(239, 68, 68, 0.4);
+}
+
+.action-btn.save-btn {
+  color: #10b981;
+  border-color: #10b981;
+  background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
+}
+
+.action-btn.save-btn:hover {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: white;
+  border-color: #10b981;
+  box-shadow: 0 8px 25px rgba(16, 185, 129, 0.4);
+}
+
+.action-btn.cancel-btn {
+  color: #64748b;
+  border-color: #64748b;
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+}
+
+.action-btn.cancel-btn:hover {
+  background: linear-gradient(135deg, #64748b 0%, #475569 100%);
+  color: white;
+  border-color: #64748b;
+  box-shadow: 0 8px 25px rgba(100, 116, 139, 0.4);
+}
+
+.action-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none !important;
+}
+
 /* Category Tabs */
 .category-tabs {
   display: flex;
@@ -442,6 +543,21 @@
   .setting-value {
     min-width: auto;
     width: 100%;
+  }
+
+  .value-actions,
+  .edit-actions {
+    gap: 0.5rem;
+  }
+
+  .action-btn {
+    width: 40px;
+    height: 40px;
+  }
+
+  .action-btn svg {
+    width: 18px;
+    height: 18px;
   }
 
   .form-row {
