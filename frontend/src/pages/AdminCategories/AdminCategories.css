@@ -425,12 +425,12 @@
 
 .seller-name {
   font-weight: 600;
-  color: #2d3748;
+  color: #2d3748 !important;
 }
 
 .seller-email {
   font-size: 0.75rem;
-  color: #64748b;
+  color: #64748b !important;
 }
 
 .description-cell {

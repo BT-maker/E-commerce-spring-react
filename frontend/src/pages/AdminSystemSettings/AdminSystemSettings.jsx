@@ -57,9 +57,18 @@ const AdminSystemSettings = () => {
       });
 
       if (response.ok) {
-        const data = await response.json();
-        setSettings(data.settings || []);
-        setCategories(data.categories || []);
+        const responseText = await response.text();
+        console.log('Raw response:', responseText);
+        
+        try {
+          const data = JSON.parse(responseText);
+          setSettings(data.settings || []);
+          setCategories(data.categories || []);
+        } catch (parseError) {
+          console.error('JSON parse error:', parseError);
+          console.error('Response text:', responseText);
+          toast.error('Sunucudan gelen veri geçersiz format');
+        }
       } else {
         console.error('Ayarlar alınamadı');
         toast.error('Sistem ayarları alınamadı');

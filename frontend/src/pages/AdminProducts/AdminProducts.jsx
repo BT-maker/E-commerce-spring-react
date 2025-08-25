@@ -217,9 +217,8 @@ const AdminProducts = () => {
                                             <p className="product-description">{product.description}</p>
                                         </div>
                                     </td>
-                                    <td>{product.category?.name || 'Kategorisiz'}</td>
+                                    <td className="category-cell">{product.category?.name || 'Kategorisiz'}</td>
                                     <td className="price-cell">
-                                        <span className="currency-icon">₺</span>
                                         {formatPrice(product.price)}
                                     </td>
                                     <td className="stock-cell">
@@ -233,32 +232,34 @@ const AdminProducts = () => {
                                             <span>{product.store?.name || product.storeName || 'Bilinmeyen Mağaza'}</span>
                                         </div>
                                     </td>
-                                    <td>{getStatusBadge(product.status)}</td>
+                                    <td className="status-cell">{getStatusBadge(product.status)}</td>
                                     <td className="actions-cell">
-                                        <button 
-                                            className="action-btn view-btn"
-                                            onClick={() => viewProductDetails(product)}
-                                            title="Detayları Görüntüle"
-                                        >
-                                            <Eye />
-                                        </button>
-                                        {product.status === 'AKTİF' ? (
+                                        <div className="admin-product-action-buttons">
                                             <button 
-                                                className="action-btn deactivate-btn"
-                                                onClick={() => updateProductStatus(product.id, 'PASİF')}
-                                                title="Pasifleştir"
+                                                className="admin-product-action-btn admin-product-view-btn"
+                                                onClick={() => viewProductDetails(product)}
+                                                title="Detayları Görüntüle"
                                             >
-                                                <XCircle />
+                                                <Eye size={20} />
                                             </button>
-                                        ) : (
-                                            <button 
-                                                className="action-btn activate-btn"
-                                                onClick={() => updateProductStatus(product.id, 'AKTİF')}
-                                                title="Aktifleştir"
-                                            >
-                                                <CheckCircle />
-                                            </button>
-                                        )}
+                                            {product.status === 'AKTİF' ? (
+                                                <button 
+                                                    className="admin-product-action-btn admin-product-deactivate-btn"
+                                                    onClick={() => updateProductStatus(product.id, 'PASİF')}
+                                                    title="Pasifleştir"
+                                                >
+                                                    <XCircle size={20} />
+                                                </button>
+                                            ) : (
+                                                <button 
+                                                    className="admin-product-action-btn admin-product-activate-btn"
+                                                    onClick={() => updateProductStatus(product.id, 'AKTİF')}
+                                                    title="Aktifleştir"
+                                                >
+                                                    <CheckCircle size={20} />
+                                                </button>
+                                            )}
+                                        </div>
                                     </td>
                                 </tr>
                             ))}

@@ -272,95 +272,111 @@ const AdminOrders = () => {
                     </div>
                 </div>
 
-                <div className="orders-table">
-                    <div className="table-header">
-                        <div className="header-cell">Sipariş ID</div>
-                        <div className="header-cell">Müşteri</div>
-                        <div className="header-cell">Tutar</div>
-                        <div className="header-cell">Durum</div>
-                        <div className="header-cell">Tarih</div>
-                        <div className="header-cell">İşlemler</div>
-                    </div>
+                <div className="orders-table-container">
+                    <div className="orders-table">
+                        <div className="table-header">
+                            <div className="header-cell">Sipariş ID</div>
+                            <div className="header-cell">Müşteri</div>
+                            <div className="header-cell">Tutar</div>
+                            <div className="header-cell">Durum</div>
+                            <div className="header-cell">Tarih</div>
+                            <div className="header-cell">İşlemler</div>
+                        </div>
 
-                    {filteredOrders.map((order) => (
-                        <div key={order.id} className="table-row">
-                            <div className="table-cell order-id">
-                                <span className="id-text">#{order.id.substring(0, 8)}</span>
-                            </div>
-                            <div className="table-cell customer">
-                                <div className="customer-info">
-                                    <User className="customer-icon" />
-                                    <div>
-                                        <div className="customer-name">
-                                            {order.user?.firstName} {order.user?.lastName}
+                        <div className="table-body">
+                            {filteredOrders.map((order) => (
+                                <div key={order.id} className="table-row">
+                                    <div className="table-cell order-id-cell">
+                                        <div className="order-id">
+                                            <span className="id-text">#{order.id.substring(0, 8)}</span>
                                         </div>
-                                        <div className="customer-email">
-                                            {order.user?.email}
+                                    </div>
+                                    <div className="table-cell customer-cell">
+                                        <div className="customer">
+                                            <div className="customer-info">
+                                                <User className="customer-icon" />
+                                                <div>
+                                                    <div className="customer-name">
+                                                        {order.user?.firstName} {order.user?.lastName}
+                                                    </div>
+                                                    <div className="customer-email">
+                                                        {order.user?.email}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div className="table-cell amount-cell">
+                                        <div className="amount">
+                                            <span className="amount-text">{formatPrice(order.totalPrice)}</span>
+                                        </div>
+                                    </div>
+                                    <div className="table-cell status-cell">
+                                        <div className="status">
+                                            {getStatusBadge(order.status)}
+                                        </div>
+                                    </div>
+                                    <div className="table-cell date-cell">
+                                        <div className="date">
+                                            <div className="date-info">
+                                                <Calendar className="date-icon" />
+                                                <span>{formatDate(order.createdAt)}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div className="table-cell actions-cell">
+                                        <div className="actions">
+                                            <div className="action-buttons">
+                                                <button
+                                                    className="action-btn view-btn"
+                                                    onClick={() => viewOrderDetails(order)}
+                                                    title="Detayları Görüntüle"
+                                                >
+                                                    <Eye />
+                                                </button>
+                                                
+                                                {order.status === 'PENDING' && (
+                                                    <>
+                                                        <button
+                                                            className="action-btn ship-btn"
+                                                            onClick={() => updateOrderStatus(order.id, 'SHIPPED')}
+                                                            title="Kargoya Ver"
+                                                        >
+                                                            <Package />
+                                                        </button>
+                                                        <button
+                                                            className="action-btn complete-btn"
+                                                            onClick={() => updateOrderStatus(order.id, 'COMPLETED')}
+                                                            title="Tamamla"
+                                                        >
+                                                            <CheckCircle />
+                                                        </button>
+                                                        <button
+                                                            className="action-btn cancel-btn"
+                                                            onClick={() => updateOrderStatus(order.id, 'CANCELLED')}
+                                                            title="İptal Et"
+                                                        >
+                                                            <XCircle />
+                                                        </button>
+                                                    </>
+                                                )}
+                                                
+                                                {order.status === 'SHIPPED' && (
+                                                    <button
+                                                        className="action-btn complete-btn"
+                                                        onClick={() => updateOrderStatus(order.id, 'COMPLETED')}
+                                                        title="Tamamla"
+                                                    >
+                                                        <CheckCircle />
+                                                    </button>
+                                                )}
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
-                            </div>
-                            <div className="table-cell amount">
-                                <span className="amount-text">{formatPrice(order.totalPrice)}</span>
-                            </div>
-                            <div className="table-cell status">
-                                {getStatusBadge(order.status)}
-                            </div>
-                            <div className="table-cell date">
-                                <div className="date-info">
-                                    <Calendar className="date-icon" />
-                                    <span>{formatDate(order.createdAt)}</span>
-                                </div>
-                            </div>
-                            <div className="table-cell actions">
-                                <div className="action-buttons">
-                                    <button
-                                        className="action-btn view-btn"
-                                        onClick={() => viewOrderDetails(order)}
-                                        title="Detayları Görüntüle"
-                                    >
-                                        <Eye />
-                                    </button>
-                                    
-                                    {order.status === 'PENDING' && (
-                                        <>
-                                            <button
-                                                className="action-btn ship-btn"
-                                                onClick={() => updateOrderStatus(order.id, 'SHIPPED')}
-                                                title="Kargoya Ver"
-                                            >
-                                                <Package />
-                                            </button>
-                                            <button
-                                                className="action-btn complete-btn"
-                                                onClick={() => updateOrderStatus(order.id, 'COMPLETED')}
-                                                title="Tamamla"
-                                            >
-                                                <CheckCircle />
-                                            </button>
-                                            <button
-                                                className="action-btn cancel-btn"
-                                                onClick={() => updateOrderStatus(order.id, 'CANCELLED')}
-                                                title="İptal Et"
-                                            >
-                                                <XCircle />
-                                            </button>
-                                        </>
-                                    )}
-                                    
-                                    {order.status === 'SHIPPED' && (
-                                        <button
-                                            className="action-btn complete-btn"
-                                            onClick={() => updateOrderStatus(order.id, 'COMPLETED')}
-                                            title="Tamamla"
-                                        >
-                                            <CheckCircle />
-                                        </button>
-                                    )}
-                                </div>
-                            </div>
+                            ))}
                         </div>
-                    ))}
+                    </div>
                 </div>
 
                 {filteredOrders.length === 0 && (

@@ -9,6 +9,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import com.bahattintok.e_commerce.model.enums.SellerStatus;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -66,6 +67,7 @@ public class User implements UserDetails {
      * Kullanıcı şifresi (hash'li)
      */
     @Column(nullable = false)
+    @JsonIgnore
     private String password;
     
     /**
@@ -149,12 +151,14 @@ public class User implements UserDetails {
      * Kullanıcının favorileri
      */
     @OneToMany(mappedBy = "user", cascade = jakarta.persistence.CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @JsonIgnore
     private List<Favorite> favorites = new ArrayList<>();
     
     /**
      * Kullanıcının yorumları
      */
     @OneToMany(mappedBy = "user", cascade = jakarta.persistence.CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @JsonIgnore
     private List<Review> reviews = new ArrayList<>();
     
     /**

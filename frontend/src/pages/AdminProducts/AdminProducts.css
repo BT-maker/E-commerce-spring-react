@@ -1,6 +1,5 @@
 .admin-products {
     min-height: 100vh;
-    background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
     padding: 2.5rem;
 }
 
@@ -502,6 +501,7 @@
 /* Fiyat Hücresi */
 .price-cell {
     font-weight: 700;
+    height: 100%;
     color: #16a34a;
     font-size: 1.1rem;
     display: flex;
@@ -604,81 +604,51 @@
 }
 
 /* İşlemler Hücresi */
-.actions-cell {
+/* Admin Products İşlem Butonları */
+.admin-product-action-buttons {
     display: flex;
-    gap: 1rem;
-    align-items: center;
+    gap: 1.2rem;
     justify-content: center;
+    align-items: center;
 }
 
-.action-btn {
-    width: 44px;
-    height: 44px;
+.admin-product-action-btn {
+    width: 42px;
+    height: 42px;
     border: 2px solid #e2e8f0;
-    border-radius: 12px;
+    border-radius: 10px;
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
     transition: all 0.3s ease;
     font-weight: 500;
-    background: white;
+    background: transparent;
     color: #64748b;
-    position: relative;
-    overflow: hidden;
 }
 
-.action-btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
-}
 
-.action-btn svg {
-    width: 20px;
-    height: 20px;
-    transition: all 0.3s ease;
-    z-index: 1;
-    stroke-width: 2;
-}
 
-.action-btn.view-btn {
+.admin-product-view-btn {
     color: #3b82f6;
     border-color: #3b82f6;
-    background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
 }
 
-.action-btn.view-btn:hover {
-    background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
-    color: white;
-    border-color: #3b82f6;
-    box-shadow: 0 8px 25px rgba(59, 130, 246, 0.4);
-}
 
-.action-btn.activate-btn {
+
+.admin-product-activate-btn {
     color: #10b981;
     border-color: #10b981;
-    background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
 }
 
-.action-btn.activate-btn:hover {
-    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-    color: white;
-    border-color: #10b981;
-    box-shadow: 0 8px 25px rgba(16, 185, 129, 0.4);
-}
 
-.action-btn.deactivate-btn {
+
+.admin-product-deactivate-btn {
     color: #ef4444;
     border-color: #ef4444;
-    background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
 }
 
-.action-btn.deactivate-btn:hover {
-    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
-    color: white;
-    border-color: #ef4444;
-    box-shadow: 0 8px 25px rgba(239, 68, 68, 0.4);
-}
+
 
 /* Ürün Bulunamadı */
 .no-products {
@@ -924,6 +894,16 @@
     .detail-grid {
         grid-template-columns: 1fr;
     }
+    
+    .admin-product-action-buttons {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    
+    .admin-product-action-btn {
+        width: 36px;
+        height: 36px;
+    }
 }
 
 @media (max-width: 480px) {
@@ -963,17 +943,13 @@
         font-size: 0.8rem;
     }
     
-    .actions-cell {
+    .admin-product-action-buttons {
+        flex-direction: column;
         gap: 0.5rem;
     }
     
-    .action-btn {
-        width: 40px;
-        height: 40px;
-    }
-    
-    .action-btn svg {
-        width: 18px;
-        height: 18px;
+    .admin-product-action-btn {
+        width: 32px;
+        height: 32px;
     }
 }
