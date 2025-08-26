@@ -20,7 +20,8 @@ const AdminCategories = () => {
   const [formData, setFormData] = useState({
     name: '',
     description: '',
-    imageUrl: ''
+    imageUrl: '',
+    priority: 0
   });
 
   // Kategori istekleri state'leri
@@ -121,7 +122,7 @@ const AdminCategories = () => {
       
       setShowModal(false);
       setEditingCategory(null);
-      setFormData({ name: '', description: '', imageUrl: '' });
+      setFormData({ name: '', description: '', imageUrl: '', priority: 0 });
       fetchCategories();
     } catch (error) {
       console.error('Kategori işlemi hatası:', error);
@@ -134,7 +135,8 @@ const AdminCategories = () => {
     setFormData({
       name: category.name,
       description: category.description || '',
-      imageUrl: category.imageUrl || ''
+      imageUrl: category.imageUrl || '',
+      priority: category.priority || 0
     });
     setShowModal(true);
   };
@@ -325,6 +327,10 @@ const AdminCategories = () => {
                     <div className="category-content">
                       <h3>{category.name}</h3>
                       <p>{category.description || 'Bu kategori için henüz açıklama eklenmemiş.'}</p>
+                      <div className="category-priority">
+                        <span className="priority-label">Öncelik:</span>
+                        <span className="priority-value">{category.priority || 0}</span>
+                      </div>
                     </div>
                     <div className="category-actions">
                       <button
@@ -527,6 +533,18 @@ const AdminCategories = () => {
                   value={formData.imageUrl}
                   onChange={(e) => setFormData({...formData, imageUrl: e.target.value})}
                 />
+              </div>
+              <div className="form-group">
+                <label>Öncelik Sırası</label>
+                <input
+                  type="number"
+                  min="0"
+                  max="100"
+                  value={formData.priority}
+                  onChange={(e) => setFormData({...formData, priority: parseInt(e.target.value) || 0})}
+                  placeholder="0-100 arası değer girin"
+                />
+                <small>Yüksek sayı = Yüksek öncelik (önce görünür)</small>
               </div>
               <div className="modal-actions">
                 <button type="button" onClick={() => setShowModal(false)} className="cancel-btn">

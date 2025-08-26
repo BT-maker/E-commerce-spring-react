@@ -48,6 +48,12 @@ public class Category {
     private String imageUrl;
     
     /**
+     * Kategori öncelik sırası (yüksek sayı = yüksek öncelik)
+     */
+    @Column(nullable = false)
+    private Integer priority = 0;
+    
+    /**
      * Id getter metodu
      */
     public String getId() {

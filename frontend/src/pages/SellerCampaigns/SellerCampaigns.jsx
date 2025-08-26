@@ -592,7 +592,7 @@ const SellerCampaigns = () => {
                             {product.name}
                           </option>
                         ))
-                      : categories.map(category => (
+                      : Array.isArray(categories) && categories.map(category => (
                           <option key={category.id} value={category.id}>
                             {category.name}
                           </option>

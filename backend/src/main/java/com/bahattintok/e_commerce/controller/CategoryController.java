@@ -28,11 +28,11 @@ public class CategoryController {
     private final CategoryRepository categoryRepository;
 
     /**
-     * Tüm kategorileri getirir.
+     * Tüm kategorileri öncelik sırasına göre getirir.
      */
     @GetMapping
     public ResponseEntity<List<Category>> getAllCategories() {
-        List<Category> categories = categoryRepository.findAll();
+        List<Category> categories = categoryRepository.findAllByOrderByPriorityDescNameAsc();
         return ResponseEntity.ok(categories);
     }
 
@@ -56,6 +56,7 @@ public class CategoryController {
         category.setName(categoryDetails.getName());
         category.setDescription(categoryDetails.getDescription());
         category.setImageUrl(categoryDetails.getImageUrl());
+        category.setPriority(categoryDetails.getPriority());
         Category updatedCategory = categoryRepository.save(category);
         return ResponseEntity.ok(updatedCategory);
     }

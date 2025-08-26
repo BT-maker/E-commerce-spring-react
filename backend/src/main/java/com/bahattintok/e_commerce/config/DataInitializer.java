@@ -129,31 +129,36 @@ public class DataInitializer implements CommandLineRunner {
         elektronik.setName("Elektronik");
         elektronik.setDescription("Elektronik ürünler kategorisi");
         elektronik.setImageUrl("https://via.placeholder.com/300x200?text=Elektronik");
+        elektronik.setPriority(5); // En yüksek öncelik
         categoryRepository.save(elektronik);
 
         Category giyim = new Category();
         giyim.setName("Giyim");
         giyim.setDescription("Giyim ve aksesuar ürünleri");
         giyim.setImageUrl("https://via.placeholder.com/300x200?text=Giyim");
+        giyim.setPriority(4);
         categoryRepository.save(giyim);
-
-        Category kitap = new Category();
-        kitap.setName("Kitap");
-        kitap.setDescription("Kitap ve yayınlar");
-        kitap.setImageUrl("https://via.placeholder.com/300x200?text=Kitap");
-        categoryRepository.save(kitap);
 
         Category ev = new Category();
         ev.setName("Ev & Yaşam");
         ev.setDescription("Ev ve yaşam ürünleri");
         ev.setImageUrl("https://via.placeholder.com/300x200?text=Ev+Yaşam");
+        ev.setPriority(3);
         categoryRepository.save(ev);
 
         Category spor = new Category();
         spor.setName("Spor & Outdoor");
         spor.setDescription("Spor ve outdoor ürünleri");
         spor.setImageUrl("https://via.placeholder.com/300x200?text=Spor");
+        spor.setPriority(2);
         categoryRepository.save(spor);
+
+        Category kitap = new Category();
+        kitap.setName("Kitap");
+        kitap.setDescription("Kitap ve yayınlar");
+        kitap.setImageUrl("https://via.placeholder.com/300x200?text=Kitap");
+        kitap.setPriority(1); // En düşük öncelik
+        categoryRepository.save(kitap);
 
         // Test kullanıcısı ekle (şifre: password)
         User testUser = new User();

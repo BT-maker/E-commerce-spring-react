@@ -257,7 +257,7 @@ const ProductList = () => {
                   className="w-full border border-gray-300 px-3 py-2 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
                 >
                   <option value="">Tüm Kategoriler</option>
-                  {categories.map((category) => (
+                  {Array.isArray(categories) && categories.map((category) => (
                     <option key={category.id} value={category.name}>
                       {category.name}
                     </option>

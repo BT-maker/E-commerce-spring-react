@@ -1,5 +1,6 @@
 package com.bahattintok.e_commerce.repository;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -26,6 +27,11 @@ public interface CategoryRepository extends JpaRepository<Category, String> {
      * Kategori adının var olup olmadığını kontrol eder (büyük/küçük harf duyarsız).
      */
     boolean existsByNameIgnoreCase(String name);
+    
+    /**
+     * Kategorileri öncelik sırasına göre getirir
+     */
+    List<Category> findAllByOrderByPriorityDescNameAsc();
     
     /**
      * Bu repository şu işlevleri sağlar:
