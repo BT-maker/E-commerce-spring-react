@@ -494,6 +494,207 @@
   }
 }
 
+/* Kredi Kartı Formu Stilleri */
+.credit-card-form {
+  background-color: #f8f9fa;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 20px;
+}
+
+.section-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 20px;
+  padding-bottom: 10px;
+  border-bottom: 2px solid #e2e8f0;
+}
+
+.section-icon {
+  color: #4299e1;
+}
+
+/* Kart Numarası Input */
+.card-input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.card-type-icon {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 1.2rem;
+  z-index: 2;
+  color: #718096;
+}
+
+.card-number-input {
+  padding-left: 40px !important;
+  font-family: 'Courier New', monospace;
+  letter-spacing: 1px;
+  font-size: 1rem;
+}
+
+.card-number-input:focus {
+  border-color: #4299e1;
+  box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.1);
+}
+
+/* Kart Detayları Satırı */
+.card-details-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px;
+}
+
+/* Son Kullanma Tarihi */
+.expiry-input {
+  font-family: 'Courier New', monospace;
+  text-align: center;
+  letter-spacing: 1px;
+}
+
+/* CVV Input */
+.cvv-input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.cvv-input {
+  padding-right: 40px !important;
+  font-family: 'Courier New', monospace;
+  text-align: center;
+  letter-spacing: 1px;
+}
+
+.toggle-cvv-btn {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 4px;
+  color: #718096;
+  transition: color 0.2s;
+}
+
+.toggle-cvv-btn:hover {
+  color: #4299e1;
+  background-color: #f7fafc;
+}
+
+/* Güvenlik İkonu */
+.security-icon {
+  margin-left: 4px;
+  color: #718096;
+}
+
+/* Güvenlik Uyarısı */
+.security-notice {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background-color: #ebf8ff;
+  border: 1px solid #bee3f8;
+  border-radius: 6px;
+  padding: 12px;
+  margin-top: 15px;
+  font-size: 0.875rem;
+  color: #2b6cb0;
+}
+
+.security-notice svg {
+  flex-shrink: 0;
+  color: #4299e1;
+}
+
+/* Kart Tipi İkonları */
+.card-type-icon.visa {
+  color: #1a1f71;
+}
+
+.card-type-icon.mastercard {
+  color: #eb001b;
+}
+
+.card-type-icon.amex {
+  color: #006fcf;
+}
+
+.card-type-icon.discover {
+  color: #ff6000;
+}
+
+/* Form Validasyon Stilleri */
+.form-group.error input {
+  border-color: #e53e3e;
+  box-shadow: 0 0 0 3px rgba(229, 62, 62, 0.1);
+}
+
+.form-group.error label {
+  color: #e53e3e;
+}
+
+.error-message {
+  background-color: #fee;
+  color: #c53030;
+  padding: 12px 16px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  border: 1px solid #feb2b2;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Kart Numarası Animasyonu */
+.card-number-input:focus + .card-type-icon {
+  transform: translateY(-50%) scale(1.1);
+  transition: transform 0.2s ease;
+}
+
+/* CVV Göster/Gizle Animasyonu */
+.toggle-cvv-btn svg {
+  transition: transform 0.2s ease;
+}
+
+.toggle-cvv-btn:hover svg {
+  transform: scale(1.1);
+}
+
+/* Responsive Kart Formu */
+@media (max-width: 768px) {
+  .card-details-row {
+    grid-template-columns: 1fr;
+    gap: 15px;
+  }
+  
+  .card-number-input {
+    font-size: 0.875rem;
+  }
+  
+  .expiry-input,
+  .cvv-input {
+    font-size: 0.875rem;
+  }
+  
+  .security-notice {
+    font-size: 0.8rem;
+    padding: 10px;
+  }
+}
+
 @media (max-width: 768px) {
   .checkout-container {
     padding: 0 15px;

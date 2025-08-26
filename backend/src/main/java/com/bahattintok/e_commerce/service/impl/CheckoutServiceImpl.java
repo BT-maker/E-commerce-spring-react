@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 
 import com.bahattintok.e_commerce.dto.AddressRequest;
 import com.bahattintok.e_commerce.dto.CheckoutRequest;
+import com.bahattintok.e_commerce.dto.CreditCardRequest;
 import com.bahattintok.e_commerce.model.Order;
 import com.bahattintok.e_commerce.model.OrderItem;
 import com.bahattintok.e_commerce.model.Product;
@@ -174,6 +175,92 @@ public class CheckoutServiceImpl implements CheckoutService {
         return response;
     }
 
+    /**
+     * Kredi kartı bilgilerini doğrular
+     */
+    private String validateCreditCard(CreditCardRequest creditCard) {
+        if (creditCard == null) {
+            return "Kredi kartı bilgileri gerekli";
+        }
+        
+        // Kart numarası kontrolü
+        if (creditCard.getCardNumber() == null || creditCard.getCardNumber().replaceAll("\\s", "").length() < 13) {
+            return "Geçerli bir kart numarası giriniz";
+        }
+        
+        // Kart sahibi kontrolü
+        if (creditCard.getCardHolder() == null || creditCard.getCardHolder().trim().length() < 3) {
+            return "Kart sahibi adını giriniz";
+        }
+        
+        // Son kullanma tarihi kontrolü
+        if (creditCard.getExpiryMonth() == null || creditCard.getExpiryMonth().length() != 5) {
+            return "Geçerli bir son kullanma tarihi giriniz";
+        }
+        
+        try {
+            String[] expiryParts = creditCard.getExpiryMonth().split("/");
+            if (expiryParts.length != 2) {
+                return "Son kullanma tarihi formatı hatalı (AA/YY)";
+            }
+            
+            int month = Integer.parseInt(expiryParts[0]);
+            int year = Integer.parseInt(expiryParts[1]);
+            
+            if (month < 1 || month > 12) {
+                return "Geçerli bir ay giriniz (01-12)";
+            }
+            
+            // Tarih kontrolü
+            LocalDateTime now = LocalDateTime.now();
+            int currentYear = now.getYear() % 100;
+            int currentMonth = now.getMonthValue();
+            
+            if (year < currentYear || (year == currentYear && month < currentMonth)) {
+                return "Kartınızın son kullanma tarihi geçmiş";
+            }
+            
+        } catch (NumberFormatException e) {
+            return "Son kullanma tarihi formatı hatalı";
+        }
+        
+        // CVV kontrolü
+        if (creditCard.getCvv() == null || creditCard.getCvv().length() < 3) {
+            return "Geçerli bir güvenlik kodu giriniz";
+        }
+        
+        return null; // Geçerli
+    }
+
+    /**
+     * Kredi kartı ödeme işlemini simüle eder
+     */
+    private boolean processCreditCardPayment(CreditCardRequest creditCard, double amount) {
+        // Burada gerçek bir ödeme işlemi entegrasyonu yapılabilir
+        // Şimdilik sadece simülasyon yapıyoruz
+        
+        try {
+            // Kart numarasının son 4 hanesi kontrol edilir
+            String lastFourDigits = creditCard.getCardNumber().replaceAll("\\s", "").substring(
+                creditCard.getCardNumber().replaceAll("\\s", "").length() - 4
+            );
+            
+            // Test kartları için özel kontrol
+            if (lastFourDigits.equals("0000")) {
+                throw new RuntimeException("Test kartı - ödeme reddedildi");
+            }
+            
+            // Simüle edilmiş işlem gecikmesi
+            Thread.sleep(1000);
+            
+            // Başarılı ödeme simülasyonu
+            return true;
+            
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
     @Override
     public Map<String, Object> completeOrder(String userEmail, CheckoutRequest checkoutRequest) {
         Map<String, Object> response = new HashMap<>();
@@ -188,6 +275,28 @@ public class CheckoutServiceImpl implements CheckoutService {
             
             User user = userOpt.get();
             
+            // Kredi kartı ödeme kontrolü
+            if ("CREDIT_CARD".equals(checkoutRequest.getPaymentMethod())) {
+                String cardValidationError = validateCreditCard(checkoutRequest.getCreditCard());
+                if (cardValidationError != null) {
+                    response.put("success", false);
+                    response.put("message", cardValidationError);
+                    return response;
+                }
+                
+                // Kredi kartı ödeme işlemi
+                boolean paymentSuccess = processCreditCardPayment(
+                    checkoutRequest.getCreditCard(), 
+                    checkoutRequest.getTotal().doubleValue()
+                );
+                
+                if (!paymentSuccess) {
+                    response.put("success", false);
+                    response.put("message", "Ödeme işlemi başarısız. Lütfen kart bilgilerinizi kontrol edin.");
+                    return response;
+                }
+            }
+            
             // Sipariş oluştur
             Order order = new Order();
             order.setUser(user);
@@ -201,6 +310,13 @@ public class CheckoutServiceImpl implements CheckoutService {
                 Optional<Product> productOpt = productRepository.findById(item.getProductId());
                 if (productOpt.isPresent()) {
                     Product product = productOpt.get();
+                    
+                    // Stok kontrolü
+                    if (product.getStock() < item.getQuantity()) {
+                        response.put("success", false);
+                        response.put("message", product.getName() + " ürünü için yeterli stok bulunmuyor");
+                        return response;
+                    }
                     
                     OrderItem orderItem = new OrderItem();
                     orderItem.setOrder(order);

@@ -20,4 +20,5 @@ public class CheckoutRequest {
     private String deliveryMethod; // STANDARD, EXPRESS
     private String paymentMethod; // CREDIT_CARD, BANK_TRANSFER, CASH_ON_DELIVERY
     private String notes;
+    private CreditCardRequest creditCard; // Kredi kartı bilgileri (opsiyonel)
 }
