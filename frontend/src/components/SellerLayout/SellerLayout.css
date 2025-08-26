@@ -5,8 +5,6 @@
 
 /* Seller Banner */
 .seller-banner {
-  background: linear-gradient(135deg, #ff6000 0%, #ff8c00 100%);
-  color: white;
   padding: 2rem 0;
   text-align: center;
 }
@@ -21,7 +19,7 @@
   font-size: 2rem;
   font-weight: 700;
   margin-bottom: 0.5rem;
-  color: white;
+  color: #ff8c00;
 }
 
 .banner-content p {
@@ -29,7 +27,7 @@
   opacity: 0.9;
   max-width: 400px;
   margin: 0 auto;
-  color: white;
+  color: #464545;
 }
 
 /* Seller Main Layout */
