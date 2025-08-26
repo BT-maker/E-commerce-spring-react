@@ -420,17 +420,16 @@
 .seller-info {
   display: flex;
   flex-direction: column;
-  gap: 0.25rem;
 }
 
 .seller-name {
   font-weight: 600;
-  color: #2d3748 !important;
+  color: #f7fafc !important;
 }
 
 .seller-email {
   font-size: 0.75rem;
-  color: #64748b !important;
+  color: #f7fafc !important;
 }
 
 .description-cell {

@@ -1,3 +1,4 @@
+/* Admin Users Page Styles */
 .admin-users {
   min-height: 100vh;
   background: #f8fafc;
@@ -91,15 +92,12 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgb(255, 96, 0);
   color: white !important;
 }
-
 .admin-users .stat-content {
   display: flex;
   flex-direction: column;
 }
-
 .admin-users .stat-value {
   font-size: 1.5rem;
   font-weight: 700;
@@ -113,13 +111,13 @@
   font-weight: 500;
 }
 
-/* Her kart için farklı gradient renkler */
+/* Her kart için özel ikon renkleri */
 .admin-users .stat-card:nth-child(1) .stat-icon {
-  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  background: #10b981 !important;
 }
 
 .admin-users .stat-card:nth-child(2) .stat-icon {
-  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  background: #3b82f6 !important;
 }
 
 /* Arama ve Filtre */
@@ -250,6 +248,10 @@
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+.user-avatar svg {
+  color: white !important;
 }
 
 .user-details {

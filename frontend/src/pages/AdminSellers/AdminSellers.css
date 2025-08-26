@@ -58,11 +58,12 @@
 }
 
 .admin-seller-stat-item .stat-icon.total {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%) !important;
 }
 
 .admin-seller-stat-item .stat-icon.active {
-  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  background: #10b981 !important;
+  background-image: none !important;
 }
 
 .admin-seller-stat-item .stat-content {
@@ -176,7 +177,7 @@
   display: flex;
   align-items: center;
   gap: 1rem;
-  margin-bottom: 1.5rem;
+  margin-bottom: 1.5rem ;
   border-radius: 30px;
   padding: 10px;
 }
@@ -185,11 +186,12 @@
   width: 48px;
   height: 48px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: white;
+  border: 2px solid #FF6000;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: white;
+  color: #FF6000;
   flex-shrink: 0;
 }
 
@@ -199,17 +201,17 @@
 }
 
 .seller-name {
-  font-size: 1.125rem;
+  font-size: 1.130rem;
   font-weight: 600;
-  color: #ffffff !important;
-  margin-bottom: 0.25rem;
+  color: #1e293b !important;
+  
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
 .seller-email {
-  color: #ffffff !important;
+  color: #64748b !important;
   font-size: 0.875rem;
   white-space: nowrap;
   overflow: hidden;
@@ -245,8 +247,29 @@
 }
 
 .status-badge.active {
-  background: #dcfce7;
-  color: #166534;
+  background: #d1fae5 !important;
+  color: #166534 !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 0.25rem !important;
+}
+
+.status-badge.active svg {
+  background: transparent !important;
+  border-radius: 0 !important;
+}
+
+/* Tüm status badge içindeki ikonlar için */
+.status-badge svg {
+  background: transparent !important;
+  background-image: none !important;
+  border-radius: 0 !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  width: auto !important;
+  height: auto !important;
+  border: none !important;
+  box-shadow: none !important;
 }
 
 .status-badge.inactive {
@@ -295,9 +318,9 @@
 .action-btn-success,
 .action-btn-danger {
   flex: 1;
-  padding: 0.625rem 1rem;
-  border: none;
-  border-radius: 8px;
+  padding: 0.75rem 1.25rem;
+  border: 2px solid transparent;
+  border-radius: 10px;
   font-size: 0.875rem;
   font-weight: 600;
   cursor: pointer;
@@ -306,36 +329,64 @@
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  position: relative;
+  overflow: hidden;
 }
 
 .action-btn-secondary {
-  background: #f1f5f9;
+  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
   color: #475569;
+  border-color: #cbd5e0;
 }
 
 .action-btn-secondary:hover {
-  background: #e2e8f0;
+  background: linear-gradient(135deg, #e2e8f0 0%, #cbd5e0 100%);
   color: #334155;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+  border-color: #94a3b8;
+}
+
+.action-btn-secondary:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 .action-btn-success {
   background: linear-gradient(135deg, #10b981 0%, #059669 100%);
   color: white;
+  border-color: #059669;
 }
 
 .action-btn-success:hover {
   background: linear-gradient(135deg, #059669 0%, #047857 100%);
-  transform: translateY(-1px);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(16, 185, 129, 0.3);
+  border-color: #047857;
+}
+
+.action-btn-success:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.2);
 }
 
 .action-btn-danger {
   background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
   color: white;
+  border-color: #dc2626;
 }
 
 .action-btn-danger:hover {
   background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
-  transform: translateY(-1px);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(239, 68, 68, 0.3);
+  border-color: #b91c1c;
+}
+
+.action-btn-danger:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 8px rgba(239, 68, 68, 0.2);
 }
 
 /* Loading State */
@@ -454,7 +505,6 @@
 }
 
 .seller-info-modal {
-  margin-bottom: 1.5rem;
   padding: 1rem;
   background: #f8fafc;
   border-radius: 8px;
@@ -617,7 +667,8 @@
 
 /* Pending Status Icon */
 .admin-seller-stat-item .stat-icon.pending {
-  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+  background: #f59e0b !important;
+  background-image: none !important;
 }
 
 /* Stat Item Border Colors */

@@ -4,7 +4,7 @@
   position: sticky;
   top: 0;
   z-index: 1000;
-  margin-bottom: 0 !important;
+  margin-bottom: 1rem !important;
 }
 
 .seller-header-container {
@@ -205,7 +205,7 @@
   align-items: center;
   gap: 0.75rem;
   padding: 1rem;
-  background: #f8f9fa;
+  background: none;
 }
 
 .user-avatar {
