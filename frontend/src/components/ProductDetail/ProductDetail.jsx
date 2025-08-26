@@ -140,12 +140,15 @@ const ProductDetail = () => {
 
   // Review'ları ve istatistikleri getir
   useEffect(() => {
-    if (!product) return;
+    if (!product?.id) return;
     
+    console.log('Review\'lar getiriliyor:', product.id);
     setReviewsLoading(true);
+    
     Promise.all([
       fetch(`http://localhost:8082/api/reviews/product/${product.id}`)
         .then(res => {
+          console.log('Reviews API yanıtı:', res.status);
           if (!res.ok) {
             throw new Error(`Reviews API Error: ${res.status}`);
           }
@@ -153,6 +156,7 @@ const ProductDetail = () => {
         }),
       fetch(`http://localhost:8082/api/reviews/product/${product.id}/stats`)
         .then(res => {
+          console.log('Stats API yanıtı:', res.status);
           if (!res.ok) {
             throw new Error(`Stats API Error: ${res.status}`);
           }
@@ -160,6 +164,8 @@ const ProductDetail = () => {
         })
     ])
       .then(([reviewsData, statsData]) => {
+        console.log('Reviews verisi:', reviewsData);
+        console.log('Stats verisi:', statsData);
         setReviews(reviewsData);
         setReviewStats(statsData);
         setReviewsLoading(false);
@@ -172,12 +178,15 @@ const ProductDetail = () => {
 
   // Kullanıcının review'ını getir
   useEffect(() => {
-    if (!product || !isLoggedIn) return;
+    if (!product?.id || !isLoggedIn) return;
+    
+    console.log('Kullanıcı review\'ı getiriliyor:', product.id);
     
     fetch(`http://localhost:8082/api/reviews/product/${product.id}/user`, {
       credentials: "include"
     })
       .then(res => {
+        console.log('User review API yanıtı:', res.status);
         if (res.ok) return res.json();
         if (res.status === 404) {
           console.log('Kullanıcının bu ürün için review\'ı yok');
@@ -186,13 +195,14 @@ const ProductDetail = () => {
         throw new Error(`HTTP ${res.status}`);
       })
       .then(data => {
+        console.log('User review verisi:', data);
         if (data) {
           setUserReview(data);
           setReviewForm({ rating: data.rating, comment: data.comment || "" });
         }
       })
       .catch((error) => {
-        console.log('Kullanıcı review\'ı alınamadı:', error.message);
+        console.error('Kullanıcı review\'ı alınamadı:', error.message);
         // Bu normal bir durum, kullanıcının review'ı yok
       });
   }, [product, isLoggedIn]);
@@ -244,6 +254,11 @@ const ProductDetail = () => {
       return;
     }
     
+    if (!product?.id) {
+      toast.error("Ürün bilgisi bulunamadı!");
+      return;
+    }
+    
     setReviewLoading(true);
     try {
       const res = await fetch(`http://localhost:8082/api/reviews/product/${product.id}`, {
@@ -278,7 +293,7 @@ const ProductDetail = () => {
   };
 
   const handleReviewDelete = async () => {
-    if (!userReview) return;
+    if (!userReview || !product?.id) return;
     
     try {
       const res = await fetch(`http://localhost:8082/api/reviews/product/${product.id}`, {

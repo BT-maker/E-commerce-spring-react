@@ -36,9 +36,13 @@ public class ReviewController {
     @Operation(summary = "Ürün review'larını getir", description = "Belirtilen ürünün tüm review'larını listeler")
     public ResponseEntity<List<Review>> getProductReviews(@PathVariable String productId) {
         try {
+            System.out.println("Review'lar getiriliyor - Product ID: " + productId);
             List<Review> reviews = reviewService.getProductReviews(productId);
+            System.out.println("Bulunan review sayısı: " + reviews.size());
             return ResponseEntity.ok(reviews);
         } catch (Exception e) {
+            System.err.println("Review getirme hatası: " + e.getMessage());
+            e.printStackTrace();
             return ResponseEntity.ok(new ArrayList<>()); // Hata durumunda boş liste döndür
         }
     }
@@ -61,17 +65,30 @@ public class ReviewController {
     @GetMapping("/product/{productId}/user")
     @Operation(summary = "Kullanıcının ürün review'ını getir", description = "Giriş yapmış kullanıcının belirtilen ürün için review'ını getirir")
     public ResponseEntity<Review> getUserReview(@PathVariable String productId, Authentication authentication) {
-        if (authentication == null || !authentication.isAuthenticated()) {
-            return ResponseEntity.status(401).build();
-        }
-        
-        String email = authentication.getName();
-        Review review = reviewService.getUserReview(email, productId);
-        
-        if (review != null) {
-            return ResponseEntity.ok(review);
-        } else {
-            return ResponseEntity.notFound().build();
+        try {
+            System.out.println("Kullanıcı review'ı getiriliyor - Product ID: " + productId);
+            
+            if (authentication == null || !authentication.isAuthenticated()) {
+                System.out.println("Kullanıcı giriş yapmamış");
+                return ResponseEntity.status(401).build();
+            }
+            
+            String email = authentication.getName();
+            System.out.println("Kullanıcı email: " + email);
+            
+            Review review = reviewService.getUserReview(email, productId);
+            
+            if (review != null) {
+                System.out.println("Kullanıcı review'ı bulundu");
+                return ResponseEntity.ok(review);
+            } else {
+                System.out.println("Kullanıcı review'ı bulunamadı");
+                return ResponseEntity.notFound().build();
+            }
+        } catch (Exception e) {
+            System.err.println("Kullanıcı review getirme hatası: " + e.getMessage());
+            e.printStackTrace();
+            return ResponseEntity.status(500).build();
         }
     }
     
