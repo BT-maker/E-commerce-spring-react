@@ -377,8 +377,8 @@
   align-items: center;
   gap: 0.5rem;
   padding: 0.5rem 1rem;
-  background: rgb(255, 96, 0);
-  color: white;
+  background: #e2e8f0;
+  color: #64748b;
   border: none;
   border-radius: 6px;
   font-weight: 500;
@@ -388,8 +388,13 @@
 }
 
 .pagination-btn:hover:not(.disabled) {
-  background: rgb(230, 86, 0);
+  background: #cbd5e0;
   transform: translateY(-1px);
+}
+
+.pagination-btn.active {
+  background: rgb(255, 96, 0);
+  color: white;
 }
 
 .pagination-btn.disabled {

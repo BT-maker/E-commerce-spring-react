@@ -4,6 +4,7 @@
   margin: 0 auto;
   padding: 20px;
   min-height: 100vh;
+  border: none;
 }
 
 /* Breadcrumb */
@@ -281,7 +282,8 @@
 .stock-status {
   display: flex;
   align-items: center;
-  gap: 6px;
+  justify-content: center;
+  gap: 4px;
   padding: 6px 12px;
   border-radius: 20px;
   font-size: 14px;
@@ -464,22 +466,29 @@
 /* Quick Features */
 .quick-features {
   display: flex;
-  flex-direction: column;
-  gap: 12px;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
   padding: 20px 0;
   border-bottom: 1px solid #eee;
 }
 
 .feature-item {
   display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: 12px;
-  font-size: 14px;
+  gap: 8px;
+  font-size: 12px;
   color: #666;
+  text-align: center;
+  flex: 1;
 }
 
 .feature-item svg {
   color: #28a745;
+  width: 20px;
+  height: 20px;
 }
 
 /* Store Info */
@@ -1012,8 +1021,6 @@
   margin-top: 40px;
   background: white;
   border-radius: 12px;
-  padding: 32px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 .recommendations-header {
