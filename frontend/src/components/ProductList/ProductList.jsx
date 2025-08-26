@@ -1,11 +1,10 @@
-import React, { useEffect, useState, useContext } from "react";
-import ProductCard from "../ProductCard/ProductCard";
-import Skeleton from 'react-loading-skeleton';
-import 'react-loading-skeleton/dist/skeleton.css';
+import React, { useEffect, useState, useContext, useCallback, useRef, useMemo } from "react";
 import { CartContext } from '../../context/CartContext';
 import toast from 'react-hot-toast';
 import PageTitle from '../PageTitle/PageTitle';
 import MetaTags from '../MetaTags/MetaTags';
+import FilterPanel from '../CategoryProducts/FilterPanel';
+import ProductListSection from '../CategoryProducts/ProductListSection';
 import './ProductList.css';
 
 const PAGE_SIZE = 12;
@@ -28,6 +27,16 @@ const ProductList = () => {
   const [categories, setCategories] = useState([]);
   const [elasticsearchAvailable, setElasticsearchAvailable] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
+  
+  // Debounce için state'ler
+  const [debouncedMinPrice, setDebouncedMinPrice] = useState("");
+  const [debouncedMaxPrice, setDebouncedMaxPrice] = useState("");
+  const [debouncedSearchQuery, setDebouncedSearchQuery] = useState("");
+  
+  // Debounce timeout'ları için ref'ler
+  const minPriceTimeoutRef = useRef(null);
+  const maxPriceTimeoutRef = useRef(null);
+  const searchTimeoutRef = useRef(null);
 
   // Elasticsearch durumunu kontrol et
   useEffect(() => {
@@ -59,13 +68,13 @@ const ProductList = () => {
     setLoading(true);
     let url = "";
     
-    if (elasticsearchAvailable && (searchQuery.trim() || selectedCategory || minPrice || maxPrice || selectedStore)) {
+    if (elasticsearchAvailable && (debouncedSearchQuery.trim() || selectedCategory || debouncedMinPrice || debouncedMaxPrice || selectedStore)) {
       // Elasticsearch araması
       const params = new URLSearchParams();
-      if (searchQuery.trim()) params.append('query', searchQuery.trim());
+      if (debouncedSearchQuery.trim()) params.append('query', debouncedSearchQuery.trim());
       if (selectedCategory) params.append('category', selectedCategory);
-      if (minPrice && minPrice.trim() !== '') params.append('minPrice', minPrice);
-      if (maxPrice && maxPrice.trim() !== '') params.append('maxPrice', maxPrice);
+      if (debouncedMinPrice && debouncedMinPrice.trim() !== '') params.append('minPrice', debouncedMinPrice);
+      if (debouncedMaxPrice && debouncedMaxPrice.trim() !== '') params.append('maxPrice', debouncedMaxPrice);
       if (selectedStore) params.append('storeName', selectedStore);
       params.append('page', page);
       params.append('size', PAGE_SIZE);
@@ -75,10 +84,10 @@ const ProductList = () => {
       // Normal arama
       url = `http://localhost:8082/api/products?page=${page}&size=${PAGE_SIZE}&includeInactive=true`;
       if (sort) url += `&sort=${sort}`;
-      if (minPrice && minPrice.trim() !== '') url += `&minPrice=${minPrice}`;
-      if (maxPrice && maxPrice.trim() !== '') url += `&maxPrice=${maxPrice}`;
+      if (debouncedMinPrice && debouncedMinPrice.trim() !== '') url += `&minPrice=${debouncedMinPrice}`;
+      if (debouncedMaxPrice && debouncedMaxPrice.trim() !== '') url += `&maxPrice=${debouncedMaxPrice}`;
       if (selectedStore) url += `&storeName=${encodeURIComponent(selectedStore)}`;
-      if (searchQuery.trim()) url += `&search=${encodeURIComponent(searchQuery.trim())}`;
+      if (debouncedSearchQuery.trim()) url += `&search=${encodeURIComponent(debouncedSearchQuery.trim())}`;
     }
 
     fetch(url)
@@ -134,7 +143,7 @@ const ProductList = () => {
         setError(err.message);
         setLoading(false);
       });
-  }, [page, sort, minPrice, maxPrice, selectedStore, searchQuery, selectedCategory, elasticsearchAvailable]);
+  }, [page, sort, debouncedMinPrice, debouncedMaxPrice, selectedStore, debouncedSearchQuery, selectedCategory, elasticsearchAvailable]);
 
   // Mağazaları getir
   useEffect(() => {
@@ -154,19 +163,55 @@ const ProductList = () => {
       });
   }, []);
 
-  const handleSortChange = (e) => {
+  // Component unmount olduğunda timeout'ları temizle
+  useEffect(() => {
+    return () => {
+      if (minPriceTimeoutRef.current) clearTimeout(minPriceTimeoutRef.current);
+      if (maxPriceTimeoutRef.current) clearTimeout(maxPriceTimeoutRef.current);
+      if (searchTimeoutRef.current) clearTimeout(searchTimeoutRef.current);
+    };
+  }, []);
+
+  const handleSortChange = useCallback((e) => {
     setSort(e.target.value);
     setPage(0);
-  };
+  }, []);
+
+  const handleCategoryChange = useCallback((e) => {
+    setSelectedCategory(e.target.value);
+    setPage(0);
+  }, []);
 
   const handleMinPriceChange = (e) => {
-    setMinPrice(e.target.value);
-    setPage(0);
+    const value = e.target.value;
+    setMinPrice(value);
+    
+    // Önceki timeout'u temizle
+    if (minPriceTimeoutRef.current) {
+      clearTimeout(minPriceTimeoutRef.current);
+    }
+    
+    // Yeni timeout ayarla (500ms sonra arama yap)
+    minPriceTimeoutRef.current = setTimeout(() => {
+      setDebouncedMinPrice(value);
+      setPage(0);
+    }, 500);
   };
 
   const handleMaxPriceChange = (e) => {
-    setMaxPrice(e.target.value);
-    setPage(0);
+    const value = e.target.value;
+    setMaxPrice(value);
+    
+    // Önceki timeout'u temizle
+    if (maxPriceTimeoutRef.current) {
+      clearTimeout(maxPriceTimeoutRef.current);
+    }
+    
+    // Yeni timeout ayarla (500ms sonra arama yap)
+    maxPriceTimeoutRef.current = setTimeout(() => {
+      setDebouncedMaxPrice(value);
+      setPage(0);
+    }, 500);
   };
 
   const handleStoreChange = (e) => {
@@ -175,23 +220,39 @@ const ProductList = () => {
   };
 
   const handleSearchChange = (e) => {
-    setSearchQuery(e.target.value);
-    setPage(0);
+    const value = e.target.value;
+    setSearchQuery(value);
+    
+    // Önceki timeout'u temizle
+    if (searchTimeoutRef.current) {
+      clearTimeout(searchTimeoutRef.current);
+    }
+    
+    // Yeni timeout ayarla (300ms sonra arama yap)
+    searchTimeoutRef.current = setTimeout(() => {
+      setDebouncedSearchQuery(value);
+      setPage(0);
+    }, 300);
   };
 
-  const handleCategoryChange = (e) => {
-    setSelectedCategory(e.target.value);
-    setPage(0);
-  };
+
 
   const clearFilters = () => {
     setSearchQuery("");
     setSelectedCategory("");
     setMinPrice("");
     setMaxPrice("");
+    setDebouncedSearchQuery("");
+    setDebouncedMinPrice("");
+    setDebouncedMaxPrice("");
     setSelectedStore("");
     setSort("");
     setPage(0);
+    
+    // Timeout'ları temizle
+    if (minPriceTimeoutRef.current) clearTimeout(minPriceTimeoutRef.current);
+    if (maxPriceTimeoutRef.current) clearTimeout(maxPriceTimeoutRef.current);
+    if (searchTimeoutRef.current) clearTimeout(searchTimeoutRef.current);
   };
 
   const handleAddToCart = async (productId) => {
@@ -216,220 +277,39 @@ const ProductList = () => {
       
       <div className="flex flex-col lg:flex-row gap-8 justify-center">
         {/* Sol Filtreleme Paneli */}
-        <div className="lg:w-1/4">
-          <div className="filter-panel bg-white rounded-lg shadow-md border border-gray-200 p-6">
-            <div className="flex items-center justify-between mb-6">
-              <h3 className="text-lg font-semibold text-gray-800">Filtreler</h3>
-              <button
-                onClick={() => setShowFilters(!showFilters)}
-                className="lg:hidden text-gray-500 hover:text-gray-700 flex items-center gap-2"
-              >
-                <span>{showFilters ? 'Gizle' : 'Göster'}</span>
-                <svg className={`w-4 h-4 transition-transform ${showFilters ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                </svg>
-              </button>
-            </div>
-            
-            <div className={`${showFilters ? 'block' : 'hidden'} lg:block space-y-6`}>
-              {/* Arama Kutusu */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Ürün Ara
-                </label>
-                <input
-                  type="text"
-                  placeholder="Ürün adı, açıklama..."
-                  value={searchQuery}
-                  onChange={handleSearchChange}
-                  className="w-full border border-gray-300 px-3 py-2 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                />
-              </div>
-
-              {/* Kategori Filtresi */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Kategori
-                </label>
-                <select
-                  value={selectedCategory}
-                  onChange={handleCategoryChange}
-                  className="w-full border border-gray-300 px-3 py-2 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                >
-                  <option value="">Tüm Kategoriler</option>
-                  {Array.isArray(categories) && categories.map((category) => (
-                    <option key={category.id} value={category.name}>
-                      {category.name}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              {/* Fiyat Aralığı */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Fiyat Aralığı
-                </label>
-                <div className="space-y-2">
-                  <input
-                    type="number"
-                    placeholder="Min Fiyat"
-                    value={minPrice}
-                    onChange={handleMinPriceChange}
-                    className="w-full border border-gray-300 px-3 py-2 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                  />
-                  <input
-                    type="number"
-                    placeholder="Max Fiyat"
-                    value={maxPrice}
-                    onChange={handleMaxPriceChange}
-                    className="w-full border border-gray-300 px-3 py-2 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                  />
-                </div>
-              </div>
-
-              {/* Mağaza Filtresi */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Mağaza
-                </label>
-                <select
-                  value={selectedStore}
-                  onChange={handleStoreChange}
-                  className="w-full border border-gray-300 px-3 py-2 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                  disabled={storesLoading}
-                >
-                  <option value="">Tüm Mağazalar</option>
-                  {stores.map((store) => (
-                    <option key={store.id} value={store.name}>
-                      {store.name}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              {/* Sıralama */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Sıralama
-                </label>
-                <select
-                  value={sort}
-                  onChange={handleSortChange}
-                  className="w-full border border-gray-300 px-3 py-2 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                >
-                  <option value="">Varsayılan</option>
-                  <option value="price,asc">Fiyat: Artan</option>
-                  <option value="price,desc">Fiyat: Azalan</option>
-                  <option value="popular">Popüler</option>
-                </select>
-              </div>
-
-              {/* Filtreleri Temizle */}
-              <button
-                onClick={clearFilters}
-                className="w-full bg-gray-500 text-white py-2 px-4 rounded-lg hover:bg-gray-600 transition-colors"
-              >
-                Filtreleri Temizle
-              </button>
-
-            </div>
-          </div>
-        </div>
+        <FilterPanel
+          searchQuery={searchQuery}
+          minPrice={minPrice}
+          maxPrice={maxPrice}
+          selectedStore={selectedStore}
+          selectedCategory={selectedCategory}
+          categories={categories}
+          sort={sort}
+          stores={stores}
+          storesLoading={storesLoading}
+          showFilters={showFilters}
+          onSearchChange={handleSearchChange}
+          onMinPriceChange={handleMinPriceChange}
+          onMaxPriceChange={handleMaxPriceChange}
+          onStoreChange={handleStoreChange}
+          onCategoryChange={handleCategoryChange}
+          onSortChange={handleSortChange}
+          onToggleFilters={() => setShowFilters(!showFilters)}
+          onClearFilters={clearFilters}
+        />
 
         {/* Sağ Ürün Listesi */}
-        <div className="lg:w-3/4">
-          <h2 className="text-2xl md:text-3xl font-bold mb-8 text-gray-800 text-center">Öne Çıkan Ürünler</h2>
-          
-          {loading ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-5 sm:gap-7 py-8">
-              {Array.from({ length: 8 }).map((_, i) => (
-                <div key={i} className="p-4">
-                  <Skeleton height={160} className="mb-4 rounded-lg" />
-                  <Skeleton height={24} width={120} className="mb-2" />
-                  <Skeleton height={20} width={80} />
-                  <Skeleton height={36} className="mt-4 rounded" />
-                </div>
-              ))}
-            </div>
-          ) : error ? (
-            <div className="text-center text-red-500 py-8">{error}</div>
-          ) : (
-            <>
-              {products.length === 0 ? (
-                <div className="text-center py-8">
-                  <p className="text-gray-500 text-lg">Aradığınız kriterlere uygun ürün bulunamadı.</p>
-                  <button
-                    onClick={clearFilters}
-                    className="mt-4 px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
-                  >
-                    Filtreleri Temizle
-                  </button>
-                </div>
-              ) : (
-                <>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-5 sm:gap-7 py-8">
-                    {products.map((product) => (
-                      <ProductCard
-                        key={product.id}
-                        product={product}
-                        onAddToCart={handleAddToCart}
-                      />
-                    ))}
-                  </div>
-                  {/* Sayfalama */}
-                  {console.log('Sayfalama kontrolü - totalPages:', totalPages, 'products.length:', products.length)}
-                  {totalPages > 1 && (
-                    <div className="flex justify-center mt-8 space-x-2">
-                      {/* Önceki sayfa */}
-                      {page > 0 && (
-                        <button
-                          onClick={() => setPage(page - 1)}
-                          className="px-3 py-2 rounded bg-gray-200 text-gray-700 hover:bg-gray-300"
-                        >
-                          Önceki
-                        </button>
-                      )}
-                      
-                      {/* Sayfa numaraları */}
-                      {Array.from({ length: totalPages }, (_, i) => {
-                        // Sadece mevcut sayfa ve etrafındaki 2 sayfayı göster
-                        if (i === 0 || i === totalPages - 1 || (i >= page - 1 && i <= page + 1)) {
-                          return (
-                            <button
-                              key={i}
-                              onClick={() => setPage(i)}
-                              className={`px-3 py-2 rounded ${
-                                page === i
-                                  ? "bg-green-600 text-white"
-                                  : "bg-gray-200 text-gray-700 hover:bg-gray-300"
-                              }`}
-                            >
-                              {i + 1}
-                            </button>
-                          );
-                        } else if (i === page - 2 || i === page + 2) {
-                          return <span key={i} className="px-2 py-2">...</span>;
-                        }
-                        return null;
-                      })}
-                      
-                      {/* Sonraki sayfa */}
-                      {page < totalPages - 1 && (
-                        <button
-                          onClick={() => setPage(page + 1)}
-                          className="px-3 py-2 rounded bg-gray-200 text-gray-700 hover:bg-gray-300"
-                        >
-                          Sonraki
-                        </button>
-                      )}
-                    </div>
-                  )}
-                </>
-              )}
-            </>
-          )}
-        </div>
+        <ProductListSection
+          category={null}
+          products={products}
+          loading={loading}
+          error={error}
+          page={page}
+          totalPages={totalPages}
+          onAddToCart={handleAddToCart}
+          onPageChange={(newPage) => setPage(newPage)}
+          onClearFilters={clearFilters}
+        />
       </div>
     </section>
   );

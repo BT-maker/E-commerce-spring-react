@@ -1,12 +1,11 @@
-import React, { useEffect, useState, useContext } from "react";
+import React, { useEffect, useState, useContext, useCallback, useRef, useMemo } from "react";
 import { useParams } from "react-router-dom";
-import ProductCard from "../ProductCard/ProductCard";
 import { CartContext } from "../../context/CartContext";
-import Skeleton from 'react-loading-skeleton';
-import 'react-loading-skeleton/dist/skeleton.css';
 import toast from 'react-hot-toast';
 import PageTitle from '../PageTitle/PageTitle';
 import MetaTags from '../MetaTags/MetaTags';
+import FilterPanel from './FilterPanel';
+import ProductListSection from './ProductListSection';
 import './CategoryProducts.css';
 
 const PAGE_SIZE = 12;
@@ -29,6 +28,16 @@ const CategoryProducts = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [elasticsearchAvailable, setElasticsearchAvailable] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
+  
+  // Debounce için state'ler
+  const [debouncedMinPrice, setDebouncedMinPrice] = useState("");
+  const [debouncedMaxPrice, setDebouncedMaxPrice] = useState("");
+  const [debouncedSearchQuery, setDebouncedSearchQuery] = useState("");
+  
+  // Debounce timeout'ları için ref'ler
+  const minPriceTimeoutRef = useRef(null);
+  const maxPriceTimeoutRef = useRef(null);
+  const searchTimeoutRef = useRef(null);
 
   // Elasticsearch durumunu kontrol et
   useEffect(() => {
@@ -60,13 +69,13 @@ const CategoryProducts = () => {
     setLoading(true);
     let url = "";
     
-    if (elasticsearchAvailable && (searchQuery.trim() || minPrice || maxPrice || selectedStore)) {
+    if (elasticsearchAvailable && (debouncedSearchQuery.trim() || debouncedMinPrice || debouncedMaxPrice || selectedStore)) {
       // Elasticsearch araması
       const params = new URLSearchParams();
-      if (searchQuery.trim()) params.append('query', searchQuery.trim());
+      if (debouncedSearchQuery.trim()) params.append('query', debouncedSearchQuery.trim());
       params.append('category', category?.name || '');
-      if (minPrice && minPrice.trim() !== '') params.append('minPrice', minPrice);
-      if (maxPrice && maxPrice.trim() !== '') params.append('maxPrice', maxPrice);
+      if (debouncedMinPrice && debouncedMinPrice.trim() !== '') params.append('minPrice', debouncedMinPrice);
+      if (debouncedMaxPrice && debouncedMaxPrice.trim() !== '') params.append('maxPrice', debouncedMaxPrice);
       if (selectedStore) params.append('storeName', selectedStore);
       params.append('page', page);
       params.append('size', PAGE_SIZE);
@@ -76,10 +85,10 @@ const CategoryProducts = () => {
       // Normal arama
       url = `http://localhost:8082/api/products?categoryId=${id}&page=${page}&size=${PAGE_SIZE}`;
       if (sort) url += `&sort=${sort}`;
-      if (minPrice && minPrice.trim() !== '') url += `&minPrice=${minPrice}`;
-      if (maxPrice && maxPrice.trim() !== '') url += `&maxPrice=${maxPrice}`;
+      if (debouncedMinPrice && debouncedMinPrice.trim() !== '') url += `&minPrice=${debouncedMinPrice}`;
+      if (debouncedMaxPrice && debouncedMaxPrice.trim() !== '') url += `&maxPrice=${debouncedMaxPrice}`;
       if (selectedStore) url += `&storeName=${encodeURIComponent(selectedStore)}`;
-      if (searchQuery.trim()) url += `&search=${encodeURIComponent(searchQuery.trim())}`;
+      if (debouncedSearchQuery.trim()) url += `&search=${encodeURIComponent(debouncedSearchQuery.trim())}`;
     }
 
     fetch(url)
@@ -125,7 +134,7 @@ const CategoryProducts = () => {
         setError(err.message);
         setLoading(false);
       });
-  }, [id, page, sort, minPrice, maxPrice, selectedStore, searchQuery, elasticsearchAvailable, category]);
+  }, [id, page, sort, debouncedMinPrice, debouncedMaxPrice, selectedStore, debouncedSearchQuery, elasticsearchAvailable, category]);
 
   // Mağazaları getir
   useEffect(() => {
@@ -145,74 +154,106 @@ const CategoryProducts = () => {
       });
   }, []);
 
-  const handleSortChange = (e) => {
+  // Component unmount olduğunda timeout'ları temizle
+  useEffect(() => {
+    return () => {
+      if (minPriceTimeoutRef.current) clearTimeout(minPriceTimeoutRef.current);
+      if (maxPriceTimeoutRef.current) clearTimeout(maxPriceTimeoutRef.current);
+      if (searchTimeoutRef.current) clearTimeout(searchTimeoutRef.current);
+    };
+  }, []);
+
+  const handleSortChange = useCallback((e) => {
     setSort(e.target.value);
     setPage(0);
-  };
+  }, []);
 
-  const handleMinPriceChange = (e) => {
-    setMinPrice(e.target.value);
-    setPage(0);
-  };
+  const handleMinPriceChange = useCallback((e) => {
+    const value = e.target.value;
+    setMinPrice(value);
+    
+    // Önceki timeout'u temizle
+    if (minPriceTimeoutRef.current) {
+      clearTimeout(minPriceTimeoutRef.current);
+    }
+    
+    // Yeni timeout ayarla (500ms sonra arama yap)
+    minPriceTimeoutRef.current = setTimeout(() => {
+      setDebouncedMinPrice(value);
+      setPage(0);
+    }, 500);
+  }, []);
 
-  const handleMaxPriceChange = (e) => {
-    setMaxPrice(e.target.value);
-    setPage(0);
-  };
+  const handleMaxPriceChange = useCallback((e) => {
+    const value = e.target.value;
+    setMaxPrice(value);
+    
+    // Önceki timeout'u temizle
+    if (maxPriceTimeoutRef.current) {
+      clearTimeout(maxPriceTimeoutRef.current);
+    }
+    
+    // Yeni timeout ayarla (500ms sonra arama yap)
+    maxPriceTimeoutRef.current = setTimeout(() => {
+      setDebouncedMaxPrice(value);
+      setPage(0);
+    }, 500);
+  }, []);
 
-  const handleStoreChange = (e) => {
+  const handleStoreChange = useCallback((e) => {
     setSelectedStore(e.target.value);
     setPage(0);
-  };
+  }, []);
 
-  const handleSearchChange = (e) => {
-    setSearchQuery(e.target.value);
-    setPage(0);
-  };
+  const handleSearchChange = useCallback((e) => {
+    const value = e.target.value;
+    setSearchQuery(value);
+    
+    // Önceki timeout'u temizle
+    if (searchTimeoutRef.current) {
+      clearTimeout(searchTimeoutRef.current);
+    }
+    
+    // Yeni timeout ayarla (300ms sonra arama yap)
+    searchTimeoutRef.current = setTimeout(() => {
+      setDebouncedSearchQuery(value);
+      setPage(0);
+    }, 300);
+  }, []);
 
-  const clearFilters = () => {
+  const clearFilters = useCallback(() => {
     setSearchQuery("");
     setMinPrice("");
     setMaxPrice("");
+    setDebouncedSearchQuery("");
+    setDebouncedMinPrice("");
+    setDebouncedMaxPrice("");
     setSelectedStore("");
     setSort("");
     setPage(0);
-  };
+    
+    // Timeout'ları temizle
+    if (minPriceTimeoutRef.current) clearTimeout(minPriceTimeoutRef.current);
+    if (maxPriceTimeoutRef.current) clearTimeout(maxPriceTimeoutRef.current);
+    if (searchTimeoutRef.current) clearTimeout(searchTimeoutRef.current);
+  }, []);
 
-  const handleAddToCart = async (productId) => {
+  const handleAddToCart = useCallback(async (productId) => {
     try {
       await addToCart(productId, 1);
       toast.success("Ürün sepete eklendi!");
     } catch {
       toast.error("Ürün sepete eklenemedi!");
     }
-  };
+  }, [addToCart]);
 
-  if (loading) return (
-    <section className="max-w-7xl mx-auto px-4 md:px-8 mt-16">
-      <div className="text-center mb-8">
-        <Skeleton height={40} width={300} className="mx-auto mb-4" />
-      </div>
-      <div className="flex flex-wrap gap-4 items-center justify-center mb-8">
-        <Skeleton height={40} width={200} />
-        <Skeleton height={40} width={150} />
-        <Skeleton height={40} width={150} />
-        <Skeleton height={40} width={150} />
-      </div>
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-7">
-        {Array.from({ length: 8 }).map((_, i) => (
-          <div key={i} className="product-card">
-            <Skeleton height={200} className="mb-2" />
-            <Skeleton height={20} width={150} className="mb-2" />
-            <Skeleton height={16} width={80} className="mb-2" />
-            <Skeleton height={40} width={120} />
-          </div>
-        ))}
-      </div>
-    </section>
-  );
+  const handlePageChange = useCallback((newPage) => {
+    setPage(newPage);
+  }, []);
 
-  if (error) return <div className="cart-empty" style={{ color: "#d32f2f" }}>{error}</div>;
+  const handleToggleFilters = useCallback(() => {
+    setShowFilters(!showFilters);
+  }, [showFilters]);
 
   return (
     <section className="category-products-container max-w-7xl mx-auto px-2 sm:px-4 md:px-8 mt-16">
@@ -225,201 +266,36 @@ const CategoryProducts = () => {
       
       <div className="flex flex-col lg:flex-row gap-8">
         {/* Sol Filtreleme Paneli */}
-        <div className="lg:w-1/4">
-          <div className="filter-panel bg-white rounded-lg shadow-sm p-6">
-            <div className="flex items-center justify-between mb-6">
-              <h3 className="text-lg font-semibold text-gray-800">Filtreler</h3>
-              <button
-                onClick={() => setShowFilters(!showFilters)}
-                className="lg:hidden text-gray-500 hover:text-gray-700 flex items-center gap-2"
-              >
-                <span>{showFilters ? 'Gizle' : 'Göster'}</span>
-                <svg className={`w-4 h-4 transition-transform ${showFilters ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                </svg>
-              </button>
-            </div>
-            
-            <div className={`${showFilters ? 'block' : 'hidden'} lg:block space-y-6`}>
-              {/* Arama Kutusu */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Ürün Ara
-                </label>
-                <input
-                  type="text"
-                  placeholder="Ürün adı, açıklama..."
-                  value={searchQuery}
-                  onChange={handleSearchChange}
-                  className="w-full border border-gray-300 px-3 py-2 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                />
-              </div>
-
-              {/* Fiyat Aralığı */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Fiyat Aralığı
-                </label>
-                <div className="space-y-2">
-                  <input
-                    type="number"
-                    placeholder="Min Fiyat"
-                    value={minPrice}
-                    onChange={handleMinPriceChange}
-                    className="w-full border border-gray-300 px-3 py-2 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                  />
-                  <input
-                    type="number"
-                    placeholder="Max Fiyat"
-                    value={maxPrice}
-                    onChange={handleMaxPriceChange}
-                    className="w-full border border-gray-300 px-3 py-2 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                  />
-                </div>
-              </div>
-
-              {/* Mağaza Filtresi */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Mağaza
-                </label>
-                <select
-                  value={selectedStore}
-                  onChange={handleStoreChange}
-                  className="w-full border border-gray-300 px-3 py-2 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                  disabled={storesLoading}
-                >
-                  <option value="">Tüm Mağazalar</option>
-                  {stores.map((store) => (
-                    <option key={store.id} value={store.name}>
-                      {store.name}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              {/* Sıralama */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Sıralama
-                </label>
-                <select
-                  value={sort}
-                  onChange={handleSortChange}
-                  className="w-full border border-gray-300 px-3 py-2 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                >
-                  <option value="">Varsayılan</option>
-                  <option value="price,asc">Fiyat: Artan</option>
-                  <option value="price,desc">Fiyat: Azalan</option>
-                  <option value="popular">Popüler</option>
-                </select>
-              </div>
-
-              {/* Filtreleri Temizle */}
-              <button
-                onClick={clearFilters}
-                className="w-full bg-gray-500 text-white py-2 px-4 rounded-lg hover:bg-gray-600 transition-colors"
-              >
-                Filtreleri Temizle
-              </button>
-            </div>
-          </div>
-        </div>
+        <FilterPanel
+          searchQuery={searchQuery}
+          minPrice={minPrice}
+          maxPrice={maxPrice}
+          selectedStore={selectedStore}
+          sort={sort}
+          stores={stores}
+          storesLoading={storesLoading}
+          showFilters={showFilters}
+          onSearchChange={handleSearchChange}
+          onMinPriceChange={handleMinPriceChange}
+          onMaxPriceChange={handleMaxPriceChange}
+          onStoreChange={handleStoreChange}
+          onSortChange={handleSortChange}
+          onToggleFilters={handleToggleFilters}
+          onClearFilters={clearFilters}
+        />
 
         {/* Sağ Ürün Listesi */}
-        <div className="lg:w-3/4">
-          <h2 className="text-2xl md:text-3xl font-bold mb-8 text-gray-800 text-center">
-            {category ? category.name : "Kategori"} Ürünleri
-          </h2>
-          
-          {loading ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-5 sm:gap-7 py-8">
-              {Array.from({ length: 8 }).map((_, i) => (
-                <div key={i} className="p-4">
-                  <Skeleton height={160} className="mb-4 rounded-lg" />
-                  <Skeleton height={24} width={120} className="mb-2" />
-                  <Skeleton height={20} width={80} />
-                  <Skeleton height={36} className="mt-4 rounded" />
-                </div>
-              ))}
-            </div>
-          ) : error ? (
-            <div className="text-center text-red-500 py-8">{error}</div>
-          ) : (
-            <>
-              {products.length === 0 ? (
-                <div className="text-center py-8">
-                  <p className="text-gray-500 text-lg">Bu kategoride aradığınız kriterlere uygun ürün bulunamadı.</p>
-                  <button
-                    onClick={clearFilters}
-                    className="mt-4 px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
-                  >
-                    Filtreleri Temizle
-                  </button>
-                </div>
-              ) : (
-                <>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-5 sm:gap-7 py-8">
-                    {products.map((product) => (
-                      <ProductCard
-                        key={product.id}
-                        product={product}
-                        onAddToCart={handleAddToCart}
-                      />
-                    ))}
-                  </div>
-                  {/* Sayfalama */}
-                  {totalPages > 1 && (
-                    <div className="flex justify-center mt-8 space-x-2">
-                      {/* Önceki sayfa */}
-                      {page > 0 && (
-                        <button
-                          onClick={() => setPage(page - 1)}
-                          className="px-3 py-2 rounded bg-gray-200 text-gray-700 hover:bg-gray-300"
-                        >
-                          Önceki
-                        </button>
-                      )}
-                      
-                      {/* Sayfa numaraları */}
-                      {Array.from({ length: totalPages }, (_, i) => {
-                        // Sadece mevcut sayfa ve etrafındaki 2 sayfayı göster
-                        if (i === 0 || i === totalPages - 1 || (i >= page - 1 && i <= page + 1)) {
-                          return (
-                            <button
-                              key={i}
-                              onClick={() => setPage(i)}
-                              className={`px-3 py-2 rounded ${
-                                page === i
-                                  ? "bg-green-600 text-white"
-                                  : "bg-gray-200 text-gray-700 hover:bg-gray-300"
-                              }`}
-                            >
-                              {i + 1}
-                            </button>
-                          );
-                        } else if (i === page - 2 || i === page + 2) {
-                          return <span key={i} className="px-2 py-2">...</span>;
-                        }
-                        return null;
-                      })}
-                      
-                      {/* Sonraki sayfa */}
-                      {page < totalPages - 1 && (
-                        <button
-                          onClick={() => setPage(page + 1)}
-                          className="px-3 py-2 rounded bg-gray-200 text-gray-700 hover:bg-gray-300"
-                        >
-                          Sonraki
-                        </button>
-                      )}
-                    </div>
-                  )}
-                </>
-              )}
-            </>
-          )}
-        </div>
+        <ProductListSection
+          category={category}
+          products={products}
+          loading={loading}
+          error={error}
+          page={page}
+          totalPages={totalPages}
+          onAddToCart={handleAddToCart}
+          onPageChange={handlePageChange}
+          onClearFilters={clearFilters}
+        />
       </div>
     </section>
   );

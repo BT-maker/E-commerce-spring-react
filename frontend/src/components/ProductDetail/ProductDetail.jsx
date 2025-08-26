@@ -56,6 +56,10 @@ const ProductDetail = () => {
   const [reviewLoading, setReviewLoading] = useState(false);
   const [reviewsLoading, setReviewsLoading] = useState(false);
 
+  // Ürün önerileri state'leri
+  const [recommendations, setRecommendations] = useState([]);
+  const [recommendationsLoading, setRecommendationsLoading] = useState(false);
+
   // Ürün görselleri (örnek)
   const productImages = [
     product?.imageUrl || '/img/no-image.png',
@@ -95,6 +99,44 @@ const ProductDetail = () => {
         setLoading(false);
       });
   }, [id]);
+
+  // Ürün önerilerini getir
+  useEffect(() => {
+    if (product && product.category?.id) {
+      setRecommendationsLoading(true);
+      console.log('Öneriler için kategori ID:', product.category.id);
+      console.log('Mevcut ürün ID:', product.id);
+      console.log('Ürün objesi:', product);
+      
+      fetch(`http://localhost:8082/api/products?categoryId=${product.category.id}&page=0&size=8`)
+        .then(res => {
+          console.log('API yanıt durumu:', res.status);
+          if (!res.ok) {
+            throw new Error(`HTTP ${res.status}`);
+          }
+          return res.json();
+        })
+        .then(data => {
+          console.log('Öneriler API yanıtı:', data);
+          console.log('API yanıtı content:', data.content);
+          console.log('Toplam ürün sayısı:', data.content?.length || 0);
+          
+          // Mevcut ürünü hariç tut
+          const filteredProducts = data.content?.filter(p => p.id !== product.id) || [];
+          console.log('Filtrelenmiş öneriler:', filteredProducts);
+          console.log('Filtrelenmiş ürün sayısı:', filteredProducts.length);
+          
+          setRecommendations(filteredProducts.slice(0, 6)); // En fazla 6 öneri
+          setRecommendationsLoading(false);
+        })
+        .catch(err => {
+          console.error('Öneriler yüklenirken hata:', err);
+          setRecommendationsLoading(false);
+        });
+    } else {
+      console.log('Ürün veya kategori ID yok:', { product, category: product?.category });
+    }
+  }, [product]);
 
   // Review'ları ve istatistikleri getir
   useEffect(() => {
@@ -137,7 +179,11 @@ const ProductDetail = () => {
     })
       .then(res => {
         if (res.ok) return res.json();
-        return null;
+        if (res.status === 404) {
+          console.log('Kullanıcının bu ürün için review\'ı yok');
+          return null;
+        }
+        throw new Error(`HTTP ${res.status}`);
       })
       .then(data => {
         if (data) {
@@ -145,8 +191,9 @@ const ProductDetail = () => {
           setReviewForm({ rating: data.rating, comment: data.comment || "" });
         }
       })
-      .catch(() => {
-        // Kullanıcının review'ı yok
+      .catch((error) => {
+        console.log('Kullanıcı review\'ı alınamadı:', error.message);
+        // Bu normal bir durum, kullanıcının review'ı yok
       });
   }, [product, isLoggedIn]);
 
@@ -678,6 +725,84 @@ const ProductDetail = () => {
               </div>
             </div>
           )}
+
+          {/* Ürün Önerileri Bölümü */}
+          <div className="product-recommendations">
+            <div className="recommendations-header">
+              <h3>Benzer ürünleri keşfedin</h3>
+            </div>
+            
+            {recommendationsLoading ? (
+              <div className="recommendations-loading">
+                <div className="recommendations-grid">
+                  {Array.from({ length: 6 }).map((_, i) => (
+                    <div key={i} className="recommendation-skeleton">
+                      <Skeleton height={200} className="mb-3" />
+                      <Skeleton height={20} width="80%" className="mb-2" />
+                      <Skeleton height={16} width="60%" className="mb-2" />
+                      <Skeleton height={24} width="40%" />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ) : recommendations.length > 0 ? (
+              <div className="recommendations-grid">
+                {recommendations.map((recProduct) => (
+                  <Link 
+                    key={recProduct.id} 
+                    to={`/product/${recProduct.id}`}
+                    className="recommendation-card"
+                  >
+                    <div className="recommendation-image">
+                      <img 
+                        src={recProduct.imageUrl || '/img/no-image.png'} 
+                        alt={recProduct.name}
+                        onError={(e) => {
+                          e.target.src = '/img/no-image.png';
+                        }}
+                      />
+                      {recProduct.isDiscountActive && (
+                        <div className="discount-badge">
+                          %{recProduct.discountPercentage}
+                        </div>
+                      )}
+                    </div>
+                    <div className="recommendation-content">
+                      <h4 className="recommendation-title">{recProduct.name}</h4>
+                      <div className="recommendation-price">
+                        {recProduct.isDiscountActive ? (
+                          <>
+                            <span className="original-price">
+                              {Number(recProduct.price).toLocaleString('tr-TR')} ₺
+                            </span>
+                            <span className="discounted-price">
+                              {Number(recProduct.discountedPrice).toLocaleString('tr-TR')} ₺
+                            </span>
+                          </>
+                        ) : (
+                          <span className="current-price">
+                            {Number(recProduct.price).toLocaleString('tr-TR')} ₺
+                          </span>
+                        )}
+                      </div>
+                      <div className="recommendation-rating">
+                        <div className="stars">
+                          {renderStars(recProduct.averageRating || 0)}
+                        </div>
+                        <span className="rating-count">
+                          ({recProduct.reviewCount || 0})
+                        </span>
+                      </div>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            ) : (
+              <div className="no-recommendations">
+                <p>Bu kategoride henüz başka ürün bulunmuyor.</p>
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </div>
