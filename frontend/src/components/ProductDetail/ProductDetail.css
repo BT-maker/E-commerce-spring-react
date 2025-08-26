@@ -983,4 +983,269 @@
   .main-image-container {
     height: 250px;
   }
+
+  .recommendation-card {
+    min-width: 180px;
+    max-width: 180px;
+  }
+
+  .recommendation-image {
+    height: 140px;
+  }
+
+  .recommendation-content {
+    padding: 10px;
+  }
+
+  .recommendation-title {
+    font-size: 13px;
+  }
+
+  .discounted-price,
+  .current-price {
+    font-size: 13px;
+  }
+}
+
+/* Ürün Önerileri Bölümü */
+.product-recommendations {
+  margin-top: 40px;
+  background: white;
+  border-radius: 12px;
+  padding: 32px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.recommendations-header {
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+.recommendations-header h3 {
+  font-size: 28px;
+  font-weight: 700;
+  color: #333;
+  margin-bottom: 8px;
+}
+
+.recommendations-header p {
+  font-size: 16px;
+  color: #666;
+  margin: 0;
+}
+
+.recommendations-grid {
+  display: flex;
+  gap: 16px;
+  overflow-x: auto;
+  padding: 8px 0;
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+}
+
+.recommendations-grid::-webkit-scrollbar {
+  height: 6px;
+}
+
+.recommendations-grid::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 3px;
+}
+
+.recommendations-grid::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 3px;
+}
+
+.recommendations-grid::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
+}
+
+.recommendation-card {
+  display: block;
+  text-decoration: none;
+  color: inherit;
+  background: #f8f9fa;
+  border-radius: 12px;
+  overflow: hidden;
+  transition: all 0.3s ease;
+  border: 1px solid #e9ecef;
+  min-width: 220px;
+  max-width: 220px;
+  flex-shrink: 0;
+}
+
+.recommendation-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+  border-color: #ff6000;
+}
+
+.recommendation-image {
+  position: relative;
+  width: 100%;
+  height: 160px;
+  background: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.recommendation-image img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  transition: transform 0.3s ease;
+}
+
+.recommendation-card:hover .recommendation-image img {
+  transform: scale(1.05);
+}
+
+.discount-badge {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: #ff4757;
+  color: white;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.recommendation-content {
+  padding: 12px;
+}
+
+.recommendation-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 6px;
+  line-height: 1.3;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.recommendation-price {
+  margin-bottom: 8px;
+}
+
+.original-price {
+  text-decoration: line-through;
+  color: #999;
+  font-size: 12px;
+  margin-right: 6px;
+}
+
+.discounted-price {
+  color: #ff4757;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.current-price {
+  color: #333;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.recommendation-rating {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.recommendation-rating .stars {
+  display: flex;
+  align-items: center;
+}
+
+.recommendation-rating .rating-count {
+  font-size: 12px;
+  color: #666;
+}
+
+.recommendations-loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 300px;
+}
+
+.recommendation-skeleton {
+  background: #f8f9fa;
+  border-radius: 12px;
+  padding: 16px;
+  border: 1px solid #e9ecef;
+}
+
+.no-recommendations {
+  text-align: center;
+  padding: 40px;
+  color: #666;
+}
+
+.no-recommendations p {
+  font-size: 16px;
+  margin: 0;
+}
+
+/* Responsive Tasarım */
+@media (max-width: 1024px) {
+  .recommendations-grid {
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+  }
+}
+
+@media (max-width: 768px) {
+  .product-recommendations {
+    padding: 24px;
+    margin-top: 24px;
+  }
+  
+  .recommendations-header h3 {
+    font-size: 24px;
+  }
+  
+  .recommendations-grid {
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+  }
+  
+  .recommendation-image {
+    height: 160px;
+  }
+  
+  .recommendation-content {
+    padding: 12px;
+  }
+  
+  .recommendation-title {
+    font-size: 14px;
+  }
+}
+
+@media (max-width: 480px) {
+  .product-recommendations {
+    padding: 16px;
+  }
+  
+  .recommendations-header h3 {
+    font-size: 20px;
+  }
+  
+  .recommendations-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+  
+  .recommendation-image {
+    height: 140px;
+  }
 } 

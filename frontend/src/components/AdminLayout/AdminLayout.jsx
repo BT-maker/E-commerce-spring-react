@@ -78,6 +78,11 @@ const AdminLayout = ({ children }) => {
       icon: Mail
     },
     {
+      path: "/admin/notifications",
+      name: "Bildirimler",
+      icon: Bell
+    },
+    {
       path: "/admin/settings",
       name: "Sistem Ayarları",
       icon: Settings

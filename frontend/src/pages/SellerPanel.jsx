@@ -285,7 +285,7 @@ const SellerPanel = () => {
                           onChange={e => setForm(f => ({ ...f, categoryId: e.target.value }))}
                         >
                           <option value="">Kategori Seçin</option>
-                          {categories.map(cat => (
+                          {Array.isArray(categories) && categories.map(cat => (
                             <option key={cat.id} value={cat.id}>{cat.name}</option>
                           ))}
                         </select>

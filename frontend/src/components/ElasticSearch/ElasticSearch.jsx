@@ -220,7 +220,7 @@ const ElasticSearch = () => {
                   className="w-full border border-gray-300 px-3 py-2 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
                 >
                   <option value="">Tüm Kategoriler</option>
-                  {categories.map(cat => (
+                  {Array.isArray(categories) && categories.map(cat => (
                     <option key={cat.id} value={cat.name}>
                       {cat.name}
                     </option>

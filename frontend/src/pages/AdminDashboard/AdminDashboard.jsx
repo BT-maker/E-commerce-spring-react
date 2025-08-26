@@ -27,6 +27,7 @@ import MetaTags from '../../components/MetaTags/MetaTags';
 
 const AdminDashboard = () => {
   const { user } = useContext(AuthContext);
+  const navigate = useNavigate();
   const [stats, setStats] = useState({
     totalUsers: 0,
     totalSellers: 0,
@@ -358,7 +359,12 @@ const AdminDashboard = () => {
                <h3>Bildirimler</h3>
                <div className="header-info">
                  <span className="notifications-count">Toplam {notificationsPagination.totalNotifications} bildirim</span>
-                 <button className="view-all-btn">Tümünü Gör</button>
+                 <button 
+                   className="view-all-btn"
+                   onClick={() => navigate('/admin/notifications')}
+                 >
+                   Tümünü Gör
+                 </button>
                </div>
              </div>
              <div className="notifications-list">

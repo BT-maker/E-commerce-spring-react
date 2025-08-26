@@ -151,7 +151,7 @@ const ProductModal = ({ show, onClose, onSave, categories, initial, loading = fa
                 disabled={loading}
               >
                 <option value="">Kategori seçin</option>
-                {categories.map(cat => (
+                {Array.isArray(categories) && categories.map(cat => (
                   <option key={cat.id} value={cat.id}>{cat.name}</option>
                 ))}
               </select>
