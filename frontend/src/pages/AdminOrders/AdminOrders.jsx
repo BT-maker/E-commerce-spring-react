@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { ShoppingCart, Search, Filter, MoreVertical, Eye, CheckCircle, XCircle, DollarSign, Calendar, User, Package, Clock } from "lucide-react";
+import { ShoppingCart, Search, Filter, Eye, CheckCircle, XCircle, DollarSign, Calendar, User, Package, Clock, TrendingUp } from "lucide-react";
 import "./AdminOrders.css";
 import PageTitle from '../../components/PageTitle/PageTitle';
 import MetaTags from '../../components/MetaTags/MetaTags';
@@ -82,12 +82,10 @@ const AdminOrders = () => {
     const filterOrders = () => {
         let filtered = orders;
 
-        // Status filter
         if (statusFilter !== "all") {
             filtered = filtered.filter(order => order.status === statusFilter);
         }
 
-        // Search filter
         if (searchTerm) {
             filtered = filtered.filter(order =>
                 order.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -112,7 +110,7 @@ const AdminOrders = () => {
 
             if (response.ok) {
                 toast.success(`Sipariş durumu ${getStatusText(newStatus)} olarak güncellendi`);
-                fetchOrders(); // Refresh the list
+                fetchOrders();
             } else {
                 console.error("Update status response not ok:", response.status);
                 const errorText = await response.text();
@@ -180,7 +178,10 @@ const AdminOrders = () => {
     if (loading) {
         return (
             <div className="admin-orders">
-                <div className="loading">Yükleniyor...</div>
+                <div className="loading-container">
+                    <div className="loading-spinner"></div>
+                    <p>Yükleniyor...</p>
+                </div>
             </div>
         );
     }
@@ -194,30 +195,80 @@ const AdminOrders = () => {
                 keywords="admin, sipariş, yönetim, e-ticaret"
             />
 
-            <div className="admin-orders-header">
-                <div className="header-content">
-                    <div className="header-title">
-                        <ShoppingCart className="header-icon" />
-                        <h1>Sipariş Yönetimi</h1>
+            <div className="orders-header">
+                <div className="header-left">
+                    <div className="header-icon">
+                        <ShoppingCart className="header-icon-svg" />
                     </div>
-                    <p>Platformdaki tüm siparişleri yönetin ve takip edin</p>
+                    <div className="header-text">
+                        <h1>Sipariş Yönetimi</h1>
+                        <p>Platformdaki tüm siparişleri yönetin ve takip edin</p>
+                    </div>
                 </div>
             </div>
 
-            <div className="admin-orders-content">
-                <div className="filters-section">
-                    <div className="search-box">
-                        <Search className="search-icon" />
-                        <input
-                            type="text"
-                            placeholder="Sipariş ara..."
-                            value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
-                        />
+            <div className="stats-grid">
+                <div className="stat-card total">
+                    <div className="stat-icon">
+                        <ShoppingCart />
+                    </div>
+                    <div className="stat-content">
+                        <h3>Toplam Sipariş</h3>
+                        <p className="stat-number">{stats.totalOrders}</p>
+                        <span className="stat-trend">+12% geçen aya göre</span>
+                    </div>
+                </div>
+
+                <div className="stat-card pending">
+                    <div className="stat-icon">
+                        <Clock />
+                    </div>
+                    <div className="stat-content">
+                        <h3>Bekleyen</h3>
+                        <p className="stat-number">{stats.pendingOrders}</p>
+                        <span className="stat-trend">Acil işlem gerekiyor</span>
+                    </div>
+                </div>
+
+                <div className="stat-card completed">
+                    <div className="stat-icon">
+                        <CheckCircle />
+                    </div>
+                    <div className="stat-content">
+                        <h3>Tamamlanan</h3>
+                        <p className="stat-number">{stats.completedOrders}</p>
+                        <span className="stat-trend">+8% geçen aya göre</span>
+                    </div>
+                </div>
+
+                <div className="stat-card revenue">
+                    <div className="stat-icon">
+                        <TrendingUp />
+                    </div>
+                    <div className="stat-content">
+                        <h3>Toplam Gelir</h3>
+                        <p className="stat-number">₺{stats.totalRevenue.toLocaleString()}</p>
+                        <span className="stat-trend">+15% geçen aya göre</span>
+                    </div>
+                </div>
+            </div>
+
+            <div className="orders-container">
+                <div className="filters-bar">
+                    <div className="search-section">
+                        <div className="search-input">
+                            <Search className="search-icon" />
+                            <input
+                                type="text"
+                                placeholder="Sipariş ID, müşteri adı veya email ara..."
+                                value={searchTerm}
+                                onChange={(e) => setSearchTerm(e.target.value)}
+                            />
+                        </div>
                     </div>
 
-                    <div className="filter-controls">
-                        <div className="filter-group">
+                    <div className="filter-section">
+                        <div className="filter-dropdown">
                             <Filter className="filter-icon" />
                             <select
                                 value={statusFilter}
@@ -233,159 +284,108 @@ const AdminOrders = () => {
                     </div>
                 </div>
 
-                <div className="stats-cards">
-                    <div className="stat-card">
-                        <div className="stat-icon">
-                            <ShoppingCart />
+                <div className="orders-list">
+                    {filteredOrders.length === 0 ? (
+                        <div className="empty-state">
+                            <div className="empty-icon">
+                                <ShoppingCart />
+                            </div>
+                            <h3>Sipariş bulunamadı</h3>
+                            <p>Arama kriterlerinize uygun sipariş bulunmuyor.</p>
                         </div>
-                        <div className="stat-content">
-                            <h3>TOPLAM SİPARİŞ</h3>
-                            <p>{stats.totalOrders}</p>
-                        </div>
-                    </div>
-                    <div className="stat-card">
-                        <div className="stat-icon pending">
-                            <Clock />
-                        </div>
-                        <div className="stat-content">
-                            <h3>BEKLEYEN</h3>
-                            <p>{stats.pendingOrders}</p>
-                        </div>
-                    </div>
-                    <div className="stat-card">
-                        <div className="stat-icon completed">
-                            <CheckCircle />
-                        </div>
-                        <div className="stat-content">
-                            <h3>TAMAMLANAN</h3>
-                            <p>{stats.completedOrders}</p>
-                        </div>
-                    </div>
-                    <div className="stat-card">
-                        <div className="stat-icon revenue">
-                            <DollarSign />
-                        </div>
-                        <div className="stat-content">
-                            <h3>TOPLAM GELİR</h3>
-                            <p>₺{stats.totalRevenue.toLocaleString()}</p>
-                        </div>
-                    </div>
-                </div>
-
-                <div className="orders-table-container">
-                    <div className="orders-table">
-                        <div className="table-header">
-                            <div className="header-cell">Sipariş ID</div>
-                            <div className="header-cell">Müşteri</div>
-                            <div className="header-cell">Tutar</div>
-                            <div className="header-cell">Durum</div>
-                            <div className="header-cell">Tarih</div>
-                            <div className="header-cell">İşlemler</div>
-                        </div>
-
-                        <div className="table-body">
-                            {filteredOrders.map((order) => (
-                                <div key={order.id} className="table-row">
-                                    <div className="table-cell order-id-cell">
-                                        <div className="order-id">
-                                            <span className="id-text">#{order.id.substring(0, 8)}</span>
-                                        </div>
+                    ) : (
+                        filteredOrders.map((order) => (
+                            <div key={order.id} className="order-card">
+                                <div className="order-header">
+                                    <div className="order-id">
+                                        <span className="id-label">Sipariş ID</span>
+                                        <span className="id-value">#{order.id.substring(0, 8)}</span>
                                     </div>
-                                    <div className="table-cell customer-cell">
-                                        <div className="customer">
-                                            <div className="customer-info">
-                                                <User className="customer-icon" />
-                                                <div>
-                                                    <div className="customer-name">
-                                                        {order.user?.firstName} {order.user?.lastName}
-                                                    </div>
-                                                    <div className="customer-email">
-                                                        {order.user?.email}
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div className="table-cell amount-cell">
-                                        <div className="amount">
-                                            <span className="amount-text">{formatPrice(order.totalPrice)}</span>
-                                        </div>
-                                    </div>
-                                    <div className="table-cell status-cell">
-                                        <div className="status">
-                                            {getStatusBadge(order.status)}
-                                        </div>
-                                    </div>
-                                    <div className="table-cell date-cell">
-                                        <div className="date">
-                                            <div className="date-info">
-                                                <Calendar className="date-icon" />
-                                                <span>{formatDate(order.createdAt)}</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div className="table-cell actions-cell">
-                                        <div className="actions">
-                                            <div className="action-buttons">
-                                                <button
-                                                    className="action-btn view-btn"
-                                                    onClick={() => viewOrderDetails(order)}
-                                                    title="Detayları Görüntüle"
-                                                >
-                                                    <Eye />
-                                                </button>
-                                                
-                                                {order.status === 'PENDING' && (
-                                                    <>
-                                                        <button
-                                                            className="action-btn ship-btn"
-                                                            onClick={() => updateOrderStatus(order.id, 'SHIPPED')}
-                                                            title="Kargoya Ver"
-                                                        >
-                                                            <Package />
-                                                        </button>
-                                                        <button
-                                                            className="action-btn complete-btn"
-                                                            onClick={() => updateOrderStatus(order.id, 'COMPLETED')}
-                                                            title="Tamamla"
-                                                        >
-                                                            <CheckCircle />
-                                                        </button>
-                                                        <button
-                                                            className="action-btn cancel-btn"
-                                                            onClick={() => updateOrderStatus(order.id, 'CANCELLED')}
-                                                            title="İptal Et"
-                                                        >
-                                                            <XCircle />
-                                                        </button>
-                                                    </>
-                                                )}
-                                                
-                                                {order.status === 'SHIPPED' && (
-                                                    <button
-                                                        className="action-btn complete-btn"
-                                                        onClick={() => updateOrderStatus(order.id, 'COMPLETED')}
-                                                        title="Tamamla"
-                                                    >
-                                                        <CheckCircle />
-                                                    </button>
-                                                )}
-                                            </div>
-                                        </div>
+                                    <div className="order-status">
+                                        {getStatusBadge(order.status)}
                                     </div>
                                 </div>
-                            ))}
-                        </div>
-                    </div>
-                </div>
 
-                {filteredOrders.length === 0 && (
-                    <div className="no-orders">
-                        <ShoppingCart className="no-orders-icon" />
-                        <h3>Sipariş bulunamadı</h3>
-                        <p>Arama kriterlerinize uygun sipariş bulunmuyor.</p>
-                    </div>
-                )}
+                                <div className="order-content">
+                                    <div className="customer-section">
+                                        <div className="customer-avatar">
+                                            <User />
+                                        </div>
+                                        <div className="customer-details">
+                                            <h4>{order.user?.firstName} {order.user?.lastName}</h4>
+                                            <p>{order.user?.email}</p>
+                                        </div>
+                                    </div>
+
+                                    <div className="order-details">
+                                        <div className="detail-item">
+                                            <span className="detail-label">Tutar</span>
+                                            <span className="detail-value amount">{formatPrice(order.totalPrice)}</span>
+                                        </div>
+                                        <div className="detail-item">
+                                            <span className="detail-label">Tarih</span>
+                                            <span className="detail-value date">
+                                                <Calendar className="date-icon" />
+                                                {formatDate(order.createdAt)}
+                                            </span>
+                                        </div>
+                                    </div>
+
+                                    <div className="order-actions">
+                                        <button
+                                            className="action-btn view"
+                                            onClick={() => viewOrderDetails(order)}
+                                            title="Detayları Görüntüle"
+                                        >
+                                            <Eye />
+                                            <span>Detay</span>
+                                        </button>
+                                        
+                                        {order.status === 'PENDING' && (
+                                            <>
+                                                <button
+                                                    className="action-btn ship"
+                                                    onClick={() => updateOrderStatus(order.id, 'SHIPPED')}
+                                                    title="Kargoya Ver"
+                                                >
+                                                    <Package />
+                                                    <span>Kargoya Ver</span>
+                                                </button>
+                                                <button
+                                                    className="action-btn complete"
+                                                    onClick={() => updateOrderStatus(order.id, 'COMPLETED')}
+                                                    title="Tamamla"
+                                                >
+                                                    <CheckCircle />
+                                                    <span>Tamamla</span>
+                                                </button>
+                                                <button
+                                                    className="action-btn cancel"
+                                                    onClick={() => updateOrderStatus(order.id, 'CANCELLED')}
+                                                    title="İptal Et"
+                                                >
+                                                    <XCircle />
+                                                    <span>İptal Et</span>
+                                                </button>
+                                            </>
+                                        )}
+                                        
+                                        {order.status === 'SHIPPED' && (
+                                            <button
+                                                className="action-btn complete"
+                                                onClick={() => updateOrderStatus(order.id, 'COMPLETED')}
+                                                title="Tamamla"
+                                            >
+                                                <CheckCircle />
+                                                <span>Tamamla</span>
+                                            </button>
+                                        )}
+                                    </div>
+                                </div>
+                            </div>
+                        ))
+                    )}
+                </div>
             </div>
 
             {/* Order Details Modal */}
