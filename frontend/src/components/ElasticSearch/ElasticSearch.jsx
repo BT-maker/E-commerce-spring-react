@@ -348,7 +348,7 @@ const ElasticSearch = () => {
                     {page > 0 && (
                                              <button
                          onClick={() => handlePageChange(page - 1)}
-                         className="px-3 py-2 rounded bg-orange-700 text-white hover:bg-orange-800"
+                         className="px-2 py-1 rounded bg-orange-700 text-white hover:bg-orange-800"
                        >
                          Önceki
                        </button>
@@ -380,7 +380,7 @@ const ElasticSearch = () => {
                     {page < totalPages - 1 && (
                                              <button
                          onClick={() => handlePageChange(page + 1)}
-                         className="px-3 py-2 rounded bg-orange-700 text-white hover:bg-orange-800"
+                         className="px-2 py-1 rounded bg-orange-700 text-white hover:bg-orange-800"
                        >
                          Sonraki
                        </button>
