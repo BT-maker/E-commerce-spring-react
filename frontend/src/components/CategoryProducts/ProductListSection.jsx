@@ -50,12 +50,12 @@ const ProductListSection = memo(({
       {products.length === 0 ? (
         <div className="text-center py-8">
           <p className="text-gray-500 text-lg">Bu kategoride aradığınız kriterlere uygun ürün bulunamadı.</p>
-          <button
-            onClick={onClearFilters}
-            className="mt-4 px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
-          >
-            Filtreleri Temizle
-          </button>
+                     <button
+             onClick={onClearFilters}
+             className="mt-4 px-4 py-2 bg-white border border-orange-500 text-orange-600 rounded hover:bg-orange-50 transition-colors"
+           >
+             Filtreleri Temizle
+           </button>
         </div>
       ) : (
         <>
@@ -76,7 +76,7 @@ const ProductListSection = memo(({
               {page > 0 && (
                 <button
                   onClick={() => onPageChange(page - 1)}
-                  className="px-3 py-2 rounded bg-gray-200 text-gray-700 hover:bg-gray-300"
+                  className="px-3 py-2 rounded bg-gray-100 text-orange-700"
                 >
                   Önceki
                 </button>
@@ -90,11 +90,11 @@ const ProductListSection = memo(({
                     <button
                       key={i}
                       onClick={() => onPageChange(i)}
-                      className={`px-3 py-2 rounded ${
-                        page === i
-                          ? "bg-green-600 text-white"
-                          : "bg-gray-200 text-gray-700 hover:bg-gray-300"
-                      }`}
+                                             className={`px-3 py-2 rounded ${
+                         page === i
+                           ? "bg-orange-700 text-white"
+                           : "bg-gray-100 text-orange-700"
+                       }`}
                     >
                       {i + 1}
                     </button>
@@ -109,7 +109,7 @@ const ProductListSection = memo(({
               {page < totalPages - 1 && (
                 <button
                   onClick={() => onPageChange(page + 1)}
-                  className="px-3 py-2 rounded bg-gray-200 text-gray-700 hover:bg-gray-300"
+                  className="px-3 py-2 rounded bg-gray-100 text-orange-700"
                 >
                   Sonraki
                 </button>
