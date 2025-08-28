@@ -395,11 +395,11 @@ const SellerStock = () => {
                   <tr key={product.id} className={`stock-row ${getStockStatus(product.stock)}`}>
                     <td className="product-cell">
                       <img 
-                        src={product.imageUrl || 'https://via.placeholder.com/50x50?text=No+Image'} 
+                        src={product.imageUrl1 || product.imageUrl || '/img/default-product.png'} 
                         alt={product.name}
                         className="product-image"
                         onError={(e) => {
-                          e.target.src = 'https://via.placeholder.com/50x50?text=No+Image';
+                          e.target.src = '/img/default-product.png';
                         }}
                       />
                       <div className="product-info">

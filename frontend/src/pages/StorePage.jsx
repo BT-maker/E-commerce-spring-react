@@ -165,7 +165,6 @@ const StorePage = () => {
                  className="w-full h-full object-cover rounded-lg"
                 onError={(e) => {
                   e.target.style.display = 'none';
-                  e.target.nextSibling.style.display = 'flex';
                 }}
               />
               <div className="hidden absolute inset-0 bg-gradient-to-r from-blue-600 to-purple-600 items-center justify-center">
@@ -190,7 +189,6 @@ const StorePage = () => {
                   className="w-24 h-24 md:w-32 md:h-32 rounded-xl object-cover border-4 border-white shadow-lg"
                   onError={(e) => {
                     e.target.style.display = 'none';
-                    e.target.nextSibling.style.display = 'flex';
                   }}
                 />
               ) : null}

@@ -416,16 +416,27 @@ const SellerOrders = () => {
                     {order.items?.map((item) => (
                       <div key={item.id} className="item-card">
                         <img 
-                          src={item.product?.imageUrl || 'https://via.placeholder.com/50x50?text=No+Image'} 
+                          src={item.product?.imageUrl1 || item.product?.imageUrl || '/img/default-product.png'} 
                           alt={item.product?.name}
                           className="item-image"
                           onError={(e) => {
-                            e.target.src = 'https://via.placeholder.com/50x50?text=No+Image';
+                            e.target.src = '/img/default-product.png';
                           }}
                         />
                         <div className="item-details">
                           <h5>{item.product?.name || 'Ürün Adı'}</h5>
                           <p className="item-category">{item.product?.category?.name || 'Kategori yok'}</p>
+                          {item.product?.stock !== undefined && (
+                            <div className="item-stock-info">
+                              {item.product.stock <= 0 ? (
+                                <span className="stock-warning critical">Stokta yok</span>
+                              ) : item.product.stock <= 5 ? (
+                                <span className="stock-warning critical">Kritik stok: {item.product.stock} adet</span>
+                              ) : item.product.stock <= 10 ? (
+                                <span className="stock-warning low">Düşük stok: {item.product.stock} adet</span>
+                              ) : null}
+                            </div>
+                          )}
                         </div>
                         <div className="item-quantity">
                           {item.quantity} adet

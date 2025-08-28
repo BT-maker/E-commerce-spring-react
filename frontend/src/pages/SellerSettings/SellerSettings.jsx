@@ -547,7 +547,14 @@ const SellerSettings = () => {
                     <label htmlFor="storeLogo">Mağaza Logosu URL</label>
                     <div className="image-input-group">
                                              {storeData.logo && (
-                         <img src={storeData.logo} alt="Logo" className="preview-image" />
+                         <img 
+                           src={storeData.logo} 
+                           alt="Logo" 
+                           className="preview-image"
+                           onError={(e) => {
+                             e.target.style.display = 'none';
+                           }}
+                         />
                        )}
                       <div className="input-group">
                         
@@ -567,7 +574,14 @@ const SellerSettings = () => {
                     <label htmlFor="storeBanner">Mağaza Banner'ı URL</label>
                     <div className="image-input-group">
                                              {storeData.banner && (
-                         <img src={storeData.banner} alt="Banner" className="preview-image" />
+                         <img 
+                           src={storeData.banner} 
+                           alt="Banner" 
+                           className="preview-image"
+                           onError={(e) => {
+                             e.target.style.display = 'none';
+                           }}
+                         />
                        )}
                       <div className="input-group">
                         <input

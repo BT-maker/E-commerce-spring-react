@@ -201,17 +201,14 @@ const AdminProducts = () => {
                                 <tr key={product.id}>
                                     <td className="product-cell">
                                         <img 
-                                            src={product.imageUrl || '/img/default-product.jpg'} 
+                                            src={product.imageUrl1 || product.imageUrl || '/img/default-product.png'} 
                                             alt={product.name} 
                                             className="product-image"
                                             onError={(e) => {
-                                                e.target.style.display = 'none';
-                                                e.target.nextSibling.style.display = 'flex';
+                                                e.target.src = '/img/default-product.png';
                                             }}
                                         />
-                                        <div className="image-placeholder" style={{display: 'none'}}>
-                                            <span className="placeholder-icon">📷</span>
-                                        </div>
+
                                         <div className="product-info">
                                             <h4 className="product-name">{product.name}</h4>
                                             <p className="product-description">{product.description}</p>
@@ -222,9 +219,9 @@ const AdminProducts = () => {
                                         {formatPrice(product.price)}
                                     </td>
                                     <td className="stock-cell">
-                                        <span className={`stock-badge ${(product.stock || 0) < 10 ? 'low-stock' : 'normal-stock'}`}>
-                                            {product.stock || 0}
-                                        </span>
+                                                        <span className={`stock-badge ${(product.stock || 0) <= 0 ? 'out-of-stock' : (product.stock || 0) <= 5 ? 'critical-stock' : (product.stock || 0) <= 10 ? 'low-stock' : 'normal-stock'}`}>
+                  {product.stock || 0}
+                </span>
                                     </td>
                                     <td className="store-cell">
                                         <div className="store-info">
@@ -287,10 +284,10 @@ const AdminProducts = () => {
                         <div className="modal-body">
                             <div className="product-detail-image">
                                 <img 
-                                    src={selectedProduct.imageUrl || '/img/default-product.jpg'} 
+                                    src={selectedProduct.imageUrl1 || selectedProduct.imageUrl || '/img/default-product.png'} 
                                     alt={selectedProduct.name}
                                     onError={(e) => {
-                                        e.target.src = '/img/default-product.jpg';
+                                        e.target.src = '/img/default-product.png';
                                     }}
                                 />
                             </div>

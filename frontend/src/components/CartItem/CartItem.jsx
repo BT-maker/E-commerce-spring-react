@@ -22,9 +22,12 @@ const CartItem = ({ item, onQuantityChange, onRemove }) => {
         {/* Ürün Resmi */}
         <Link to={`/product/${product.id}`} className="flex-shrink-0">
                   <img 
-          src={product.imageUrl1 || product.imageUrl || '/img/no-image.png'} 
+          src={product.imageUrl1 || product.imageUrl || '/img/default-product.png'} 
             alt={product.name} 
             className="w-16 h-16 sm:w-20 sm:h-20 object-cover rounded-lg border border-gray-200"
+            onError={(e) => {
+              e.target.src = '/img/default-product.png';
+            }}
           />
         </Link>
         

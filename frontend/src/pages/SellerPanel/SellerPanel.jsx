@@ -105,8 +105,8 @@ const SellerPanel = () => {
 
   if (loading) {
     return (
-      <div className="seller-panel">
-        <div className="seller-panel-loading">
+      <div className="seller-dashboard">
+        <div className="seller-dashboard-loading">
           <div className="loading-spinner"></div>
           <h3>Dashboard Yükleniyor...</h3>
           <p>Verileriniz hazırlanıyor, lütfen bekleyin.</p>
@@ -117,8 +117,8 @@ const SellerPanel = () => {
 
   if (error) {
     return (
-      <div className="seller-panel">
-        <div className="seller-panel-error">
+      <div className="seller-dashboard">
+        <div className="seller-dashboard-error">
           <div className="error-icon">⚠️</div>
           <h3>Bir Hata Oluştu</h3>
           <p>{error}</p>
@@ -132,8 +132,8 @@ const SellerPanel = () => {
 
   if (!dashboardData) {
     return (
-      <div className="seller-panel">
-        <div className="seller-panel-error">
+      <div className="seller-dashboard">
+        <div className="seller-dashboard-error">
           <div className="error-icon">❌</div>
           <h3>Veri Bulunamadı</h3>
           <p>Dashboard verileri yüklenemedi.</p>
@@ -146,7 +146,7 @@ const SellerPanel = () => {
   }
 
   return (
-    <div className="seller-panel">
+    <div className="seller-dashboard">
       {/* Welcome Header */}
       <div className="welcome-header">
         <div className="welcome-content">
@@ -227,11 +227,11 @@ const SellerPanel = () => {
               dashboardData.lowStockProducts.map((product) => (
                 <div key={product.id} className="low-stock-item">
                   <img 
-                    src={product.imageUrl || '/img/placeholder-product.jpg'} 
+                    src={product.imageUrl1 || product.imageUrl || '/img/default-product.png'} 
                     alt={product.name}
                     className="product-image"
                     onError={(e) => {
-                      e.target.src = '/img/placeholder-product.jpg';
+                      e.target.src = '/img/default-product.png';
                     }}
                   />
                   <div className="product-info">

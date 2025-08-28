@@ -640,11 +640,11 @@ const SellerProducts = () => {
               <tr key={product.id}>
                 <td className="product-cell">
                   <img 
-                    src={product.imageUrl || 'https://via.placeholder.com/150x150?text=No+Image'} 
+                    src={product.imageUrl1 || product.imageUrl || '/img/default-product.png'} 
                     alt={product.name} 
                     className="product-image"
                     onError={(e) => {
-                      e.target.src = 'https://via.placeholder.com/150x150?text=No+Image';
+                      e.target.src = '/img/default-product.png';
                     }}
                   />
                   <div className="product-info">
@@ -655,9 +655,9 @@ const SellerProducts = () => {
                 <td>{product.category?.name || 'Kategorisiz'}</td>
                 <td className="price-cell">₺{product.price?.toLocaleString() || '0'}</td>
                 <td className="stock-cell">
-                  <span className={`stock-badge ${(product.stock || 0) < 10 ? 'low-stock' : 'normal-stock'}`}>
-                    {product.stock || 0}
-                  </span>
+                                  <span className={`stock-badge ${(product.stock || 0) <= 0 ? 'out-of-stock' : (product.stock || 0) <= 5 ? 'critical-stock' : (product.stock || 0) <= 10 ? 'low-stock' : 'normal-stock'}`}>
+                  {product.stock || 0}
+                </span>
                 </td>
                 <td>{getStatusBadge(product.status)}</td>
                 <td className="actions-cell">

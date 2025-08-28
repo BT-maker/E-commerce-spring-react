@@ -1,21 +1,21 @@
-/* Seller Panel Dashboard Styles */
-.seller-panel {
-  padding: 2rem;
-  max-width: 1400px;
-  margin: 0 auto;
-  min-height: 100vh;
+/* Seller Dashboard Styles */
+.seller-dashboard {
+  padding: 0;
+  max-width: none;
+  margin: 0;
+  min-height: auto;
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
 /* Welcome Header */
 .welcome-header {
   background: linear-gradient(135deg, #ff6000 0%, #ff8c00 50%, #ffa726 100%);
-  border-radius: 24px;
-  padding: 3.5rem 2.5rem;
-  margin-bottom: 2.5rem;
+  border-radius: 12px;
+  padding: 2rem;
+  margin-bottom: 2rem;
   color: white;
   text-align: center;
-  box-shadow: 0 20px 40px rgba(255, 96, 0, 0.3);
+  box-shadow: 0 2px 4px rgba(255, 96, 0, 0.2);
   position: relative;
   overflow: hidden;
 }
@@ -37,20 +37,20 @@
 }
 
 .welcome-content h1 {
-  font-size: 3.5rem;
-  font-weight: 900;
-  margin: 0 0 1rem 0;
-  text-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-  letter-spacing: -1px;
+  font-size: 2rem;
+  font-weight: 700;
+  margin: 0 0 0.5rem 0;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  letter-spacing: -0.5px;
   line-height: 1.1;
 }
 
 .store-name {
-  font-size: 1.6rem;
-  margin: 0 0 0.75rem 0;
+  font-size: 1rem;
+  margin: 0 0 0.5rem 0;
   opacity: 0.95;
   font-weight: 600;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
 }
 
 .today-date {
@@ -64,15 +64,15 @@
 /* Quick Stats Grid */
 .quick-stats-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
   gap: 1.5rem;
-  margin-bottom: 3rem;
+  margin-bottom: 2rem;
 }
 
 .quick-stat-card {
-  border-radius: 20px;
-  padding: 2rem;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   position: relative;
   overflow: hidden;
   backdrop-filter: blur(10px);
@@ -112,17 +112,17 @@
 }
 
 .quick-stat-card .stat-icon {
-  width: 56px;
-  height: 56px;
-  border-radius: 16px;
+  width: 3rem;
+  height: 3rem;
+  border-radius: 10px;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-bottom: 1.5rem;
-  font-size: 1.75rem;
+  margin-bottom: 1rem;
+  font-size: 1.25rem;
   color: white;
   position: relative;
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   background: rgba(255, 255, 255, 0.2);
   backdrop-filter: blur(10px);
 }
@@ -140,27 +140,27 @@
 }
 
 .quick-stat-card h3 {
-  font-size: 0.85rem;
-  font-weight: 700;
+  font-size: 0.9rem;
+  font-weight: 500;
   color: rgba(255, 255, 255, 0.9);
-  margin: 0 0 0.75rem 0;
+  margin: 0 0 0.5rem 0;
   text-transform: uppercase;
-  letter-spacing: 1px;
+  letter-spacing: 0.5px;
 }
 
 .quick-stat-card .stat-number {
-  font-size: 2.5rem;
-  font-weight: 900;
+  font-size: 1.5rem;
+  font-weight: 700;
   color: white;
-  margin: 0 0 0.5rem 0;
+  margin: 0 0 0.25rem 0;
   line-height: 1;
 }
 
 .quick-stat-card .stat-amount {
-  font-size: 1.25rem;
-  font-weight: 800;
+  font-size: 1rem;
+  font-weight: 600;
   color: rgba(255, 255, 255, 0.95);
-  margin: 0 0 0.5rem 0;
+  margin: 0 0 0.25rem 0;
 }
 
 .quick-stat-card .stat-label {
@@ -172,16 +172,16 @@
 
 /* Quick Actions */
 .quick-actions-section {
-  margin-bottom: 3rem;
+  margin-bottom: 2rem;
 }
 
 .quick-actions-section h2 {
-  font-size: 2rem;
-  font-weight: 800;
-  color: #1e293b;
-  margin: 0 0 2rem 0;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #2d3748;
+  margin: 0 0 1.5rem 0;
   position: relative;
-  padding-left: 1.5rem;
+  padding-left: 1rem;
 }
 
 .quick-actions-section h2::before {
@@ -198,21 +198,21 @@
 
 .quick-actions-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
   gap: 1.5rem;
 }
 
 .quick-action-card {
-  border-radius: 20px;
-  padding: 2.5rem;
+  border-radius: 12px;
+  padding: 1.5rem;
   text-decoration: none;
   color: inherit;
-  border: 2px solid #e2e8f0;
-  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  border: 1px solid #e2e8f0;
+  transition: all 0.3s ease;
   text-align: center;
   position: relative;
   overflow: hidden;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .quick-action-card::before {
@@ -238,18 +238,18 @@
 }
 
 .action-icon {
-  width: 50px !important;
-  height: 50px !important;
-  border-radius: 15px;
+  width: 3rem !important;
+  height: 3rem !important;
+  border-radius: 10px;
   display: flex !important;
   align-items: center !important;
   justify-content: center !important;
-  margin: 0 auto 1.5rem auto;
-  font-size: 1.5rem;
+  margin: 0 auto 1rem auto;
+  font-size: 1.25rem;
   color: white;
   position: relative;
   z-index: 1;
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   text-align: center !important;
 }
 
@@ -294,9 +294,9 @@
 }
 
 .quick-action-card h3 {
-  font-size: 1.25rem;
-  font-weight: 700;
-  color: #1e293b;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #2d3748;
   margin: 0;
   position: relative;
   z-index: 1;
@@ -305,18 +305,17 @@
 /* Dashboard Content Grid */
 .dashboard-content-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
-  gap: 2.5rem;
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  gap: 2rem;
 }
 
 .dashboard-section {
   background: white;
-  border-radius: 20px;
-  padding: 2.5rem;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.8);
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e2e8f0;
   position: relative;
-  backdrop-filter: blur(10px);
 }
 
 .dashboard-section::before {
@@ -331,12 +330,12 @@
 }
 
 .dashboard-section h2 {
-  font-size: 1.75rem;
-  font-weight: 800;
-  color: #1e293b;
-  margin: 0 0 2rem 0;
-  padding-bottom: 1.5rem;
-  border-bottom: 3px solid #f1f5f9;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #2d3748;
+  margin: 0 0 1.5rem 0;
+  padding-bottom: 1rem;
+  border-bottom: 2px solid #e2e8f0;
   position: relative;
 }
 
@@ -572,11 +571,11 @@
   }
   
   .welcome-content h1 {
-    font-size: 3rem;
+    font-size: 2.5rem;
   }
   
   .quick-stats-grid {
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   }
   
   .dashboard-content-grid {
@@ -590,12 +589,12 @@
   }
   
   .welcome-header {
-    padding: 2.5rem 1.5rem;
-    border-radius: 20px;
+    padding: 2rem 1.5rem;
+    border-radius: 12px;
   }
   
   .welcome-content h1 {
-    font-size: 2.5rem;
+    font-size: 2rem;
   }
   
   .quick-stats-grid {

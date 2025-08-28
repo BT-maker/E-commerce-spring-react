@@ -319,10 +319,16 @@ const AdminCategories = () => {
                   <div key={category.id} className="category-card">
                     <div className="category-image">
                       {category.imageUrl ? (
-                        <img src={category.imageUrl} alt={category.name} />
-                      ) : (
-                        <Package size={48} color="#64748b" />
-                      )}
+                        <img 
+                          src={category.imageUrl} 
+                          alt={category.name}
+                          onError={(e) => {
+                            e.target.style.display = 'none';
+                            e.target.nextSibling.style.display = 'block';
+                          }}
+                        />
+                      ) : null}
+                      <Package size={48} color="#64748b" style={{display: category.imageUrl ? 'none' : 'block'}} />
                     </div>
                     <div className="category-content">
                       <h3>{category.name}</h3>

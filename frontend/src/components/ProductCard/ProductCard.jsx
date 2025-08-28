@@ -110,7 +110,14 @@ const ProductCard = ({ product, loading, onAddToCart, isFavoritesPage = false })
   return (
     <div className="product-card">
       <div className="product-image-container">
-        <img src={product.imageUrl1 || product.imageUrl || '/img/no-image.png'} alt={product.name} className="product-card-img" />
+        <img 
+          src={product.imageUrl1 || product.imageUrl || '/img/default-product.png'} 
+          alt={product.name} 
+          className="product-card-img"
+          onError={(e) => {
+            e.target.src = '/img/default-product.png';
+          }}
+        />
         
         {/* İndirim Badge */}
         {product.isDiscountActive && (
@@ -177,8 +184,10 @@ const ProductCard = ({ product, loading, onAddToCart, isFavoritesPage = false })
         
         <div className="stock-info">
           {product.stock > 0 ? (
-            product.stock <= 9 ? (
-              <span className="stock-low">Son {product.stock} adet</span>
+            product.stock <= 5 ? (
+              <span className="stock-low">Kritik: {product.stock} adet</span>
+            ) : product.stock <= 10 ? (
+              <span className="stock-low">Düşük: {product.stock} adet</span>
             ) : (
               <span className="stock-available">Stokta var</span>
             )

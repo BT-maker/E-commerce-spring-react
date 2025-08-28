@@ -1,5 +1,7 @@
 .seller-products {
   padding: 0;
+  max-width: 1200px;
+  margin: 0 auto;
 }
 
 /* Satıcı Onay Uyarısı */
@@ -463,6 +465,14 @@
 
 .stock-badge.low-stock {
   color: #92400e;
+}
+
+.stock-badge.critical-stock {
+  color: #dc2626;
+}
+
+.stock-badge.out-of-stock {
+  color: #64748b;
 }
 
 /* Status Badge */

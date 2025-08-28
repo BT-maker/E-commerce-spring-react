@@ -546,7 +546,9 @@ const ProductDetail = () => {
                  <div className="stock-info">
                    <span className="stock-text">
                      {product.stock <= 5 
-                       ? `Son ${product.stock} adet!` 
+                       ? `Kritik stok: ${product.stock} adet!` 
+                       : product.stock <= 10
+                       ? `Düşük stok: ${product.stock} adet`
                        : "Hızlı teslimat için stokta"
                      }
                    </span>
@@ -588,7 +590,7 @@ const ProductDetail = () => {
                </div>
                {product.stock <= 10 && (
                  <div className="stock-warning">
-                   <span>Stok: {product.stock} adet</span>
+                   <span>{product.stock <= 5 ? 'Kritik Stok' : 'Düşük Stok'}: {product.stock} adet</span>
                  </div>
                )}
              </div>
@@ -819,10 +821,10 @@ const ProductDetail = () => {
                   >
                     <div className="recommendation-image">
                       <img 
-                        src={recProduct.imageUrl || '/img/no-image.png'} 
+                        src={recProduct.imageUrl1 || recProduct.imageUrl || '/img/default-product.png'} 
                         alt={recProduct.name}
                         onError={(e) => {
-                          e.target.src = '/img/no-image.png';
+                          e.target.src = '/img/default-product.png';
                         }}
                       />
                       {recProduct.isDiscountActive && (

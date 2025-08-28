@@ -31,6 +31,17 @@ const AdminProducts = () => {
             if (response.ok) {
                 const data = await response.json();
                 console.log('Gelen ürün verisi:', data);
+                // Her ürünün resim URL'lerini kontrol et
+                data.forEach((product, index) => {
+                    console.log(`Ürün ${index + 1} (${product.name}):`, {
+                        imageUrl: product.imageUrl,
+                        imageUrl1: product.imageUrl1,
+                        imageUrl2: product.imageUrl2,
+                        imageUrl3: product.imageUrl3,
+                        imageUrl4: product.imageUrl4,
+                        imageUrl5: product.imageUrl5
+                    });
+                });
                 setProducts(data);
             } else {
                 console.error('API yanıtı başarısız:', response.status);
@@ -199,32 +210,49 @@ const AdminProducts = () => {
                         <tbody>
                             {filteredProducts.map(product => (
                                 <tr key={product.id}>
-                                    <td className="product-cell">
-                                        <img 
-                                            src={product.imageUrl || '/img/default-product.jpg'} 
-                                            alt={product.name} 
-                                            className="product-image"
-                                            onError={(e) => {
-                                                e.target.style.display = 'none';
-                                                e.target.nextSibling.style.display = 'flex';
-                                            }}
-                                        />
-                                        <div className="image-placeholder" style={{display: 'none'}}>
-                                            <span className="placeholder-icon">📷</span>
-                                        </div>
-                                        <div className="product-info">
-                                            <h4 className="product-name">{product.name}</h4>
-                                            <p className="product-description">{product.description}</p>
-                                        </div>
-                                    </td>
+                                                                         <td className="product-cell">
+                                         <img 
+                                             src={(() => {
+                                                 // Sadece URL formatındaki resimleri kullan, base64'leri tamamen devre dışı bırak
+                                                 if (product.imageUrl1 && product.imageUrl1.startsWith('http')) {
+                                                     console.log(`${product.name} için URL resim kullanılıyor:`, product.imageUrl1);
+                                                     return product.imageUrl1;
+                                                 }
+                                                 if (product.imageUrl && product.imageUrl.startsWith('http')) {
+                                                     console.log(`${product.name} için eski URL resim kullanılıyor:`, product.imageUrl);
+                                                     return product.imageUrl;
+                                                 }
+                                                 // Base64 varsa log at ama kullanma
+                                                 if (product.imageUrl1 && product.imageUrl1.startsWith('data:')) {
+                                                     console.log(`${product.name} için base64 resim tespit edildi ama kullanılmıyor, uzunluk:`, product.imageUrl1.length);
+                                                 }
+                                                 console.log(`${product.name} için varsayılan resim kullanılıyor`);
+                                                 return '/img/default-product.png';
+                                             })()}
+                                             alt={product.name} 
+                                             className="product-image"
+                                             onLoad={(e) => {
+                                                 console.log(`✅ Resim yüklendi: ${product.name}`);
+                                             }}
+                                                                                           onError={(e) => {
+                                                  console.log(`❌ Resim yüklenemedi: ${product.name}`);
+                                                  e.target.src = '/img/default-product.png';
+                                                  e.target.style.display = 'block';
+                                              }}
+                                         />
+                                         <div className="product-info">
+                                             <h4 className="product-name">{product.name}</h4>
+                                             <p className="product-description">{product.description}</p>
+                                         </div>
+                                     </td>
                                     <td className="category-cell">{product.category?.name || 'Kategorisiz'}</td>
                                     <td className="price-cell">
                                         {formatPrice(product.price)}
                                     </td>
                                     <td className="stock-cell">
-                                        <span className={`stock-badge ${(product.stock || 0) < 10 ? 'low-stock' : 'normal-stock'}`}>
-                                            {product.stock || 0}
-                                        </span>
+                                                        <span className={`stock-badge ${(product.stock || 0) <= 0 ? 'out-of-stock' : (product.stock || 0) <= 5 ? 'critical-stock' : (product.stock || 0) <= 10 ? 'low-stock' : 'normal-stock'}`}>
+                  {product.stock || 0}
+                </span>
                                     </td>
                                     <td className="store-cell">
                                         <div className="store-info">
@@ -285,15 +313,36 @@ const AdminProducts = () => {
                             <button className="close-btn" onClick={() => setShowModal(false)}>×</button>
                         </div>
                         <div className="modal-body">
-                            <div className="product-detail-image">
-                                <img 
-                                    src={selectedProduct.imageUrl || '/img/default-product.jpg'} 
-                                    alt={selectedProduct.name}
-                                    onError={(e) => {
-                                        e.target.src = '/img/default-product.jpg';
-                                    }}
-                                />
-                            </div>
+                                                    <div className="product-detail-image">
+                            <img 
+                                src={(() => {
+                                    // Sadece URL formatındaki resimleri kullan, base64'leri tamamen devre dışı bırak
+                                    if (selectedProduct.imageUrl1 && selectedProduct.imageUrl1.startsWith('http')) {
+                                        console.log(`Modal: ${selectedProduct.name} için URL resim kullanılıyor:`, selectedProduct.imageUrl1);
+                                        return selectedProduct.imageUrl1;
+                                    }
+                                    if (selectedProduct.imageUrl && selectedProduct.imageUrl.startsWith('http')) {
+                                        console.log(`Modal: ${selectedProduct.name} için eski URL resim kullanılıyor:`, selectedProduct.imageUrl);
+                                        return selectedProduct.imageUrl;
+                                    }
+                                    // Base64 varsa log at ama kullanma
+                                    if (selectedProduct.imageUrl1 && selectedProduct.imageUrl1.startsWith('data:')) {
+                                        console.log(`Modal: ${selectedProduct.name} için base64 resim tespit edildi ama kullanılmıyor, uzunluk:`, selectedProduct.imageUrl1.length);
+                                    }
+                                    console.log(`Modal: ${selectedProduct.name} için varsayılan resim kullanılıyor`);
+                                    return '/img/default-product.png';
+                                })()}
+                                alt={selectedProduct.name}
+                                onLoad={(e) => {
+                                    console.log(`✅ Modal: Resim yüklendi: ${selectedProduct.name}`);
+                                }}
+                                                                 onError={(e) => {
+                                     console.log(`❌ Modal: Resim yüklenemedi: ${selectedProduct.name}`);
+                                     e.target.src = '/img/default-product.png';
+                                     e.target.style.display = 'block';
+                                 }}
+                            />
+                        </div>
                             <div className="product-detail-info">
                                 <h3>{selectedProduct.name}</h3>
                                 <p>{selectedProduct.description}</p>

@@ -552,6 +552,18 @@
     border: 1px solid #fde68a;
 }
 
+.stock-badge.critical-stock {
+    background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+    color: #dc2626;
+    border: 1px solid #fecaca;
+}
+
+.stock-badge.out-of-stock {
+    background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+    color: #64748b;
+    border: 1px solid #e2e8f0;
+}
+
 /* Mağaza Hücresi */
 .store-cell {
     min-width: 200px;

@@ -439,10 +439,12 @@
 
 /* Ürün Hücresi */
 .product-cell {
-    display: flex;
+    display: flex !important;
     align-items: center;
     gap: 1rem;
     min-width: 300px;
+    visibility: visible !important;
+    opacity: 1 !important;
 }
 
 .product-image {
@@ -452,6 +454,9 @@
     object-fit: cover;
     border: 2px solid #e2e8f0;
     transition: all 0.3s ease;
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
 }
 
 .product-image:hover {
@@ -464,7 +469,7 @@
     height: 80px;
     border-radius: 12px;
     background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
-    display: flex;
+    display: none !important;
     align-items: center;
     justify-content: center;
     border: 2px solid #e2e8f0;
@@ -551,6 +556,18 @@
     background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
     color: #b45309;
     border: 1px solid #fde68a;
+}
+
+.stock-badge.critical-stock {
+    background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+    color: #dc2626;
+    border: 1px solid #fecaca;
+}
+
+.stock-badge.out-of-stock {
+    background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+    color: #64748b;
+    border: 1px solid #e2e8f0;
 }
 
 /* Mağaza Hücresi */
