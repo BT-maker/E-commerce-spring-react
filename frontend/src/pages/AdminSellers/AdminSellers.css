@@ -198,13 +198,13 @@
 .seller-info {
   flex: 1;
   min-width: 0;
+  color: #2c2a28 ;
 }
 
 .seller-name {
   font-size: 1.130rem;
   font-weight: 600;
-  color: #1e293b !important;
-  
+  color: #2c2a28 ;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
