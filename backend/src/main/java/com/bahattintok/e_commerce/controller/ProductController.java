@@ -1,5 +1,6 @@
 package com.bahattintok.e_commerce.controller;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -62,36 +63,42 @@ public class ProductController {
         @RequestParam(value = "includeInactive", required = false, defaultValue = "false") Boolean includeInactive,
         @PageableDefault(size = 12) Pageable pageable
     ) {
-        Page<Product> products;
-        if (storeId != null && !storeId.isEmpty()) {
-            products = productService.getProductsByStoreId(storeId, pageable);
-        } else if (storeName != null && !storeName.isEmpty()) {
-            products = productService.getProductsByStoreName(storeName, pageable);
-        } else if (search != null && !search.isEmpty()) {
-            products = productService.searchProducts(search, pageable);
-        } else if (minPrice != null && maxPrice != null) {
-            // Fiyat aralığı ve sayfalama
-            products = productService.getProductsByPriceRange(minPrice, maxPrice, pageable);
-        } else if (categoryId != null) {
-            products = productService.getProductsByCategoryId(categoryId, pageable);
-        } else if ("popular".equals(sort)) {
-            // Popüler ürünler
-            products = productService.getMostPopularProducts(pageable);
-        } else {
-            products = productService.getAllProducts(pageable);
-        }
-        
-        // Eğer includeInactive false ise sadece aktif ürünleri filtrele
-        if (!includeInactive) {
-            List<Product> activeProducts = products.getContent().stream()
-                .filter(product -> "AKTİF".equals(product.getStatus()))
-                .collect(Collectors.toList());
+        try {
+            Page<Product> products;
+            if (storeId != null && !storeId.isEmpty()) {
+                products = productService.getProductsByStoreId(storeId, pageable);
+            } else if (storeName != null && !storeName.isEmpty()) {
+                products = productService.getProductsByStoreName(storeName, pageable);
+            } else if (search != null && !search.isEmpty()) {
+                products = productService.searchProducts(search, pageable);
+            } else if (minPrice != null && maxPrice != null) {
+                // Fiyat aralığı ve sayfalama
+                products = productService.getProductsByPriceRange(minPrice, maxPrice, pageable);
+            } else if (categoryId != null) {
+                products = productService.getProductsByCategoryId(categoryId, pageable);
+            } else if ("popular".equals(sort)) {
+                // Popüler ürünler
+                products = productService.getMostPopularProducts(pageable);
+            } else {
+                products = productService.getAllProducts(pageable);
+            }
             
-            // Yeni bir Page nesnesi oluştur
-            products = new PageImpl<>(activeProducts, pageable, activeProducts.size());
+            // Eğer includeInactive false ise sadece aktif ürünleri filtrele
+            if (!includeInactive) {
+                List<Product> activeProducts = products.getContent().stream()
+                    .filter(product -> "AKTİF".equals(product.getStatus()))
+                    .collect(Collectors.toList());
+                
+                // Yeni bir Page nesnesi oluştur
+                products = new PageImpl<>(activeProducts, pageable, activeProducts.size());
+            }
+            
+            return ResponseEntity.ok(products);
+        } catch (Exception e) {
+            System.err.println("Ürün listesi alınırken hata: " + e.getMessage());
+            e.printStackTrace();
+            return ResponseEntity.status(500).body(new PageImpl<>(new ArrayList<>(), pageable, 0));
         }
-        
-        return ResponseEntity.ok(products);
     }
     
     /**

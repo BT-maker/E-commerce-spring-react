@@ -207,7 +207,7 @@ const Header = () => {
         </div>
       </div>
       {/* Kategori menüsü */}
-      <nav className="bg-background-primary border-t-2 border-accent-500 border-b border-gray-100">
+      <nav className="bg-background-primary border-gray-100">
         {catLoading ? (
           <div className="flex justify-center gap-4 py-2">
             {Array.from({ length: 6 }).map((_, i) => (

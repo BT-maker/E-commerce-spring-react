@@ -110,33 +110,44 @@ const ProductList = () => {
           }
           throw new Error("Ürünler alınamadı");
         }
-        return res.json();
+        return res.text(); // Önce text olarak al
       })
-      .then((data) => {
-        console.log('=== PRODUCT LIST DEBUG ===');
-        console.log('Backend\'den gelen veri:', data);
-        console.log('Toplam sayfa sayısı:', data.totalPages);
-        console.log('Toplam ürün sayısı:', data.totalElements);
-        console.log('Mevcut sayfa:', data.number);
-        console.log('Sayfa boyutu:', data.size);
-        console.log('Ürün sayısı:', data.content?.length || data.length);
-        console.log('Elasticsearch aktif mi:', elasticsearchAvailable);
-        console.log('=== DEBUG END ===');
-        
-        // Elasticsearch sonuçları artık Map formatında dönüyor
-        if (elasticsearchAvailable && data.content) {
-          setProducts(data.content);
-          setTotalPages(data.totalPages || 1);
-        } else if (elasticsearchAvailable && Array.isArray(data)) {
-          // Eski format için fallback
-          setProducts(data);
-          setTotalPages(1);
-        } else {
-          // Normal API response
-          setProducts(data.content || data);
-          setTotalPages(data.totalPages || 1);
+      .then((text) => {
+        try {
+          // JSON parsing'i güvenli şekilde yap
+          const data = JSON.parse(text);
+          
+          console.log('=== PRODUCT LIST DEBUG ===');
+          console.log('Backend\'den gelen veri:', data);
+          console.log('Toplam sayfa sayısı:', data.totalPages);
+          console.log('Toplam ürün sayısı:', data.totalElements);
+          console.log('Mevcut sayfa:', data.number);
+          console.log('Sayfa boyutu:', data.size);
+          console.log('Ürün sayısı:', data.content?.length || data.length);
+          console.log('Elasticsearch aktif mi:', elasticsearchAvailable);
+          console.log('=== DEBUG END ===');
+          
+          // Elasticsearch sonuçları artık Map formatında dönüyor
+          if (elasticsearchAvailable && data.content) {
+            setProducts(data.content);
+            setTotalPages(data.totalPages || 1);
+          } else if (elasticsearchAvailable && Array.isArray(data)) {
+            // Eski format için fallback
+            setProducts(data);
+            setTotalPages(1);
+          } else {
+            // Normal API response
+            setProducts(data.content || data);
+            setTotalPages(data.totalPages || 1);
+          }
+          setLoading(false);
+        } catch (parseError) {
+          console.error('JSON parsing hatası:', parseError);
+          console.error('Raw response (ilk 500 karakter):', text.substring(0, 500));
+          console.error('Raw response (son 500 karakter):', text.substring(Math.max(0, text.length - 500)));
+          setError('Veri formatı hatası: ' + parseError.message);
+          setLoading(false);
         }
-        setLoading(false);
       })
       .catch((err) => {
         console.error('Ürün yükleme hatası:', err);

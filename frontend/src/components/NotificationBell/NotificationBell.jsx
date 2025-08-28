@@ -107,18 +107,18 @@ const NotificationBell = () => {
             </div>
 
             {/* Filtreler */}
-            <div className="flex gap-2 overflow-x-auto pb-2">
+            <div className="flex gap-1 pb-1">
               {[
                 { key: 'all', label: 'Tümü', count: notifications.length },
                 { key: 'unread', label: 'Okunmamış', count: getUnreadCountByType('all') },
                 { key: 'ORDER_STATUS', label: 'Sipariş', count: getUnreadCountByType('ORDER_STATUS') },
-                { key: 'PROMOTION', label: 'Promosyon', count: getUnreadCountByType('PROMOTION') },
+                { key: 'PROMOTION', label: 'Kampanya', count: getUnreadCountByType('PROMOTION') },
                 { key: 'SYSTEM', label: 'Sistem', count: getUnreadCountByType('SYSTEM') }
               ].map(filter => (
                 <button
                   key={filter.key}
                   onClick={() => setActiveFilter(filter.key)}
-                  className={`px-3 py-1 rounded-full text-xs font-medium whitespace-nowrap transition-all ${
+                  className={`px-1.5 py-0.5 rounded-full text-xs font-medium whitespace-nowrap transition-all ${
                     activeFilter === filter.key
                       ? 'bg-[#ff6000] text-white'
                       : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'

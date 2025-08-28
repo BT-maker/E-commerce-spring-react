@@ -272,12 +272,12 @@ const ElasticSearch = () => {
 
               {/* Filtreleri Temizle */}
               {hasActiveFilters && (
-                <button
-                  onClick={clearFilters}
-                  className="w-full bg-gray-500 text-white py-2 px-4 rounded-lg hover:bg-gray-600 transition-colors"
-                >
-                  Filtreleri Temizle
-                </button>
+                                 <button
+                   onClick={clearFilters}
+                   className="w-full bg-white border border-orange-500 text-orange-600 py-2 px-4 rounded-lg hover:bg-orange-50 transition-colors"
+                 >
+                   Filtreleri Temizle
+                 </button>
               )}
 
               {/* Elasticsearch Durumu */}
@@ -346,12 +346,12 @@ const ElasticSearch = () => {
                   <div className="flex justify-center mt-8 space-x-2">
                     {/* Önceki sayfa */}
                     {page > 0 && (
-                      <button
-                        onClick={() => handlePageChange(page - 1)}
-                        className="px-3 py-2 rounded bg-gray-200 text-gray-700 hover:bg-gray-300"
-                      >
-                        Önceki
-                      </button>
+                                             <button
+                         onClick={() => handlePageChange(page - 1)}
+                         className="px-2 py-1 rounded bg-orange-700 text-white hover:bg-orange-800"
+                       >
+                         Önceki
+                       </button>
                     )}
                     
                     {/* Sayfa numaraları */}
@@ -361,11 +361,11 @@ const ElasticSearch = () => {
                           <button
                             key={i}
                             onClick={() => handlePageChange(i)}
-                            className={`px-3 py-2 rounded ${
-                              page === i
-                                ? "bg-green-600 text-white"
-                                : "bg-gray-200 text-gray-700 hover:bg-gray-300"
-                            }`}
+                                                         className={`px-3 py-2 rounded ${
+                               page === i
+                                 ? "bg-gray-300 text-orange-600"
+                                 : "bg-orange-700 text-white hover:bg-orange-800"
+                             }`}
                           >
                             {i + 1}
                           </button>
@@ -378,12 +378,12 @@ const ElasticSearch = () => {
                     
                     {/* Sonraki sayfa */}
                     {page < totalPages - 1 && (
-                      <button
-                        onClick={() => handlePageChange(page + 1)}
-                        className="px-3 py-2 rounded bg-gray-200 text-gray-700 hover:bg-gray-300"
-                      >
-                        Sonraki
-                      </button>
+                                             <button
+                         onClick={() => handlePageChange(page + 1)}
+                         className="px-2 py-1 rounded bg-orange-700 text-white hover:bg-orange-800"
+                       >
+                         Sonraki
+                       </button>
                     )}
                   </div>
                 )}
@@ -392,12 +392,12 @@ const ElasticSearch = () => {
               <div className="text-center py-8">
                 <p className="text-gray-500 text-lg">Aramanızla eşleşen ürün bulunamadı.</p>
                 <p className="text-gray-400">Farklı anahtar kelimeler deneyin veya filtreleri değiştirin.</p>
-                <button
-                  onClick={clearFilters}
-                  className="mt-4 px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
-                >
-                  Filtreleri Temizle
-                </button>
+                                 <button
+                   onClick={clearFilters}
+                   className="mt-4 px-4 py-2 bg-white border border-orange-500 text-orange-600 rounded hover:bg-orange-50 transition-colors"
+                 >
+                   Filtreleri Temizle
+                 </button>
               </div>
             ) : null}
           </div>

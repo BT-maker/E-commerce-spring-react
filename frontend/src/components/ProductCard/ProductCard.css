@@ -63,7 +63,7 @@
   position: absolute;
   top: 8px;
   left: 8px;
-  background: red;
+  background: rgb(226, 57, 57);
   color: white;
   padding: 4px 8px;
   border-radius: 6px;
@@ -271,11 +271,6 @@
   flex-shrink: 0;
 }
 
-.product-card-btn:hover:not(:disabled) {
-  background: #ff8c00;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(255, 96, 0, 0.3);
-}
 
 .product-card-btn:active:not(:disabled) {
   transform: translateY(0);
@@ -286,9 +281,6 @@
   color: white;
 }
 
-.product-card-btn.added:hover {
-  background: #ff8c00;
-}
 
 .product-card-btn.disabled {
   background: #6c757d;

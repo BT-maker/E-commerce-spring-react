@@ -50,7 +50,7 @@ public class Category {
     /**
      * Kategori öncelik sırası (yüksek sayı = yüksek öncelik)
      */
-    @Column(nullable = false)
+    @Column(nullable = true)
     private Integer priority = 0;
     
     /**

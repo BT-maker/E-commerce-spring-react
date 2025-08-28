@@ -170,7 +170,7 @@ const DiscountedProducts = () => {
                       onClick={() => handlePageChange(i)}
                       className={`px-3 py-2 rounded-lg transition-colors ${
                         page === i
-                          ? 'bg-blue-600 text-white'
+                          ? 'bg-orange-600 text-white'
                           : 'bg-gray-200 hover:bg-gray-300'
                       }`}
                     >

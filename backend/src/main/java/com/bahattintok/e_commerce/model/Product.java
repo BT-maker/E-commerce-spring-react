@@ -62,6 +62,7 @@ public class Product {
      * Ürün açıklaması (opsiyonel)
      */
     @Column(columnDefinition = "TEXT")
+    @JsonProperty("description")
     private String description;
     
     /**

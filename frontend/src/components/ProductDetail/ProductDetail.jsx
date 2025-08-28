@@ -483,24 +483,44 @@ const ProductDetail = () => {
           {/* Ürün Başlığı ve Marka */}
           <div className="product-header">
             <h1 className="product-title">{product.name}</h1>
-            <div className="product-brand">
-              <span className="brand-label">Marka:</span>
-              <span className="brand-name">{product.storeName || 'Bilinmeyen Marka'}</span>
-            </div>
+                         <div className="product-brand">
+               <span className="brand-label">Mağaza:</span>
+               <span className="brand-name">{product.storeName || 'Bilinmeyen Mağaza'}</span>
+             </div>
           </div>
 
-          {/* Puanlama */}
-          <div className="product-rating">
-            <div className="rating-stars">
-              {renderStars(reviewStats?.averageRating || 0)}
+                     {/* Puanlama */}
+           <div className="product-rating">
+             <div className="rating-stars">
+               {renderStars(reviewStats?.averageRating || 0)}
+             </div>
+             <div className="rating-info">
+               <span className="rating-score">{reviewStats?.averageRating?.toFixed(1) || '0.0'}</span>
+               <span className="rating-count">({reviewStats?.reviewCount || 0} değerlendirme)</span>
+             </div>
+             <button className="rating-link" onClick={() => setActiveTab('reviews')}>
+               Tüm değerlendirmeleri gör
+             </button>
+           </div>
+                       <div style={{ textAlign: 'center', marginTop: '8px', display: 'flex', alignItems: 'center', justifyContent: 'normal', gap: '8px' }}>
+              <span style={{ fontSize: '18px' }}>🧡</span>
+              <span style={{ fontSize: '14px', color: '#666' }}>Sevilen ürün! <strong color="#ff6000">150</strong>  kişi bu ürünü favoriledi!</span>
             </div>
-            <div className="rating-info">
-              <span className="rating-score">{reviewStats?.averageRating?.toFixed(1) || '0.0'}</span>
-              <span className="rating-count">({reviewStats?.reviewCount || 0} değerlendirme)</span>
+
+          {/* Hızlı Özellikler */}
+          <div className="quick-features">
+            <div className="feature-item">
+              <Truck size={16} />
+              <span>Ücretsiz Kargo</span>
             </div>
-            <button className="rating-link" onClick={() => setActiveTab('reviews')}>
-              Tüm değerlendirmeleri gör
-            </button>
+            <div className="feature-item">
+              <Shield size={16} />
+              <span>Güvenli Alışveriş</span>
+            </div>
+            <div className="feature-item">
+              <RotateCcw size={16} />
+              <span>Kolay İade</span>
+            </div>
           </div>
 
           {/* Fiyat Bilgisi */}
@@ -602,22 +622,6 @@ const ProductDetail = () => {
                <Heart size={20} />
              </button>
            </div>
-
-          {/* Hızlı Özellikler */}
-          <div className="quick-features">
-            <div className="feature-item">
-              <Truck size={16} />
-              <span>Ücretsiz Kargo</span>
-            </div>
-            <div className="feature-item">
-              <Shield size={16} />
-              <span>Güvenli Alışveriş</span>
-            </div>
-            <div className="feature-item">
-              <RotateCcw size={16} />
-              <span>Kolay İade</span>
-            </div>
-          </div>
 
           {/* Mağaza Bilgisi */}
           {product.storeName && (

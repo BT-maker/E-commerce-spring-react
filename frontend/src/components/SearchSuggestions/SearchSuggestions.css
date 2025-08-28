@@ -17,13 +17,14 @@
     flex: 1;
     display: flex;
     align-items: center;
+    justify-content: center;
     height: 40px;
     width: 100%;
 }
 
 .header-search-icon {
     position: absolute;
-    left: 10px;
+    left: 12px;
     top: 50%;
     transform: translateY(-50%);
     color: #6b7280;
@@ -33,7 +34,7 @@
 .header-search-input {
     width: 100%;
     padding: 8px 8px 8px 36px;
-    border: 1px solid #d1d5db;
+    border: 1px solid #c9cbcf;
     border-radius: 4px;
     font-size: 14px;
     outline: none;
@@ -41,6 +42,9 @@
     background: white;
     height: 40px;
     box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    line-height: 1.2;
 }
 
 .header-search-input:focus {
