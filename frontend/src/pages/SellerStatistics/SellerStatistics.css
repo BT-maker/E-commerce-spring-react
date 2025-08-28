@@ -195,10 +195,10 @@
 }
 
 .seller-statistics .stat-card {
-  background: linear-gradient(135deg, #ff6000 0%, #ff8c00 100%);
+  background: white;
   border-radius: 16px;
   padding: 1.5rem;
-  box-shadow: 0 8px 25px rgba(255, 96, 0, 0.3);
+  box-shadow: 0 8px 25px rgba(92, 92, 92, 0.3);
   border: 1px solid rgba(255, 255, 255, 0.1);
   transition: all 0.3s ease;
   display: flex;
@@ -206,6 +206,19 @@
   gap: 1rem;
   position: relative;
   overflow: hidden;
+}
+
+/* Farklı kartlar için farklı sol kenarlık renkleri */
+.seller-statistics .stat-card:nth-child(1) {
+  border-left: 4px solid #ff6000;
+}
+
+.seller-statistics .stat-card:nth-child(2) {
+  border-left: 4px solid #22c55e;
+}
+
+.seller-statistics .stat-card:nth-child(3) {
+  border-left: 4px solid #3b82f6;
 }
 
 .seller-statistics .stat-card::before {
@@ -221,7 +234,7 @@
 
 .seller-statistics .stat-card:hover {
   transform: translateY(-6px);
-  box-shadow: 0 15px 35px rgba(255, 96, 0, 0.4);
+  box-shadow: 0 8px 25px rgba(92, 92, 92, 0.3);
 }
 
 .seller-statistics .stat-card:hover::before {
@@ -270,7 +283,7 @@
 .seller-statistics .stat-card .stat-content h3 {
   font-size: 0.75rem !important;
   font-weight: 600 !important;
-  color: white !important;
+  color: rgb(58, 53, 53) !important;
   margin-bottom: 0.5rem;
   text-transform: uppercase;
   letter-spacing: 0.5px;
@@ -279,7 +292,7 @@
 .stat-number {
   font-size: 1.4rem;
   font-weight: 700;
-  color: white;
+  color: rgb(85, 77, 77) !important;
   margin-bottom: 0.25rem;
 }
 
@@ -362,7 +375,7 @@
 .seller-statistics .category-chart-container .chart-header h2 {
   font-size: 1rem !important;
   font-weight: 600 !important;
-  color: white !important;
+  color: rgb(94, 92, 92) !important;
   margin: 0;
 }
 
