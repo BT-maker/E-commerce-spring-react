@@ -243,7 +243,7 @@ public class Product {
      * Ürün görselini döner (varsayılan görsel yoksa)
      */
     public String getImage() {
-        return imageUrl != null ? imageUrl : "/images/default-product.jpg";
+        return imageUrl1 != null ? imageUrl1 : (imageUrl != null ? imageUrl : "/images/default-product.jpg");
     }
     
     /**

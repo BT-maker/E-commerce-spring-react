@@ -69,6 +69,7 @@ public class SellerServiceImpl implements SellerService {
         product.setDescription(updatedProduct.getDescription());
         product.setStock(updatedProduct.getStock());
         product.setImageUrl(updatedProduct.getImageUrl());
+        product.setImageUrl1(updatedProduct.getImageUrl1());
         product.setCategory(updatedProduct.getCategory());
         return productRepository.save(product);
     }

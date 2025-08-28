@@ -275,15 +275,14 @@ const Orders = () => {
                           {order.items.map((item, idx) => (
                             <div key={item.id} className="flex items-center gap-4 p-3 bg-gray-50 rounded-lg">
                               <div className="w-16 h-16 bg-gray-200 rounded-lg flex items-center justify-center">
-                                                {item.product?.imageUrl1 || item.product?.imageUrl ? (
-                  <img 
-                    src={item.product.imageUrl1 || item.product.imageUrl} 
-                                    alt={item.product.name}
-                                    className="w-full h-full object-cover rounded-lg"
-                                  />
-                                ) : (
-                                  <span className="text-gray-400 text-2xl">📦</span>
-                                )}
+                                <img 
+                                  src={item.product?.imageUrl1 || item.product?.imageUrl || '/img/default-product.png'} 
+                                  alt={item.product?.name || 'Ürün'}
+                                  className="w-full h-full object-cover rounded-lg"
+                                  onError={(e) => {
+                                    e.target.src = '/img/default-product.png';
+                                  }}
+                                />
                               </div>
                               <div className="flex-1">
                                 <h4 className="font-medium text-gray-800">{item.product?.name || 'Ürün adı bulunamadı'}</h4>

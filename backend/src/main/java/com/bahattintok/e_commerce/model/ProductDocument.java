@@ -54,7 +54,7 @@ public class ProductDocument {
     private Integer stock;
     
     @Field(type = FieldType.Keyword)
-    private String imageUrl;
+    private String imageUrl1;
     
     @Field(type = FieldType.Keyword)
     private String categoryName;
@@ -134,10 +134,10 @@ public class ProductDocument {
     }
     
     /**
-     * ImageUrl setter metodu
+     * ImageUrl1 setter metodu
      */
-    public void setImageUrl(String imageUrl) {
-        this.imageUrl = imageUrl;
+    public void setImageUrl1(String imageUrl1) {
+        this.imageUrl1 = imageUrl1;
     }
     
     /**
@@ -178,7 +178,7 @@ public class ProductDocument {
         doc.setDescription(product.getDescription());
         doc.setPrice(product.getPrice());
         doc.setStock(product.getStock());
-        doc.setImageUrl(product.getImageUrl());
+        doc.setImageUrl1(product.getImageUrl1());
         doc.setDiscountedPrice(product.getDiscountedPrice());
         doc.setDiscountPercentage(product.getDiscountPercentage());
         

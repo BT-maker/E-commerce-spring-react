@@ -350,6 +350,7 @@ public class SellerController {
             existingProduct.setDescription(product.getDescription());
             existingProduct.setStock(product.getStock());
             existingProduct.setImageUrl(product.getImageUrl());
+            existingProduct.setImageUrl1(product.getImageUrl1());
             existingProduct.setCategory(product.getCategory());
             
             // Category ID'yi doğru şekilde set et
@@ -956,6 +957,7 @@ public class SellerController {
                     productData.put("id", product.getId());
                     productData.put("name", product.getName());
                     productData.put("stock", product.getStock());
+                    productData.put("imageUrl1", product.getImageUrl1());
                     productData.put("imageUrl", product.getImageUrl());
                     return productData;
                 })
@@ -1106,6 +1108,7 @@ public class SellerController {
                     if (item.getProduct() != null) {
                         productMap.put("id", item.getProduct().getId());
                         productMap.put("name", item.getProduct().getName());
+                        productMap.put("imageUrl1", item.getProduct().getImageUrl1());
                         productMap.put("imageUrl", item.getProduct().getImageUrl());
                         
                         // Category bilgilerini ekle
@@ -1241,6 +1244,7 @@ public class SellerController {
                 productMap.put("description", product.getDescription());
                 productMap.put("price", product.getPrice());
                 productMap.put("stock", product.getStock());
+                productMap.put("imageUrl1", product.getImageUrl1());
                 productMap.put("imageUrl", product.getImageUrl());
                 
                 // Category bilgilerini ekle

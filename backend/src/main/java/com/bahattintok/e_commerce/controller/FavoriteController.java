@@ -81,6 +81,7 @@ public class FavoriteController {
             productMap.put("price", product.getPrice());
             productMap.put("description", product.getDescription());
             productMap.put("stock", product.getStock());
+            productMap.put("imageUrl1", product.getImageUrl1());
             productMap.put("imageUrl", product.getImageUrl());
             
             // Category bilgilerini ekle

@@ -81,6 +81,8 @@ const SellerOrders = () => {
       const data = await response.json();
       console.log('Tüm sipariş verileri:', data);
       
+
+      
       setAllOrders(data.orders || []);
       setFilteredOrders(data.orders || []);
       setTotalOrders(data.totalElements || 0);

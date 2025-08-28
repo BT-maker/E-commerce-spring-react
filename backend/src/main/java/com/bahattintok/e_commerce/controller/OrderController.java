@@ -107,6 +107,7 @@ public class OrderController {
                     Map<String, Object> productResponse = new HashMap<>();
                     productResponse.put("id", item.getProduct().getId());
                     productResponse.put("name", item.getProduct().getName());
+                    productResponse.put("imageUrl1", item.getProduct().getImageUrl1());
                     productResponse.put("imageUrl", item.getProduct().getImageUrl());
                     productResponse.put("price", item.getProduct().getPrice());
                     

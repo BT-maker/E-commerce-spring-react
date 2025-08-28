@@ -26,10 +26,6 @@ const SellerPanel = () => {
       
       const token = getCookie('token');
       
-      console.log('🔍 Debug - Cookie Token:', token);
-      console.log('🔍 Debug - Token type:', typeof token);
-      console.log('🔍 Debug - Token length:', token?.length);
-      
       const response = await fetch('/api/seller/welcome-dashboard', {
         credentials: 'include', // Cookie'leri gönder
         headers: {
@@ -37,13 +33,10 @@ const SellerPanel = () => {
         }
       });
 
-      console.log('🔍 Debug - Response status:', response.status);
-      console.log('🔍 Debug - Response headers:', response.headers);
-      console.log('🔍 Debug - Response ok:', response.ok);
+
 
       if (!response.ok) {
         const errorText = await response.text();
-        console.log('🔍 Debug - Error response text:', errorText);
         
         let errorData;
         try {
@@ -56,7 +49,6 @@ const SellerPanel = () => {
       }
 
       const responseText = await response.text();
-      console.log('🔍 Debug - Response text:', responseText);
       
       let data;
       try {
@@ -64,6 +56,8 @@ const SellerPanel = () => {
       } catch (e) {
         throw new Error(`JSON parse error: ${e.message}. Response: ${responseText.substring(0, 100)}...`);
       }
+      
+
       
       setDashboardData(data);
     } catch (err) {
