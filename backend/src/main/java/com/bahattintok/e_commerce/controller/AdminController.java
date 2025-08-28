@@ -97,9 +97,23 @@ public class AdminController {
             
             // Rol filtresi
             if (role != null && !role.trim().isEmpty()) {
+                System.out.println("=== ROLE FILTERING DEBUG ===");
+                System.out.println("Requested role filter: '" + role + "'");
+                System.out.println("Total users before filtering: " + allUsers.size());
+                
                 allUsers = allUsers.stream()
-                    .filter(user -> user.getRole() != null && user.getRole().getName().equals(role))
+                    .filter(user -> {
+                        if (user.getRole() == null) {
+                            return false;
+                        }
+                        String userRoleName = user.getRole().getName();
+                        boolean matches = userRoleName.equals(role);
+                        System.out.println("🔍 User " + user.getEmail() + " -> Role: '" + userRoleName + "' | Requested: '" + role + "' | Match: " + matches);
+                        return matches;
+                    })
                     .collect(Collectors.toList());
+                System.out.println("✅ After role filtering, users count: " + allUsers.size());
+                System.out.println("=== END ROLE FILTERING DEBUG ===");
             }
             
             // Sayfalama hesaplamaları

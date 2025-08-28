@@ -34,10 +34,26 @@ const AdminUsers = () => {
   const [roleFilter, setRoleFilter] = useState("");
 
   useEffect(() => {
-    fetchUsers();
+    fetchUsersWithRole();
   }, []);
 
-  const fetchUsers = async (page = 0) => {
+
+
+  const handleSearch = (e) => {
+    e.preventDefault();
+    fetchUsersWithRole(0);
+  };
+
+  const handleRoleFilter = (role) => {
+    console.log("=== FRONTEND ROLE FILTER DEBUG ===");
+    console.log("Selected role:", role);
+    console.log("Previous roleFilter:", roleFilter);
+    setRoleFilter(role);
+    // Yeni rol değeri ile fetchUsers çağır
+    fetchUsersWithRole(0, role);
+  };
+
+  const fetchUsersWithRole = async (page = 0, roleParam = null) => {
     try {
       setLoading(true);
       
@@ -47,9 +63,13 @@ const AdminUsers = () => {
         url += `&search=${encodeURIComponent(searchQuery.trim())}`;
       }
       
-      if (roleFilter) {
-        url += `&role=${encodeURIComponent(roleFilter)}`;
+      // roleParam parametresi varsa onu kullan, yoksa roleFilter state'ini kullan
+      const roleToUse = roleParam !== null ? roleParam : roleFilter;
+      if (roleToUse) {
+        console.log("Adding role filter to URL:", roleToUse);
+        url += `&role=${encodeURIComponent(roleToUse)}`;
       }
+      console.log("Final URL:", url);
 
       const response = await fetch(url, {
         headers: {
@@ -86,18 +106,8 @@ const AdminUsers = () => {
     }
   };
 
-  const handleSearch = (e) => {
-    e.preventDefault();
-    fetchUsers(0);
-  };
-
-  const handleRoleFilter = (role) => {
-    setRoleFilter(role);
-    fetchUsers(0);
-  };
-
   const handlePageChange = (newPage) => {
-    fetchUsers(newPage);
+    fetchUsersWithRole(newPage);
   };
 
   const getRoleIcon = (role) => {
