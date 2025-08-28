@@ -110,7 +110,7 @@ const ProductCard = ({ product, loading, onAddToCart, isFavoritesPage = false })
   return (
     <div className="product-card">
       <div className="product-image-container">
-        <img src={product.imageUrl} alt={product.name} className="product-card-img" />
+        <img src={product.imageUrl1 || product.imageUrl || '/img/no-image.png'} alt={product.name} className="product-card-img" />
         
         {/* İndirim Badge */}
         {product.isDiscountActive && (

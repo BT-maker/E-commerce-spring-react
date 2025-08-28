@@ -124,6 +124,11 @@ public class ProductController {
             dto.put("description", product.getDescription());
             dto.put("stock", product.getStock());
             dto.put("imageUrl", product.getImageUrl());
+            dto.put("imageUrl1", product.getImageUrl1());
+            dto.put("imageUrl2", product.getImageUrl2());
+            dto.put("imageUrl3", product.getImageUrl3());
+            dto.put("imageUrl4", product.getImageUrl4());
+            dto.put("imageUrl5", product.getImageUrl5());
             
             // Category bilgisini güvenli bir şekilde ekle
             if (product.getCategory() != null) {

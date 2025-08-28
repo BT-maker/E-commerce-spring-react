@@ -95,6 +95,11 @@ public class ProductServiceImpl implements ProductService {
         product.setDescription(request.getDescription());
         product.setStock(request.getStock());
         product.setImageUrl(request.getImageUrl());
+        product.setImageUrl1(request.getImageUrl1());
+        product.setImageUrl2(request.getImageUrl2());
+        product.setImageUrl3(request.getImageUrl3());
+        product.setImageUrl4(request.getImageUrl4());
+        product.setImageUrl5(request.getImageUrl5());
         product.setStoreId(store.getId()); // Mağaza ID'sini set et
         Category category = categoryRepository.findById(request.getCategoryId())
                 .orElseThrow(() -> new RuntimeException("Category not found"));
@@ -149,6 +154,11 @@ public class ProductServiceImpl implements ProductService {
         product.setDescription(request.getDescription());
         product.setStock(request.getStock());
         product.setImageUrl(request.getImageUrl());
+        product.setImageUrl1(request.getImageUrl1());
+        product.setImageUrl2(request.getImageUrl2());
+        product.setImageUrl3(request.getImageUrl3());
+        product.setImageUrl4(request.getImageUrl4());
+        product.setImageUrl5(request.getImageUrl5());
         Category category = categoryRepository.findById(request.getCategoryId())
                 .orElseThrow(() -> new RuntimeException("Category not found"));
         product.setCategory(category);

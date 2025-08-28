@@ -71,10 +71,40 @@ public class Product {
     private Integer stock;
     
     /**
-     * Ürün görseli (URL, opsiyonel)
+     * Ürün görseli (URL, opsiyonel) - Eski alan, geriye uyumluluk için
      */
     @Column(name = "image_url", columnDefinition = "TEXT")
     private String imageUrl;
+    
+    /**
+     * Ürün görseli 1 (Ana resim)
+     */
+    @Column(name = "image_url_1", columnDefinition = "TEXT")
+    private String imageUrl1;
+    
+    /**
+     * Ürün görseli 2
+     */
+    @Column(name = "image_url_2", columnDefinition = "TEXT")
+    private String imageUrl2;
+    
+    /**
+     * Ürün görseli 3
+     */
+    @Column(name = "image_url_3", columnDefinition = "TEXT")
+    private String imageUrl3;
+    
+    /**
+     * Ürün görseli 4
+     */
+    @Column(name = "image_url_4", columnDefinition = "TEXT")
+    private String imageUrl4;
+    
+    /**
+     * Ürün görseli 5
+     */
+    @Column(name = "image_url_5", columnDefinition = "TEXT")
+    private String imageUrl5;
     
     /**
      * İndirim yüzdesi (0-100 arası, opsiyonel)
@@ -404,6 +434,76 @@ public class Product {
      */
     public void setDiscountEndDate(java.time.LocalDateTime discountEndDate) {
         this.discountEndDate = discountEndDate;
+    }
+    
+    /**
+     * ImageUrl1 getter metodu
+     */
+    public String getImageUrl1() {
+        return imageUrl1;
+    }
+    
+    /**
+     * ImageUrl1 setter metodu
+     */
+    public void setImageUrl1(String imageUrl1) {
+        this.imageUrl1 = imageUrl1;
+    }
+    
+    /**
+     * ImageUrl2 getter metodu
+     */
+    public String getImageUrl2() {
+        return imageUrl2;
+    }
+    
+    /**
+     * ImageUrl2 setter metodu
+     */
+    public void setImageUrl2(String imageUrl2) {
+        this.imageUrl2 = imageUrl2;
+    }
+    
+    /**
+     * ImageUrl3 getter metodu
+     */
+    public String getImageUrl3() {
+        return imageUrl3;
+    }
+    
+    /**
+     * ImageUrl3 setter metodu
+     */
+    public void setImageUrl3(String imageUrl3) {
+        this.imageUrl3 = imageUrl3;
+    }
+    
+    /**
+     * ImageUrl4 getter metodu
+     */
+    public String getImageUrl4() {
+        return imageUrl4;
+    }
+    
+    /**
+     * ImageUrl4 setter metodu
+     */
+    public void setImageUrl4(String imageUrl4) {
+        this.imageUrl4 = imageUrl4;
+    }
+    
+    /**
+     * ImageUrl5 getter metodu
+     */
+    public String getImageUrl5() {
+        return imageUrl5;
+    }
+    
+    /**
+     * ImageUrl5 setter metodu
+     */
+    public void setImageUrl5(String imageUrl5) {
+        this.imageUrl5 = imageUrl5;
     }
     
     /**

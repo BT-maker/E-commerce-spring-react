@@ -486,7 +486,17 @@ public class DataInitializer implements CommandLineRunner {
         product.setStock(stock);
         product.setCategoryId(categoryId);
         product.setStoreId(storeId);
-        product.setImageUrl("https://via.placeholder.com/300x300?text=" + name.replace(" ", "+"));
+        
+        // Eski imageUrl alanı (geriye uyumluluk için)
+        product.setImageUrl("https://picsum.photos/300/300?random=" + name.hashCode());
+        
+        // Yeni çoklu resim alanları - Gerçekçi resimler
+        product.setImageUrl1("https://picsum.photos/300/300?random=" + (name.hashCode() + 1));
+        product.setImageUrl2("https://picsum.photos/300/300?random=" + (name.hashCode() + 2));
+        product.setImageUrl3("https://picsum.photos/300/300?random=" + (name.hashCode() + 3));
+        product.setImageUrl4("https://picsum.photos/300/300?random=" + (name.hashCode() + 4));
+        product.setImageUrl5("https://picsum.photos/300/300?random=" + (name.hashCode() + 5));
+        
         product.setStatus("ACTIVE");
         return product;
     }

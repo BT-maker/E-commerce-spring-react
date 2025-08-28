@@ -21,8 +21,8 @@ const CartItem = ({ item, onQuantityChange, onRemove }) => {
       <div className="flex gap-3 sm:gap-4">
         {/* Ürün Resmi */}
         <Link to={`/product/${product.id}`} className="flex-shrink-0">
-          <img 
-            src={product.imageUrl} 
+                  <img 
+          src={product.imageUrl1 || product.imageUrl || '/img/no-image.png'} 
             alt={product.name} 
             className="w-16 h-16 sm:w-20 sm:h-20 object-cover rounded-lg border border-gray-200"
           />

@@ -275,9 +275,9 @@ const Orders = () => {
                           {order.items.map((item, idx) => (
                             <div key={item.id} className="flex items-center gap-4 p-3 bg-gray-50 rounded-lg">
                               <div className="w-16 h-16 bg-gray-200 rounded-lg flex items-center justify-center">
-                                {item.product?.imageUrl ? (
-                                  <img 
-                                    src={item.product.imageUrl} 
+                                                {item.product?.imageUrl1 || item.product?.imageUrl ? (
+                  <img 
+                    src={item.product.imageUrl1 || item.product.imageUrl} 
                                     alt={item.product.name}
                                     className="w-full h-full object-cover rounded-lg"
                                   />

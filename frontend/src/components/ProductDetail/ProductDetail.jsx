@@ -60,13 +60,50 @@ const ProductDetail = () => {
   const [recommendations, setRecommendations] = useState([]);
   const [recommendationsLoading, setRecommendationsLoading] = useState(false);
 
-  // Ürün görselleri (örnek)
-  const productImages = [
-    product?.imageUrl || '/img/no-image.png',
-    product?.imageUrl || '/img/no-image.png',
-    product?.imageUrl || '/img/no-image.png',
-    product?.imageUrl || '/img/no-image.png'
-  ];
+  // Ürün görselleri - Yeni çoklu resim sistemi
+  const getProductImages = () => {
+    if (!product) return ['/img/default-product.png'];
+    
+    const images = [
+      product.imageUrl1,
+      product.imageUrl2,
+      product.imageUrl3,
+      product.imageUrl4,
+      product.imageUrl5,
+      product.imageUrl // Eski alanı da ekle (geriye uyumluluk için)
+    ].filter(img => {
+      // Boş resimleri filtrele
+      if (!img || img === null || img === undefined || img.trim() === '') {
+        return false;
+      }
+      // Base64 resimleri de kabul et
+      return true;
+    });
+    
+    // Eğer hiç resim yoksa varsayılan resim ekle
+    if (images.length === 0) {
+      images.push('/img/default-product.png');
+    }
+    
+    return images;
+  };
+  
+  const productImages = getProductImages();
+  
+  // Debug için resim bilgilerini logla
+  useEffect(() => {
+    if (product) {
+      console.log('Ürün resim bilgileri:', {
+        imageUrl: product.imageUrl,
+        imageUrl1: product.imageUrl1,
+        imageUrl2: product.imageUrl2,
+        imageUrl3: product.imageUrl3,
+        imageUrl4: product.imageUrl4,
+        imageUrl5: product.imageUrl5
+      });
+      console.log('Filtrelenmiş resimler:', productImages);
+    }
+  }, [product, productImages]);
 
   useEffect(() => {
     fetch(`http://localhost:8082/api/products/${id}`)
@@ -379,7 +416,7 @@ const ProductDetail = () => {
         title={product ? product.name : "Ürün Detayı"}
         description={product ? `${product.name} - ${product.description || 'Detaylı ürün bilgileri ve kullanıcı yorumları'}. En uygun fiyat garantisi.` : "Ürün detayları"}
         keywords={product ? `${product.name}, ${product.category ? product.category.name : 'ürün'}, alışveriş, e-ticaret` : "ürün detayı, alışveriş"}
-        image={product?.imageUrl || ""}
+        image={product?.imageUrl1 || product?.imageUrl || ""}
         type="product"
         siteName="E-Ticaret"
       />
@@ -401,10 +438,13 @@ const ProductDetail = () => {
         <div className="product-images-section">
           <div className="main-image-container">
             <img 
-              src={productImages[selectedImage]} 
+              src={productImages.length > 0 ? productImages[selectedImage] : '/img/default-product.png'} 
               alt={product.name} 
               className="main-product-image"
-              onError={(e) => { e.target.src = '/img/no-image.png'; }}
+              onError={(e) => { 
+                console.log('Resim yüklenemedi:', e.target.src);
+                e.target.src = '/img/default-product.png'; 
+              }}
             />
             <div className="image-actions">
               <button className="image-action-btn" title="Paylaş">
@@ -416,21 +456,26 @@ const ProductDetail = () => {
             </div>
           </div>
           
-          <div className="thumbnail-images">
-            {productImages.map((image, index) => (
-              <button
-                key={index}
-                className={`thumbnail-image ${selectedImage === index ? 'active' : ''}`}
-                onClick={() => setSelectedImage(index)}
-              >
-                <img 
-                  src={image} 
-                  alt={`${product.name} ${index + 1}`}
-                  onError={(e) => { e.target.src = '/img/no-image.png'; }}
-                />
-              </button>
-            ))}
-          </div>
+          {productImages.length > 1 && (
+            <div className="thumbnail-images">
+              {productImages.map((image, index) => (
+                <button
+                  key={index}
+                  className={`thumbnail-image ${selectedImage === index ? 'active' : ''}`}
+                  onClick={() => setSelectedImage(index)}
+                >
+                  <img 
+                    src={image} 
+                    alt={`${product.name} ${index + 1}`}
+                    onError={(e) => { 
+                      console.log('Thumbnail resim yüklenemedi:', e.target.src);
+                      e.target.src = '/img/default-product.png'; 
+                    }}
+                  />
+                </button>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* Sağ Taraf - Ürün Bilgileri */}

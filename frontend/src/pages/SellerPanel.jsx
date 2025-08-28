@@ -15,7 +15,19 @@ const SellerPanel = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [showForm, setShowForm] = useState(false);
-  const [form, setForm] = useState({ name: "", price: "", stock: "", description: "", imageUrl: "", categoryId: "" });
+  const [form, setForm] = useState({ 
+    name: "", 
+    price: "", 
+    stock: "", 
+    description: "", 
+    imageUrl: "", 
+    imageUrl1: "", 
+    imageUrl2: "", 
+    imageUrl3: "", 
+    imageUrl4: "", 
+    imageUrl5: "", 
+    categoryId: "" 
+  });
   const [editId, setEditId] = useState(null);
   const [storeName, setStoreName] = useState("");
   const [storeError, setStoreError] = useState("");
@@ -94,7 +106,19 @@ const SellerPanel = () => {
         await api.post("/seller/products", payload);
       }
       setShowForm(false);
-      setForm({ name: "", price: "", stock: "", description: "", imageUrl: "", categoryId: "" });
+      setForm({ 
+        name: "", 
+        price: "", 
+        stock: "", 
+        description: "", 
+        imageUrl: "", 
+        imageUrl1: "", 
+        imageUrl2: "", 
+        imageUrl3: "", 
+        imageUrl4: "", 
+        imageUrl5: "", 
+        categoryId: "" 
+      });
       setEditId(null);
       // Ürünleri güncelle
       const prodRes = await api.get("/seller/products");
@@ -123,6 +147,11 @@ const SellerPanel = () => {
       stock: product.stock,
       description: product.description,
       imageUrl: product.imageUrl || "",
+      imageUrl1: product.imageUrl1 || "",
+      imageUrl2: product.imageUrl2 || "",
+      imageUrl3: product.imageUrl3 || "",
+      imageUrl4: product.imageUrl4 || "",
+      imageUrl5: product.imageUrl5 || "",
       categoryId: product.category?.id || ""
     });
     setEditId(product.id);
@@ -256,7 +285,23 @@ const SellerPanel = () => {
                   </div>
                   <button
                     className="bg-green-600 text-white px-4 py-2 rounded font-semibold"
-                    onClick={() => { setShowForm(true); setEditId(null); setForm({ name: "", price: "", stock: "", description: "", imageUrl: "", categoryId: "" }); }}
+                    onClick={() => { 
+                      setShowForm(true); 
+                      setEditId(null); 
+                      setForm({ 
+                        name: "", 
+                        price: "", 
+                        stock: "", 
+                        description: "", 
+                        imageUrl: "", 
+                        imageUrl1: "", 
+                        imageUrl2: "", 
+                        imageUrl3: "", 
+                        imageUrl4: "", 
+                        imageUrl5: "", 
+                        categoryId: "" 
+                      }); 
+                    }}
                   >
                     + Yeni Ürün
                   </button>
@@ -291,7 +336,27 @@ const SellerPanel = () => {
                         </select>
                       </div>
                       <div>
-                        <label className="block mb-1 font-semibold">Görsel URL</label>
+                        <label className="block mb-1 font-semibold">Ana Görsel URL</label>
+                        <input type="text" className="w-full border px-3 py-2 rounded" value={form.imageUrl1} onChange={e => setForm(f => ({ ...f, imageUrl1: e.target.value }))} />
+                      </div>
+                      <div>
+                        <label className="block mb-1 font-semibold">Görsel URL 2</label>
+                        <input type="text" className="w-full border px-3 py-2 rounded" value={form.imageUrl2} onChange={e => setForm(f => ({ ...f, imageUrl2: e.target.value }))} />
+                      </div>
+                      <div>
+                        <label className="block mb-1 font-semibold">Görsel URL 3</label>
+                        <input type="text" className="w-full border px-3 py-2 rounded" value={form.imageUrl3} onChange={e => setForm(f => ({ ...f, imageUrl3: e.target.value }))} />
+                      </div>
+                      <div>
+                        <label className="block mb-1 font-semibold">Görsel URL 4</label>
+                        <input type="text" className="w-full border px-3 py-2 rounded" value={form.imageUrl4} onChange={e => setForm(f => ({ ...f, imageUrl4: e.target.value }))} />
+                      </div>
+                      <div>
+                        <label className="block mb-1 font-semibold">Görsel URL 5</label>
+                        <input type="text" className="w-full border px-3 py-2 rounded" value={form.imageUrl5} onChange={e => setForm(f => ({ ...f, imageUrl5: e.target.value }))} />
+                      </div>
+                      <div>
+                        <label className="block mb-1 font-semibold">Eski Görsel URL (Geriye Uyumluluk)</label>
                         <input type="text" className="w-full border px-3 py-2 rounded" value={form.imageUrl} onChange={e => setForm(f => ({ ...f, imageUrl: e.target.value }))} />
                       </div>
                       <div className="md:col-span-2">

@@ -43,9 +43,34 @@ public class ProductRequest {
     private Integer stock;
     
     /**
-     * Ürün görseli (URL)
+     * Ürün görseli (URL) - Eski alan, geriye uyumluluk için
      */
     private String imageUrl;
+    
+    /**
+     * Ürün görseli 1 (Ana resim)
+     */
+    private String imageUrl1;
+    
+    /**
+     * Ürün görseli 2
+     */
+    private String imageUrl2;
+    
+    /**
+     * Ürün görseli 3
+     */
+    private String imageUrl3;
+    
+    /**
+     * Ürün görseli 4
+     */
+    private String imageUrl4;
+    
+    /**
+     * Ürün görseli 5
+     */
+    private String imageUrl5;
     
     /**
      * Kategori ID'si

@@ -572,7 +572,7 @@ const CheckoutPage = () => {
               {cartItems.map((item) => (
                 <div key={item.id} className="order-item">
                   <div className="item-image">
-                    <img src={item.product.imageUrl || '/images/default-product.jpg'} alt={item.product.name} />
+                    <img src={item.product.imageUrl1 || item.product.imageUrl || '/images/default-product.jpg'} alt={item.product.name} />
                   </div>
                   <div className="item-details">
                     <h4 className="item-name">{item.product.name}</h4>
