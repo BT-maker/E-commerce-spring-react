@@ -278,7 +278,7 @@ const ProductList = () => {
   };
 
   return (
-    <section className="product-list-container max-w-7xl mx-auto px-2 sm:px-4 md:px-8 mt-16">
+    <section className="product-list-container max-w-full mx-auto px-4 mt-16">
       <PageTitle title="Öne Çıkan Ürünler" />
       <MetaTags 
         title="Öne Çıkan Ürünler"
@@ -286,7 +286,7 @@ const ProductList = () => {
         keywords="e-ticaret, online alışveriş, ürünler, kaliteli ürünler, güvenli alışveriş"
       />
       
-      <div className="flex flex-col lg:flex-row gap-8 justify-center">
+      <div className="flex flex-col lg:flex-row gap-4 justify-center">
         {/* Sol Filtreleme Paneli */}
         <FilterPanel
           searchQuery={searchQuery}

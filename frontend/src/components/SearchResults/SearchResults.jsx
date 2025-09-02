@@ -170,7 +170,7 @@ const SearchResults = () => {
       {Array.isArray(products) && products.length === 0 ? (
         <div className="text-center text-gray-400 py-8">Arama sonucu bulunamadı.</div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-7">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-5">
           {Array.isArray(products) && products.map((product) => (
             <ProductCard
               key={product.id}

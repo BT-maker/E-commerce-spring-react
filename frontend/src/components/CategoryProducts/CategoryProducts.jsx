@@ -256,7 +256,7 @@ const CategoryProducts = () => {
   }, [showFilters]);
 
   return (
-    <section className="category-products-container max-w-7xl mx-auto px-2 sm:px-4 md:px-8 mt-16">
+    <section className="category-products-container max-w-full mx-auto px-4 mt-16">
       <PageTitle title={category ? `${category.name} Ürünleri` : "Kategori Ürünleri"} />
       <MetaTags 
         title={category ? `${category.name} Ürünleri` : "Kategori Ürünleri"}
@@ -264,7 +264,7 @@ const CategoryProducts = () => {
         keywords={category ? `${category.name}, ${category.name} ürünleri, kategori, alışveriş` : "kategori ürünleri, alışveriş"}
       />
       
-      <div className="flex flex-col lg:flex-row gap-8">
+      <div className="flex flex-col lg:flex-row gap-4 justify-start">
         {/* Sol Filtreleme Paneli */}
         <FilterPanel
           searchQuery={searchQuery}

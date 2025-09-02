@@ -317,7 +317,7 @@ const ElasticSearch = () => {
           {/* Sonuçlar */}
           <div className="search-results">
             {loading ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-5 sm:gap-7 py-8">
+                              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-5 py-8">
                 {Array.from({ length: 8 }).map((_, i) => (
                   <div key={i} className="p-4">
                     <Skeleton height={160} className="mb-4 rounded-lg" />
@@ -336,7 +336,7 @@ const ElasticSearch = () => {
                 <div className="mb-6">
                   <h3 className="text-lg font-semibold text-gray-800">{results.length} sonuç bulundu</h3>
                 </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-5 sm:gap-7 py-8">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-5 py-8">
                   {results.map((product) => (
                     <ProductCard key={product.id} product={product} />
                   ))}

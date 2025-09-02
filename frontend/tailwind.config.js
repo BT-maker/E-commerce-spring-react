@@ -127,6 +127,14 @@ export default {
           '50%': { transform: 'translateY(-5px)' },
         },
       },
+      container: {
+        center: true,
+        padding: {
+          DEFAULT: '1rem',
+          sm: '1.5rem',
+          lg: '2rem',
+        },
+      },
     },
   },
   plugins: [],

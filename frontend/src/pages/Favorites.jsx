@@ -44,7 +44,7 @@ const Favorites = () => {
     return (
       <div className="max-w-7xl mx-auto px-4 mt-8">
         <h2 className="text-2xl font-bold text-gray-800 mb-8 text-center">Favorilerim</h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-5">
           {Array.from({ length: 8 }).map((_, i) => (
             <div key={i} className="product-card">
               <Skeleton height={200} className="mb-2" />
@@ -97,7 +97,7 @@ const Favorites = () => {
           </Link>
         </div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-5">
           {favorites.map((favorite) => {
             console.log('Favori render ediliyor:', favorite);
             console.log('Favori product:', favorite.product);

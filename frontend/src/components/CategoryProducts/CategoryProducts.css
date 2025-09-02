@@ -12,6 +12,8 @@
   max-height: calc(100vh - 120px);
   overflow-y: auto;
   background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
 }
 
 /* Responsive adjustments */

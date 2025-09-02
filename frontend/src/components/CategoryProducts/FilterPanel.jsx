@@ -21,10 +21,10 @@ const FilterPanel = memo(({
   onClearFilters
 }) => {
   return (
-    <div className="lg:w-1/4">
-      <div className="filter-panel bg-white rounded-lg shadow-sm p-6">
-        <div className="flex items-center justify-between mb-6">
-          <h3 className="text-lg font-semibold text-gray-800">Filtreler</h3>
+    <div className="lg:w-1/5">
+      <div className="filter-panel bg-white p-4">
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-sm font-medium text-gray-700">Filtreler</h3> 
           <button
             onClick={onToggleFilters}
             className="lg:hidden text-gray-500 hover:text-gray-700 flex items-center gap-2"
@@ -36,31 +36,31 @@ const FilterPanel = memo(({
           </button>
         </div>
         
-        <div className={`${showFilters ? 'block' : 'hidden'} lg:block space-y-6`}>
+        <div className={`${showFilters ? 'block' : 'hidden'} lg:block space-y-4`}>
           {/* Arama Kutusu */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-xs font-medium text-gray-600 mb-1">
               Ürün Ara
             </label>
             <input
               type="text"
-              placeholder="Ürün adı, açıklama..."
+              placeholder="Ürün ara..."
               value={searchQuery}
               onChange={onSearchChange}
-              className="w-full border border-gray-300 px-3 py-2 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+              className="w-full border border-gray-200 px-2 py-1.5 text-sm rounded-md focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
             />
           </div>
 
           {/* Kategori Filtresi - Sadece categories prop'u varsa göster */}
           {categories && (
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-xs font-medium text-gray-600 mb-1">
                 Kategori
               </label>
               <select
                 value={selectedCategory || ""}
                 onChange={onCategoryChange}
-                className="w-full border border-gray-300 px-3 py-2 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                className="w-full border border-gray-200 px-2 py-1.5 text-sm rounded-md focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
               >
                 <option value="">Tüm Kategoriler</option>
                 {Array.isArray(categories) && categories.map((category) => (
@@ -74,36 +74,36 @@ const FilterPanel = memo(({
 
           {/* Fiyat Aralığı */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-xs font-medium text-gray-600 mb-1">
               Fiyat Aralığı
             </label>
-            <div className="space-y-2">
+            <div className="space-y-1">
               <input
                 type="number"
-                placeholder="Min Fiyat"
+                placeholder="Min"
                 value={minPrice}
                 onChange={onMinPriceChange}
-                className="w-full border border-gray-300 px-3 py-2 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                className="w-full border border-gray-200 px-2 py-1.5 text-sm rounded-md focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
               />
               <input
                 type="number"
-                placeholder="Max Fiyat"
+                placeholder="Max"
                 value={maxPrice}
                 onChange={onMaxPriceChange}
-                className="w-full border border-gray-300 px-3 py-2 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                className="w-full border border-gray-200 px-2 py-1.5 text-sm rounded-md focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
               />
             </div>
           </div>
 
           {/* Mağaza Filtresi */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-xs font-medium text-gray-600 mb-1">
               Mağaza
             </label>
             <select
               value={selectedStore}
               onChange={onStoreChange}
-              className="w-full border border-gray-300 px-3 py-2 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+              className="w-full border border-gray-200 px-2 py-1.5 text-sm rounded-md focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
               disabled={storesLoading}
             >
               <option value="">Tüm Mağazalar</option>
@@ -117,13 +117,13 @@ const FilterPanel = memo(({
 
           {/* Sıralama */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-xs font-medium text-gray-600 mb-1">
               Sıralama
             </label>
             <select
               value={sort}
               onChange={onSortChange}
-              className="w-full border border-gray-300 px-3 py-2 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+              className="w-full border border-gray-200 px-2 py-1.5 text-sm rounded-md focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
             >
               <option value="">Varsayılan</option>
               <option value="price,asc">Fiyat: Artan</option>
@@ -135,9 +135,9 @@ const FilterPanel = memo(({
           {/* Filtreleri Temizle */}
           <button
             onClick={onClearFilters}
-            className="w-full bg-gray-500 text-white py-2 px-4 rounded-lg hover:bg-gray-600 transition-colors"
+            className="w-full bg-gray-100 text-gray-600 py-1.5 px-3 text-sm rounded-md hover:bg-gray-200 transition-colors border border-gray-200"
           >
-            Filtreleri Temizle
+            Temizle
           </button>
         </div>
       </div>

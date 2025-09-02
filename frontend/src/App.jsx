@@ -178,7 +178,7 @@ function App() {
                    <>
                      <Header />
                      <main className="min-h-screen bg-background-primary">
-                       <div className="container mx-auto px-12 sm:px-16 lg:px-24 py-8">
+                       <div className="container py-8">
                          <div className="mt-0">
                            <Banner />
                          </div>
@@ -189,17 +189,17 @@ function App() {
                    </>
                  } />
                 
-                <Route path="/register" element={
-                  <>
-                    <Header />
-                    <main className="min-h-screen bg-background-primary">
-                      <div className="container mx-auto px-12 sm:px-16 lg:px-24 py-8">
-                        <Register />
-                      </div>
-                    </main>
-                    <Footer />
-                  </>
-                } />
+                                 <Route path="/register" element={
+                   <>
+                     <Header />
+                     <main className="min-h-screen bg-background-primary">
+                       <div className="container py-8">
+                         <Register />
+                       </div>
+                     </main>
+                     <Footer />
+                   </>
+                 } />
                 
                                                                   <Route path="/login" element={
                   <>
@@ -269,7 +269,7 @@ function App() {
                   <>
                     <Header />
                     <main className="min-h-screen bg-background-primary">
-                      <div className="container mx-auto px-12 sm:px-16 lg:px-24 py-8">
+                      <div className="container py-8">
                         <CategoryProducts />
                       </div>
                     </main>

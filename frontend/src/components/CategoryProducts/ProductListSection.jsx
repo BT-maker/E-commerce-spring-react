@@ -19,7 +19,7 @@ const ProductListSection = memo(({
         <h2 className="text-2xl md:text-3xl font-bold mb-8 text-gray-800 text-center">
           {category ? category.name : "Kategori"} Ürünleri
         </h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-5 sm:gap-7 py-8">
+                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-5 py-8">
           {Array.from({ length: 8 }).map((_, i) => (
             <div key={i} className="p-4">
               <Skeleton height={160} className="mb-4 rounded-lg" />
@@ -59,7 +59,7 @@ const ProductListSection = memo(({
         </div>
       ) : (
         <>
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-5 sm:gap-7 py-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-5 py-8">
             {products.map((product) => (
               <ProductCard
                 key={product.id}
