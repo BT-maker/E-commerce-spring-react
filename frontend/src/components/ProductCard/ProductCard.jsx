@@ -107,8 +107,17 @@ const ProductCard = ({ product, loading, onAddToCart, isFavoritesPage = false })
     return stars;
   };
 
+  const handleCardClick = (e) => {
+    // Eğer tıklanan element bir buton veya link ise, kart tıklamasını engelle
+    if (e.target.closest('button') || e.target.closest('a')) {
+      return;
+    }
+    // Ürün detay sayfasına git
+    window.location.href = `/product/${product.id}`;
+  };
+
   return (
-    <div className="product-card">
+    <div className="product-card" onClick={handleCardClick} style={{ cursor: 'pointer' }}>
       <div className="product-image-container">
         <img 
           src={product.imageUrl1 || product.imageUrl || '/img/default-product.png'} 
