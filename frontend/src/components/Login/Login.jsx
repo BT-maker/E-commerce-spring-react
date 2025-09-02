@@ -6,7 +6,16 @@ import api from "../../services/api";
 import toast from 'react-hot-toast';
 import PageTitle from '../PageTitle/PageTitle';
 import MetaTags from '../MetaTags/MetaTags';
-// Plain text şifre gönderiyoruz, backend'de BCrypt ile hash'lenecek
+
+// SHA-256 hash fonksiyonu
+const hashPassword = async (password) => {
+  const encoder = new TextEncoder();
+  const data = encoder.encode(password);
+  const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+  return hashHex;
+};
 
 const Login = () => {
   const [form, setForm] = useState({
@@ -33,12 +42,13 @@ const Login = () => {
     try {
       console.log('Customer login denemesi:', form.email);
       
-      // Plain text şifreyi gönder, backend'de BCrypt ile hash'lenecek
-      console.log('Plain text şifre gönderiliyor');
+      // Şifreyi SHA-256 ile hash'le (kayıt olurken de aynı yöntem kullanılıyor)
+      const hashedPassword = await hashPassword(form.password);
+      console.log('Şifre hash\'lendi:', hashedPassword.substring(0, 10) + '...');
       
       const response = await api.post('/auth/signin', {
         email: form.email,
-        password: form.password // Plain text şifreyi gönder
+        password: hashedPassword // Hash'lenmiş şifreyi gönder
       }, { withCredentials: true });
       
       console.log('Login başarılı:', response.data);
