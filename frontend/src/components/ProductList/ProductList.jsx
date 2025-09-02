@@ -7,7 +7,7 @@ import FilterPanel from '../CategoryProducts/FilterPanel';
 import ProductListSection from '../CategoryProducts/ProductListSection';
 import './ProductList.css';
 
-const PAGE_SIZE = 12;
+const PAGE_SIZE = 16;
 
 const ProductList = () => {
   const { addToCart } = useContext(CartContext);
