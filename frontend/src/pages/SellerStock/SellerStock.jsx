@@ -12,7 +12,6 @@ import {
   FaArrowDown,
   FaEye
 } from 'react-icons/fa';
-import './SellerStock.css';
 
 const SellerStock = () => {
   const [allProducts, setAllProducts] = useState([]);
@@ -210,8 +209,6 @@ const SellerStock = () => {
     setFilteredProducts(allProducts.filter(product => product.stock <= stockThreshold));
   };
 
-
-
   const formatCurrency = (amount) => {
     return new Intl.NumberFormat('tr-TR', {
       style: 'currency',
@@ -234,13 +231,11 @@ const SellerStock = () => {
   };
 
   const getStockStatusColor = (stock) => {
-    if (stock <= 0) return '#dc2626';
-    if (stock <= 5) return '#ea580c';
-    if (stock <= 10) return '#d97706';
-    return '#059669';
+    if (stock <= 0) return 'bg-red-100 text-red-800 border-red-200';
+    if (stock <= 5) return 'bg-orange-100 text-orange-800 border-orange-200';
+    if (stock <= 10) return 'bg-yellow-100 text-yellow-800 border-yellow-200';
+    return 'bg-green-100 text-green-800 border-green-200';
   };
-
-
 
   const getStats = () => {
     const totalProducts = allProducts.length;
@@ -255,11 +250,11 @@ const SellerStock = () => {
 
   if (loading) {
     return (
-      <div className="seller-stock">
-        <div className="stock-loading">
-          <div className="loading-spinner"></div>
-          <h3>Stok Verileri Yükleniyor...</h3>
-          <p>Verileriniz hazırlanıyor, lütfen bekleyin.</p>
+      <div className="p-6">
+        <div className="bg-white rounded-xl shadow-lg p-8 text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-500 mx-auto mb-4"></div>
+          <h3 className="text-xl font-semibold text-gray-900 mb-2">Stok Verileri Yükleniyor...</h3>
+          <p className="text-gray-600">Verileriniz hazırlanıyor, lütfen bekleyin.</p>
         </div>
       </div>
     );
@@ -267,12 +262,15 @@ const SellerStock = () => {
 
   if (error) {
     return (
-      <div className="seller-stock">
-        <div className="stock-error">
-          <div className="error-icon">⚠️</div>
-          <h3>Bir Hata Oluştu</h3>
-          <p>{error}</p>
-          <button className="retry-btn" onClick={fetchAllProducts}>
+      <div className="p-6">
+        <div className="bg-red-50 border border-red-200 rounded-xl p-8 text-center">
+          <div className="text-red-500 text-4xl mb-4">⚠️</div>
+          <h3 className="text-xl font-semibold text-red-800 mb-2">Bir Hata Oluştu</h3>
+          <p className="text-red-600 mb-6">{error}</p>
+          <button 
+            className="bg-red-600 hover:bg-red-700 text-white px-6 py-2 rounded-lg font-semibold transition-colors"
+            onClick={fetchAllProducts}
+          >
             Tekrar Dene
           </button>
         </div>
@@ -281,18 +279,92 @@ const SellerStock = () => {
   }
 
   return (
-    <div className="seller-stock">
+    <div className="p-6">
       {/* Header */}
-      <div className="stock-header">
-        <div className="header-content">
-          <h2>Stok Yönetimi</h2>
+      <div className="bg-gradient-to-r from-orange-500 to-orange-600 rounded-xl p-8 text-white mb-8">
+        <div className="text-center">
+          <h1 className="text-3xl font-bold mb-2">Stok Yönetimi</h1>
+          <p className="text-orange-100">Mağazanızdaki ürün stoklarını takip edin ve yönetin</p>
+        </div>
+      </div>
+
+      {/* Stats Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+        <div className="bg-gradient-to-r from-blue-50 to-blue-100 rounded-xl p-6 border border-blue-200">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium text-blue-600">Toplam Ürün</p>
+              <p className="text-2xl font-bold text-blue-900">{stats.totalProducts}</p>
+            </div>
+            <div className="p-3 bg-blue-500 rounded-lg">
+              <FaBox className="text-white text-xl" />
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-gradient-to-r from-red-50 to-red-100 rounded-xl p-6 border border-red-200">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium text-red-600">Stokta Yok</p>
+              <p className="text-2xl font-bold text-red-900">{stats.outOfStock}</p>
+            </div>
+            <div className="p-3 bg-red-500 rounded-lg">
+              <FaExclamationTriangle className="text-white text-xl" />
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-gradient-to-r from-orange-50 to-orange-100 rounded-xl p-6 border border-orange-200">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium text-orange-600">Kritik Stok</p>
+              <p className="text-2xl font-bold text-orange-900">{stats.critical}</p>
+            </div>
+            <div className="p-3 bg-orange-500 rounded-lg">
+              <FaExclamationTriangle className="text-white text-xl" />
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-gradient-to-r from-yellow-50 to-yellow-100 rounded-xl p-6 border border-yellow-200">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium text-yellow-600">Düşük Stok</p>
+              <p className="text-2xl font-bold text-yellow-900">{stats.low}</p>
+            </div>
+            <div className="p-3 bg-yellow-500 rounded-lg">
+              <FaChartLine className="text-white text-xl" />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Stock Threshold Control */}
+      <div className="bg-white rounded-xl shadow-lg p-6 mb-8">
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+          <div>
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">Stok Eşiği Ayarları</h3>
+            <p className="text-gray-600">Bu eşiğin altındaki stoklu ürünler gösterilir</p>
+          </div>
+          <div className="flex items-center space-x-4">
+            <label className="text-sm font-medium text-gray-700">Stok Eşiği:</label>
+            <input
+              type="number"
+              min="0"
+              value={stockThreshold}
+              onChange={(e) => setStockThreshold(parseInt(e.target.value) || 0)}
+              className="w-20 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-colors"
+            />
+            <span className="text-sm text-gray-600">adet</span>
+          </div>
         </div>
       </div>
 
       {/* Arama ve Filtreleme */}
-      <div className="search-filters">
-        <div className="search-row">
-          <div className="search-group">
+      <div className="bg-white rounded-xl shadow-lg p-6 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4">
+          <div className="relative">
+            <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
             <input
               type="text"
               placeholder="Ürün adı ara..."
@@ -301,10 +373,11 @@ const SellerStock = () => {
                 setSearchTerm(e.target.value);
                 setShowSuggestions(e.target.value.length > 0);
               }}
+              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-colors"
             />
             {/* Öneriler */}
             {showSuggestions && searchTerm && (
-              <div className="search-suggestions">
+              <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg">
                 {allProducts
                   .filter(product =>
                     product.name?.toLowerCase().includes(searchTerm.toLowerCase())
@@ -313,20 +386,21 @@ const SellerStock = () => {
                   .map(product => (
                     <div
                       key={product.id}
-                      className="suggestion-item"
+                      className="px-4 py-2 hover:bg-gray-100 cursor-pointer flex items-center space-x-2"
                       onClick={() => {
                         setSearchTerm(product.name);
                         setShowSuggestions(false);
                       }}
                     >
-                      <FaSearch className="suggestion-icon" />
-                      <span>{product.name}</span>
+                      <FaSearch className="text-gray-400 text-sm" />
+                      <span className="text-gray-700">{product.name}</span>
                     </div>
                   ))}
               </div>
             )}
           </div>
-          <div className="search-group">
+
+          <div>
             <input
               type="text"
               placeholder="Kategori"
@@ -334,9 +408,11 @@ const SellerStock = () => {
               onChange={(e) => {
                 setSelectedCategory(e.target.value);
               }}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-colors"
             />
           </div>
-          <div className="search-group">
+
+          <div>
             <input
               type="number"
               placeholder="Min stok"
@@ -345,9 +421,11 @@ const SellerStock = () => {
               onChange={(e) => {
                 setMinStock(e.target.value);
               }}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-colors"
             />
           </div>
-          <div className="search-group">
+
+          <div>
             <input
               type="number"
               placeholder="Max stok"
@@ -356,109 +434,117 @@ const SellerStock = () => {
               onChange={(e) => {
                 setMaxStock(e.target.value);
               }}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-colors"
             />
           </div>
-          <button className="search-btn" onClick={handleSearch}>
-            <FaSearch /> Ara
+
+          <button 
+            className="bg-orange-600 hover:bg-orange-700 text-white px-6 py-2 rounded-lg font-semibold transition-colors flex items-center justify-center space-x-2"
+            onClick={handleSearch}
+          >
+            <FaSearch />
+            <span>Ara</span>
           </button>
-          <button className="clear-btn" onClick={handleClearFilters}>
-            <FaTimes /> Temizle
+
+          <button 
+            className="bg-gray-300 hover:bg-gray-400 text-gray-700 px-6 py-2 rounded-lg font-semibold transition-colors flex items-center justify-center space-x-2"
+            onClick={handleClearFilters}
+          >
+            <FaTimes />
+            <span>Temizle</span>
           </button>
         </div>
       </div>
 
-
-
       {/* Products Table */}
-      <div className="stock-table-container">
+      <div className="bg-white rounded-xl shadow-lg overflow-hidden">
         {filteredProducts.length === 0 ? (
-          <div className="no-products">
-            <div className="no-products-icon">📦</div>
-            <h3>Düşük Stoklu Ürün Yok</h3>
-            <p>Seçilen eşiğe göre düşük stoklu ürün bulunmuyor.</p>
+          <div className="text-center py-12">
+            <div className="text-6xl mb-4">📦</div>
+            <h3 className="text-xl font-semibold text-gray-900 mb-2">Düşük Stoklu Ürün Yok</h3>
+            <p className="text-gray-600">Seçilen eşiğe göre düşük stoklu ürün bulunmuyor.</p>
           </div>
         ) : (
-          <div className="stock-table">
-            <table>
-              <thead>
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead className="bg-gray-50 border-b border-gray-200">
                 <tr>
-                  <th>Ürün</th>
-                  <th>Kategori</th>
-                  <th>Fiyat</th>
-                  <th>Stok</th>
-                  <th>Durum</th>
-                  <th>İşlemler</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ürün</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Kategori</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fiyat</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Stok</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Durum</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">İşlemler</th>
                 </tr>
               </thead>
-              <tbody>
+              <tbody className="bg-white divide-y divide-gray-200">
                 {filteredProducts.map((product) => (
-                  <tr key={product.id} className={`stock-row ${getStockStatus(product.stock)}`}>
-                    <td className="product-cell">
-                      <img 
-                        src={product.imageUrl1 || product.imageUrl || '/img/default-product.png'} 
-                        alt={product.name}
-                        className="product-image"
-                        onError={(e) => {
-                          e.target.src = '/img/default-product.png';
-                        }}
-                      />
-                      <div className="product-info">
-                        <h4>{product.name}</h4>
-                        <p>{product.description}</p>
+                  <tr key={product.id} className="hover:bg-gray-50 transition-colors">
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="flex items-center space-x-3">
+                        <img 
+                          src={product.imageUrl1 || product.imageUrl || '/img/default-product.png'} 
+                          alt={product.name}
+                          className="w-12 h-12 rounded-lg object-cover"
+                          onError={(e) => {
+                            e.target.src = '/img/default-product.png';
+                          }}
+                        />
+                        <div>
+                          <h4 className="text-sm font-medium text-gray-900">{product.name}</h4>
+                          <p className="text-sm text-gray-500 truncate max-w-xs">{product.description}</p>
+                        </div>
                       </div>
                     </td>
-                    <td className="category-cell">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                       {product.category?.name || 'Kategori yok'}
                     </td>
-                    <td className="price-cell">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                       {formatCurrency(product.price)}
                     </td>
-                    <td className="stock-cell">
+                    <td className="px-6 py-4 whitespace-nowrap">
                       {editingProduct?.id === product.id ? (
                         <input
                           type="number"
                           value={editStock}
                           onChange={(e) => setEditStock(e.target.value)}
-                          className="stock-input"
+                          className="w-20 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-colors"
                           min="0"
                         />
                       ) : (
-                        <span className="stock-number">{product.stock}</span>
+                        <span className="text-sm font-medium text-gray-900">{product.stock}</span>
                       )}
                     </td>
-                    <td className="status-cell">
-                      <span 
-                        className="stock-status"
-                        style={{ backgroundColor: getStockStatusColor(product.stock) }}
-                      >
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium border ${getStockStatusColor(product.stock)}`}>
                         {getStockStatusText(product.stock)}
                       </span>
                     </td>
-                    <td className="actions-cell">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                       {editingProduct?.id === product.id ? (
-                        <div className="edit-actions">
+                        <div className="flex items-center space-x-2">
                           <button 
-                            className="action-btn save-btn" 
+                            className="text-green-600 hover:text-green-700 p-2 rounded-lg hover:bg-green-50 transition-colors"
                             onClick={handleSaveStock}
                             title="Kaydet"
                           >
-                            <FaSave />
+                            <FaSave size={16} />
                           </button>
                           <button 
-                            className="action-btn cancel-btn" 
+                            className="text-red-600 hover:text-red-700 p-2 rounded-lg hover:bg-red-50 transition-colors"
                             onClick={handleCancelEdit}
                             title="İptal"
                           >
-                            <FaTimes />
+                            <FaTimes size={16} />
                           </button>
                         </div>
                       ) : (
                         <button 
-                          className="action-btn edit-btn" 
+                          className="text-blue-600 hover:text-blue-700 p-2 rounded-lg hover:bg-blue-50 transition-colors"
                           onClick={() => handleEditStock(product)}
                           title="Stok Düzenle"
                         >
-                          <FaEdit />
+                          <FaEdit size={16} />
                         </button>
                       )}
                     </td>
@@ -472,22 +558,25 @@ const SellerStock = () => {
 
       {/* Summary */}
       {filteredProducts.length > 0 && (
-        <div className="stock-summary">
-          <div className="summary-item">
-            <span className="summary-label">Toplam Ürün:</span>
-            <span className="summary-value">{filteredProducts.length}</span>
-          </div>
-          <div className="summary-item">
-            <span className="summary-label">Ortalama Stok:</span>
-            <span className="summary-value">
-              {Math.round(filteredProducts.reduce((sum, p) => sum + p.stock, 0) / filteredProducts.length)}
-            </span>
-          </div>
-          <div className="summary-item">
-            <span className="summary-label">En Düşük Stok:</span>
-            <span className="summary-value">
-              {Math.min(...filteredProducts.map(p => p.stock))}
-            </span>
+        <div className="bg-white rounded-xl shadow-lg p-6 mt-8">
+          <h3 className="text-lg font-semibold text-gray-900 mb-4">Özet Bilgiler</h3>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="text-center">
+              <div className="text-2xl font-bold text-blue-600">{filteredProducts.length}</div>
+              <div className="text-sm text-gray-600">Toplam Ürün</div>
+            </div>
+            <div className="text-center">
+              <div className="text-2xl font-bold text-green-600">
+                {Math.round(filteredProducts.reduce((sum, p) => sum + p.stock, 0) / filteredProducts.length)}
+              </div>
+              <div className="text-sm text-gray-600">Ortalama Stok</div>
+            </div>
+            <div className="text-center">
+              <div className="text-2xl font-bold text-orange-600">
+                {Math.min(...filteredProducts.map(p => p.stock))}
+              </div>
+              <div className="text-sm text-gray-600">En Düşük Stok</div>
+            </div>
           </div>
         </div>
       )}

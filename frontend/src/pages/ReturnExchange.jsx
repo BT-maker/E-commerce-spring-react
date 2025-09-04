@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
 import PageTitle from '../components/PageTitle/PageTitle';
 import MetaTags from '../components/MetaTags/MetaTags';
-import { RefreshCw, Package, Clock, AlertCircle, CheckCircle, Send } from 'lucide-react';
-import './ReturnExchange.css';
+import { RefreshCw, Package, Clock, AlertCircle, CheckCircle, Send, Loader2 } from 'lucide-react';
 
 const ReturnExchange = () => {
   const [activeTab, setActiveTab] = useState('return');
@@ -58,7 +57,7 @@ const ReturnExchange = () => {
   ];
 
   return (
-    <div className="return-exchange-container">
+    <div className="min-h-screen ">
       <PageTitle title="İade ve Değişim" />
       <MetaTags 
         title="İade ve Değişim"
@@ -66,81 +65,119 @@ const ReturnExchange = () => {
         keywords="iade, değişim, iade politikası, shopping iade"
       />
       
-      <div className="return-exchange-content">
-        <h1 className="return-exchange-title">İade ve Değişim</h1>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <div className="text-center mb-12">
+          <h1 className="text-4xl font-bold text-gray-900 mb-4">İade ve Değişim</h1>
+          <p className="text-xl text-gray-600">Güvenli ve kolay iade sürecimiz hakkında bilgi alın</p>
+        </div>
         
         {/* Tab Menüsü */}
-        <div className="tab-menu">
+        <div className="flex flex-wrap justify-center space-x-2 mb-12">
           <button 
-            className={`tab-btn ${activeTab === 'return' ? 'active' : ''}`}
+            className={`flex items-center space-x-2 px-6 py-3 rounded-lg font-medium transition-colors ${
+              activeTab === 'return' 
+                ? 'bg-orange-500 text-white shadow-md' 
+                : 'bg-white text-gray-700 hover:bg-gray-100 border border-gray-200'
+            }`}
             onClick={() => setActiveTab('return')}
           >
             <RefreshCw size={20} />
-            İade Politikası
+            <span>İade Politikası</span>
           </button>
           <button 
-            className={`tab-btn ${activeTab === 'exchange' ? 'active' : ''}`}
+            className={`flex items-center space-x-2 px-6 py-3 rounded-lg font-medium transition-colors ${
+              activeTab === 'exchange' 
+                ? 'bg-orange-500 text-white shadow-md' 
+                : 'bg-white text-gray-700 hover:bg-gray-100 border border-gray-200'
+            }`}
             onClick={() => setActiveTab('exchange')}
           >
             <Package size={20} />
-            Değişim Politikası
+            <span>Değişim Politikası</span>
           </button>
           <button 
-            className={`tab-btn ${activeTab === 'form' ? 'active' : ''}`}
+            className={`flex items-center space-x-2 px-6 py-3 rounded-lg font-medium transition-colors ${
+              activeTab === 'form' 
+                ? 'bg-orange-500 text-white shadow-md' 
+                : 'bg-white text-gray-700 hover:bg-gray-100 border border-gray-200'
+            }`}
             onClick={() => setActiveTab('form')}
           >
             <Send size={20} />
-            İade/Değişim Talebi
+            <span>İade/Değişim Talebi</span>
           </button>
         </div>
 
         {/* İade Politikası */}
         {activeTab === 'return' && (
-          <div className="policy-section">
-            <h2>İade Politikası</h2>
+          <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-8">
+            <h2 className="text-3xl font-bold text-gray-900 mb-8 text-center">İade Politikası</h2>
             
-            <div className="policy-grid">
-              <div className="policy-card">
-                <div className="policy-icon">
-                  <Clock size={24} />
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+              <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-6 text-center">
+                <div className="flex justify-center mb-4">
+                  <div className="p-3 bg-blue-500 rounded-lg">
+                    <Clock size={24} className="text-white" />
+                  </div>
                 </div>
-                <h3>İade Süresi</h3>
-                <p>Ürünlerinizi teslim aldığınız tarihten itibaren 14 gün içinde iade edebilirsiniz.</p>
+                <h3 className="font-semibold text-gray-900 mb-2">İade Süresi</h3>
+                <p className="text-gray-700 text-sm">Ürünlerinizi teslim aldığınız tarihten itibaren 14 gün içinde iade edebilirsiniz.</p>
               </div>
 
-              <div className="policy-card">
-                <div className="policy-icon">
-                  <Package size={24} />
+              <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-xl p-6 text-center">
+                <div className="flex justify-center mb-4">
+                  <div className="p-3 bg-green-500 rounded-lg">
+                    <Package size={24} className="text-white" />
+                  </div>
                 </div>
-                <h3>Ürün Durumu</h3>
-                <p>İade edilecek ürünler orijinal ambalajında ve kullanılmamış durumda olmalıdır.</p>
+                <h3 className="font-semibold text-gray-900 mb-2">Ürün Durumu</h3>
+                <p className="text-gray-700 text-sm">İade edilecek ürünler orijinal ambalajında ve kullanılmamış durumda olmalıdır.</p>
               </div>
 
-              <div className="policy-card">
-                <div className="policy-icon">
-                  <CheckCircle size={24} />
+              <div className="bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl p-6 text-center">
+                <div className="flex justify-center mb-4">
+                  <div className="p-3 bg-purple-500 rounded-lg">
+                    <CheckCircle size={24} className="text-white" />
+                  </div>
                 </div>
-                <h3>İade Koşulları</h3>
-                <p>Ürün etiketleri çıkarılmamış ve ürün test edilmemiş olmalıdır.</p>
+                <h3 className="font-semibold text-gray-900 mb-2">İade Koşulları</h3>
+                <p className="text-gray-700 text-sm">Ürün etiketleri çıkarılmamış ve ürün test edilmemiş olmalıdır.</p>
               </div>
 
-              <div className="policy-card">
-                <div className="policy-icon">
-                  <AlertCircle size={24} />
+              <div className="bg-gradient-to-br from-red-50 to-red-100 rounded-xl p-6 text-center">
+                <div className="flex justify-center mb-4">
+                  <div className="p-3 bg-red-500 rounded-lg">
+                    <AlertCircle size={24} className="text-white" />
+                  </div>
                 </div>
-                <h3>İade Edilemeyen Ürünler</h3>
-                <p>Kişisel bakım ürünleri, iç çamaşırı, yüzme kıyafetleri iade edilemez.</p>
+                <h3 className="font-semibold text-gray-900 mb-2">İade Edilemeyen Ürünler</h3>
+                <p className="text-gray-700 text-sm">Kişisel bakım ürünleri, iç çamaşırı, yüzme kıyafetleri iade edilemez.</p>
               </div>
             </div>
 
-            <div className="policy-details">
-              <h3>İade Süreci</h3>
-              <ol className="process-list">
-                <li>İade/değişim talebinizi online olarak oluşturun</li>
-                <li>Ürünü orijinal ambalajında hazırlayın</li>
-                <li>Kargo firması ürünü adresinizden alacak</li>
-                <li>Ürün kontrol edildikten sonra iade işlemi tamamlanır</li>
-                <li>Ödeme 3-5 iş günü içinde iade edilir</li>
+            <div className="bg-gray-50 rounded-xl p-8">
+              <h3 className="text-2xl font-bold text-gray-900 mb-6">İade Süreci</h3>
+              <ol className="space-y-4">
+                <li className="flex items-start space-x-4">
+                  <div className="flex-shrink-0 w-8 h-8 bg-orange-500 text-white rounded-full flex items-center justify-center font-bold text-sm">1</div>
+                  <p className="text-gray-700">İade/değişim talebinizi online olarak oluşturun</p>
+                </li>
+                <li className="flex items-start space-x-4">
+                  <div className="flex-shrink-0 w-8 h-8 bg-orange-500 text-white rounded-full flex items-center justify-center font-bold text-sm">2</div>
+                  <p className="text-gray-700">Ürünü orijinal ambalajında hazırlayın</p>
+                </li>
+                <li className="flex items-start space-x-4">
+                  <div className="flex-shrink-0 w-8 h-8 bg-orange-500 text-white rounded-full flex items-center justify-center font-bold text-sm">3</div>
+                  <p className="text-gray-700">Kargo firması ürünü adresinizden alacak</p>
+                </li>
+                <li className="flex items-start space-x-4">
+                  <div className="flex-shrink-0 w-8 h-8 bg-orange-500 text-white rounded-full flex items-center justify-center font-bold text-sm">4</div>
+                  <p className="text-gray-700">Ürün kontrol edildikten sonra iade işlemi tamamlanır</p>
+                </li>
+                <li className="flex items-start space-x-4">
+                  <div className="flex-shrink-0 w-8 h-8 bg-orange-500 text-white rounded-full flex items-center justify-center font-bold text-sm">5</div>
+                  <p className="text-gray-700">Ödeme 3-5 iş günü içinde iade edilir</p>
+                </li>
               </ol>
             </div>
           </div>
@@ -148,51 +185,74 @@ const ReturnExchange = () => {
 
         {/* Değişim Politikası */}
         {activeTab === 'exchange' && (
-          <div className="policy-section">
-            <h2>Değişim Politikası</h2>
+          <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-8">
+            <h2 className="text-3xl font-bold text-gray-900 mb-8 text-center">Değişim Politikası</h2>
             
-            <div className="policy-grid">
-              <div className="policy-card">
-                <div className="policy-icon">
-                  <Clock size={24} />
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+              <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-6 text-center">
+                <div className="flex justify-center mb-4">
+                  <div className="p-3 bg-blue-500 rounded-lg">
+                    <Clock size={24} className="text-white" />
+                  </div>
                 </div>
-                <h3>Değişim Süresi</h3>
-                <p>Ürünlerinizi teslim aldığınız tarihten itibaren 30 gün içinde değiştirebilirsiniz.</p>
+                <h3 className="font-semibold text-gray-900 mb-2">Değişim Süresi</h3>
+                <p className="text-gray-700 text-sm">Ürünlerinizi teslim aldığınız tarihten itibaren 30 gün içinde değiştirebilirsiniz.</p>
               </div>
 
-              <div className="policy-card">
-                <div className="policy-icon">
-                  <Package size={24} />
+              <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-xl p-6 text-center">
+                <div className="flex justify-center mb-4">
+                  <div className="p-3 bg-green-500 rounded-lg">
+                    <Package size={24} className="text-white" />
+                  </div>
                 </div>
-                <h3>Değişim Koşulları</h3>
-                <p>Ürün orijinal durumunda ve ambalajında olmalıdır.</p>
+                <h3 className="font-semibold text-gray-900 mb-2">Değişim Koşulları</h3>
+                <p className="text-gray-700 text-sm">Ürün orijinal durumunda ve ambalajında olmalıdır.</p>
               </div>
 
-              <div className="policy-card">
-                <div className="policy-icon">
-                  <CheckCircle size={24} />
+              <div className="bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl p-6 text-center">
+                <div className="flex justify-center mb-4">
+                  <div className="p-3 bg-purple-500 rounded-lg">
+                    <CheckCircle size={24} className="text-white" />
+                  </div>
                 </div>
-                <h3>Değişim Seçenekleri</h3>
-                <p>Aynı ürünün farklı boyut/renk seçenekleri ile değiştirebilirsiniz.</p>
+                <h3 className="font-semibold text-gray-900 mb-2">Değişim Seçenekleri</h3>
+                <p className="text-gray-700 text-sm">Aynı ürünün farklı boyut/renk seçenekleri ile değiştirebilirsiniz.</p>
               </div>
 
-              <div className="policy-card">
-                <div className="policy-icon">
-                  <AlertCircle size={24} />
+              <div className="bg-gradient-to-br from-yellow-50 to-yellow-100 rounded-xl p-6 text-center">
+                <div className="flex justify-center mb-4">
+                  <div className="p-3 bg-yellow-500 rounded-lg">
+                    <AlertCircle size={24} className="text-white" />
+                  </div>
                 </div>
-                <h3>Değişim Ücreti</h3>
-                <p>Değişim işlemi ücretsizdir, sadece kargo ücreti alınır.</p>
+                <h3 className="font-semibold text-gray-900 mb-2">Değişim Ücreti</h3>
+                <p className="text-gray-700 text-sm">Değişim işlemi ücretsizdir, sadece kargo ücreti alınır.</p>
               </div>
             </div>
 
-            <div className="policy-details">
-              <h3>Değişim Süreci</h3>
-              <ol className="process-list">
-                <li>Değişim talebinizi online olarak oluşturun</li>
-                <li>Yeni ürün seçiminizi yapın</li>
-                <li>Mevcut ürünü kargo ile gönderin</li>
-                <li>Yeni ürün hazırlandığında size gönderilir</li>
-                <li>Fiyat farkı varsa hesaplanır ve ödenir</li>
+            <div className="bg-gray-50 rounded-xl p-8">
+              <h3 className="text-2xl font-bold text-gray-900 mb-6">Değişim Süreci</h3>
+              <ol className="space-y-4">
+                <li className="flex items-start space-x-4">
+                  <div className="flex-shrink-0 w-8 h-8 bg-orange-500 text-white rounded-full flex items-center justify-center font-bold text-sm">1</div>
+                  <p className="text-gray-700">Değişim talebinizi online olarak oluşturun</p>
+                </li>
+                <li className="flex items-start space-x-4">
+                  <div className="flex-shrink-0 w-8 h-8 bg-orange-500 text-white rounded-full flex items-center justify-center font-bold text-sm">2</div>
+                  <p className="text-gray-700">Yeni ürün seçiminizi yapın</p>
+                </li>
+                <li className="flex items-start space-x-4">
+                  <div className="flex-shrink-0 w-8 h-8 bg-orange-500 text-white rounded-full flex items-center justify-center font-bold text-sm">3</div>
+                  <p className="text-gray-700">Mevcut ürünü kargo ile gönderin</p>
+                </li>
+                <li className="flex items-start space-x-4">
+                  <div className="flex-shrink-0 w-8 h-8 bg-orange-500 text-white rounded-full flex items-center justify-center font-bold text-sm">4</div>
+                  <p className="text-gray-700">Yeni ürün hazırlandığında size gönderilir</p>
+                </li>
+                <li className="flex items-start space-x-4">
+                  <div className="flex-shrink-0 w-8 h-8 bg-orange-500 text-white rounded-full flex items-center justify-center font-bold text-sm">5</div>
+                  <p className="text-gray-700">Fiyat farkı varsa hesaplanır ve ödenir</p>
+                </li>
               </ol>
             </div>
           </div>
@@ -200,16 +260,26 @@ const ReturnExchange = () => {
 
         {/* İade/Değişim Formu */}
         {activeTab === 'form' && (
-          <div className="form-section">
-            <h2>İade/Değişim Talebi</h2>
+          <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-8">
+            <h2 className="text-3xl font-bold text-gray-900 mb-8 text-center">İade/Değişim Talebi</h2>
             
-            <form className="return-form" onSubmit={handleSubmit}>
-              {error && <div className="error-message">{error}</div>}
-              {success && <div className="success-message">{success}</div>}
+            <form className="max-w-2xl mx-auto space-y-6" onSubmit={handleSubmit}>
+              {error && (
+                <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
+                  {error}
+                </div>
+              )}
+              {success && (
+                <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg">
+                  {success}
+                </div>
+              )}
               
-              <div className="form-row">
-                <div className="form-group">
-                  <label htmlFor="orderNumber">Sipariş Numarası *</label>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label htmlFor="orderNumber" className="block text-sm font-medium text-gray-700 mb-2">
+                    Sipariş Numarası *
+                  </label>
                   <input
                     type="text"
                     id="orderNumber"
@@ -219,10 +289,13 @@ const ReturnExchange = () => {
                     required
                     disabled={loading}
                     placeholder="Örn: ORDER123"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
                   />
                 </div>
-                <div className="form-group">
-                  <label htmlFor="name">Ad Soyad *</label>
+                <div>
+                  <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
+                    Ad Soyad *
+                  </label>
                   <input
                     type="text"
                     id="name"
@@ -231,13 +304,16 @@ const ReturnExchange = () => {
                     onChange={handleChange}
                     required
                     disabled={loading}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
                   />
                 </div>
               </div>
 
-              <div className="form-row">
-                <div className="form-group">
-                  <label htmlFor="email">E-posta *</label>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
+                    E-posta *
+                  </label>
                   <input
                     type="email"
                     id="email"
@@ -246,10 +322,13 @@ const ReturnExchange = () => {
                     onChange={handleChange}
                     required
                     disabled={loading}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
                   />
                 </div>
-                <div className="form-group">
-                  <label htmlFor="phone">Telefon *</label>
+                <div>
+                  <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-2">
+                    Telefon *
+                  </label>
                   <input
                     type="tel"
                     id="phone"
@@ -258,12 +337,15 @@ const ReturnExchange = () => {
                     onChange={handleChange}
                     required
                     disabled={loading}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
                   />
                 </div>
               </div>
 
-              <div className="form-group">
-                <label htmlFor="reason">İade/Değişim Nedeni *</label>
+              <div>
+                <label htmlFor="reason" className="block text-sm font-medium text-gray-700 mb-2">
+                  İade/Değişim Nedeni *
+                </label>
                 <select
                   id="reason"
                   name="reason"
@@ -271,6 +353,7 @@ const ReturnExchange = () => {
                   onChange={handleChange}
                   required
                   disabled={loading}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
                 >
                   <option value="">Neden seçiniz</option>
                   {returnReasons.map((reason, index) => (
@@ -279,8 +362,10 @@ const ReturnExchange = () => {
                 </select>
               </div>
 
-              <div className="form-group">
-                <label htmlFor="description">Açıklama</label>
+              <div>
+                <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-2">
+                  Açıklama
+                </label>
                 <textarea
                   id="description"
                   name="description"
@@ -289,19 +374,24 @@ const ReturnExchange = () => {
                   rows="4"
                   disabled={loading}
                   placeholder="Detaylı açıklama yazabilirsiniz..."
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent resize-none"
                 />
               </div>
 
-              <button type="submit" className="submit-btn" disabled={loading}>
+              <button 
+                type="submit" 
+                className="w-full flex items-center justify-center space-x-2 px-6 py-3 bg-orange-500 hover:bg-orange-600 text-white font-medium rounded-lg transition-colors disabled:opacity-50"
+                disabled={loading}
+              >
                 {loading ? (
                   <>
-                    <div className="loading-spinner"></div>
-                    Gönderiliyor...
+                    <Loader2 className="w-5 h-5 animate-spin" />
+                    <span>Gönderiliyor...</span>
                   </>
                 ) : (
                   <>
-                    <Send size={20} />
-                    Talep Gönder
+                    <Send className="w-5 h-5" />
+                    <span>Talep Gönder</span>
                   </>
                 )}
               </button>

@@ -20,7 +20,7 @@ import {
   Mail,
   FolderOpen
 } from "lucide-react";
-import "./AdminLayout.css";
+
 import toast from 'react-hot-toast';
 
 const AdminLayout = ({ children }) => {

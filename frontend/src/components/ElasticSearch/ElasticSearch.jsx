@@ -3,7 +3,7 @@ import { Search, Filter, X } from 'lucide-react';
 import ProductCard from '../ProductCard/ProductCard';
 import Skeleton from 'react-loading-skeleton';
 import 'react-loading-skeleton/dist/skeleton.css';
-import './ElasticSearch.css';
+
 
 const PAGE_SIZE = 12;
 

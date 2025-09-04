@@ -6,7 +6,7 @@ import PageTitle from '../PageTitle/PageTitle';
 import MetaTags from '../MetaTags/MetaTags';
 import FilterPanel from './FilterPanel';
 import ProductListSection from './ProductListSection';
-import './CategoryProducts.css';
+
 
 const PAGE_SIZE = 12;
 
@@ -264,7 +264,7 @@ const CategoryProducts = () => {
         keywords={category ? `${category.name}, ${category.name} ürünleri, kategori, alışveriş` : "kategori ürünleri, alışveriş"}
       />
       
-      <div className="flex flex-col lg:flex-row gap-4 justify-start">
+      <div className="flex flex-col lg:flex-row gap-4 justify-start items-start">
         {/* Sol Filtreleme Paneli */}
         <FilterPanel
           searchQuery={searchQuery}

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Bell, BellOff, Mail, Smartphone, Settings, Save, X } from 'lucide-react';
 import api from '../services/api';
-import './NotificationSettings.css';
+
 
 const NotificationSettings = () => {
   const [settings, setSettings] = useState({

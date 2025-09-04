@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useState } from "react";
 import CartItem from "../CartItem/CartItem";
-import "./CartPage.css";
+
 import { CartContext } from "../../context/CartContext";
 import api from "../../services/api";
 import { useNavigate } from "react-router-dom";

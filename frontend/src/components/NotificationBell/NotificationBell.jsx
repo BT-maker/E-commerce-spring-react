@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Bell, X, Check, Package, Tag, AlertCircle, ShoppingCart, Star, Settings, Trash2 } from 'lucide-react';
 import { useNotifications } from '../../context/NotificationContext';
-import './NotificationBell.css';
+
 
 const NotificationBell = () => {
   const { notifications, unreadCount, markAsRead, markAllAsRead } = useNotifications();

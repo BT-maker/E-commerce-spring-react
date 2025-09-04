@@ -5,7 +5,7 @@ import PageTitle from '../PageTitle/PageTitle';
 import MetaTags from '../MetaTags/MetaTags';
 import FilterPanel from '../CategoryProducts/FilterPanel';
 import ProductListSection from '../CategoryProducts/ProductListSection';
-import './ProductList.css';
+
 
 const PAGE_SIZE = 16;
 

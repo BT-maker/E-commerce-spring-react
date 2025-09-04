@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
 import PageTitle from '../components/PageTitle/PageTitle';
 import MetaTags from '../components/MetaTags/MetaTags';
-import { Mail, Phone, MapPin, Clock, Send } from 'lucide-react';
-import './Contact.css';
+import { Mail, Phone, MapPin, Clock, Send, Loader2 } from 'lucide-react';
 
 const Contact = () => {
   const [formData, setFormData] = useState({
@@ -37,7 +36,7 @@ const Contact = () => {
   };
 
   return (
-    <div className="contact-container">
+    <div className="min-h-screen ">
       <PageTitle title="İletişim" />
       <MetaTags 
         title="İletişim"
@@ -45,71 +44,86 @@ const Contact = () => {
         keywords="iletişim, müşteri hizmetleri, destek, shopping iletişim"
       />
       
-      <div className="contact-content">
-        <h1 className="contact-title">İletişim</h1>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <div className="text-center mb-12">
+          <h1 className="text-4xl font-bold text-gray-900 mb-4">İletişim</h1>
+          <p className="text-xl text-gray-600">Bizimle iletişime geçin, size yardımcı olmaktan mutluluk duyarız.</p>
+        </div>
         
-        <div className="contact-grid">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 mb-16">
           {/* İletişim Bilgileri */}
-          <div className="contact-info">
-            <h2>İletişim Bilgileri</h2>
+          <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-8">
+            <h2 className="text-2xl font-bold text-gray-900 mb-8">İletişim Bilgileri</h2>
             
-            <div className="contact-item">
-              <div className="contact-icon">
-                <Mail size={24} />
+            <div className="space-y-6">
+              <div className="flex items-start space-x-4">
+                <div className="flex-shrink-0 p-3 bg-orange-100 rounded-lg">
+                  <Mail className="w-6 h-6 text-orange-600" />
+                </div>
+                <div>
+                  <h3 className="font-semibold text-gray-900 mb-1">E-posta</h3>
+                  <p className="text-gray-600">info@shopping.com</p>
+                  <p className="text-gray-600">destek@shopping.com</p>
+                </div>
               </div>
-              <div>
-                <h3>E-posta</h3>
-                <p>info@shopping.com</p>
-                <p>destek@shopping.com</p>
-              </div>
-            </div>
 
-            <div className="contact-item">
-              <div className="contact-icon">
-                <Phone size={24} />
+              <div className="flex items-start space-x-4">
+                <div className="flex-shrink-0 p-3 bg-blue-100 rounded-lg">
+                  <Phone className="w-6 h-6 text-blue-600" />
+                </div>
+                <div>
+                  <h3 className="font-semibold text-gray-900 mb-1">Telefon</h3>
+                  <p className="text-gray-600">+90 (212) 555 0123</p>
+                  <p className="text-gray-600">+90 (212) 555 0124</p>
+                </div>
               </div>
-              <div>
-                <h3>Telefon</h3>
-                <p>+90 (212) 555 0123</p>
-                <p>+90 (212) 555 0124</p>
-              </div>
-            </div>
 
-            <div className="contact-item">
-              <div className="contact-icon">
-                <MapPin size={24} />
+              <div className="flex items-start space-x-4">
+                <div className="flex-shrink-0 p-3 bg-green-100 rounded-lg">
+                  <MapPin className="w-6 h-6 text-green-600" />
+                </div>
+                <div>
+                  <h3 className="font-semibold text-gray-900 mb-1">Adres</h3>
+                  <p className="text-gray-600">Levent Mahallesi, Büyükdere Caddesi</p>
+                  <p className="text-gray-600">No: 123, Şişli / İstanbul</p>
+                  <p className="text-gray-600">34330 Türkiye</p>
+                </div>
               </div>
-              <div>
-                <h3>Adres</h3>
-                <p>Levent Mahallesi, Büyükdere Caddesi</p>
-                <p>No: 123, Şişli / İstanbul</p>
-                <p>34330 Türkiye</p>
-              </div>
-            </div>
 
-            <div className="contact-item">
-              <div className="contact-icon">
-                <Clock size={24} />
-              </div>
-              <div>
-                <h3>Çalışma Saatleri</h3>
-                <p>Pazartesi - Cuma: 09:00 - 18:00</p>
-                <p>Cumartesi: 10:00 - 16:00</p>
-                <p>Pazar: Kapalı</p>
+              <div className="flex items-start space-x-4">
+                <div className="flex-shrink-0 p-3 bg-purple-100 rounded-lg">
+                  <Clock className="w-6 h-6 text-purple-600" />
+                </div>
+                <div>
+                  <h3 className="font-semibold text-gray-900 mb-1">Çalışma Saatleri</h3>
+                  <p className="text-gray-600">Pazartesi - Cuma: 09:00 - 18:00</p>
+                  <p className="text-gray-600">Cumartesi: 10:00 - 16:00</p>
+                  <p className="text-gray-600">Pazar: Kapalı</p>
+                </div>
               </div>
             </div>
           </div>
 
           {/* İletişim Formu */}
-          <div className="contact-form-container">
-            <h2>Bize Mesaj Gönderin</h2>
-            <form className="contact-form" onSubmit={handleSubmit}>
-              {error && <div className="error-message">{error}</div>}
-              {success && <div className="success-message">{success}</div>}
+          <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-8">
+            <h2 className="text-2xl font-bold text-gray-900 mb-8">Bize Mesaj Gönderin</h2>
+            <form className="space-y-6" onSubmit={handleSubmit}>
+              {error && (
+                <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
+                  {error}
+                </div>
+              )}
+              {success && (
+                <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg">
+                  {success}
+                </div>
+              )}
               
-              <div className="form-row">
-                <div className="form-group">
-                  <label htmlFor="name">Ad Soyad *</label>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
+                    Ad Soyad *
+                  </label>
                   <input
                     type="text"
                     id="name"
@@ -118,10 +132,13 @@ const Contact = () => {
                     onChange={handleChange}
                     required
                     disabled={loading}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
                   />
                 </div>
-                <div className="form-group">
-                  <label htmlFor="email">E-posta *</label>
+                <div>
+                  <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
+                    E-posta *
+                  </label>
                   <input
                     type="email"
                     id="email"
@@ -130,12 +147,15 @@ const Contact = () => {
                     onChange={handleChange}
                     required
                     disabled={loading}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
                   />
                 </div>
               </div>
 
-              <div className="form-group">
-                <label htmlFor="subject">Konu *</label>
+              <div>
+                <label htmlFor="subject" className="block text-sm font-medium text-gray-700 mb-2">
+                  Konu *
+                </label>
                 <input
                   type="text"
                   id="subject"
@@ -144,11 +164,14 @@ const Contact = () => {
                   onChange={handleChange}
                   required
                   disabled={loading}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
                 />
               </div>
 
-              <div className="form-group">
-                <label htmlFor="message">Mesajınız *</label>
+              <div>
+                <label htmlFor="message" className="block text-sm font-medium text-gray-700 mb-2">
+                  Mesajınız *
+                </label>
                 <textarea
                   id="message"
                   name="message"
@@ -158,19 +181,24 @@ const Contact = () => {
                   required
                   disabled={loading}
                   placeholder="Mesajınızı buraya yazın..."
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent resize-none"
                 />
               </div>
 
-              <button type="submit" className="submit-btn" disabled={loading}>
+              <button 
+                type="submit" 
+                className="w-full flex items-center justify-center space-x-2 px-6 py-3 bg-orange-500 hover:bg-orange-600 text-white font-medium rounded-lg transition-colors disabled:opacity-50"
+                disabled={loading}
+              >
                 {loading ? (
                   <>
-                    <div className="loading-spinner"></div>
-                    Gönderiliyor...
+                    <Loader2 className="w-5 h-5 animate-spin" />
+                    <span>Gönderiliyor...</span>
                   </>
                 ) : (
                   <>
-                    <Send size={20} />
-                    Mesaj Gönder
+                    <Send className="w-5 h-5" />
+                    <span>Mesaj Gönder</span>
                   </>
                 )}
               </button>
@@ -179,9 +207,9 @@ const Contact = () => {
         </div>
 
         {/* Harita Bölümü */}
-        <div className="map-section">
-          <h2>Konumumuz</h2>
-          <div className="map-container">
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-8">
+          <h2 className="text-2xl font-bold text-gray-900 mb-8">Konumumuz</h2>
+          <div className="rounded-lg overflow-hidden">
             <iframe
               src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3008.9633693359308!2d28.9836!3d41.0782!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zNDHCsDA0JzQxLjQiTiAyOMKwNTknMDAuOSJF!5e0!3m2!1str!2str!4v1234567890"
               width="100%"
@@ -191,6 +219,7 @@ const Contact = () => {
               loading="lazy"
               referrerPolicy="no-referrer-when-downgrade"
               title="Shopping Ofis Konumu"
+              className="w-full"
             />
           </div>
         </div>

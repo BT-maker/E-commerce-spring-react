@@ -18,7 +18,7 @@ import {
   X,
   AlertCircle
 } from 'lucide-react';
-import './AdminSystemSettings.css';
+
 import PageTitle from '../../components/PageTitle/PageTitle';
 import MetaTags from '../../components/MetaTags/MetaTags';
 import toast from 'react-hot-toast';

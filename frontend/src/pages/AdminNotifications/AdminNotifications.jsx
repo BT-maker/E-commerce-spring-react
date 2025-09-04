@@ -23,7 +23,7 @@ import {
   Download,
   MoreHorizontal
 } from "lucide-react";
-import "./AdminNotifications.css";
+
 import PageTitle from '../../components/PageTitle/PageTitle';
 import MetaTags from '../../components/MetaTags/MetaTags';
 

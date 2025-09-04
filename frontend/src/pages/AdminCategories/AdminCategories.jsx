@@ -5,7 +5,7 @@ import categoryRequestApi from '../../services/categoryRequestApi';
 import webSocketService from '../../services/webSocketService';
 import { AuthContext } from '../../context/AuthContext';
 import toast from 'react-hot-toast';
-import './AdminCategories.css';
+
 
 const AdminCategories = () => {
   const { user } = useContext(AuthContext);
@@ -251,49 +251,57 @@ const AdminCategories = () => {
   };
 
   return (
-    <div className="admin-categories">
+    <div className="space-y-6">
       {/* Submenü */}
-      <div className="submenu">
+      <div className="flex space-x-2 border-b border-gray-200">
         <button
-          className={`submenu-item ${activeTab === 'categories' ? 'active' : ''}`}
+          className={`flex items-center space-x-2 px-4 py-2 text-sm font-medium transition-colors ${
+            activeTab === 'categories' 
+              ? 'text-orange-600 border-b-2 border-orange-600' 
+              : 'text-gray-600 hover:text-gray-900'
+          }`}
           onClick={() => setActiveTab('categories')}
         >
           <FolderOpen size={20} />
-          Kategoriler
+          <span>Kategoriler</span>
         </button>
         <button
-          className={`submenu-item ${activeTab === 'requests' ? 'active' : ''}`}
+          className={`flex items-center space-x-2 px-4 py-2 text-sm font-medium transition-colors ${
+            activeTab === 'requests' 
+              ? 'text-orange-600 border-b-2 border-orange-600' 
+              : 'text-gray-600 hover:text-gray-900'
+          }`}
           onClick={() => setActiveTab('requests')}
         >
           <Bell size={20} />
-          Kategori İstekleri
+          <span>Kategori İstekleri</span>
         </button>
       </div>
 
       {/* Kategoriler Tab */}
       {activeTab === 'categories' && (
         <>
-          <div className="categories-header">
-            <div className="header-left">
-              <h1>Kategori Yönetimi</h1>
-              <p>Ürün kategorilerini yönetin</p>
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-2xl font-bold text-gray-900">Kategori Yönetimi</h1>
+              <p className="text-gray-600">Ürün kategorilerini yönetin</p>
             </div>
             <button 
-              className="add-button"
+              className="flex items-center space-x-2 px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-lg transition-colors"
               onClick={() => {
                 resetForm();
                 setShowModal(true);
               }}
             >
               <Plus size={20} />
-              Yeni Kategori
+              <span>Yeni Kategori</span>
             </button>
           </div>
 
           {/* Arama */}
-          <div className="search-section">
-            <div className="search-input-wrapper">
-              <Search size={20} className="search-icon" />
+          <div className="relative">
+            <div className="relative">
+              <Search size={20} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
               <input
                 type="text"
                 placeholder="Kategori ara..."

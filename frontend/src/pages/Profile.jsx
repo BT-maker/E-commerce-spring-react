@@ -5,7 +5,7 @@ import EditProfileModal from "../components/EditProfileModal/EditProfileModal";
 import ChangePasswordModal from "../components/EditProfileModal/ChangePasswordModal";
 import PageTitle from "../components/PageTitle/PageTitle";
 import MetaTags from "../components/MetaTags/MetaTags";
-import "./Profile.css";
+
 
 const Profile = () => {
   const { user, loading, isLoggedIn } = useContext(AuthContext);

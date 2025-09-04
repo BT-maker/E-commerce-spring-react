@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { FaPlus, FaEdit, FaTrash, FaEye, FaSearch, FaTimes, FaBox, FaExclamationTriangle, FaUserClock } from 'react-icons/fa';
 import { MdDelete, MdEdit, MdVisibility } from "react-icons/md";
 import ProductModal from '../../components/ProductModal/ProductModal';
-import './SellerProducts.css?v=1.0.2'; // Force cache refresh
 
 const SellerProducts = () => {
   const [allProducts, setAllProducts] = useState([]); // Tüm ürünler
@@ -99,7 +98,7 @@ const SellerProducts = () => {
     }
   };
 
-  // Kategorileri API'den çek
+  // Kategorileri getir
   const fetchCategories = async () => {
     try {
       const response = await fetch('http://localhost:8082/api/categories', {
@@ -112,647 +111,462 @@ const SellerProducts = () => {
 
       if (response.ok) {
         const data = await response.json();
-        console.log('Çekilen kategoriler:', data);
         setCategories(data);
       }
     } catch (err) {
-      console.error('Kategoriler çekilirken hata:', err);
+      console.error('Kategoriler yüklenirken hata:', err);
     }
   };
 
-  // Ürün silme fonksiyonu
-  const handleDelete = async (productId) => {
-    if (window.confirm('Bu ürünü silmek istediğinizden emin misiniz?')) {
-      try {
-        const response = await fetch(`http://localhost:8082/api/seller/products/${productId}`, {
-          method: 'DELETE',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          credentials: 'include'
-        });
-
-        if (response.ok) {
-          // Ürünleri yeniden yükle
-          await fetchAllProducts();
-          alert('Ürün başarıyla silindi!');
-        } else {
-          alert('Ürün silinirken bir hata oluştu!');
-        }
-      } catch (error) {
-        console.error('Ürün silme hatası:', error);
-        alert('Ürün silinirken bir hata oluştu!');
-      }
-    }
-  };
-
-  // Ürün durumunu değiştirme fonksiyonu
-  const handleToggleStatus = async (productId) => {
+  // Elasticsearch ile arama yap
+  const searchWithElasticsearch = async (query) => {
     try {
-      console.log('=== TOGGLE STATUS DEBUG ===');
-      console.log('Product ID to toggle:', productId);
-      
-      const response = await fetch(`http://localhost:8082/api/seller/products/${productId}/toggle-status`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include'
-      });
-
-      console.log('Response status:', response.status);
-      console.log('Response ok:', response.ok);
-
-      if (response.ok) {
-        const updatedProduct = await response.json();
-        console.log('Updated product from backend:', updatedProduct);
-        console.log('Updated product status:', updatedProduct.status);
-        
-        // Sadece o ürünün durumunu güncelle, tüm sayfayı yeniden yükleme
-        setAllProducts(prevProducts => 
-          prevProducts.map(product => 
-            product.id === productId 
-              ? { ...product, status: updatedProduct.status }
-              : product
-          )
-        );
-        
-        setFilteredProducts(prevProducts => 
-          prevProducts.map(product => 
-            product.id === productId 
-              ? { ...product, status: updatedProduct.status }
-              : product
-          )
-        );
-        
-        const newStatus = updatedProduct.status === 'AKTİF' ? 'aktif' : 'pasif';
-        console.log('New status for alert:', newStatus);
-        alert(`Ürün durumu başarıyla ${newStatus} olarak değiştirildi!`);
-        
-        console.log('=== END TOGGLE STATUS DEBUG ===');
-      } else {
-        console.error('Response not ok');
-        alert('Ürün durumu değiştirilirken bir hata oluştu!');
-      }
-    } catch (error) {
-      console.error('Ürün durumu değiştirme hatası:', error);
-      alert('Ürün durumu değiştirilirken bir hata oluştu!');
-    }
-  };
-
-  // Ürün ekleme/düzenleme fonksiyonu
-  const handleSaveProduct = async (formData) => {
-    setModalLoading(true);
-    try {
-      console.log('=== SAVE PRODUCT DEBUG ===');
-      console.log('Form data:', formData);
-      console.log('Selected product:', selectedProduct);
-      
-      const url = selectedProduct 
-        ? `http://localhost:8082/api/seller/products/${selectedProduct.id}`
-        : 'http://localhost:8082/api/seller/products';
-      
-      const method = selectedProduct ? 'PUT' : 'POST';
-      console.log('Request URL:', url);
-      console.log('Request method:', method);
-      
-      const requestBody = {
-        ...formData,
-        price: parseFloat(formData.price),
-        stock: parseInt(formData.stock),
-        category: { id: formData.categoryId }
-      };
-      
-      console.log('Request body:', requestBody);
-      
-      const response = await fetch(url, {
-        method: method,
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include',
-        body: JSON.stringify(requestBody)
-      });
-
-      console.log('Response status:', response.status);
-      console.log('Response ok:', response.ok);
-
-      if (response.ok) {
-        const savedProduct = await response.json();
-        console.log('Saved product:', savedProduct);
-        console.log('=== END SAVE PRODUCT DEBUG ===');
-        
-        // Başarılı işlem sonrası modal'ı kapat ve ürünleri yeniden çek
-        setShowModal(false);
-        setSelectedProduct(null);
-        await fetchAllProducts();
-      } else {
-        console.error('Response not ok, trying to get error details...');
-        let errorData;
-        try {
-          errorData = await response.json();
-          console.error('Error response (JSON):', errorData);
-          console.error('Error details:', errorData.details);
-          console.error('Error cause:', errorData.cause);
-          alert(`Ürün kaydedilemedi: ${errorData.error || errorData.message || 'Bilinmeyen hata'}`);
-        } catch (parseError) {
-          console.error('Could not parse error response as JSON');
-          const errorText = await response.text();
-          console.error('Error response (text):', errorText);
-          alert(`Ürün kaydedilemedi: ${errorText || 'Bilinmeyen hata'}`);
-        }
-      }
-    } catch (err) {
-      console.error('Ürün kaydedilirken hata:', err);
-      alert('Ürün kaydedilirken bir hata oluştu.');
-    } finally {
-      setModalLoading(false);
-    }
-  };
-
-  // Test endpoint'i
-  const testAPI = async () => {
-    try {
-      console.log('Test API çağrısı yapılıyor...');
-      const response = await fetch('http://localhost:8082/api/seller/test', {
+      const response = await fetch(`http://localhost:8082/api/products/search?q=${encodeURIComponent(query)}`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
         },
         credentials: 'include'
       });
-      
-      console.log('Test response status:', response.status);
+
       if (response.ok) {
         const data = await response.json();
-        console.log('Test API response:', data);
-      } else {
-        console.error('Test API error:', response.status);
-        const errorText = await response.text();
-        console.error('Test API error text:', errorText);
+        return data;
       }
     } catch (err) {
-      console.error('Test API hatası:', err);
+      console.error('Elasticsearch arama hatası:', err);
     }
+    return [];
   };
 
-
-
-  // Component mount olduğunda tüm verileri çek
-  useEffect(() => {
-    fetchAllProducts();
-    fetchCategories();
-    checkSellerStatus();
-  }, []);
-
-  // Filtreleme değişikliklerinde anlık filtreleme
-  useEffect(() => {
-    if (allProducts.length > 0) {
-      filterProducts();
-    }
-  }, [searchTerm, selectedCategory, minPrice, maxPrice, allProducts]);
-
-  // Sayfa dışına tıklandığında önerileri kapat
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (!event.target.closest('.search-group')) {
-        setShowSuggestions(false);
-      }
-    };
-
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, []);
-
-  // Filtreleme şimdilik devre dışı - sayfalama ile uyumlu çalışması için backend'de implement edilmeli
-  // const filteredProducts = products.filter(product => {
-  //   const matchesSearch = product.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-  //                        product.description?.toLowerCase().includes(searchTerm.toLowerCase());
-  //   const matchesCategory = selectedCategory === 'all' || product.category?.name === selectedCategory;
-  //   return matchesSearch && matchesCategory;
-  // });
-
-  const handleAddProduct = () => {
-    setSelectedProduct(null);
-    setShowModal(true);
-  };
-
-  const handleEditProduct = (product) => {
-    setSelectedProduct(product);
-    setShowModal(true);
-  };
-
-  const handleCloseModal = () => {
-    setShowModal(false);
-    setSelectedProduct(null);
-  };
-
-  // Sayfalama fonksiyonları
-  const handlePageChange = (page) => {
-    setCurrentPage(page);
-  };
-
-  // Anlık filtreleme fonksiyonu
+  // Filtreleme fonksiyonu
   const filterProducts = () => {
     let filtered = [...allProducts];
-    
-    // Arama terimi ile filtreleme
+
+    // Arama filtresi
     if (searchTerm) {
-      filtered = filtered.filter(product => 
-        product.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        product.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        product.category?.name?.toLowerCase().includes(searchTerm.toLowerCase())
+      filtered = filtered.filter(product =>
+        product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        product.description?.toLowerCase().includes(searchTerm.toLowerCase())
       );
     }
-    
-    // Kategori ile filtreleme
+
+    // Kategori filtresi
     if (selectedCategory) {
-      filtered = filtered.filter(product => 
-        product.category?.name?.toLowerCase().includes(selectedCategory.toLowerCase())
-      );
+      filtered = filtered.filter(product => product.category?.id === parseInt(selectedCategory));
     }
-    
-    // Fiyat aralığı ile filtreleme
+
+    // Fiyat filtresi
     if (minPrice) {
       filtered = filtered.filter(product => product.price >= parseFloat(minPrice));
     }
     if (maxPrice) {
       filtered = filtered.filter(product => product.price <= parseFloat(maxPrice));
     }
-    
-    // Arama terimine göre sıralama (eşleşenler üstte)
-    if (searchTerm) {
-      filtered.sort((a, b) => {
-        const aName = a.name?.toLowerCase() || '';
-        const bName = b.name?.toLowerCase() || '';
-        const searchLower = searchTerm.toLowerCase();
-        
-        const aStartsWith = aName.startsWith(searchLower);
-        const bStartsWith = bName.startsWith(searchLower);
-        
-        if (aStartsWith && !bStartsWith) return -1;
-        if (!aStartsWith && bStartsWith) return 1;
-        
-        return aName.localeCompare(bName);
-      });
-    }
-    
+
     setFilteredProducts(filtered);
     setTotalProducts(filtered.length);
-  };
-
-  const handleSearch = () => {
+    setTotalPages(Math.ceil(filtered.length / pageSize));
     setCurrentPage(0);
-    filterProducts();
   };
 
-  const handleClearFilters = () => {
+  // Arama işlemi
+  const handleSearch = async () => {
+    if (useElasticsearch && searchTerm) {
+      const results = await searchWithElasticsearch(searchTerm);
+      setFilteredProducts(results);
+      setTotalProducts(results.length);
+      setTotalPages(Math.ceil(results.length / pageSize));
+      setCurrentPage(0);
+    } else {
+      filterProducts();
+    }
+  };
+
+  // Filtreleri temizle
+  const clearFilters = () => {
     setSearchTerm('');
     setSelectedCategory('');
     setMinPrice('');
     setMaxPrice('');
-    setCurrentPage(0);
     setFilteredProducts(allProducts);
     setTotalProducts(allProducts.length);
-  };
-
-  const handleElasticsearchToggle = () => {
-    setUseElasticsearch(!useElasticsearch);
+    setTotalPages(Math.ceil(allProducts.length / pageSize));
     setCurrentPage(0);
-    // Toggle sonrası otomatik arama yap
-    setTimeout(() => fetchAllProducts(), 100);
   };
 
-  const handlePreviousPage = () => {
-    if (currentPage > 0) {
-      setCurrentPage(currentPage - 1);
+  // Ürün sil
+  const handleDelete = async (productId) => {
+    if (!window.confirm('Bu ürünü silmek istediğinize emin misiniz?')) {
+      return;
+    }
+
+    try {
+      const response = await fetch(`http://localhost:8082/api/seller/products/${productId}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include'
+      });
+
+      if (response.ok) {
+        // Ürünü listelerden kaldır
+        setAllProducts(prev => prev.filter(p => p.id !== productId));
+        setFilteredProducts(prev => prev.filter(p => p.id !== productId));
+        setTotalProducts(prev => prev - 1);
+      } else {
+        alert('Ürün silinirken bir hata oluştu.');
+      }
+    } catch (err) {
+      console.error('Ürün silme hatası:', err);
+      alert('Ürün silinirken bir hata oluştu.');
     }
   };
 
-  const handleNextPage = () => {
-    if (currentPage < totalPages - 1) {
-      setCurrentPage(currentPage + 1);
+  // Ürün detayını göster
+  const handleViewProduct = async (productId) => {
+    setModalLoading(true);
+    setSelectedProduct(null);
+    setShowModal(true);
+
+    try {
+      const response = await fetch(`http://localhost:8082/api/products/${productId}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include'
+      });
+
+      if (response.ok) {
+        const productData = await response.json();
+        setSelectedProduct(productData);
+      } else {
+        alert('Ürün detayları yüklenirken bir hata oluştu.');
+        setShowModal(false);
+      }
+    } catch (err) {
+      console.error('Ürün detay hatası:', err);
+      alert('Ürün detayları yüklenirken bir hata oluştu.');
+      setShowModal(false);
+    } finally {
+      setModalLoading(false);
     }
   };
 
-  const getStatusBadge = (status) => {
-    console.log('getStatusBadge called with status:', status);
-    const statusConfig = {
-      'AKTİF': { text: 'Aktif', class: 'status-active' },
-      'PASİF': { text: 'Pasif', class: 'status-inactive' },
-      'ACTIVE': { text: 'Aktif', class: 'status-active' },
-      'INACTIVE': { text: 'Pasif', class: 'status-inactive' },
-      'DRAFT': { text: 'Taslak', class: 'status-draft' }
-    };
-    const config = statusConfig[status] || statusConfig['AKTİF'];
-    console.log('Status config:', config);
-    return <span className={`status-badge ${config.class}`}>{config.text}</span>;
+  // Sayfa değiştir
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
   };
+
+  // Sayfalama için ürünleri böl
+  const getPaginatedProducts = () => {
+    const startIndex = currentPage * pageSize;
+    const endIndex = startIndex + pageSize;
+    return filteredProducts.slice(startIndex, endIndex);
+  };
+
+  useEffect(() => {
+    fetchAllProducts();
+    fetchCategories();
+    checkSellerStatus();
+  }, []);
+
+  useEffect(() => {
+    if (!useElasticsearch) {
+      filterProducts();
+    }
+  }, [searchTerm, selectedCategory, minPrice, maxPrice, allProducts]);
 
   if (loading) {
     return (
-      <div className="seller-products-loading">
-        <div className="loading-spinner"></div>
-        <p>Ürünler yükleniyor...</p>
+      <div className="p-6">
+        <div className="bg-white rounded-xl shadow-lg p-6">
+          <div className="animate-pulse space-y-4">
+            <div className="h-8 bg-gray-200 rounded w-1/4"></div>
+            <div className="h-10 bg-gray-200 rounded"></div>
+            <div className="space-y-2">
+              {[...Array(5)].map((_, i) => (
+                <div key={i} className="h-16 bg-gray-200 rounded"></div>
+              ))}
+            </div>
+          </div>
+        </div>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="seller-products-error">
-        <div className="error-icon">⚠️</div>
-        <h3>Hata Oluştu</h3>
-        <p>{error}</p>
-        <button 
-          className="retry-btn"
-          onClick={async () => {
-            await testAPI();
-            await fetchAllProducts();
-          }}
-        >
-          Tekrar Dene
-        </button>
+      <div className="p-6">
+        <div className="bg-red-50 border border-red-200 rounded-xl p-6 text-center">
+          <FaExclamationTriangle className="mx-auto text-red-500 text-4xl mb-4" />
+          <h2 className="text-xl font-semibold text-red-800 mb-2">Hata</h2>
+          <p className="text-red-600">{error}</p>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="seller-products">
-      {/* Satıcı Onay Durumu Uyarısı */}
-      {sellerStatus && sellerStatus !== 'APPROVED' && sellerStatus !== 'ACTIVE' && (
-        <div className="seller-approval-warning">
-          <div className="warning-content">
-            <FaUserClock className="warning-icon" />
-            <div className="warning-text">
-              <h3>Hesabınız Onay Bekliyor</h3>
-              <p>
-                Ürün yayınlamak için satıcı hesabınızın admin tarafından onaylanması gerekiyor. 
-                Onaylandıktan sonra ürünlerinizi yayınlayabileceksiniz.
-              </p>
-              <div className="status-info">
-                <strong>Mevcut Durum:</strong> {sellerStatus === 'PENDING' ? 'Beklemede' : 
-                  sellerStatus === 'REJECTED' ? 'Reddedildi' : sellerStatus}
+    <div className="p-6">
+      <div className="bg-white rounded-xl shadow-lg overflow-hidden">
+        {/* Header */}
+        <div className="bg-gradient-to-r from-orange-500 to-orange-600 px-6 py-8 text-white">
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between">
+            <div>
+              <h1 className="text-3xl font-bold mb-2">Ürünlerim</h1>
+              <p className="text-orange-100">Mağazanızdaki tüm ürünleri yönetin</p>
+            </div>
+            <div className="mt-4 md:mt-0">
+              <div className="flex items-center space-x-2 text-sm">
+                <FaBox className="text-orange-200" />
+                <span>Toplam {totalProducts} ürün</span>
               </div>
             </div>
           </div>
         </div>
-      )}
 
-      {/* Header */}
-      <div className="products-header">
-        <div className="header-content">
-          <div className="title-card">
-            <h2>Ürünlerim</h2>
-          </div>
-        </div>
-        <button 
-          className="add-product-btn" 
-          onClick={() => setShowModal(true)}
-          disabled={sellerStatus && sellerStatus !== 'APPROVED' && sellerStatus !== 'ACTIVE'}
-        >
-          <FaPlus /> Yeni Ürün Ekle
-        </button>
-      </div>
+        {/* Filtreler */}
+        <div className="p-6 border-b border-gray-200">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            {/* Arama */}
+            <div className="relative">
+              <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+              <input
+                type="text"
+                placeholder="Ürün ara..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-colors"
+              />
+            </div>
 
-      {/* Arama ve Filtreleme */}
-      <div className="search-filters">
-        <div className="search-row">
-          <div className="search-group">
-            <input
-              type="text"
-              placeholder="Ürün adı ara..."
-              value={searchTerm}
-              onChange={(e) => {
-                setSearchTerm(e.target.value);
-                setShowSuggestions(e.target.value.length > 0);
-              }}
-            />
-            {/* Öneriler */}
-            {showSuggestions && searchTerm && (
-              <div className="search-suggestions">
-                {allProducts
-                  .filter(product => 
-                    product.name?.toLowerCase().includes(searchTerm.toLowerCase())
-                  )
-                  .slice(0, 5)
-                  .map(product => (
-                    <div 
-                      key={product.id} 
-                      className="suggestion-item"
-                      onClick={() => {
-                        setSearchTerm(product.name);
-                        setShowSuggestions(false);
-                      }}
-                    >
-                      <FaSearch className="suggestion-icon" />
-                      <span>{product.name}</span>
-                    </div>
-                  ))}
-              </div>
-            )}
-          </div>
-          <div className="search-group">
-            <input
-              type="text"
-              placeholder="Kategori"
+            {/* Kategori */}
+            <select
               value={selectedCategory}
-              onChange={(e) => {
-                setSelectedCategory(e.target.value);
-              }}
-            />
-          </div>
-          <div className="search-group">
-            <input
-              type="number"
-              placeholder="Min fiyat"
-              min="0"
-              value={minPrice}
-              onChange={(e) => {
-                setMinPrice(e.target.value);
-              }}
-            />
-          </div>
-          <div className="search-group">
-            <input
-              type="number"
-              placeholder="Max fiyat"
-              min="0"
-              value={maxPrice}
-              onChange={(e) => {
-                setMaxPrice(e.target.value);
-              }}
-            />
-          </div>
-          <button className="search-btn" onClick={handleSearch}>
-            <FaSearch /> Ara
-          </button>
-          <button className="clear-btn" onClick={handleClearFilters}>
-            <FaTimes /> Temizle
-          </button>
-        </div>
-      </div>
-
-      {/* Stats */}
-      <div className="products-stats">
-        <div className="stat-item">
-          <div className="stat-icon">
-            <FaBox />
-          </div>
-          <span className="stat-number">{totalProducts}</span>
-          <span className="stat-label">Toplam Ürün</span>
-        </div>
-        <div className="stat-item">
-          <div className="stat-icon">
-            <FaEye />
-          </div>
-          <span className="stat-number">{filteredProducts.length}</span>
-          <span className="stat-label">Gösterilen</span>
-        </div>
-        <div className="stat-item">
-          <div className="stat-icon">
-            <FaExclamationTriangle />
-          </div>
-          <span className="stat-number">
-            {filteredProducts.filter(p => p.stock < 10).length}
-          </span>
-          <span className="stat-label">Düşük Stok</span>
-        </div>
-      </div>
-
-      {/* Products Table */}
-      <div className="products-table-container">
-        <table className="products-table">
-          <thead>
-            <tr>
-              <th>Ürün</th>
-              <th>Kategori</th>
-              <th>Fiyat</th>
-              <th>Stok</th>
-              <th>Durum</th>
-              <th>İşlemler</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filteredProducts.map(product => (
-              <tr key={product.id}>
-                <td className="product-cell">
-                  <img 
-                    src={product.imageUrl1 || product.imageUrl || '/img/default-product.png'} 
-                    alt={product.name} 
-                    className="product-image"
-                    onError={(e) => {
-                      e.target.src = '/img/default-product.png';
-                    }}
-                  />
-                  <div className="product-info">
-                    <h4 className="product-name">{product.name}</h4>
-                    <p className="product-description">{product.description}</p>
-                  </div>
-                </td>
-                <td>{product.category?.name || 'Kategorisiz'}</td>
-                <td className="price-cell">₺{product.price?.toLocaleString() || '0'}</td>
-                <td className="stock-cell">
-                                  <span className={`stock-badge ${(product.stock || 0) <= 0 ? 'out-of-stock' : (product.stock || 0) <= 5 ? 'critical-stock' : (product.stock || 0) <= 10 ? 'low-stock' : 'normal-stock'}`}>
-                  {product.stock || 0}
-                </span>
-                </td>
-                <td>{getStatusBadge(product.status)}</td>
-                <td className="actions-cell">
-                  <button 
-                    className="action-btn view-btn"
-                    title="Durumu Değiştir"
-                    onClick={() => handleToggleStatus(product.id)}
-                  >
-                    <FaEye />
-                    <span className="btn-text"></span>
-                  </button>
-                  <button 
-                    className="action-btn edit-btn"
-                    onClick={() => handleEditProduct(product)}
-                    title="Düzenle"
-                  >
-                    <FaEdit />
-                    <span className="btn-text"></span>
-                  </button>
-                  <button 
-                    className="action-btn delete-btn"
-                    onClick={() => handleDelete(product.id)}
-                    title="Sil"
-                  >
-                    <FaTrash />
-                    <span className="btn-text"></span>
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-
-        {filteredProducts.length === 0 && (
-          <div className="no-products">
-            <div className="no-products-icon">📦</div>
-            <h3>Ürün Bulunamadı</h3>
-            <p>Arama kriterlerinize uygun ürün bulunamadı.</p>
-            <button 
-              className="add-product-btn"
-              onClick={handleAddProduct}
+              onChange={(e) => setSelectedCategory(e.target.value)}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-colors"
             >
-              <FaPlus />
-              <span>İlk Ürününüzü Ekleyin</span>
-            </button>
+              <option value="">Tüm Kategoriler</option>
+              {categories.map((category) => (
+                <option key={category.id} value={category.id}>
+                  {category.name}
+                </option>
+              ))}
+            </select>
+
+            {/* Min Fiyat */}
+            <input
+              type="number"
+              placeholder="Min Fiyat"
+              value={minPrice}
+              onChange={(e) => setMinPrice(e.target.value)}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-colors"
+            />
+
+            {/* Max Fiyat */}
+            <input
+              type="number"
+              placeholder="Max Fiyat"
+              value={maxPrice}
+              onChange={(e) => setMaxPrice(e.target.value)}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-colors"
+            />
+          </div>
+
+          {/* Filtre Butonları */}
+          <div className="flex flex-wrap items-center justify-between mt-4 gap-4">
+            <div className="flex items-center space-x-4">
+              <button
+                onClick={handleSearch}
+                className="bg-orange-600 hover:bg-orange-700 text-white px-6 py-2 rounded-lg font-semibold transition-colors flex items-center space-x-2"
+              >
+                <FaSearch />
+                <span>Ara</span>
+              </button>
+              <button
+                onClick={clearFilters}
+                className="bg-gray-300 hover:bg-gray-400 text-gray-700 px-6 py-2 rounded-lg font-semibold transition-colors flex items-center space-x-2"
+              >
+                <FaTimes />
+                <span>Temizle</span>
+              </button>
+            </div>
+
+            <div className="flex items-center space-x-2">
+              <input
+                type="checkbox"
+                id="elasticsearch"
+                checked={useElasticsearch}
+                onChange={(e) => setUseElasticsearch(e.target.checked)}
+                className="rounded border-gray-300 text-orange-600 focus:ring-orange-500"
+              />
+              <label htmlFor="elasticsearch" className="text-sm text-gray-700">
+                Elasticsearch kullan
+              </label>
+            </div>
+          </div>
+        </div>
+
+        {/* Ürün Listesi */}
+        <div className="overflow-x-auto">
+          <table className="w-full">
+            <thead className="bg-gray-50 border-b border-gray-200">
+              <tr>
+                <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">Ürün</th>
+                <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">Kategori</th>
+                <th className="px-6 py-4 text-center text-sm font-semibold text-gray-700">Fiyat</th>
+                <th className="px-6 py-4 text-center text-sm font-semibold text-gray-700">Stok</th>
+                <th className="px-6 py-4 text-center text-sm font-semibold text-gray-700">Durum</th>
+                <th className="px-6 py-4 text-center text-sm font-semibold text-gray-700">İşlemler</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-200">
+              {getPaginatedProducts().map((product) => (
+                <tr key={product.id} className="hover:bg-gray-50 transition-colors">
+                  <td className="px-6 py-4">
+                    <div className="flex items-center space-x-3">
+                      <img
+                        src={product.imageUrl || '/img/default-product.png'}
+                        alt={product.name}
+                        className="w-12 h-12 rounded-lg object-cover"
+                        onError={(e) => {
+                          e.target.src = '/img/default-product.png';
+                        }}
+                      />
+                      <div>
+                        <div className="font-medium text-gray-900">{product.name}</div>
+                        <div className="text-sm text-gray-500 truncate max-w-xs">
+                          {product.description}
+                        </div>
+                      </div>
+                    </div>
+                  </td>
+                  <td className="px-6 py-4">
+                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                      {product.category?.name || 'Kategorisiz'}
+                    </span>
+                  </td>
+                  <td className="px-6 py-4 text-center">
+                    <div className="font-medium text-gray-900">
+                      {Number(product.price).toLocaleString('tr-TR', { minimumFractionDigits: 2 })} ₺
+                    </div>
+                    {product.isDiscountActive && (
+                      <div className="text-sm text-red-600">
+                        %{product.discountPercentage} İndirim
+                      </div>
+                    )}
+                  </td>
+                  <td className="px-6 py-4 text-center">
+                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                      product.stock > 10 ? 'bg-green-100 text-green-800' :
+                      product.stock > 0 ? 'bg-yellow-100 text-yellow-800' :
+                      'bg-red-100 text-red-800'
+                    }`}>
+                      {product.stock}
+                    </span>
+                  </td>
+                  <td className="px-6 py-4 text-center">
+                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                      product.status === 'ACTIVE' ? 'bg-green-100 text-green-800' :
+                      product.status === 'INACTIVE' ? 'bg-red-100 text-red-800' :
+                      'bg-gray-100 text-gray-800'
+                    }`}>
+                      {product.status === 'ACTIVE' ? 'Aktif' :
+                       product.status === 'INACTIVE' ? 'Pasif' : 'Bilinmiyor'}
+                    </span>
+                  </td>
+                  <td className="px-6 py-4 text-center">
+                    <div className="flex items-center justify-center space-x-2">
+                      <button
+                        onClick={() => handleViewProduct(product.id)}
+                        className="text-blue-600 hover:text-blue-700 p-2 rounded-lg hover:bg-blue-50 transition-colors"
+                        title="Görüntüle"
+                      >
+                        <MdVisibility size={18} />
+                      </button>
+                      <button
+                        onClick={() => window.location.href = `/seller-panel/products/edit/${product.id}`}
+                        className="text-orange-600 hover:text-orange-700 p-2 rounded-lg hover:bg-orange-50 transition-colors"
+                        title="Düzenle"
+                      >
+                        <MdEdit size={18} />
+                      </button>
+                      <button
+                        onClick={() => handleDelete(product.id)}
+                        className="text-red-600 hover:text-red-700 p-2 rounded-lg hover:bg-red-50 transition-colors"
+                        title="Sil"
+                      >
+                        <MdDelete size={18} />
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        {/* Sayfalama */}
+        {totalPages > 1 && (
+          <div className="px-6 py-4 border-t border-gray-200">
+            <div className="flex items-center justify-between">
+              <div className="text-sm text-gray-700">
+                Toplam {totalProducts} ürün, sayfa {currentPage + 1} / {totalPages}
+              </div>
+              <div className="flex space-x-2">
+                <button
+                  onClick={() => handlePageChange(currentPage - 1)}
+                  disabled={currentPage === 0}
+                  className="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                >
+                  Önceki
+                </button>
+                {[...Array(totalPages)].map((_, i) => (
+                  <button
+                    key={i}
+                    onClick={() => handlePageChange(i)}
+                    className={`px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
+                      currentPage === i
+                        ? 'bg-orange-600 text-white'
+                        : 'text-gray-500 bg-white border border-gray-300 hover:bg-gray-50'
+                    }`}
+                  >
+                    {i + 1}
+                  </button>
+                ))}
+                <button
+                  onClick={() => handlePageChange(currentPage + 1)}
+                  disabled={currentPage === totalPages - 1}
+                  className="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                >
+                  Sonraki
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Boş Durum */}
+        {filteredProducts.length === 0 && !loading && (
+          <div className="text-center py-12">
+            <FaBox className="mx-auto text-gray-400 text-6xl mb-4" />
+            <h3 className="text-lg font-medium text-gray-900 mb-2">Ürün Bulunamadı</h3>
+            <p className="text-gray-500">Arama kriterlerinize uygun ürün bulunamadı.</p>
           </div>
         )}
       </div>
 
-      {/* Sayfalama */}
-      {totalPages > 1 && (
-        <div className="pagination-container">
-          <div className="pagination-info">
-            <span>Toplam {totalProducts} ürün, {totalPages} sayfa</span>
-            <span>Sayfa {currentPage + 1} / {totalPages}</span>
-          </div>
-        <div className="pagination-controls">
-          <button 
-            className="pagination-btn"
-            onClick={handlePreviousPage}
-            disabled={currentPage === 0}
-          >
-            Önceki
-          </button>
-          
-          {Array.from({ length: totalPages }, (_, index) => (
-            <button
-              key={index}
-              className={`pagination-btn ${currentPage === index ? 'active' : ''}`}
-              onClick={() => handlePageChange(index)}
-            >
-              {index + 1}
-            </button>
-          ))}
-          
-          <button 
-            className="pagination-btn"
-            onClick={handleNextPage}
-            disabled={currentPage === totalPages - 1}
-          >
-            Sonraki
-          </button>
-        </div>
-      </div>
+      {/* Ürün Detay Modal */}
+      {showModal && (
+        <ProductModal
+          product={selectedProduct}
+          loading={modalLoading}
+          onClose={() => setShowModal(false)}
+        />
       )}
-
-      {/* Product Modal */}
-      <ProductModal
-        show={showModal}
-        onClose={handleCloseModal}
-        onSave={handleSaveProduct}
-        categories={categories}
-        initial={selectedProduct}
-        loading={modalLoading}
-      />
     </div>
   );
 };

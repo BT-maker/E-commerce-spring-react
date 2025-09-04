@@ -2,7 +2,7 @@ import React from "react";
 import { Link } from "react-router-dom";
 import { Heart, Trash2 } from "lucide-react";
 import { useFavorites } from "../../context/FavoritesContext";
-import "./CartItem.css";
+
 
 const CartItem = ({ item, onQuantityChange, onRemove }) => {
   const { product, quantity, id } = item;

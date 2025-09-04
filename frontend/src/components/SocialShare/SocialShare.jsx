@@ -1,6 +1,6 @@
 import React from 'react';
 import { Facebook, Twitter, Linkedin, Mail, Share2 } from 'lucide-react';
-import './SocialShare.css';
+
 
 const SocialShare = ({ 
   title, 

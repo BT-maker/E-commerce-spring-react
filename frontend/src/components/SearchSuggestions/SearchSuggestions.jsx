@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Search } from 'lucide-react';
-import './SearchSuggestions.css';
+
 
 const SearchSuggestions = ({ onSearch, placeholder = "Ürün, kategori veya mağaza ara...", compact = false }) => {
     const [query, setQuery] = useState('');
@@ -112,15 +112,14 @@ const SearchSuggestions = ({ onSearch, placeholder = "Ürün, kategori veya mağ
     return (
         <div className="header-search-suggestions-container" ref={searchRef}>
             <form onSubmit={handleSubmit} className="header-search-form">
-                <div className="header-search-input-wrapper">
-                    <Search className="header-search-icon" size={16} />
+                <div className="header-search-input-wrapper ">
                     <input
                         type="text"
                         value={query}
                         onChange={handleInputChange}
                         onKeyDown={handleKeyDown}
                         placeholder={placeholder}
-                        className="header-search-input"
+                        className="header-search-input px-4 py-2 w-full"
                         autoComplete="off"
                     />
                     {loading && (

@@ -12,7 +12,7 @@ import {
   Store,
   Shield
 } from "lucide-react";
-import "./AdminUsers.css";
+
 import PageTitle from '../../components/PageTitle/PageTitle';
 import MetaTags from '../../components/MetaTags/MetaTags';
 

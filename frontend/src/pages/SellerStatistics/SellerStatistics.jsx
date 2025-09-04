@@ -22,9 +22,9 @@ import {
   FaMoneyBillWave,
   FaCalendarAlt,
   FaArrowUp,
-  FaArrowDown
+  FaArrowDown,
+  FaExclamationTriangle
 } from 'react-icons/fa';
-import './SellerStatistics.css';
 
 // Chart.js bileşenlerini kaydet
 ChartJS.register(
@@ -99,161 +99,119 @@ const SellerStatistics = () => {
     }
   };
 
-  // Satış grafiği verileri
-  const getSalesChartData = () => {
-    if (!statsData?.salesData) return null;
+  const getChartData = () => {
+    if (!statsData) return null;
 
-    return {
-      labels: statsData.salesData.map(item => item.date),
-      datasets: [
-        {
-          label: 'Satış Adedi',
-          data: statsData.salesData.map(item => item.count),
-          borderColor: 'rgb(255, 96, 0)',
-          backgroundColor: 'rgba(255, 96, 0, 0.1)',
-          borderWidth: 3,
-          fill: true,
-          tension: 0.4,
-          pointBackgroundColor: 'rgb(255, 96, 0)',
-          pointBorderColor: '#fff',
-          pointBorderWidth: 2,
-          pointRadius: 6,
-          pointHoverRadius: 8
-        }
-      ]
-    };
-  };
+    const labels = statsData.dailySales?.map(item => item[0]) || [];
+    const salesData = statsData.dailySales?.map(item => item[1]) || [];
+    const revenueData = statsData.dailySales?.map(item => item[2]) || [];
 
-  // Gelir grafiği verileri
-  const getRevenueChartData = () => {
-    if (!statsData?.revenueData) return null;
-
-    return {
-      labels: statsData.revenueData.map(item => item.date),
-      datasets: [
-        {
-          label: 'Gelir (₺)',
-          data: statsData.revenueData.map(item => item.amount),
-          backgroundColor: 'rgba(34, 197, 94, 0.8)',
-          borderColor: 'rgb(34, 197, 94)',
-          borderWidth: 2,
-          borderRadius: 8,
-          borderSkipped: false,
-        }
-      ]
-    };
-  };
-
-  // Kategori dağılımı grafiği
-  const getCategoryChartData = () => {
-    if (!statsData?.categoryData) return null;
-
-    const colors = [
-      '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', 
-      '#9966FF', '#FF9F40', '#FF6384', '#C9CBCF'
-    ];
-
-    return {
-      labels: statsData.categoryData.map(item => item.categoryName),
-      datasets: [
-        {
-          data: statsData.categoryData.map(item => item.salesCount),
-          backgroundColor: colors.slice(0, statsData.categoryData.length),
-          borderWidth: 2,
-          borderColor: '#fff',
-          hoverBorderColor: '#fff',
-          hoverBorderWidth: 3
-        }
-      ]
-    };
-  };
-
-  // Grafik seçenekleri
-  const chartOptions = {
-    responsive: true,
-    maintainAspectRatio: false,
-    plugins: {
-      legend: {
-        position: 'top',
-        labels: {
-          font: {
-            size: 12,
-            weight: 'bold'
-          },
-          color: '#374151'
-        }
-      },
-      tooltip: {
-        backgroundColor: 'rgba(0, 0, 0, 0.8)',
-        titleColor: '#fff',
-        bodyColor: '#fff',
-        borderColor: 'rgba(255, 96, 0, 0.5)',
-        borderWidth: 1,
-        cornerRadius: 8,
-        displayColors: true
-      }
-    },
-    scales: {
-      y: {
-        beginAtZero: true,
-        grid: {
-          color: 'rgba(0, 0, 0, 0.1)',
-          drawBorder: false
-        },
-        ticks: {
-          color: '#6B7280',
-          font: {
-            size: 11
-          }
-        }
-      },
-      x: {
-        grid: {
-          display: false
-        },
-        ticks: {
-          color: '#6B7280',
-          font: {
-            size: 11
-          }
-        }
-      }
+    switch (selectedChart) {
+      case 'sales':
+        return {
+          labels,
+          datasets: [
+            {
+              label: 'Satış Adedi',
+              data: salesData,
+              borderColor: 'rgb(59, 130, 246)',
+              backgroundColor: 'rgba(59, 130, 246, 0.1)',
+              fill: true,
+              tension: 0.4
+            }
+          ]
+        };
+      case 'revenue':
+        return {
+          labels,
+          datasets: [
+            {
+              label: 'Gelir (₺)',
+              data: revenueData,
+              borderColor: 'rgb(34, 197, 94)',
+              backgroundColor: 'rgba(34, 197, 94, 0.1)',
+              fill: true,
+              tension: 0.4
+            }
+          ]
+        };
+      case 'orders':
+        return {
+          labels,
+          datasets: [
+            {
+              label: 'Sipariş Sayısı',
+              data: salesData,
+              backgroundColor: 'rgba(251, 146, 60, 0.8)',
+              borderColor: 'rgb(251, 146, 60)',
+              borderWidth: 1
+            }
+          ]
+        };
+      default:
+        return null;
     }
   };
 
-  const doughnutOptions = {
-    responsive: true,
-    maintainAspectRatio: false,
-    plugins: {
-      legend: {
-        position: 'bottom',
-        labels: {
-          font: {
-            size: 11
-          },
-          color: '#374151',
-          usePointStyle: true,
-          padding: 15
+  const getChartOptions = () => {
+    return {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          position: 'top',
+        },
+        title: {
+          display: true,
+          text: `${getPeriodLabel()} - ${selectedChart === 'sales' ? 'Satış Adedi' : selectedChart === 'revenue' ? 'Gelir' : 'Sipariş Sayısı'}`
         }
       },
-      tooltip: {
-        backgroundColor: 'rgba(0, 0, 0, 0.8)',
-        titleColor: '#fff',
-        bodyColor: '#fff',
-        borderColor: 'rgba(255, 96, 0, 0.5)',
-        borderWidth: 1,
-        cornerRadius: 8
+      scales: {
+        y: {
+          beginAtZero: true
+        }
       }
-    }
+    };
+  };
+
+  const getCategoryData = () => {
+    if (!statsData?.categoryStats) return null;
+
+    return {
+      labels: statsData.categoryStats.map(item => item[0]),
+      datasets: [
+        {
+          data: statsData.categoryStats.map(item => item[1]),
+          backgroundColor: [
+            'rgba(59, 130, 246, 0.8)',
+            'rgba(34, 197, 94, 0.8)',
+            'rgba(251, 146, 60, 0.8)',
+            'rgba(239, 68, 68, 0.8)',
+            'rgba(168, 85, 247, 0.8)',
+            'rgba(6, 182, 212, 0.8)',
+            'rgba(245, 158, 11, 0.8)',
+            'rgba(236, 72, 153, 0.8)'
+          ],
+          borderWidth: 2,
+          borderColor: '#ffffff'
+        }
+      ]
+    };
   };
 
   if (loading) {
     return (
-      <div className="seller-statistics">
-        <div className="statistics-loading">
-          <div className="loading-spinner"></div>
-          <h3>İstatistikler Yükleniyor...</h3>
-          <p>Verileriniz hazırlanıyor, lütfen bekleyin.</p>
+      <div className="p-6">
+        <div className="bg-white rounded-xl shadow-lg p-6">
+          <div className="animate-pulse space-y-6">
+            <div className="h-8 bg-gray-200 rounded w-1/3"></div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              {[...Array(4)].map((_, i) => (
+                <div key={i} className="h-32 bg-gray-200 rounded-lg"></div>
+              ))}
+            </div>
+            <div className="h-96 bg-gray-200 rounded-lg"></div>
+          </div>
         </div>
       </div>
     );
@@ -261,189 +219,302 @@ const SellerStatistics = () => {
 
   if (error) {
     return (
-      <div className="seller-statistics">
-        <div className="statistics-error">
-          <div className="error-icon">⚠️</div>
-          <h3>Bir Hata Oluştu</h3>
-          <p>{error}</p>
-          <button className="retry-btn" onClick={fetchStatisticsData}>
-            Tekrar Dene
-          </button>
+      <div className="p-6">
+        <div className="bg-red-50 border border-red-200 rounded-xl p-6 text-center">
+          <FaExclamationTriangle className="mx-auto text-red-500 text-4xl mb-4" />
+          <h2 className="text-xl font-semibold text-red-800 mb-2">Hata</h2>
+          <p className="text-red-600">{error}</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="seller-statistics">
-      {/* Header */}
-      <div className="statistics-header">
-        <div className="header-content">
-          <h1>İstatistikler</h1>
+    <div className="p-6">
+      <div className="bg-white rounded-xl shadow-lg overflow-hidden">
+        {/* Header */}
+        <div className="bg-gradient-to-r from-blue-500 to-blue-600 px-6 py-8 text-white">
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between">
+            <div>
+              <h1 className="text-3xl font-bold mb-2">Satış İstatistikleri</h1>
+              <p className="text-blue-100">Mağazanızın performansını takip edin</p>
+            </div>
+            <div className="mt-4 md:mt-0">
+              <div className="flex items-center space-x-2 text-sm">
+                <FaChartLine className="text-blue-200" />
+                <span>{getPeriodLabel()}</span>
+              </div>
+            </div>
+          </div>
         </div>
-        
+
         {/* Period Selector */}
-        <div className="period-selector">
-          <button 
-            className={`period-btn ${selectedPeriod === 'week' ? 'active' : ''}`}
-            onClick={() => setSelectedPeriod('week')}
-          >
-            <FaCalendarAlt />
-            Hafta
-          </button>
-          <button 
-            className={`period-btn ${selectedPeriod === 'month' ? 'active' : ''}`}
-            onClick={() => setSelectedPeriod('month')}
-          >
-            <FaCalendarAlt />
-            Ay
-          </button>
-          <button 
-            className={`period-btn ${selectedPeriod === 'year' ? 'active' : ''}`}
-            onClick={() => setSelectedPeriod('year')}
-          >
-            <FaCalendarAlt />
-            Yıl
-          </button>
-        </div>
-
-        {/* Rating Display */}
-        <div className="header-rating">
-          <div className="rating-icon">
-            <FaStar />
-          </div>
-          <div className="rating-content">
-            <div className="rating-label">Ortalama Puan</div>
-            <div className="rating-value">{statsData?.averageRating?.toFixed(1) || '0.0'}</div>
-            <div className="rating-change">
-              <FaArrowUp />
-              +0.3
+        <div className="p-6 border-b border-gray-200">
+          <div className="flex flex-wrap items-center justify-between gap-4">
+            <div className="flex space-x-2">
+              <button
+                onClick={() => setSelectedPeriod('week')}
+                className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                  selectedPeriod === 'week'
+                    ? 'bg-blue-600 text-white'
+                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                }`}
+              >
+                Bu Hafta
+              </button>
+              <button
+                onClick={() => setSelectedPeriod('month')}
+                className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                  selectedPeriod === 'month'
+                    ? 'bg-blue-600 text-white'
+                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                }`}
+              >
+                Bu Ay
+              </button>
+              <button
+                onClick={() => setSelectedPeriod('year')}
+                className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                  selectedPeriod === 'year'
+                    ? 'bg-blue-600 text-white'
+                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                }`}
+              >
+                Bu Yıl
+              </button>
             </div>
-          </div>
-        </div>
-      </div>
 
-      {/* Quick Stats Cards */}
-      <div className="stats-cards-grid">
-        <div className="stat-card">
-          <div className="stat-icon sales">
-            <FaShoppingCart />
-          </div>
-          <div className="stat-content">
-            <h3>Toplam Satış</h3>
-            <div className="stat-number">{formatNumber(statsData?.totalSales || 0)}</div>
-            <div className="stat-change positive">
-              <FaArrowUp />
-              +12.5%
-            </div>
-          </div>
-        </div>
-
-        <div className="stat-card">
-          <div className="stat-icon revenue">
-            <FaMoneyBillWave />
-          </div>
-          <div className="stat-content">
-            <h3>Toplam Gelir</h3>
-            <div className="stat-number">{formatCurrency(statsData?.totalRevenue || 0)}</div>
-            <div className="stat-change positive">
-              <FaArrowUp />
-              +8.3%
-            </div>
-          </div>
-        </div>
-
-        <div className="stat-card">
-          <div className="stat-icon customers">
-            <FaUsers />
-          </div>
-          <div className="stat-content">
-            <h3>Müşteri Sayısı</h3>
-            <div className="stat-number">{formatNumber(statsData?.totalCustomers || 0)}</div>
-            <div className="stat-change positive">
-              <FaArrowUp />
-              +5.2%
+            <div className="flex space-x-2">
+              <button
+                onClick={() => setSelectedChart('sales')}
+                className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                  selectedChart === 'sales'
+                    ? 'bg-orange-600 text-white'
+                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                }`}
+              >
+                Satış Adedi
+              </button>
+              <button
+                onClick={() => setSelectedChart('revenue')}
+                className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                  selectedChart === 'revenue'
+                    ? 'bg-orange-600 text-white'
+                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                }`}
+              >
+                Gelir
+              </button>
+              <button
+                onClick={() => setSelectedChart('orders')}
+                className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                  selectedChart === 'orders'
+                    ? 'bg-orange-600 text-white'
+                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                }`}
+              >
+                Sipariş Sayısı
+              </button>
             </div>
           </div>
         </div>
 
+        {/* Stats Cards */}
+        <div className="p-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            {/* Toplam Satış */}
+            <div className="bg-gradient-to-r from-blue-50 to-blue-100 rounded-xl p-6 border border-blue-200">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-blue-600">Toplam Satış</p>
+                  <p className="text-2xl font-bold text-blue-900">
+                    {formatNumber(statsData?.totalSold || 0)}
+                  </p>
+                </div>
+                <div className="p-3 bg-blue-500 rounded-lg">
+                  <FaShoppingCart className="text-white text-xl" />
+                </div>
+              </div>
+            </div>
 
-      </div>
+            {/* Toplam Gelir */}
+            <div className="bg-gradient-to-r from-green-50 to-green-100 rounded-xl p-6 border border-green-200">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-green-600">Toplam Gelir</p>
+                  <p className="text-2xl font-bold text-green-900">
+                    {formatCurrency(statsData?.totalRevenue || 0)}
+                  </p>
+                </div>
+                <div className="p-3 bg-green-500 rounded-lg">
+                  <FaMoneyBillWave className="text-white text-xl" />
+                </div>
+              </div>
+            </div>
 
-      {/* Charts Section */}
-      <div className="charts-section">
-        {/* Chart Type Selector */}
-        <div className="chart-selector">
-          <button 
-            className={`chart-btn ${selectedChart === 'sales' ? 'active' : ''}`}
-            onClick={() => setSelectedChart('sales')}
-          >
-            <FaChartLine />
-            Satış Grafiği
-          </button>
-          <button 
-            className={`chart-btn ${selectedChart === 'revenue' ? 'active' : ''}`}
-            onClick={() => setSelectedChart('revenue')}
-          >
-            <FaMoneyBillWave />
-            Gelir Grafiği
-          </button>
-        </div>
+            {/* Ortalama Sipariş */}
+            <div className="bg-gradient-to-r from-orange-50 to-orange-100 rounded-xl p-6 border border-orange-200">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-orange-600">Ortalama Sipariş</p>
+                  <p className="text-2xl font-bold text-orange-900">
+                    {formatCurrency(statsData?.averageOrderValue || 0)}
+                  </p>
+                </div>
+                <div className="p-3 bg-orange-500 rounded-lg">
+                  <FaBoxes className="text-white text-xl" />
+                </div>
+              </div>
+            </div>
 
-        {/* Main Chart */}
-        <div className="main-chart-container">
-          <div className="chart-header">
-            <h2>{selectedChart === 'sales' ? 'Satış Trendi' : 'Gelir Trendi'} - {getPeriodLabel()}</h2>
+            {/* Müşteri Sayısı */}
+            <div className="bg-gradient-to-r from-purple-50 to-purple-100 rounded-xl p-6 border border-purple-200">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-purple-600">Müşteri Sayısı</p>
+                  <p className="text-2xl font-bold text-purple-900">
+                    {formatNumber(statsData?.uniqueCustomers || 0)}
+                  </p>
+                </div>
+                <div className="p-3 bg-purple-500 rounded-lg">
+                  <FaUsers className="text-white text-xl" />
+                </div>
+              </div>
+            </div>
           </div>
-          <div className="chart-wrapper">
-            {selectedChart === 'sales' && getSalesChartData() && (
-              <Line data={getSalesChartData()} options={chartOptions} />
-            )}
-            {selectedChart === 'revenue' && getRevenueChartData() && (
-              <Bar data={getRevenueChartData()} options={chartOptions} />
-            )}
-          </div>
-        </div>
 
-        {/* Category Distribution */}
-        <div className="category-chart-container">
-          <div className="chart-header">
-            <h2>Kategori Dağılımı</h2>
-          </div>
-          <div className="chart-wrapper">
-            {getCategoryChartData() && (
-              <Doughnut data={getCategoryChartData()} options={doughnutOptions} />
-            )}
-          </div>
-        </div>
-      </div>
+          {/* Charts */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            {/* Main Chart */}
+            <div className="bg-gray-50 rounded-xl p-6">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">Satış Trendi</h3>
+              <div className="h-80">
+                {selectedChart === 'orders' ? (
+                  <Bar data={getChartData()} options={getChartOptions()} />
+                ) : (
+                  <Line data={getChartData()} options={getChartOptions()} />
+                )}
+              </div>
+            </div>
 
-      {/* Additional Stats */}
-      <div className="additional-stats">
-        <div className="stats-grid">
-          <div className="stat-item">
-            <h3>En Çok Satan Ürün</h3>
-            <div className="stat-value">{statsData?.topProduct?.name || 'Veri yok'}</div>
-            <div className="stat-subtitle">{formatNumber(statsData?.topProduct?.salesCount || 0)} satış</div>
+            {/* Category Chart */}
+            <div className="bg-gray-50 rounded-xl p-6">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">Kategori Dağılımı</h3>
+              <div className="h-80">
+                {getCategoryData() && (
+                  <Doughnut 
+                    data={getCategoryData()} 
+                    options={{
+                      responsive: true,
+                      maintainAspectRatio: false,
+                      plugins: {
+                        legend: {
+                          position: 'bottom',
+                        }
+                      }
+                    }} 
+                  />
+                )}
+              </div>
+            </div>
           </div>
-          
-          <div className="stat-item">
-            <h3>En Popüler Kategori</h3>
-            <div className="stat-value">{statsData?.topCategory?.name || 'Veri yok'}</div>
-            <div className="stat-subtitle">{formatNumber(statsData?.topCategory?.salesCount || 0)} satış</div>
-          </div>
-          
-          <div className="stat-item">
-            <h3>Ortalama Sipariş Değeri</h3>
-            <div className="stat-value">{formatCurrency(statsData?.averageOrderValue || 0)}</div>
-            <div className="stat-subtitle">Sipariş başına</div>
-          </div>
-          
-          <div className="stat-item">
-            <h3>Toplam Ürün Sayısı</h3>
-            <div className="stat-value">{formatNumber(statsData?.totalProducts || 0)}</div>
-            <div className="stat-subtitle">Aktif ürün</div>
-          </div>
+
+          {/* Top Products */}
+          {statsData?.bestSellers && statsData.bestSellers.length > 0 && (
+            <div className="mt-8">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">En Çok Satan Ürünler</h3>
+              <div className="bg-gray-50 rounded-xl overflow-hidden">
+                <div className="overflow-x-auto">
+                  <table className="w-full">
+                    <thead className="bg-gray-100 border-b border-gray-200">
+                      <tr>
+                        <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">Sıra</th>
+                        <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">Ürün</th>
+                        <th className="px-6 py-3 text-center text-sm font-semibold text-gray-700">Satış Adedi</th>
+                        <th className="px-6 py-3 text-center text-sm font-semibold text-gray-700">Gelir</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-gray-200">
+                      {statsData.bestSellers.map((product, index) => (
+                        <tr key={index} className="hover:bg-gray-100 transition-colors">
+                          <td className="px-6 py-4">
+                            <span className={`inline-flex items-center justify-center w-8 h-8 rounded-full text-sm font-bold ${
+                              index === 0 ? 'bg-yellow-100 text-yellow-800' :
+                              index === 1 ? 'bg-gray-100 text-gray-800' :
+                              index === 2 ? 'bg-orange-100 text-orange-800' :
+                              'bg-blue-100 text-blue-800'
+                            }`}>
+                              {index + 1}
+                            </span>
+                          </td>
+                          <td className="px-6 py-4 font-medium text-gray-900">{product[0]}</td>
+                          <td className="px-6 py-4 text-center">
+                            <span className="bg-green-100 text-green-800 px-2 py-1 rounded-full text-sm font-medium">
+                              {formatNumber(product[1])}
+                            </span>
+                          </td>
+                          <td className="px-6 py-4 text-center font-medium text-gray-900">
+                            {formatCurrency(product[2])}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Daily Sales Table */}
+          {statsData?.dailySales && statsData.dailySales.length > 0 && (
+            <div className="mt-8">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">Günlük Satışlar</h3>
+              <div className="bg-gray-50 rounded-xl overflow-hidden">
+                <div className="overflow-x-auto">
+                  <table className="w-full">
+                    <thead className="bg-gray-100 border-b border-gray-200">
+                      <tr>
+                        <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">Tarih</th>
+                        <th className="px-6 py-3 text-center text-sm font-semibold text-gray-700">Satış Adedi</th>
+                        <th className="px-6 py-3 text-center text-sm font-semibold text-gray-700">Gelir</th>
+                        <th className="px-6 py-3 text-center text-sm font-semibold text-gray-700">Trend</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-gray-200">
+                      {statsData.dailySales.map((day, index) => {
+                        const [date, sales, revenue] = day;
+                        const prevSales = index > 0 ? statsData.dailySales[index - 1][1] : sales;
+                        const trend = sales > prevSales ? 'up' : sales < prevSales ? 'down' : 'stable';
+                        
+                        return (
+                          <tr key={index} className="hover:bg-gray-100 transition-colors">
+                            <td className="px-6 py-4 font-medium text-gray-900">{date}</td>
+                            <td className="px-6 py-4 text-center">
+                              <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-sm font-medium">
+                                {formatNumber(sales)}
+                              </span>
+                            </td>
+                            <td className="px-6 py-4 text-center font-medium text-gray-900">
+                              {formatCurrency(revenue)}
+                            </td>
+                            <td className="px-6 py-4 text-center">
+                              {trend === 'up' ? (
+                                <FaArrowUp className="text-green-500 mx-auto" />
+                              ) : trend === 'down' ? (
+                                <FaArrowDown className="text-red-500 mx-auto" />
+                              ) : (
+                                <span className="text-gray-400">-</span>
+                              )}
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>

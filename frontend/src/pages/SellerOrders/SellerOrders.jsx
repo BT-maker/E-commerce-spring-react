@@ -17,7 +17,6 @@ import {
   FaMapMarkerAlt,
   FaTimes
 } from 'react-icons/fa';
-import './SellerOrders.css';
 
 const SellerOrders = () => {
   const [allOrders, setAllOrders] = useState([]);
@@ -80,8 +79,6 @@ const SellerOrders = () => {
 
       const data = await response.json();
       console.log('Tüm sipariş verileri:', data);
-      
-
       
       setAllOrders(data.orders || []);
       setFilteredOrders(data.orders || []);
@@ -161,12 +158,12 @@ const SellerOrders = () => {
 
   const getStatusColor = (status) => {
     switch (status?.toUpperCase()) {
-      case 'PENDING': return 'status-pending';
-      case 'PROCESSING': return 'status-processing';
-      case 'SHIPPED': return 'status-shipped';
-      case 'DELIVERED': return 'status-delivered';
-      case 'CANCELLED': return 'status-cancelled';
-      default: return 'status-pending';
+      case 'PENDING': return 'bg-yellow-100 text-yellow-800 border-yellow-200';
+      case 'PROCESSING': return 'bg-blue-100 text-blue-800 border-blue-200';
+      case 'SHIPPED': return 'bg-purple-100 text-purple-800 border-purple-200';
+      case 'DELIVERED': return 'bg-green-100 text-green-800 border-green-200';
+      case 'CANCELLED': return 'bg-red-100 text-red-800 border-red-200';
+      default: return 'bg-gray-100 text-gray-800 border-gray-200';
     }
   };
 
@@ -228,8 +225,6 @@ const SellerOrders = () => {
     setTotalOrders(allOrders.length);
   };
 
-
-
   const handlePageChange = (newPage) => {
     setCurrentPage(newPage);
   };
@@ -246,15 +241,13 @@ const SellerOrders = () => {
     }
   };
 
-
-
   if (loading) {
     return (
-      <div className="seller-orders">
-        <div className="orders-loading">
-          <div className="loading-spinner"></div>
-          <h3>Siparişler Yükleniyor...</h3>
-          <p>Verileriniz hazırlanıyor, lütfen bekleyin.</p>
+      <div className="p-6">
+        <div className="bg-white rounded-xl shadow-lg p-8 text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-500 mx-auto mb-4"></div>
+          <h3 className="text-xl font-semibold text-gray-900 mb-2">Siparişler Yükleniyor...</h3>
+          <p className="text-gray-600">Verileriniz hazırlanıyor, lütfen bekleyin.</p>
         </div>
       </div>
     );
@@ -262,12 +255,15 @@ const SellerOrders = () => {
 
   if (error) {
     return (
-      <div className="seller-orders">
-        <div className="orders-error">
-          <div className="error-icon">⚠️</div>
-          <h3>Bir Hata Oluştu</h3>
-          <p>{error}</p>
-          <button className="retry-btn" onClick={fetchAllOrders}>
+      <div className="p-6">
+        <div className="bg-red-50 border border-red-200 rounded-xl p-8 text-center">
+          <div className="text-red-500 text-4xl mb-4">⚠️</div>
+          <h3 className="text-xl font-semibold text-red-800 mb-2">Bir Hata Oluştu</h3>
+          <p className="text-red-600 mb-6">{error}</p>
+          <button 
+            className="bg-red-600 hover:bg-red-700 text-white px-6 py-2 rounded-lg font-semibold transition-colors"
+            onClick={fetchAllOrders}
+          >
             Tekrar Dene
           </button>
         </div>
@@ -276,18 +272,77 @@ const SellerOrders = () => {
   }
 
   return (
-    <div className="seller-orders">
+    <div className="p-6">
       {/* Header */}
-      <div className="orders-header">
-        <div className="header-content">
-          <h2>Siparişler</h2>
+      <div className="bg-gradient-to-r from-orange-500 to-orange-600 rounded-xl p-8 text-white mb-8">
+        <div className="text-center">
+          <h1 className="text-3xl font-bold mb-2">Siparişlerim</h1>
+          <p className="text-orange-100">Mağazanızdaki tüm siparişleri yönetin</p>
+        </div>
+      </div>
+
+      {/* Stats Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+        <div className="bg-gradient-to-r from-blue-50 to-blue-100 rounded-xl p-6 border border-blue-200">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium text-blue-600">Toplam Sipariş</p>
+              <p className="text-2xl font-bold text-blue-900">{totalOrders}</p>
+            </div>
+            <div className="p-3 bg-blue-500 rounded-lg">
+              <FaBox className="text-white text-xl" />
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-gradient-to-r from-yellow-50 to-yellow-100 rounded-xl p-6 border border-yellow-200">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium text-yellow-600">Bekleyen</p>
+              <p className="text-2xl font-bold text-yellow-900">
+                {filteredOrders.filter(o => o.status === 'PENDING').length}
+              </p>
+            </div>
+            <div className="p-3 bg-yellow-500 rounded-lg">
+              <FaClock className="text-white text-xl" />
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-gradient-to-r from-purple-50 to-purple-100 rounded-xl p-6 border border-purple-200">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium text-purple-600">Kargoda</p>
+              <p className="text-2xl font-bold text-purple-900">
+                {filteredOrders.filter(o => o.status === 'SHIPPED').length}
+              </p>
+            </div>
+            <div className="p-3 bg-purple-500 rounded-lg">
+              <FaTruck className="text-white text-xl" />
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-gradient-to-r from-green-50 to-green-100 rounded-xl p-6 border border-green-200">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium text-green-600">Teslim Edildi</p>
+              <p className="text-2xl font-bold text-green-900">
+                {filteredOrders.filter(o => o.status === 'DELIVERED').length}
+              </p>
+            </div>
+            <div className="p-3 bg-green-500 rounded-lg">
+              <FaCheckCircle className="text-white text-xl" />
+            </div>
+          </div>
         </div>
       </div>
 
       {/* Arama ve Filtreleme */}
-      <div className="search-filters">
-        <div className="search-row">
-          <div className="search-group">
+      <div className="bg-white rounded-xl shadow-lg p-6 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+          <div className="relative">
+            <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
             <input
               type="text"
               placeholder="Sipariş ID veya ürün adı ara..."
@@ -296,10 +351,11 @@ const SellerOrders = () => {
                 setSearchTerm(e.target.value);
                 setShowSuggestions(e.target.value.length > 0);
               }}
+              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-colors"
             />
             {/* Öneriler */}
             {showSuggestions && searchTerm && (
-              <div className="search-suggestions">
+              <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg">
                 {allOrders
                   .filter(order =>
                     order.id?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -311,20 +367,21 @@ const SellerOrders = () => {
                   .map(order => (
                     <div
                       key={order.id}
-                      className="suggestion-item"
+                      className="px-4 py-2 hover:bg-gray-100 cursor-pointer flex items-center space-x-2"
                       onClick={() => {
                         setSearchTerm(order.id);
                         setShowSuggestions(false);
                       }}
                     >
-                      <FaSearch className="suggestion-icon" />
-                      <span>Sipariş #{order.id.slice(-8)}</span>
+                      <FaSearch className="text-gray-400 text-sm" />
+                      <span className="text-gray-700">Sipariş #{order.id.slice(-8)}</span>
                     </div>
                   ))}
               </div>
             )}
           </div>
-          <div className="search-group">
+
+          <div>
             <input
               type="text"
               placeholder="Müşteri adı"
@@ -332,14 +389,17 @@ const SellerOrders = () => {
               onChange={(e) => {
                 setCustomerName(e.target.value);
               }}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-colors"
             />
           </div>
-          <div className="search-group">
+
+          <div>
             <select
               value={selectedStatus}
               onChange={(e) => {
                 setSelectedStatus(e.target.value);
               }}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-colors"
             >
               <option value="all">Tüm Durumlar</option>
               <option value="PENDING">Beklemede</option>
@@ -349,102 +409,113 @@ const SellerOrders = () => {
               <option value="CANCELLED">İptal Edildi</option>
             </select>
           </div>
-          <button className="search-btn" onClick={handleSearch}>
-            <FaSearch /> Ara
+
+          <button 
+            className="bg-orange-600 hover:bg-orange-700 text-white px-6 py-2 rounded-lg font-semibold transition-colors flex items-center justify-center space-x-2"
+            onClick={handleSearch}
+          >
+            <FaSearch />
+            <span>Ara</span>
           </button>
-          <button className="clear-btn" onClick={handleClearFilters}>
-            <FaTimes /> Temizle
+
+          <button 
+            className="bg-gray-300 hover:bg-gray-400 text-gray-700 px-6 py-2 rounded-lg font-semibold transition-colors flex items-center justify-center space-x-2"
+            onClick={handleClearFilters}
+          >
+            <FaTimes />
+            <span>Temizle</span>
           </button>
         </div>
       </div>
 
-
-
       {/* Orders Table */}
-      <div className="orders-table-container">
+      <div className="bg-white rounded-xl shadow-lg overflow-hidden">
         {filteredOrders.length === 0 ? (
-          <div className="no-orders">
-            <div className="no-orders-icon">📦</div>
-            <h3>Henüz Sipariş Yok</h3>
-            <p>Mağazanızda henüz sipariş bulunmuyor.</p>
+          <div className="text-center py-12">
+            <div className="text-6xl mb-4">📦</div>
+            <h3 className="text-xl font-semibold text-gray-900 mb-2">Henüz Sipariş Yok</h3>
+            <p className="text-gray-600">Mağazanızda henüz sipariş bulunmuyor.</p>
           </div>
         ) : (
-          <div className="orders-grid">
+          <div className="space-y-6 p-6">
             {filteredOrders.map((order) => (
-              <div key={order.id} className="order-card">
-                <div className="order-header">
-                  <div className="order-info">
-                    <h3>Sipariş #{order.id.slice(-8)}</h3>
-                    <div className="order-meta">
-                      <span className="order-date">
-                        <FaCalendarAlt />
-                        {formatDate(order.createdAt)}
+              <div key={order.id} className="border border-gray-200 rounded-xl p-6 hover:shadow-lg transition-shadow">
+                <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between mb-6">
+                  <div className="flex-1">
+                    <h3 className="text-lg font-semibold text-gray-900 mb-2">Sipariş #{order.id.slice(-8)}</h3>
+                    <div className="flex flex-wrap items-center gap-4 text-sm text-gray-600">
+                      <span className="flex items-center space-x-1">
+                        <FaCalendarAlt className="text-gray-400" />
+                        <span>{formatDate(order.createdAt)}</span>
                       </span>
-                      <span className={`order-status ${getStatusColor(order.status)}`}>
-                        {getStatusIcon(order.status)}
+                      <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium border ${getStatusColor(order.status)}`}>
+                        <span className="mr-1">{getStatusIcon(order.status)}</span>
                         {getStatusText(order.status)}
                       </span>
                     </div>
                   </div>
-                  <div className="order-total">
-                    {formatCurrency(order.totalPrice)}
+                  <div className="mt-4 lg:mt-0 lg:ml-4">
+                    <div className="text-2xl font-bold text-orange-600">{formatCurrency(order.totalPrice)}</div>
                   </div>
                 </div>
 
                 {/* Customer Info */}
-                <div className="customer-info">
-                  <div className="customer-details">
-                    <div className="customer-item">
-                      <FaUser />
-                      <span>{order.user?.username || 'Anonim'}</span>
+                <div className="bg-gray-50 rounded-lg p-4 mb-6">
+                  <h4 className="font-semibold text-gray-900 mb-3">Müşteri Bilgileri</h4>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className="flex items-center space-x-2">
+                      <FaUser className="text-gray-400" />
+                      <span className="text-gray-700">{order.user?.username || 'Anonim'}</span>
                     </div>
-                    <div className="customer-item">
-                      <FaEnvelope />
-                      <span>{order.user?.email || 'Email yok'}</span>
+                    <div className="flex items-center space-x-2">
+                      <FaEnvelope className="text-gray-400" />
+                      <span className="text-gray-700">{order.user?.email || 'Email yok'}</span>
                     </div>
                     {order.user?.phone && (
-                      <div className="customer-item">
-                        <FaPhone />
-                        <span>{order.user.phone}</span>
+                      <div className="flex items-center space-x-2">
+                        <FaPhone className="text-gray-400" />
+                        <span className="text-gray-700">{order.user.phone}</span>
                       </div>
                     )}
                   </div>
                 </div>
 
                 {/* Order Items */}
-                <div className="order-items">
-                  <h4>Sipariş Ürünleri</h4>
-                  <div className="items-list">
+                <div className="mb-6">
+                  <h4 className="font-semibold text-gray-900 mb-4">Sipariş Ürünleri</h4>
+                  <div className="space-y-4">
                     {order.items?.map((item) => (
-                      <div key={item.id} className="item-card">
+                      <div key={item.id} className="flex items-center space-x-4 p-4 bg-gray-50 rounded-lg">
                         <img 
                           src={item.product?.imageUrl1 || item.product?.imageUrl || '/img/default-product.png'} 
                           alt={item.product?.name}
-                          className="item-image"
+                          className="w-16 h-16 rounded-lg object-cover"
                           onError={(e) => {
                             e.target.src = '/img/default-product.png';
                           }}
                         />
-                        <div className="item-details">
-                          <h5>{item.product?.name || 'Ürün Adı'}</h5>
-                          <p className="item-category">{item.product?.category?.name || 'Kategori yok'}</p>
+                        <div className="flex-1">
+                          <h5 className="font-semibold text-gray-900 mb-1">{item.product?.name || 'Ürün Adı'}</h5>
+                          <p className="text-sm text-gray-600 mb-1">{item.product?.category?.name || 'Kategori yok'}</p>
                           {item.product?.stock !== undefined && (
-                            <div className="item-stock-info">
+                            <div className="text-xs">
                               {item.product.stock <= 0 ? (
-                                <span className="stock-warning critical">Stokta yok</span>
+                                <span className="text-red-600 font-medium">Stokta yok</span>
                               ) : item.product.stock <= 5 ? (
-                                <span className="stock-warning critical">Kritik stok: {item.product.stock} adet</span>
+                                <span className="text-red-600 font-medium">Kritik stok: {item.product.stock} adet</span>
                               ) : item.product.stock <= 10 ? (
-                                <span className="stock-warning low">Düşük stok: {item.product.stock} adet</span>
+                                <span className="text-yellow-600 font-medium">Düşük stok: {item.product.stock} adet</span>
                               ) : null}
                             </div>
                           )}
                         </div>
-                        <div className="item-quantity">
-                          {item.quantity} adet
+                        <div className="text-center">
+                          <div className="text-sm text-gray-600">Adet</div>
+                          <div className="font-semibold text-gray-900">{item.quantity}</div>
                         </div>
-                        <div className="item-price">
-                          {formatCurrency(item.price)}
+                        <div className="text-center">
+                          <div className="text-sm text-gray-600">Fiyat</div>
+                          <div className="font-semibold text-gray-900">{formatCurrency(item.price)}</div>
                         </div>
                       </div>
                     ))}
@@ -452,11 +523,11 @@ const SellerOrders = () => {
                 </div>
 
                 {/* Order Actions */}
-                <div className="order-actions">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pt-4 border-t border-gray-200">
                   <select
                     value={order.status}
                     onChange={(e) => handleStatusChange(order.id, e.target.value)}
-                    className={`status-select ${getStatusColor(order.status)}`}
+                    className={`px-4 py-2 rounded-lg border font-medium transition-colors ${getStatusColor(order.status)}`}
                   >
                     <option value="PENDING">Beklemede</option>
                     <option value="PROCESSING">İşleniyor</option>
@@ -465,12 +536,18 @@ const SellerOrders = () => {
                     <option value="CANCELLED">İptal Edildi</option>
                   </select>
                   
-                  <div className="action-buttons">
-                    <button className="action-btn view-btn" title="Detayları Görüntüle">
-                      <FaEye />
+                  <div className="flex items-center space-x-2">
+                    <button 
+                      className="text-blue-600 hover:text-blue-700 p-2 rounded-lg hover:bg-blue-50 transition-colors"
+                      title="Detayları Görüntüle"
+                    >
+                      <FaEye size={16} />
                     </button>
-                    <button className="action-btn edit-btn" title="Düzenle">
-                      <FaEdit />
+                    <button 
+                      className="text-green-600 hover:text-green-700 p-2 rounded-lg hover:bg-green-50 transition-colors"
+                      title="Düzenle"
+                    >
+                      <FaEdit size={16} />
                     </button>
                   </div>
                 </div>
@@ -482,37 +559,44 @@ const SellerOrders = () => {
 
       {/* Pagination */}
       {totalPages > 1 && (
-        <div className="pagination-container">
-          <div className="pagination-info">
-            <span>Toplam {totalOrders} sipariş, {totalPages} sayfa</span>
-            <span>Sayfa {currentPage + 1} / {totalPages}</span>
-          </div>
-          <div className="pagination-controls">
-            <button
-              className="pagination-btn"
-              onClick={handlePreviousPage}
-              disabled={currentPage === 0}
-            >
-              Önceki
-            </button>
-
-            {Array.from({ length: totalPages }, (_, index) => (
+        <div className="bg-white rounded-xl shadow-lg p-6 mt-8">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div className="text-sm text-gray-600">
+              <span>Toplam {totalOrders} sipariş, {totalPages} sayfa</span>
+              <span className="mx-2">•</span>
+              <span>Sayfa {currentPage + 1} / {totalPages}</span>
+            </div>
+            <div className="flex items-center space-x-2">
               <button
-                key={index}
-                className={`pagination-btn ${currentPage === index ? 'active' : ''}`}
-                onClick={() => handlePageChange(index)}
+                className="px-4 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                onClick={handlePreviousPage}
+                disabled={currentPage === 0}
               >
-                {index + 1}
+                Önceki
               </button>
-            ))}
 
-            <button
-              className="pagination-btn"
-              onClick={handleNextPage}
-              disabled={currentPage === totalPages - 1}
-            >
-              Sonraki
-            </button>
+              {Array.from({ length: totalPages }, (_, index) => (
+                <button
+                  key={index}
+                  className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
+                    currentPage === index 
+                      ? 'bg-orange-600 text-white' 
+                      : 'text-gray-500 bg-white border border-gray-300 hover:bg-gray-50'
+                  }`}
+                  onClick={() => handlePageChange(index)}
+                >
+                  {index + 1}
+                </button>
+              ))}
+
+              <button
+                className="px-4 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                onClick={handleNextPage}
+                disabled={currentPage === totalPages - 1}
+              >
+                Sonraki
+              </button>
+            </div>
           </div>
         </div>
       )}

@@ -2,7 +2,7 @@ import React, { useState, useEffect, useContext } from "react";
 import { useParams, Link } from "react-router-dom";
 import { CartContext } from "../../context/CartContext";
 import { AuthContext } from "../../context/AuthContext";
-import "./ProductDetail.css";
+
 import toast from 'react-hot-toast';
 import Skeleton from 'react-loading-skeleton';
 import 'react-loading-skeleton/dist/skeleton.css';
@@ -380,37 +380,46 @@ const ProductDetail = () => {
   };
 
   if (loading) return (
-    <div className="product-detail-container">
-      <div className="product-detail-skeleton">
-        <div className="product-images-skeleton">
-          <Skeleton height={400} width={400} className="rounded-lg" />
-          <div className="thumbnail-skeleton">
-            {Array.from({ length: 4 }).map((_, i) => (
-              <Skeleton key={i} height={80} width={80} className="rounded" />
-            ))}
+    <div className="min-h-screen  py-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          {/* Sol taraf - Resim skeleton */}
+          <div className="space-y-4">
+            <Skeleton height={400} className="rounded-lg" />
+            <div className="grid grid-cols-4 gap-2">
+              {Array.from({ length: 4 }).map((_, i) => (
+                <Skeleton key={i} height={80} className="rounded" />
+              ))}
+            </div>
           </div>
-        </div>
-        <div className="product-info-skeleton">
-          <Skeleton height={32} width={300} className="mb-4" />
-          <Skeleton height={24} width={200} className="mb-2" />
-          <Skeleton height={28} width={150} className="mb-4" />
-          <Skeleton count={4} height={16} className="mb-2" />
-          <Skeleton height={48} width={200} className="mt-6" />
+          {/* Sağ taraf - Bilgi skeleton */}
+          <div className="space-y-4">
+            <Skeleton height={32} width={300} />
+            <Skeleton height={24} width={200} />
+            <Skeleton height={28} width={150} />
+            <Skeleton count={4} height={16} />
+            <Skeleton height={48} width={200} />
+          </div>
         </div>
       </div>
     </div>
   );
 
   if (error) return (
-    <div className="product-detail-container">
-      <div className="error-message">{error}</div>
+    <div className="min-h-screen  flex items-center justify-center">
+      <div className="text-center">
+        <div className="text-red-500 text-xl font-semibold mb-4">{error}</div>
+        <Link to="/" className="text-orange-600 hover:text-orange-800 underline">
+          Ana Sayfaya Dön
+        </Link>
+      </div>
     </div>
   );
 
   if (!product) return null;
 
   return (
-    <div className="product-detail-container">
+    <div className="min-h-screen ">
       <PageTitle title={product ? product.name : "Ürün Detayı"} />
       <MetaTags 
         title={product ? product.name : "Ürün Detayı"}
@@ -422,453 +431,520 @@ const ProductDetail = () => {
       />
 
       {/* Breadcrumb */}
-      <div className="breadcrumb">
-        <Link to="/" className="breadcrumb-item">Ana Sayfa</Link>
-        <ChevronRight className="breadcrumb-separator" />
-        <Link to={`/category/${product.category?.id}`} className="breadcrumb-item">
-          {product.category?.name || 'Kategori'}
-        </Link>
-        <ChevronRight className="breadcrumb-separator" />
-        <span className="breadcrumb-item active">{product.name}</span>
+      <div>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+          <nav className="flex items-center space-x-2 text-sm text-gray-600">
+            <Link to="/" className="hover:text-orange-600 transition-colors">Ana Sayfa</Link>
+            <ChevronRight className="w-4 h-4" />
+            <Link to={`/category/${product.category?.id}`} className="hover:text-orange-600 transition-colors">
+              {product.category?.name || 'Kategori'}
+            </Link>
+            <ChevronRight className="w-4 h-4" />
+            <span className="text-gray-900 font-medium">{product.name}</span>
+          </nav>
+        </div>
       </div>
 
       {/* Ana Ürün Bölümü */}
-      <div className="product-main-section">
-        {/* Sol Taraf - Ürün Görselleri */}
-        <div className="product-images-section">
-          <div className="main-image-container">
-            <img 
-              src={productImages.length > 0 ? productImages[selectedImage] : '/img/default-product.png'} 
-              alt={product.name} 
-              className="main-product-image"
-              onError={(e) => { 
-                console.log('Resim yüklenemedi:', e.target.src);
-                e.target.src = '/img/default-product.png'; 
-              }}
-            />
-            <div className="image-actions">
-              <button className="image-action-btn" title="Paylaş">
-                <Share2 size={16} />
-              </button>
-              <button className="image-action-btn" title="Büyüt">
-                <Eye size={16} />
-              </button>
-            </div>
-          </div>
-          
-          {productImages.length > 1 && (
-            <div className="thumbnail-images">
-              {productImages.map((image, index) => (
-                <button
-                  key={index}
-                  className={`thumbnail-image ${selectedImage === index ? 'active' : ''}`}
-                  onClick={() => setSelectedImage(index)}
-                >
-                  <img 
-                    src={image} 
-                    alt={`${product.name} ${index + 1}`}
-                    onError={(e) => { 
-                      console.log('Thumbnail resim yüklenemedi:', e.target.src);
-                      e.target.src = '/img/default-product.png'; 
-                    }}
-                  />
-                </button>
-              ))}
-            </div>
-          )}
-        </div>
-
-        {/* Sağ Taraf - Ürün Bilgileri */}
-        <div className="product-info-section">
-          {/* Ürün Başlığı ve Marka */}
-          <div className="product-header">
-            <h1 className="product-title">{product.name}</h1>
-                         <div className="product-brand">
-               <span className="brand-label">Mağaza:</span>
-               <span className="brand-name">{product.storeName || 'Bilinmeyen Mağaza'}</span>
-             </div>
-          </div>
-
-                     {/* Puanlama */}
-           <div className="product-rating">
-             <div className="rating-stars">
-               {renderStars(reviewStats?.averageRating || 0)}
-             </div>
-             <div className="rating-info">
-               <span className="rating-score">{reviewStats?.averageRating?.toFixed(1) || '0.0'}</span>
-               <span className="rating-count">({reviewStats?.reviewCount || 0} değerlendirme)</span>
-             </div>
-             <button className="rating-link" onClick={() => setActiveTab('reviews')}>
-               Tüm değerlendirmeleri gör
-             </button>
-           </div>
-                       <div style={{ textAlign: 'center', marginTop: '8px', display: 'flex', alignItems: 'center', justifyContent: 'normal', gap: '8px' }}>
-              <span style={{ fontSize: '18px' }}>🧡</span>
-              <span style={{ fontSize: '14px', color: '#666' }}>Sevilen ürün! <strong color="#ff6000">150</strong>  kişi bu ürünü favoriledi!</span>
-            </div>
-
-          {/* Hızlı Özellikler */}
-          <div className="quick-features">
-            <div className="feature-item">
-              <Truck size={16} />
-              <span>Ücretsiz Kargo</span>
-            </div>
-            <div className="feature-item">
-              <Shield size={16} />
-              <span>Güvenli Alışveriş</span>
-            </div>
-            <div className="feature-item">
-              <RotateCcw size={16} />
-              <span>Kolay İade</span>
-            </div>
-          </div>
-
-          {/* Fiyat Bilgisi */}
-          <div className="product-price-section">
-            <div className="price-main">
-              <span className="price-currency">₺</span>
-              <span className="price-amount">{product.price?.toLocaleString() || '0'}</span>
-            </div>
-            <div className="price-details">
-              <span className="price-tax">KDV Dahil</span>
-              <span className="price-shipping">Ücretsiz Kargo</span>
-            </div>
-          </div>
-
-                     {/* Stok Durumu */}
-           <div className="product-stock">
-             {product.stock > 0 ? (
-               <>
-                 <div className="stock-status available">
-                   <CheckCircle size={16} />
-                   <span>Stokta</span>
-                 </div>
-                 <div className="stock-info">
-                   <span className="stock-text">
-                     {product.stock <= 5 
-                       ? `Kritik stok: ${product.stock} adet!` 
-                       : product.stock <= 10
-                       ? `Düşük stok: ${product.stock} adet`
-                       : "Hızlı teslimat için stokta"
-                     }
-                   </span>
-                 </div>
-               </>
-             ) : (
-               <>
-                 <div className="stock-status unavailable">
-                   <XCircle size={16} />
-                   <span>Stokta Yok</span>
-                 </div>
-                 <div className="stock-info">
-                   <span className="stock-text">Bu ürün şu anda stokta bulunmamaktadır</span>
-                 </div>
-               </>
-             )}
-           </div>
-
-                     {/* Miktar Seçimi */}
-           {product.stock > 0 && (
-             <div className="quantity-section">
-               <span className="quantity-label">Adet:</span>
-               <div className="quantity-controls">
-                 <button 
-                   className="quantity-btn"
-                   onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                   disabled={quantity <= 1}
-                 >
-                   <Minus size={16} />
-                 </button>
-                 <span className="quantity-value">{quantity}</span>
-                 <button 
-                   className="quantity-btn"
-                   onClick={() => setQuantity(Math.min(product.stock, quantity + 1))}
-                   disabled={quantity >= product.stock}
-                 >
-                   <Plus size={16} />
-                 </button>
-               </div>
-               {product.stock <= 10 && (
-                 <div className="stock-warning">
-                   <span>{product.stock <= 5 ? 'Kritik Stok' : 'Düşük Stok'}: {product.stock} adet</span>
-                 </div>
-               )}
-             </div>
-           )}
-
-                     {/* Aksiyon Butonları */}
-           <div className="product-actions">
-             {product.stock > 0 ? (
-               <button
-                 className={`add-to-cart-btn ${added ? 'added' : ''}`}
-                 onClick={handleAddToCart}
-                 disabled={added || addLoading}
-               >
-                 <ShoppingCart size={20} />
-                 {added ? "Sepete Eklendi!" : addLoading ? "Ekleniyor..." : "Sepete Ekle"}
-               </button>
-             ) : (
-               <button
-                 className="out-of-stock-btn"
-                 disabled={true}
-               >
-                 <XCircle size={20} />
-                 Stokta Yok
-               </button>
-             )}
-             
-             <button
-               className={`favorite-btn ${isFavorite(product.id) ? 'active' : ''}`}
-               onClick={handleFavoriteToggle}
-             >
-               <Heart size={20} />
-             </button>
-           </div>
-
-          {/* Mağaza Bilgisi */}
-          {product.storeName && (
-            <div className="store-info">
-              <div className="store-header">
-                <Package size={16} />
-                <span className="store-name">{product.storeName}</span>
-                <Link to={`/store/${product.storeId || 'unknown'}`} className="store-btn primary">
-                  Mağazaya Git
-                </Link>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+          {/* Sol Taraf - Ürün Görselleri */}
+          <div className="space-y-6">
+            {/* Ana Resim */}
+            <div className="relative group">
+              <div className="aspect-square bg-white rounded-2xl shadow-lg overflow-hidden">
+                <img 
+                  src={productImages.length > 0 ? productImages[selectedImage] : '/img/default-product.png'} 
+                  alt={product.name} 
+                  className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                  onError={(e) => { 
+                    console.log('Resim yüklenemedi:', e.target.src);
+                    e.target.src = '/img/default-product.png'; 
+                  }}
+                />
               </div>
-              
+              {/* Resim Aksiyonları */}
+              <div className="absolute top-4 right-4 flex space-x-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                <button className="p-2 bg-white/90 backdrop-blur-sm rounded-full shadow-lg hover:bg-white transition-colors" title="Paylaş">
+                  <Share2 size={16} className="text-gray-700" />
+                </button>
+                <button className="p-2 bg-white/90 backdrop-blur-sm rounded-full shadow-lg hover:bg-white transition-colors" title="Büyüt">
+                  <Eye size={16} className="text-gray-700" />
+                </button>
+              </div>
             </div>
-          )}
+            
+            {/* Küçük Resimler */}
+            {productImages.length > 1 && (
+              <div className="grid grid-cols-4 gap-3">
+                {productImages.map((image, index) => (
+                  <button
+                    key={index}
+                    className={`aspect-square rounded-xl overflow-hidden border-2 transition-all ${
+                      selectedImage === index 
+                        ? 'border-orange-500 shadow-lg' 
+                        : 'border-gray-200 hover:border-gray-300'
+                    }`}
+                    onClick={() => setSelectedImage(index)}
+                  >
+                    <img 
+                      src={image} 
+                      alt={`${product.name} ${index + 1}`}
+                      className="w-full h-full object-cover"
+                      onError={(e) => { 
+                        console.log('Thumbnail resim yüklenemedi:', e.target.src);
+                        e.target.src = '/img/default-product.png'; 
+                      }}
+                    />
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Sağ Taraf - Ürün Bilgileri */}
+          <div className="space-y-6">
+            {/* Ürün Başlığı ve Marka */}
+            <div className="space-y-3">
+              <h1 className="text-3xl font-bold text-gray-900 leading-tight">{product.name}</h1>
+              <div className="flex items-center space-x-2 text-gray-600">
+                <span className="text-sm font-medium">Mağaza:</span>
+                <span className="text-sm">{product.storeName || 'Bilinmeyen Mağaza'}</span>
+              </div>
+            </div>
+
+            {/* Puanlama */}
+            <div className="flex items-center space-x-4">
+              <div className="flex items-center space-x-1">
+                {renderStars(reviewStats?.averageRating || 0)}
+              </div>
+              <div className="flex items-center space-x-2 text-sm text-gray-600">
+                <span className="font-semibold text-gray-900">{reviewStats?.averageRating?.toFixed(1) || '0.0'}</span>
+                <span>({reviewStats?.reviewCount || 0} değerlendirme)</span>
+              </div>
+              <button 
+                className="text-orange-600 hover:text-orange-800 text-sm font-medium transition-colors"
+                onClick={() => setActiveTab('reviews')}
+              >
+                Tüm değerlendirmeleri gör
+              </button>
+            </div>
+
+            {/* Favori Bilgisi */}
+            <div className="flex items-center space-x-2 text-sm text-gray-600">
+              <span className="text-lg">🧡</span>
+              <span>Sevilen ürün! <strong className="text-orange-600">150</strong> kişi bu ürünü favoriledi!</span>
+            </div>
+
+            {/* Hızlı Özellikler */}
+            <div className="grid grid-cols-3 gap-4 py-4">
+              <div className="flex items-center space-x-2 text-sm text-gray-600">
+                <Truck size={16} className="text-green-500" />
+                <span>Ücretsiz Kargo</span>
+              </div>
+              <div className="flex items-center space-x-2 text-sm text-gray-600">
+                <Shield size={16} className="text-orange-500" />
+                <span>Güvenli Alışveriş</span>
+              </div>
+              <div className="flex items-center space-x-2 text-sm text-gray-600">
+                <RotateCcw size={16} className="text-purple-500" />
+                <span>Kolay İade</span>
+              </div>
+            </div>
+
+            {/* Fiyat Bilgisi */}
+            <div className="bg-gradient-to-r from-orange-50 to-indigo-50 rounded-2xl p-6">
+              <div className="flex items-baseline space-x-2">
+                <span className="text-2xl font-bold text-gray-900">₺</span>
+                <span className="text-4xl font-bold text-gray-900">{product.price?.toLocaleString() || '0'}</span>
+              </div>
+              <div className="flex items-center space-x-4 mt-2 text-sm text-gray-600">
+                <span>KDV Dahil</span>
+                <span>•</span>
+                <span>Ücretsiz Kargo</span>
+              </div>
+            </div>
+
+            {/* Stok Durumu */}
+            <div className="bg-white rounded-xl p-4 border border-gray-200">
+              {product.stock > 0 ? (
+                <div className="flex items-center space-x-3">
+                  <CheckCircle size={20} className="text-green-500" />
+                  <div>
+                    <div className="font-medium text-green-700">Stokta</div>
+                    <div className="text-sm text-gray-600">
+                      {product.stock <= 5 
+                        ? `Kritik stok: ${product.stock} adet!` 
+                        : product.stock <= 10
+                        ? `Düşük stok: ${product.stock} adet`
+                        : "Hızlı teslimat için stokta"
+                      }
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <div className="flex items-center space-x-3">
+                  <XCircle size={20} className="text-red-500" />
+                  <div>
+                    <div className="font-medium text-red-700">Stokta Yok</div>
+                    <div className="text-sm text-gray-600">Bu ürün şu anda stokta bulunmamaktadır</div>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Miktar Seçimi */}
+            {product.stock > 0 && (
+              <div className="bg-white rounded-xl p-4 border border-gray-200">
+                <div className="flex items-center justify-between">
+                  <span className="font-medium text-gray-700">Adet:</span>
+                  <div className="flex items-center space-x-3">
+                    <button 
+                      className="p-2 rounded-lg bg-gray-100 hover:bg-gray-200 transition-colors disabled:opacity-50"
+                      onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                      disabled={quantity <= 1}
+                    >
+                      <Minus size={16} />
+                    </button>
+                    <span className="w-12 text-center font-semibold text-gray-900">{quantity}</span>
+                    <button 
+                      className="p-2 rounded-lg bg-gray-100 hover:bg-gray-200 transition-colors disabled:opacity-50"
+                      onClick={() => setQuantity(Math.min(product.stock, quantity + 1))}
+                      disabled={quantity >= product.stock}
+                    >
+                      <Plus size={16} />
+                    </button>
+                  </div>
+                </div>
+                {product.stock <= 10 && (
+                  <div className="mt-2 text-sm text-orange-600 font-medium">
+                    {product.stock <= 5 ? 'Kritik Stok' : 'Düşük Stok'}: {product.stock} adet
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Aksiyon Butonları */}
+            <div className="flex space-x-4">
+              {product.stock > 0 ? (
+                <button
+                  className={`flex-1 flex items-center justify-center space-x-2 py-4 px-6 rounded-xl font-semibold transition-all ${
+                    added 
+                      ? 'bg-green-500 text-white' 
+                      : 'bg-orange-600 hover:bg-orange-700 text-white shadow-lg hover:shadow-xl'
+                  } disabled:opacity-50`}
+                  onClick={handleAddToCart}
+                  disabled={added || addLoading}
+                >
+                  <ShoppingCart size={20} />
+                  <span>{added ? "Sepete Eklendi!" : addLoading ? "Ekleniyor..." : "Sepete Ekle"}</span>
+                </button>
+              ) : (
+                <button
+                  className="flex-1 flex items-center justify-center space-x-2 py-4 px-6 rounded-xl font-semibold bg-gray-400 text-white cursor-not-allowed"
+                  disabled={true}
+                >
+                  <XCircle size={20} />
+                  <span>Stokta Yok</span>
+                </button>
+              )}
+              
+              <button
+                className={`p-4 rounded-xl border-2 transition-all ${
+                  isFavorite(product.id) 
+                    ? 'border-red-500 bg-red-50 text-red-500' 
+                    : 'border-gray-300 hover:border-red-300 hover:bg-red-50 text-gray-600 hover:text-red-500'
+                }`}
+                onClick={handleFavoriteToggle}
+              >
+                <Heart size={20} className={isFavorite(product.id) ? 'fill-current' : ''} />
+              </button>
+            </div>
+
+            {/* Mağaza Bilgisi */}
+            {product.storeName && (
+              <div className="bg-white rounded-xl p-4 border border-gray-200">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-3">
+                    <Package size={20} className="text-orange-500" />
+                    <div>
+                      <div className="font-medium text-gray-900">{product.storeName}</div>
+                      <div className="text-sm text-gray-600">Güvenilir Satıcı</div>
+                    </div>
+                  </div>
+                  <Link 
+                    to={`/store/${product.storeId || 'unknown'}`} 
+                    className="px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors text-sm font-medium"
+                  >
+                    Mağazaya Git
+                  </Link>
+                </div>
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
       {/* Alt Bölümler */}
-      <div className="product-details-section">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-12">
         {/* Tab Menüsü */}
-        <div className="product-tabs">
-          <button 
-            className={`tab-btn ${activeTab === 'description' ? 'active' : ''}`}
-            onClick={() => setActiveTab('description')}
-          >
-            Ürün Açıklaması
-          </button>
-          <button 
-            className={`tab-btn ${activeTab === 'specifications' ? 'active' : ''}`}
-            onClick={() => setActiveTab('specifications')}
-          >
-            Teknik Özellikler
-          </button>
-          <button 
-            className={`tab-btn ${activeTab === 'reviews' ? 'active' : ''}`}
-            onClick={() => setActiveTab('reviews')}
-          >
-            Değerlendirmeler ({reviewStats?.reviewCount || 0})
-          </button>
-        </div>
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-200 mb-8">
+          <div className="flex border-b border-gray-200">
+            <button 
+              className={`flex-1 py-4 px-6 text-sm font-medium transition-colors ${
+                activeTab === 'description' 
+                  ? 'text-orange-600 border-b-2 border-orange-600' 
+                  : 'text-gray-600 hover:text-gray-900'
+              }`}
+              onClick={() => setActiveTab('description')}
+            >
+              Ürün Açıklaması
+            </button>
+            <button 
+              className={`flex-1 py-4 px-6 text-sm font-medium transition-colors ${
+                activeTab === 'specifications' 
+                  ? 'text-orange-600 border-b-2 border-orange-600' 
+                  : 'text-gray-600 hover:text-gray-900'
+              }`}
+              onClick={() => setActiveTab('specifications')}
+            >
+              Teknik Özellikler
+            </button>
+            <button 
+              className={`flex-1 py-4 px-6 text-sm font-medium transition-colors ${
+                activeTab === 'reviews' 
+                  ? 'text-orange-600 border-b-2 border-orange-600' 
+                  : 'text-gray-600 hover:text-gray-900'
+              }`}
+              onClick={() => setActiveTab('reviews')}
+            >
+              Değerlendirmeler ({reviewStats?.reviewCount || 0})
+            </button>
+          </div>
 
-        {/* Tab İçerikleri */}
-        <div className="tab-content">
-          {activeTab === 'description' && (
-            <div className="description-content">
-              <h3>Ürün Açıklaması</h3>
-              <p>{product.description || 'Bu ürün için detaylı açıklama bulunmamaktadır.'}</p>
-            </div>
-          )}
-
-          {activeTab === 'specifications' && (
-            <div className="specifications-content">
-              <h3>Teknik Özellikler</h3>
-              <div className="specs-grid">
-                <div className="spec-item">
-                  <span className="spec-label">Marka:</span>
-                  <span className="spec-value">{product.storeName || 'Bilinmiyor'}</span>
-                </div>
-                <div className="spec-item">
-                  <span className="spec-label">Kategori:</span>
-                  <span className="spec-value">{product.category?.name || 'Bilinmiyor'}</span>
-                </div>
-                <div className="spec-item">
-                  <span className="spec-label">Stok Durumu:</span>
-                  <span className="spec-value">Mevcut</span>
-                </div>
+          {/* Tab İçerikleri */}
+          <div className="p-6">
+            {activeTab === 'description' && (
+              <div className="space-y-4">
+                <h3 className="text-xl font-semibold text-gray-900">Ürün Açıklaması</h3>
+                <p className="text-gray-700 leading-relaxed">
+                  {product.description || 'Bu ürün için detaylı açıklama bulunmamaktadır.'}
+                </p>
               </div>
-            </div>
-          )}
+            )}
 
-          {activeTab === 'reviews' && (
-            <div className="reviews-content">
-              <div className="reviews-header">
-                <h3>Değerlendirmeler</h3>
-                <div className="reviews-summary">
-                  <div className="average-rating">
-                    <span className="rating-number">{reviewStats?.averageRating?.toFixed(1) || '0.0'}</span>
-                    <div className="rating-stars-large">
-                      {renderStars(reviewStats?.averageRating || 0)}
-                    </div>
-                    <span className="total-reviews">{reviewStats?.reviewCount || 0} değerlendirme</span>
+            {activeTab === 'specifications' && (
+              <div className="space-y-4">
+                <h3 className="text-xl font-semibold text-gray-900">Teknik Özellikler</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="flex justify-between py-3 border-b border-gray-100">
+                    <span className="font-medium text-gray-700">Marka:</span>
+                    <span className="text-gray-900">{product.storeName || 'Bilinmiyor'}</span>
+                  </div>
+                  <div className="flex justify-between py-3 border-b border-gray-100">
+                    <span className="font-medium text-gray-700">Kategori:</span>
+                    <span className="text-gray-900">{product.category?.name || 'Bilinmiyor'}</span>
+                  </div>
+                  <div className="flex justify-between py-3 border-b border-gray-100">
+                    <span className="font-medium text-gray-700">Stok Durumu:</span>
+                    <span className="text-gray-900">Mevcut</span>
                   </div>
                 </div>
               </div>
+            )}
 
-              {/* Kullanıcı Review Formu */}
-              {isLoggedIn && (
-                <div className="review-form-section">
-                  <h4>{userReview ? "Yorumunuzu Güncelleyin" : "Yorum Yapın"}</h4>
-                  <form onSubmit={handleReviewSubmit} className="review-form">
-                    <div className="rating-input">
-                      <label>Puanınız:</label>
-                      <div className="star-rating">
-                        {[1, 2, 3, 4, 5].map(star => (
-                          <button
-                            key={star}
-                            type="button"
-                            onClick={() => setReviewForm({ ...reviewForm, rating: star })}
-                            className="star-btn"
-                          >
-                            <Star className={`star-icon ${star <= reviewForm.rating ? 'filled' : ''}`} />
-                          </button>
-                        ))}
+            {activeTab === 'reviews' && (
+              <div className="space-y-6">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-xl font-semibold text-gray-900">Değerlendirmeler</h3>
+                  <div className="flex items-center space-x-4">
+                    <div className="text-center">
+                      <div className="text-3xl font-bold text-gray-900">{reviewStats?.averageRating?.toFixed(1) || '0.0'}</div>
+                      <div className="flex items-center justify-center space-x-1 mt-1">
+                        {renderStars(reviewStats?.averageRating || 0)}
                       </div>
+                      <div className="text-sm text-gray-600 mt-1">{reviewStats?.reviewCount || 0} değerlendirme</div>
                     </div>
-                    <div className="comment-input">
-                      <label>Yorumunuz:</label>
-                      <textarea
-                        value={reviewForm.comment}
-                        onChange={(e) => setReviewForm({ ...reviewForm, comment: e.target.value })}
-                        placeholder="Ürün hakkında düşüncelerinizi paylaşın..."
-                        rows="4"
-                      />
-                    </div>
-                    <div className="form-actions">
-                      <button type="submit" className="submit-btn" disabled={reviewLoading}>
-                        {reviewLoading ? "Kaydediliyor..." : (userReview ? "Güncelle" : "Gönder")}
-                      </button>
-                      {userReview && (
-                        <button type="button" onClick={handleReviewDelete} className="delete-btn">
-                          Sil
+                  </div>
+                </div>
+
+                {/* Kullanıcı Review Formu */}
+                {isLoggedIn && (
+                  <div className=" rounded-xl p-6">
+                    <h4 className="text-lg font-semibold text-gray-900 mb-4">
+                      {userReview ? "Yorumunuzu Güncelleyin" : "Yorum Yapın"}
+                    </h4>
+                    <form onSubmit={handleReviewSubmit} className="space-y-4">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Puanınız:</label>
+                        <div className="flex space-x-1">
+                          {[1, 2, 3, 4, 5].map(star => (
+                            <button
+                              key={star}
+                              type="button"
+                              onClick={() => setReviewForm({ ...reviewForm, rating: star })}
+                              className="p-1 hover:scale-110 transition-transform"
+                            >
+                              <Star className={`w-6 h-6 ${
+                                star <= reviewForm.rating 
+                                  ? 'fill-yellow-400 text-yellow-400' 
+                                  : 'text-gray-300'
+                              }`} />
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Yorumunuz:</label>
+                        <textarea
+                          value={reviewForm.comment}
+                          onChange={(e) => setReviewForm({ ...reviewForm, comment: e.target.value })}
+                          placeholder="Ürün hakkında düşüncelerinizi paylaşın..."
+                          rows="4"
+                          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent resize-none"
+                        />
+                      </div>
+                      <div className="flex space-x-3">
+                        <button 
+                          type="submit" 
+                          className="px-6 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors font-medium disabled:opacity-50"
+                          disabled={reviewLoading}
+                        >
+                          {reviewLoading ? "Kaydediliyor..." : (userReview ? "Güncelle" : "Gönder")}
                         </button>
-                      )}
-                    </div>
-                  </form>
-                </div>
-              )}
-
-              {/* Review Listesi */}
-              <div className="reviews-list">
-                {reviewsLoading ? (
-                  <div className="reviews-loading">
-                    {Array.from({ length: 3 }).map((_, i) => (
-                      <div key={i} className="review-skeleton">
-                        <Skeleton height={20} width={150} className="mb-2" />
-                        <Skeleton height={16} width={100} className="mb-2" />
-                        <Skeleton count={2} height={16} />
-                      </div>
-                    ))}
-                  </div>
-                ) : reviews.length === 0 ? (
-                  <div className="no-reviews">
-                    <p>Henüz değerlendirme yapılmamış. İlk yorumu siz yapın!</p>
-                  </div>
-                ) : (
-                  reviews.map((review) => (
-                    <div key={review.id} className="review-item">
-                      <div className="review-header">
-                        <div className="reviewer-info">
-                          <span className="reviewer-name">{review.userName || 'Anonim'}</span>
-                          <div className="review-rating">
-                            {renderStars(review.rating)}
-                          </div>
-                        </div>
-                        <span className="review-date">
-                          {new Date(review.createdAt).toLocaleDateString('tr-TR')}
-                        </span>
-                      </div>
-                      {review.comment && (
-                        <p className="review-comment">{review.comment}</p>
-                      )}
-                    </div>
-                  ))
-                )}
-              </div>
-            </div>
-          )}
-
-          {/* Ürün Önerileri Bölümü */}
-          <div className="product-recommendations">
-            <div className="recommendations-header">
-              <h3>Benzer ürünleri keşfedin</h3>
-            </div>
-            
-            {recommendationsLoading ? (
-              <div className="recommendations-loading">
-                <div className="recommendations-grid">
-                  {Array.from({ length: 6 }).map((_, i) => (
-                    <div key={i} className="recommendation-skeleton">
-                      <Skeleton height={200} className="mb-3" />
-                      <Skeleton height={20} width="80%" className="mb-2" />
-                      <Skeleton height={16} width="60%" className="mb-2" />
-                      <Skeleton height={24} width="40%" />
-                    </div>
-                  ))}
-                </div>
-              </div>
-            ) : recommendations.length > 0 ? (
-              <div className="recommendations-grid">
-                {recommendations.map((recProduct) => (
-                  <Link 
-                    key={recProduct.id} 
-                    to={`/product/${recProduct.id}`}
-                    className="recommendation-card"
-                  >
-                    <div className="recommendation-image">
-                      <img 
-                        src={recProduct.imageUrl1 || recProduct.imageUrl || '/img/default-product.png'} 
-                        alt={recProduct.name}
-                        onError={(e) => {
-                          e.target.src = '/img/default-product.png';
-                        }}
-                      />
-                      {recProduct.isDiscountActive && (
-                        <div className="discount-badge">
-                          %{recProduct.discountPercentage}
-                        </div>
-                      )}
-                    </div>
-                    <div className="recommendation-content">
-                      <h4 className="recommendation-title">{recProduct.name}</h4>
-                      <div className="recommendation-price">
-                        {recProduct.isDiscountActive ? (
-                          <>
-                            <span className="original-price">
-                              {Number(recProduct.price).toLocaleString('tr-TR')} ₺
-                            </span>
-                            <span className="discounted-price">
-                              {Number(recProduct.discountedPrice).toLocaleString('tr-TR')} ₺
-                            </span>
-                          </>
-                        ) : (
-                          <span className="current-price">
-                            {Number(recProduct.price).toLocaleString('tr-TR')} ₺
-                          </span>
+                        {userReview && (
+                          <button 
+                            type="button" 
+                            onClick={handleReviewDelete} 
+                            className="px-6 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium"
+                          >
+                            Sil
+                          </button>
                         )}
                       </div>
-                      <div className="recommendation-rating">
-                        <div className="stars">
+                    </form>
+                  </div>
+                )}
+
+                {/* Review Listesi */}
+                <div className="space-y-4">
+                  {reviewsLoading ? (
+                    <div className="space-y-4">
+                      {Array.from({ length: 3 }).map((_, i) => (
+                        <div key={i} className="bg-white rounded-lg p-4 border border-gray-200">
+                          <Skeleton height={20} width={150} className="mb-2" />
+                          <Skeleton height={16} width={100} className="mb-2" />
+                          <Skeleton count={2} height={16} />
+                        </div>
+                      ))}
+                    </div>
+                  ) : reviews.length === 0 ? (
+                    <div className="text-center py-8">
+                      <p className="text-gray-600">Henüz değerlendirme yapılmamış. İlk yorumu siz yapın!</p>
+                    </div>
+                  ) : (
+                    reviews.map((review) => (
+                      <div key={review.id} className="bg-white rounded-lg p-4 border border-gray-200">
+                        <div className="flex items-center justify-between mb-3">
+                          <div className="flex items-center space-x-3">
+                            <span className="font-medium text-gray-900">{review.userName || 'Anonim'}</span>
+                            <div className="flex items-center space-x-1">
+                              {renderStars(review.rating)}
+                            </div>
+                          </div>
+                          <span className="text-sm text-gray-500">
+                            {new Date(review.createdAt).toLocaleDateString('tr-TR')}
+                          </span>
+                        </div>
+                        {review.comment && (
+                          <p className="text-gray-700 leading-relaxed">{review.comment}</p>
+                        )}
+                      </div>
+                    ))
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Ürün Önerileri Bölümü */}
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
+          <div className="mb-6">
+            <h3 className="text-xl font-semibold text-gray-900">Benzer ürünleri keşfedin</h3>
+          </div>
+          
+          {recommendationsLoading ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
+              {Array.from({ length: 6 }).map((_, i) => (
+                <div key={i} className="space-y-3">
+                  <Skeleton height={200} className="rounded-lg" />
+                  <Skeleton height={20} width="80%" />
+                  <Skeleton height={16} width="60%" />
+                  <Skeleton height={24} width="40%" />
+                </div>
+              ))}
+            </div>
+          ) : recommendations.length > 0 ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
+              {recommendations.map((recProduct) => (
+                <Link 
+                  key={recProduct.id} 
+                  to={`/product/${recProduct.id}`}
+                  className="group bg-white rounded-xl border border-gray-200 overflow-hidden hover:shadow-lg transition-all duration-300 hover:-translate-y-1"
+                >
+                  <div className="relative aspect-square">
+                    <img 
+                      src={recProduct.imageUrl1 || recProduct.imageUrl || '/img/default-product.png'} 
+                      alt={recProduct.name}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                      onError={(e) => {
+                        e.target.src = '/img/default-product.png';
+                      }}
+                    />
+                    {recProduct.isDiscountActive && (
+                      <div className="absolute top-2 right-2 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full">
+                        %{recProduct.discountPercentage}
+                      </div>
+                    )}
+                  </div>
+                  <div className="p-3">
+                    <h4 className="font-medium text-gray-900 text-sm line-clamp-2 mb-2 group-hover:text-orange-600 transition-colors">
+                      {recProduct.name}
+                    </h4>
+                    <div className="space-y-1">
+                      {recProduct.isDiscountActive ? (
+                        <div className="flex items-center space-x-2">
+                          <span className="text-xs text-gray-500 line-through">
+                            {Number(recProduct.price).toLocaleString('tr-TR')} ₺
+                          </span>
+                          <span className="text-sm font-bold text-red-600">
+                            {Number(recProduct.discountedPrice).toLocaleString('tr-TR')} ₺
+                          </span>
+                        </div>
+                      ) : (
+                        <span className="text-sm font-bold text-gray-900">
+                          {Number(recProduct.price).toLocaleString('tr-TR')} ₺
+                        </span>
+                      )}
+                      <div className="flex items-center space-x-1">
+                        <div className="flex items-center space-x-1">
                           {renderStars(recProduct.averageRating || 0)}
                         </div>
-                        <span className="rating-count">
+                        <span className="text-xs text-gray-500">
                           ({recProduct.reviewCount || 0})
                         </span>
                       </div>
                     </div>
-                  </Link>
-                ))}
-              </div>
-            ) : (
-              <div className="no-recommendations">
-                <p>Bu kategoride henüz başka ürün bulunmuyor.</p>
-              </div>
-            )}
-          </div>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-8">
+              <p className="text-gray-600">Bu kategoride henüz başka ürün bulunmuyor.</p>
+            </div>
+          )}
         </div>
       </div>
     </div>

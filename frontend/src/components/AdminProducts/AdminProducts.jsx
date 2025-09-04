@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Package, Search, Filter, Eye, CheckCircle, XCircle, ShoppingBag, Store, Clock } from 'lucide-react';
-import './AdminProducts.css';
+
 
 const AdminProducts = () => {
     const [products, setProducts] = useState([]);

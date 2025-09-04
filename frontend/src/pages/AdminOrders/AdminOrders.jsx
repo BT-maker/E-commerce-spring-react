@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { ShoppingCart, Search, Filter, Eye, CheckCircle, XCircle, DollarSign, Calendar, User, Package, Clock, TrendingUp } from "lucide-react";
-import "./AdminOrders.css";
+
 import PageTitle from '../../components/PageTitle/PageTitle';
 import MetaTags from '../../components/MetaTags/MetaTags';
 import toast from 'react-hot-toast';

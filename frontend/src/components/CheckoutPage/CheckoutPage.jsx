@@ -3,7 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { CartContext } from '../../context/CartContext';
 import { AuthContext } from '../../context/AuthContext';
 import api from '../../services/api';
-import './CheckoutPage.css';
+
 import PageTitle from '../PageTitle/PageTitle';
 import MetaTags from '../MetaTags/MetaTags';
 import { CreditCard, Lock, Eye, EyeOff } from 'lucide-react';

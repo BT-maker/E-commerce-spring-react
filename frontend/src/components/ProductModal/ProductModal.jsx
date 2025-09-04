@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { FaTimes, FaSave, FaImage, FaSpinner } from "react-icons/fa";
-import "./ProductModal.css";
+import { X, Save, Image, Loader2 } from "lucide-react";
 
 const ProductModal = ({ show, onClose, onSave, categories, initial, loading = false }) => {
   const [form, setForm] = useState({
@@ -86,47 +85,48 @@ const ProductModal = ({ show, onClose, onSave, categories, initial, loading = fa
     }
   };
 
-  const getInputClassName = (fieldName) => {
-    const baseClass = fieldName === 'description' ? 'form-textarea' : 
-                     fieldName === 'categoryId' ? 'form-select' : 'form-input';
-    return `${baseClass} ${errors[fieldName] ? 'error' : ''}`;
-  };
-
   return (
-    <div className="product-modal-overlay" onClick={handleClose}>
-      <div className="product-modal" onClick={e => e.stopPropagation()}>
-        <div className="product-modal-header">
-          <h3 className="product-modal-title">
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50" onClick={handleClose}>
+      <div className="bg-white rounded-2xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
+        {/* Header */}
+        <div className="flex items-center justify-between p-6 border-b border-gray-200">
+          <h3 className="text-xl font-semibold text-gray-900">
             {initial ? "Ürünü Düzenle" : "Yeni Ürün Ekle"}
           </h3>
           <button 
             onClick={handleClose} 
-            className="product-modal-close"
+            className="p-2 hover:bg-gray-100 rounded-lg transition-colors disabled:opacity-50"
             disabled={loading}
           >
-            <FaTimes />
+            <X className="w-5 h-5 text-gray-500" />
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="product-modal-form">
+        <form onSubmit={handleSubmit} className="p-6 space-y-6">
           {/* Ürün Adı */}
-          <div className="form-group">
-            <label className="form-label">Ürün Adı *</label>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Ürün Adı *
+            </label>
             <input
               name="name"
               value={form.name}
               onChange={handleChange}
               placeholder="Örn: iPhone 15 Pro"
-              className={getInputClassName('name')}
+              className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent ${
+                errors.name ? 'border-red-500' : 'border-gray-300'
+              }`}
               disabled={loading}
             />
-            {errors.name && <div className="error-message">{errors.name}</div>}
+            {errors.name && <div className="text-red-500 text-sm mt-1">{errors.name}</div>}
           </div>
 
           {/* Fiyat ve Kategori */}
-          <div className="form-row">
-            <div className="form-group">
-              <label className="form-label">Fiyat (₺) *</label>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Fiyat (₺) *
+              </label>
               <input
                 name="price"
                 type="number"
@@ -135,19 +135,25 @@ const ProductModal = ({ show, onClose, onSave, categories, initial, loading = fa
                 value={form.price}
                 onChange={handleChange}
                 placeholder="0.00"
-                className={getInputClassName('price')}
+                className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent ${
+                  errors.price ? 'border-red-500' : 'border-gray-300'
+                }`}
                 disabled={loading}
               />
-              {errors.price && <div className="error-message">{errors.price}</div>}
+              {errors.price && <div className="text-red-500 text-sm mt-1">{errors.price}</div>}
             </div>
 
-            <div className="form-group">
-              <label className="form-label">Kategori *</label>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Kategori *
+              </label>
               <select
                 name="categoryId"
                 value={form.categoryId}
                 onChange={handleChange}
-                className={getInputClassName('categoryId')}
+                className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent ${
+                  errors.categoryId ? 'border-red-500' : 'border-gray-300'
+                }`}
                 disabled={loading}
               >
                 <option value="">Kategori seçin</option>
@@ -155,13 +161,15 @@ const ProductModal = ({ show, onClose, onSave, categories, initial, loading = fa
                   <option key={cat.id} value={cat.id}>{cat.name}</option>
                 ))}
               </select>
-              {errors.categoryId && <div className="error-message">{errors.categoryId}</div>}
+              {errors.categoryId && <div className="text-red-500 text-sm mt-1">{errors.categoryId}</div>}
             </div>
           </div>
 
           {/* Stok */}
-          <div className="form-group">
-            <label className="form-label">Stok Miktarı *</label>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Stok Miktarı *
+            </label>
             <input
               name="stock"
               type="number"
@@ -169,42 +177,49 @@ const ProductModal = ({ show, onClose, onSave, categories, initial, loading = fa
               value={form.stock}
               onChange={handleChange}
               placeholder="0"
-              className={getInputClassName('stock')}
+              className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent ${
+                errors.stock ? 'border-red-500' : 'border-gray-300'
+              }`}
               disabled={loading}
             />
-            {errors.stock && <div className="error-message">{errors.stock}</div>}
+            {errors.stock && <div className="text-red-500 text-sm mt-1">{errors.stock}</div>}
           </div>
 
           {/* Resim URL */}
-          <div className="form-group">
-            <label className="form-label">
-              <FaImage style={{ marginRight: '0.5rem' }} />
-              Resim URL
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              <div className="flex items-center space-x-2">
+                <Image className="w-4 h-4" />
+                <span>Resim URL</span>
+              </div>
             </label>
             <input
               name="imageUrl"
               value={form.imageUrl}
               onChange={handleChange}
               placeholder="https://example.com/image.jpg"
-              className={getInputClassName('imageUrl')}
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
               disabled={loading}
             />
           </div>
 
           {/* Resim Önizleme - Sadece yeni ürün ekleme sırasında göster */}
           {!initial && imagePreview && (
-            <div className="form-group">
-              <label className="form-label">Resim Önizleme</label>
-              <div className="image-preview">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Resim Önizleme
+              </label>
+              <div className="border border-gray-300 rounded-lg p-4 bg-gray-50">
                 <img 
                   src={imagePreview} 
                   alt="Ürün resmi" 
+                  className="max-w-full h-32 object-contain mx-auto"
                   onError={(e) => {
                     e.target.style.display = 'none';
                     e.target.nextSibling.style.display = 'block';
                   }}
                 />
-                <div className="image-preview-placeholder" style={{ display: 'none' }}>
+                <div className="text-center text-gray-500 py-8" style={{ display: 'none' }}>
                   Resim yüklenemedi
                 </div>
               </div>
@@ -212,42 +227,45 @@ const ProductModal = ({ show, onClose, onSave, categories, initial, loading = fa
           )}
 
           {/* Açıklama */}
-          <div className="form-group">
-            <label className="form-label">Ürün Açıklaması</label>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Ürün Açıklaması
+            </label>
             <textarea
               name="description"
               value={form.description}
               onChange={handleChange}
               placeholder="Ürün hakkında detaylı bilgi..."
-              className={getInputClassName('description')}
+              rows="4"
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent resize-none"
               disabled={loading}
             />
           </div>
 
           {/* Butonlar */}
-          <div className="product-modal-actions">
+          <div className="flex items-center justify-end space-x-3 pt-6 border-t border-gray-200">
             <button 
               type="button" 
               onClick={handleClose} 
-              className="btn btn-secondary"
+              className="px-6 py-2 text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors font-medium disabled:opacity-50"
               disabled={loading}
             >
               İptal
             </button>
             <button 
               type="submit" 
-              className="btn btn-primary"
+              className="px-6 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-lg transition-colors font-medium disabled:opacity-50 flex items-center space-x-2"
               disabled={loading}
             >
               {loading ? (
                 <>
-                  <FaSpinner className="animate-spin" />
-                  Kaydediliyor...
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  <span>Kaydediliyor...</span>
                 </>
               ) : (
                 <>
-                  <FaSave />
-                  {initial ? "Güncelle" : "Kaydet"}
+                  <Save className="w-4 h-4" />
+                  <span>{initial ? "Güncelle" : "Kaydet"}</span>
                 </>
               )}
             </button>

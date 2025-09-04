@@ -14,7 +14,7 @@ import {
   AlertCircle,
   Filter
 } from "lucide-react";
-import "./AdminSellers.css";
+
 import PageTitle from '../../components/PageTitle/PageTitle';
 import MetaTags from '../../components/MetaTags/MetaTags';
 import api from "../../services/api";

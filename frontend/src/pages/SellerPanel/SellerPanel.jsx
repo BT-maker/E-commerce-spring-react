@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { FaShoppingCart, FaChartLine, FaExclamationTriangle, FaStar, FaPlus, FaList, FaBoxes, FaComments } from 'react-icons/fa';
 import SellerCategoryRequest from '../../components/SellerCategoryRequest/SellerCategoryRequest';
-import './SellerPanel.css';
 
 const SellerPanel = () => {
   const [dashboardData, setDashboardData] = useState(null);
@@ -33,8 +32,6 @@ const SellerPanel = () => {
         }
       });
 
-
-
       if (!response.ok) {
         const errorText = await response.text();
         
@@ -56,8 +53,6 @@ const SellerPanel = () => {
       } catch (e) {
         throw new Error(`JSON parse error: ${e.message}. Response: ${responseText.substring(0, 100)}...`);
       }
-      
-
       
       setDashboardData(data);
     } catch (err) {
@@ -83,13 +78,11 @@ const SellerPanel = () => {
     }).format(amount);
   };
 
-
-
   const renderStars = (rating) => {
     const stars = [];
     for (let i = 1; i <= 5; i++) {
       stars.push(
-        <span key={i} className={i <= rating ? 'star-filled' : 'star-empty'}>
+        <span key={i} className={i <= rating ? 'text-yellow-400' : 'text-gray-300'}>
           ★
         </span>
       );
@@ -99,11 +92,11 @@ const SellerPanel = () => {
 
   if (loading) {
     return (
-      <div className="seller-dashboard">
-        <div className="seller-dashboard-loading">
-          <div className="loading-spinner"></div>
-          <h3>Dashboard Yükleniyor...</h3>
-          <p>Verileriniz hazırlanıyor, lütfen bekleyin.</p>
+      <div className="p-6">
+        <div className="bg-white rounded-xl shadow-lg p-8 text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-500 mx-auto mb-4"></div>
+          <h3 className="text-xl font-semibold text-gray-900 mb-2">Dashboard Yükleniyor...</h3>
+          <p className="text-gray-600">Verileriniz hazırlanıyor, lütfen bekleyin.</p>
         </div>
       </div>
     );
@@ -111,12 +104,15 @@ const SellerPanel = () => {
 
   if (error) {
     return (
-      <div className="seller-dashboard">
-        <div className="seller-dashboard-error">
-          <div className="error-icon">⚠️</div>
-          <h3>Bir Hata Oluştu</h3>
-          <p>{error}</p>
-          <button className="retry-btn" onClick={fetchDashboardData}>
+      <div className="p-6">
+        <div className="bg-red-50 border border-red-200 rounded-xl p-8 text-center">
+          <div className="text-red-500 text-4xl mb-4">⚠️</div>
+          <h3 className="text-xl font-semibold text-red-800 mb-2">Bir Hata Oluştu</h3>
+          <p className="text-red-600 mb-6">{error}</p>
+          <button 
+            className="bg-red-600 hover:bg-red-700 text-white px-6 py-2 rounded-lg font-semibold transition-colors"
+            onClick={fetchDashboardData}
+          >
             Tekrar Dene
           </button>
         </div>
@@ -126,12 +122,15 @@ const SellerPanel = () => {
 
   if (!dashboardData) {
     return (
-      <div className="seller-dashboard">
-        <div className="seller-dashboard-error">
-          <div className="error-icon">❌</div>
-          <h3>Veri Bulunamadı</h3>
-          <p>Dashboard verileri yüklenemedi.</p>
-          <button className="retry-btn" onClick={fetchDashboardData}>
+      <div className="p-6">
+        <div className="bg-gray-50 border border-gray-200 rounded-xl p-8 text-center">
+          <div className="text-gray-500 text-4xl mb-4">❌</div>
+          <h3 className="text-xl font-semibold text-gray-900 mb-2">Veri Bulunamadı</h3>
+          <p className="text-gray-600 mb-6">Dashboard verileri yüklenemedi.</p>
+          <button 
+            className="bg-gray-600 hover:bg-gray-700 text-white px-6 py-2 rounded-lg font-semibold transition-colors"
+            onClick={fetchDashboardData}
+          >
             Tekrar Dene
           </button>
         </div>
@@ -140,145 +139,155 @@ const SellerPanel = () => {
   }
 
   return (
-    <div className="seller-dashboard">
+    <div className="p-6">
       {/* Welcome Header */}
-      <div className="welcome-header">
-        <div className="welcome-content">
-          <h1>{dashboardData.welcomeMessage}</h1>
-          <div className="store-name">{dashboardData.storeName}</div>
-          <div className="today-date">{dashboardData.today}</div>
+      <div className="bg-gradient-to-r from-orange-500 to-orange-600 rounded-xl p-8 text-white mb-8">
+        <div className="text-center">
+          <h1 className="text-3xl font-bold mb-2">{dashboardData.welcomeMessage}</h1>
+          <div className="text-xl font-semibold mb-1">{dashboardData.storeName}</div>
+          <div className="text-orange-100">{dashboardData.today}</div>
         </div>
       </div>
 
       {/* Quick Stats */}
-      <div className="quick-stats-grid">
-        <div className="quick-stat-card">
-          <div className="stat-icon">
-            <FaShoppingCart />
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div className="bg-gradient-to-r from-blue-50 to-blue-100 rounded-xl p-6 border border-blue-200">
+          <div className="flex items-center justify-between">
+            <div>
+              <h3 className="text-sm font-medium text-blue-600 mb-1">Bugünkü Siparişler</h3>
+              <div className="text-2xl font-bold text-blue-900">{dashboardData.quickStats?.todayOrders || 0}</div>
+              <div className="text-sm text-blue-700">{formatCurrency(dashboardData.quickStats?.todayRevenue || 0)}</div>
+            </div>
+            <div className="p-3 bg-blue-500 rounded-lg">
+              <FaShoppingCart className="text-white text-xl" />
+            </div>
           </div>
-          <h3>Bugünkü Siparişler</h3>
-          <div className="stat-number">{dashboardData.quickStats?.todayOrders || 0}</div>
-          <div className="stat-amount">{formatCurrency(dashboardData.quickStats?.todayRevenue || 0)}</div>
         </div>
 
-        <div className="quick-stat-card">
-          <div className="stat-icon">
-            <FaChartLine />
+        <div className="bg-gradient-to-r from-green-50 to-green-100 rounded-xl p-6 border border-green-200">
+          <div className="flex items-center justify-between">
+            <div>
+              <h3 className="text-sm font-medium text-green-600 mb-1">Bu Hafta</h3>
+              <div className="text-2xl font-bold text-green-900">{dashboardData.quickStats?.weekOrders || 0}</div>
+              <div className="text-sm text-green-700">{formatCurrency(dashboardData.quickStats?.weekRevenue || 0)}</div>
+            </div>
+            <div className="p-3 bg-green-500 rounded-lg">
+              <FaChartLine className="text-white text-xl" />
+            </div>
           </div>
-          <h3>Bu Hafta</h3>
-          <div className="stat-number">{dashboardData.quickStats?.weekOrders || 0}</div>
-          <div className="stat-amount">{formatCurrency(dashboardData.quickStats?.weekRevenue || 0)}</div>
         </div>
 
-        <div className="quick-stat-card">
-          <div className="stat-icon">
-            <FaExclamationTriangle />
+        <div className="bg-gradient-to-r from-yellow-50 to-yellow-100 rounded-xl p-6 border border-yellow-200">
+          <div className="flex items-center justify-between">
+            <div>
+              <h3 className="text-sm font-medium text-yellow-600 mb-1">Düşük Stok</h3>
+              <div className="text-2xl font-bold text-yellow-900">{dashboardData.lowStockProducts?.length || 0}</div>
+              <div className="text-sm text-yellow-700">Ürün Dikkat Gerektiriyor</div>
+            </div>
+            <div className="p-3 bg-yellow-500 rounded-lg">
+              <FaExclamationTriangle className="text-white text-xl" />
+            </div>
           </div>
-          <h3>Düşük Stok</h3>
-          <div className="stat-number">{dashboardData.lowStockProducts?.length || 0}</div>
-          <div className="stat-label">Ürün Dikkat Gerektiriyor</div>
         </div>
       </div>
 
       {/* Quick Actions */}
-      <div className="quick-actions-section">
-        <h2>Hızlı İşlemler</h2>
-        <div className="quick-actions-grid">
-          <a href="/seller-panel/products" className="quick-action-card">
-            <div className="action-icon blue">
-              <FaPlus />
+      <div className="mb-8">
+        <h2 className="text-2xl font-bold text-gray-900 mb-6">Hızlı İşlemler</h2>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <a href="/seller-panel/products" className="bg-blue-50 hover:bg-blue-100 border border-blue-200 rounded-xl p-6 text-center transition-colors group">
+            <div className="bg-blue-500 rounded-lg p-3 w-12 h-12 mx-auto mb-4 group-hover:bg-blue-600 transition-colors">
+              <FaPlus className="text-white text-xl" />
             </div>
-            <h3>Yeni Ürün Ekle</h3>
+            <h3 className="font-semibold text-blue-900">Yeni Ürün Ekle</h3>
           </a>
 
-          <a href="/seller-panel/orders" className="quick-action-card">
-            <div className="action-icon green">
-              <FaList />
+          <a href="/seller-panel/orders" className="bg-green-50 hover:bg-green-100 border border-green-200 rounded-xl p-6 text-center transition-colors group">
+            <div className="bg-green-500 rounded-lg p-3 w-12 h-12 mx-auto mb-4 group-hover:bg-green-600 transition-colors">
+              <FaList className="text-white text-xl" />
             </div>
-            <h3>Siparişleri Görüntüle</h3>
+            <h3 className="font-semibold text-green-900">Siparişleri Görüntüle</h3>
           </a>
 
-          <a href="/seller-panel/stock" className="quick-action-card">
-            <div className="action-icon orange">
-              <FaBoxes />
+          <a href="/seller-panel/stock" className="bg-orange-50 hover:bg-orange-100 border border-orange-200 rounded-xl p-6 text-center transition-colors group">
+            <div className="bg-orange-500 rounded-lg p-3 w-12 h-12 mx-auto mb-4 group-hover:bg-orange-600 transition-colors">
+              <FaBoxes className="text-white text-xl" />
             </div>
-            <h3>Stok Yönetimi</h3>
+            <h3 className="font-semibold text-orange-900">Stok Yönetimi</h3>
           </a>
-
-
         </div>
       </div>
 
       {/* Dashboard Content */}
-      <div className="dashboard-content-grid">
-
-
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Low Stock Alerts */}
-        <div className="dashboard-section">
-          <h2>Düşük Stok Uyarıları</h2>
-          <div className="low-stock-list">
+        <div className="bg-white rounded-xl shadow-lg p-6">
+          <h2 className="text-xl font-bold text-gray-900 mb-4">Düşük Stok Uyarıları</h2>
+          <div className="space-y-4">
             {dashboardData.lowStockProducts && dashboardData.lowStockProducts.length > 0 ? (
               dashboardData.lowStockProducts.map((product) => (
-                <div key={product.id} className="low-stock-item">
+                <div key={product.id} className="flex items-center space-x-4 p-4 bg-yellow-50 rounded-lg border border-yellow-200">
                   <img 
                     src={product.imageUrl1 || product.imageUrl || '/img/default-product.png'} 
                     alt={product.name}
-                    className="product-image"
+                    className="w-16 h-16 rounded-lg object-cover"
                     onError={(e) => {
                       e.target.src = '/img/default-product.png';
                     }}
                   />
-                  <div className="product-info">
-                    <h4>{product.name}</h4>
-                    <div className="stock-warning">
+                  <div className="flex-1">
+                    <h4 className="font-semibold text-gray-900 mb-1">{product.name}</h4>
+                    <div className="text-sm text-yellow-700 font-medium">
                       Stok: {product.stock} adet kaldı
                     </div>
                   </div>
                 </div>
               ))
             ) : (
-              <div className="no-data">
-                <FaBoxes style={{ fontSize: '2rem', marginBottom: '1rem', opacity: 0.5 }} />
-                <p>Düşük stok uyarısı yok</p>
+              <div className="text-center py-8">
+                <FaBoxes className="text-gray-400 text-4xl mx-auto mb-4" />
+                <p className="text-gray-500">Düşük stok uyarısı yok</p>
               </div>
             )}
           </div>
         </div>
 
         {/* Recent Reviews */}
-        <div className="dashboard-section">
-          <h2>Son Müşteri Yorumları</h2>
-          <div className="reviews-list">
+        <div className="bg-white rounded-xl shadow-lg p-6">
+          <h2 className="text-xl font-bold text-gray-900 mb-4">Son Müşteri Yorumları</h2>
+          <div className="space-y-4">
             {dashboardData.recentReviews && dashboardData.recentReviews.length > 0 ? (
               dashboardData.recentReviews.map((review) => (
-                <div key={review.id} className="review-item">
-                  <div className="review-header">
-                    <h4>{review.product?.name || 'Ürün Adı'}</h4>
-                    <div className="rating">
+                <div key={review.id} className="p-4 bg-gray-50 rounded-lg border border-gray-200">
+                  <div className="flex items-center justify-between mb-2">
+                    <h4 className="font-semibold text-gray-900">{review.product?.name || 'Ürün Adı'}</h4>
+                    <div className="flex items-center space-x-1">
                       {renderStars(review.rating)}
                     </div>
                   </div>
-                  <div className="review-comment">
+                  <div className="text-gray-700 mb-2 italic">
                     "{review.comment || 'Yorum bulunamadı'}"
                   </div>
-                  <div className="review-footer">
-                    <span className="reviewer">{review.user?.username || 'Anonim'}</span>
+                  <div className="flex items-center justify-between text-sm text-gray-500">
+                    <span>{review.user?.username || 'Anonim'}</span>
                     <span>{formatDate(review.createdAt)}</span>
                   </div>
                 </div>
               ))
             ) : (
-              <div className="no-data">
-                <FaComments style={{ fontSize: '2rem', marginBottom: '1rem', opacity: 0.5 }} />
-                <p>Henüz yorum bulunmuyor</p>
+              <div className="text-center py-8">
+                <FaComments className="text-gray-400 text-4xl mx-auto mb-4" />
+                <p className="text-gray-500">Henüz yorum bulunmuyor</p>
               </div>
             )}
           </div>
         </div>
+      </div>
 
-        {/* Category Requests */}
-        <div className="dashboard-section">
-          <h2>Kategori İstekleri</h2>
+      {/* Category Requests */}
+      <div className="mt-8">
+        <div className="bg-white rounded-xl shadow-lg p-6">
+          <h2 className="text-xl font-bold text-gray-900 mb-4">Kategori İstekleri</h2>
           <SellerCategoryRequest />
         </div>
       </div>

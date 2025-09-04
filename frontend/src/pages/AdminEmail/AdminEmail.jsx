@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Mail, Send, TestTube, FileText, UserCheck, AlertTriangle, Users, ShoppingCart } from "lucide-react";
-import "./AdminEmail.css";
+
 import PageTitle from '../../components/PageTitle/PageTitle';
 import MetaTags from '../../components/MetaTags/MetaTags';
 import toast from 'react-hot-toast';

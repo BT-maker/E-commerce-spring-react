@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import './App.css';
 import Header from './components/Header/Header.jsx';
 import Banner from './components/Banner/Banner.jsx';
 import ProductList from './components/ProductList/ProductList.jsx';
@@ -66,6 +65,59 @@ import { Toaster } from 'react-hot-toast';
 // Başlangıçta backend offline olarak işaretle
 window.BACKEND_OFFLINE = false;
 
+// Arka plan animasyonları için component
+const AnimatedBackground = ({ children }) => {
+  return (
+    <div className="relative min-h-screen bg-gradient-to-br from-orange-50 via-white to-orange-100 overflow-hidden">
+      {/* Arka plan dekoratif öğeler */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute -top-40 -right-40 w-80 h-80 bg-orange-200 rounded-full mix-blend-multiply filter blur-xl opacity-30 animate-blob"></div>
+        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-yellow-200 rounded-full mix-blend-multiply filter blur-xl opacity-30 animate-blob animation-delay-2000"></div>
+        <div className="absolute top-40 left-40 w-80 h-80 bg-pink-200 rounded-full mix-blend-multiply filter blur-xl opacity-30 animate-blob animation-delay-4000"></div>
+        <div className="absolute top-1/2 right-1/4 w-60 h-60 bg-blue-200 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob animation-delay-1000"></div>
+        <div className="absolute bottom-1/4 right-1/3 w-40 h-40 bg-green-200 rounded-full mix-blend-multiply filter blur-xl opacity-25 animate-blob animation-delay-3000"></div>
+      </div>
+      
+      {/* İçerik */}
+      <div className="relative z-10">
+        {children}
+      </div>
+
+      <style jsx>{`
+        @keyframes blob {
+          0% {
+            transform: translate(0px, 0px) scale(1);
+          }
+          33% {
+            transform: translate(30px, -50px) scale(1.1);
+          }
+          66% {
+            transform: translate(-20px, 20px) scale(0.9);
+          }
+          100% {
+            transform: translate(0px, 0px) scale(1);
+          }
+        }
+        .animate-blob {
+          animation: blob 7s infinite;
+        }
+        .animation-delay-1000 {
+          animation-delay: 1s;
+        }
+        .animation-delay-2000 {
+          animation-delay: 2s;
+        }
+        .animation-delay-3000 {
+          animation-delay: 3s;
+        }
+        .animation-delay-4000 {
+          animation-delay: 4s;
+        }
+      `}</style>
+    </div>
+  );
+};
+
 // Backend bağlantı kontrolü için component
 const BackendStatus = ({ children }) => {
   const [backendStatus, setBackendStatus] = useState('checking');
@@ -115,10 +167,10 @@ const BackendStatus = ({ children }) => {
 
   if (backendStatus === 'checking') {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-background-primary">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-orange-50 via-white to-orange-100">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-accent-500 mx-auto mb-4"></div>
-          <p className="text-text-primary">Backend bağlantısı kontrol ediliyor...</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-500 mx-auto mb-4"></div>
+          <p className="text-gray-900">Backend bağlantısı kontrol ediliyor...</p>
         </div>
       </div>
     );
@@ -126,29 +178,29 @@ const BackendStatus = ({ children }) => {
 
   if (backendStatus === 'error') {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-background-primary">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-orange-50 via-white to-orange-100">
         <div className="text-center max-w-md mx-auto p-6">
           <div className="text-6xl mb-4">🔌</div>
-          <h1 className="text-2xl font-bold text-text-primary mb-4">Backend Bağlantısı Yok</h1>
-          <p className="text-text-secondary mb-6">
+          <h1 className="text-2xl font-bold text-gray-900 mb-4">Backend Bağlantısı Yok</h1>
+          <p className="text-gray-600 mb-6">
             Backend sunucusu çalışmıyor. Lütfen backend'i başlatın ve sayfayı yenileyin.
           </p>
           <div className="space-y-2">
             <button 
               onClick={() => setRetryCount(prev => prev + 1)}
-              className="bg-accent-500 hover:bg-accent-600 text-white px-4 py-2 rounded-lg transition-colors"
+              className="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-lg transition-colors"
             >
               Tekrar Dene
             </button>
             <button 
               onClick={() => window.location.reload()}
-              className="bg-accent-500 hover:bg-accent-600 text-white px-4 py-2 rounded-lg transition-colors ml-2"
+              className="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-lg transition-colors ml-2"
             >
               Sayfayı Yenile
             </button>
           </div>
-          <div className="mt-6 p-4 bg-background-secondary rounded-lg">
-            <p className="text-sm text-text-secondary">
+          <div className="mt-6 p-4 bg-white rounded-lg">
+            <p className="text-sm text-gray-600">
               <strong>Backend'i başlatmak için:</strong><br/>
               <code className="bg-gray-200 px-2 py-1 rounded text-xs">
                 cd backend && mvn spring-boot:run
@@ -174,10 +226,10 @@ function App() {
             <BrowserRouter>
                                             <Routes>
                  {/* Customer Routes - Normal Layout */}
-                 <Route path="/" element={
-                   <>
+                                  <Route path="/" element={
+                   <AnimatedBackground>
                      <Header />
-                     <main className="min-h-screen bg-background-primary">
+                     <main className="min-h-screen">
                        <div className="container py-8">
                          <div className="mt-0">
                            <Banner />
@@ -186,108 +238,112 @@ function App() {
                        </div>
                      </main>
                      <Footer />
-                   </>
+                   </AnimatedBackground>
                  } />
                 
                                  <Route path="/register" element={
-                   <>
+                   <AnimatedBackground>
                      <Header />
-                     <main className="min-h-screen bg-background-primary">
+                     <main className="min-h-screen">
                        <div className="container py-8">
                          <Register />
                        </div>
                      </main>
                      <Footer />
-                   </>
+                   </AnimatedBackground>
                  } />
                 
-                                                                  <Route path="/login" element={
-                  <>
+                                                                   <Route path="/login" element={
+                  <AnimatedBackground>
                     <Header />
-                    <main className="min-h-screen bg-background-primary">
+                    <main className="min-h-screen">
                       <div className="container mx-auto px-12 sm:px-16 lg:px-24 py-8">
                         <Login />
                       </div>
                     </main>
                     <Footer />
-                  </>
+                  </AnimatedBackground>
                 } />
                 
                 <Route path="/verify-account" element={<VerifyAccount />} />
             <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route path="/reset-password" element={<ResetPassword />} />
                 
-                <Route path="/seller/login" element={
-                  <main className="min-h-screen bg-background-primary">
-                    <SellerLogin />
-                  </main>
-                } />
-                
-                <Route path="/seller/register" element={
-                  <main className="min-h-screen bg-background-primary">
-                    <SellerRegister />
-                  </main>
-                } />
-                
-                <Route path="/cart" element={
-                  <>
-                    <Header />
-                    <main className="min-h-screen bg-background-primary">
-                      <div className="container mx-auto px-12 sm:px-16 lg:px-24 py-8">
-                        <CartPage />
-                      </div>
-                    </main>
-                    <Footer />
-                  </>
-                } />
-                
-                <Route path="/checkout" element={
-                  <>
-                    <Header />
-                    <main className="min-h-screen bg-background-primary">
-                      <div className="container mx-auto px-12 sm:px-16 lg:px-24 py-8">
-                        <CheckoutPage />
-                      </div>
-                    </main>
-                    <Footer />
-                  </>
-                } />
-                
-                <Route path="/product/:id" element={
-                  <>
-                    <Header />
-                    <main className="min-h-screen bg-background-primary">
-                      <div className="container mx-auto px-12 sm:px-16 lg:px-24 py-8">
-                        <ProductDetail />
-                      </div>
-                    </main>
-                    <Footer />
-                  </>
-                } />
-                
-                <Route path="/category/:id" element={
-                  <>
-                    <Header />
-                    <main className="min-h-screen bg-background-primary">
-                      <div className="container py-8">
-                        <CategoryProducts />
-                      </div>
-                    </main>
-                    <Footer />
-                  </>
-                } />
-                
-                <Route path="/discounted-products" element={
-                  <>
-                    <Header />
-                    <main className="min-h-screen bg-background-primary">
-                      <div className="container mx-auto px-12 sm:px-16 lg:px-24 py-8">
-                        <DiscountedProducts />
-                      </div>
-                    </main>
-                    <Footer />
-                  </>
-                } />
+                                 <Route path="/seller/login" element={
+                   <AnimatedBackground>
+                     <main className="min-h-screen">
+                       <SellerLogin />
+                     </main>
+                   </AnimatedBackground>
+                 } />
+                 
+                 <Route path="/seller/register" element={
+                   <AnimatedBackground>
+                     <main className="min-h-screen">
+                       <SellerRegister />
+                     </main>
+                   </AnimatedBackground>
+                 } />
+                 
+                 <Route path="/cart" element={
+                   <AnimatedBackground>
+                     <Header />
+                     <main className="min-h-screen">
+                       <div className="container mx-auto px-12 sm:px-16 lg:px-24 py-8">
+                         <CartPage />
+                       </div>
+                     </main>
+                     <Footer />
+                   </AnimatedBackground>
+                 } />
+                 
+                 <Route path="/checkout" element={
+                   <AnimatedBackground>
+                     <Header />
+                     <main className="min-h-screen">
+                       <div className="container mx-auto px-12 sm:px-16 lg:px-24 py-8">
+                         <CheckoutPage />
+                       </div>
+                     </main>
+                     <Footer />
+                   </AnimatedBackground>
+                 } />
+                 
+                 <Route path="/product/:id" element={
+                   <AnimatedBackground>
+                     <Header />
+                     <main className="min-h-screen">
+                       <div className="container mx-auto px-12 sm:px-16 lg:px-24 py-8">
+                         <ProductDetail />
+                       </div>
+                     </main>
+                     <Footer />
+                   </AnimatedBackground>
+                 } />
+                 
+                 <Route path="/category/:id" element={
+                   <AnimatedBackground>
+                     <Header />
+                     <main className="min-h-screen">
+                       <div className="container py-8">
+                         <CategoryProducts />
+                       </div>
+                     </main>
+                     <Footer />
+                   </AnimatedBackground>
+                 } />
+                 
+                 <Route path="/discounted-products" element={
+                   <AnimatedBackground>
+                     <Header />
+                     <main className="min-h-screen">
+                       <div className="container mx-auto px-12 sm:px-16 lg:px-24 py-8">
+                         <DiscountedProducts />
+                       </div>
+                     </main>
+                     <Footer />
+                   </AnimatedBackground>
+                 } />
                 
                 {/* Admin Routes */}
                 <Route path="/admin/login" element={<AdminLogin />} />
@@ -390,135 +446,135 @@ function App() {
                     </AdminRoute>
                   } />
                 
-                <Route path="/search" element={
-                  <>
-                    <Header />
-                    <main className="min-h-screen bg-background-primary">
-                      <div className="container mx-auto px-12 sm:px-16 lg:px-24 py-8">
-                        <SearchResults />
-                      </div>
-                    </main>
-                    <Footer />
-                  </>
-                } />
-                
-                <Route path="/elastic-search" element={
-                  <>
-                    <Header />
-                    <main className="min-h-screen bg-background-primary">
-                      <div className="container mx-auto px-12 sm:px-16 lg:px-24 py-8">
-                        <ElasticSearch />
-                      </div>
-                    </main>
-                    <Footer />
-                  </>
-                } />
-                
-                <Route path="/profile" element={
-                  <>
-                    <Header />
-                    <main className="min-h-screen bg-background-primary">
-                      <div className="container mx-auto px-12 sm:px-16 lg:px-24 py-8">
-                        <Profile />
-                      </div>
-                    </main>
-                    <Footer />
-                  </>
-                } />
-                
-                <Route path="/orders" element={
-                  <>
-                    <Header />
-                    <main className="min-h-screen bg-background-primary">
-                      <div className="container mx-auto px-12 sm:px-16 lg:px-24 py-8">
-                        <Orders />
-                      </div>
-                    </main>
-                    <Footer />
-                  </>
-                } />
-                
-                <Route path="/store/:id" element={
-                  <>
-                    <Header />
-                    <main className="min-h-screen bg-background-primary">
-                      <StorePage />
-                    </main>
-                    <Footer />
-                  </>
-                } />
-                
-                <Route path="/favorites" element={
-                  <>
-                    <Header />
-                    <main className="min-h-screen bg-background-primary">
-                      <div className="container mx-auto px-12 sm:px-16 lg:px-24 py-8">
-                        <Favorites />
-                      </div>
-                    </main>
-                    <Footer />
-                  </>
-                } />
-                
-                <Route path="/about" element={
-                  <>
-                    <Header />
-                    <main className="min-h-screen bg-background-primary">
-                      <div className="container mx-auto px-12 sm:px-16 lg:px-24 py-8">
-                        <AboutUs />
-                      </div>
-                    </main>
-                    <Footer />
-                  </>
-                } />
-                
-                <Route path="/contact" element={
-                  <>
-                    <Header />
-                    <main className="min-h-screen bg-background-primary">
-                      <div className="container mx-auto px-12 sm:px-16 lg:px-24 py-8">
-                        <Contact />
-                      </div>
-                    </main>
-                    <Footer />
-                  </>
-                } />
-                
-                <Route path="/order-tracking" element={
-                  <>
-                    <Header />
-                    <main className="min-h-screen bg-background-primary">
-                      <div className="container mx-auto px-12 sm:px-16 lg:px-24 py-8">
-                        <OrderTracking />
-                      </div>
-                    </main>
-                    <Footer />
-                  </>
-                } />
-                
-                <Route path="/return-exchange" element={
-                  <>
-                    <Header />
-                    <main className="min-h-screen bg-background-primary">
-                      <div className="container mx-auto px-12 sm:px-16 lg:px-24 py-8">
-                        <ReturnExchange />
-                      </div>
-                    </main>
-                    <Footer />
-                  </>
-                } />
-                
-                <Route path="/faq" element={
-                  <>
-                    <Header />
-                    <main className="min-h-screen bg-background-primary">
-                      <div className="container mx-auto px-12 sm:px-16 lg:px-24 py-8">
-                        <FAQ />
-                      </div>
-                    </main>
-                    <Footer />
-                  </>
-                } />
+                                 <Route path="/search" element={
+                   <AnimatedBackground>
+                     <Header />
+                     <main className="min-h-screen">
+                       <div className="container mx-auto px-12 sm:px-16 lg:px-24 py-8">
+                         <SearchResults />
+                       </div>
+                     </main>
+                     <Footer />
+                   </AnimatedBackground>
+                 } />
+                 
+                 <Route path="/elastic-search" element={
+                   <AnimatedBackground>
+                     <Header />
+                     <main className="min-h-screen">
+                       <div className="container mx-auto px-12 sm:px-16 lg:px-24 py-8">
+                         <ElasticSearch />
+                       </div>
+                     </main>
+                     <Footer />
+                   </AnimatedBackground>
+                 } />
+                 
+                 <Route path="/profile" element={
+                   <AnimatedBackground>
+                     <Header />
+                     <main className="min-h-screen">
+                       <div className="container mx-auto px-12 sm:px-16 lg:px-24 py-8">
+                         <Profile />
+                       </div>
+                     </main>
+                     <Footer />
+                   </AnimatedBackground>
+                 } />
+                 
+                 <Route path="/orders" element={
+                   <AnimatedBackground>
+                     <Header />
+                     <main className="min-h-screen">
+                       <div className="container mx-auto px-12 sm:px-16 lg:px-24 py-8">
+                         <Orders />
+                       </div>
+                     </main>
+                     <Footer />
+                   </AnimatedBackground>
+                 } />
+                 
+                 <Route path="/store/:id" element={
+                   <AnimatedBackground>
+                     <Header />
+                     <main className="min-h-screen">
+                       <StorePage />
+                     </main>
+                     <Footer />
+                   </AnimatedBackground>
+                 } />
+                 
+                 <Route path="/favorites" element={
+                   <AnimatedBackground>
+                     <Header />
+                     <main className="min-h-screen">
+                       <div className="container mx-auto px-12 sm:px-16 lg:px-24 py-8">
+                         <Favorites />
+                       </div>
+                     </main>
+                     <Footer />
+                   </AnimatedBackground>
+                 } />
+                 
+                 <Route path="/about" element={
+                   <AnimatedBackground>
+                     <Header />
+                     <main className="min-h-screen">
+                       <div className="container mx-auto px-12 sm:px-16 lg:px-24 py-8">
+                         <AboutUs />
+                       </div>
+                     </main>
+                     <Footer />
+                   </AnimatedBackground>
+                 } />
+                 
+                 <Route path="/contact" element={
+                   <AnimatedBackground>
+                     <Header />
+                     <main className="min-h-screen">
+                       <div className="container mx-auto px-12 sm:px-16 lg:px-24 py-8">
+                         <Contact />
+                       </div>
+                     </main>
+                     <Footer />
+                   </AnimatedBackground>
+                 } />
+                 
+                 <Route path="/order-tracking" element={
+                   <AnimatedBackground>
+                     <Header />
+                     <main className="min-h-screen">
+                       <div className="container mx-auto px-12 sm:px-16 lg:px-24 py-8">
+                         <OrderTracking />
+                       </div>
+                     </main>
+                     <Footer />
+                   </AnimatedBackground>
+                 } />
+                 
+                 <Route path="/return-exchange" element={
+                   <AnimatedBackground>
+                     <Header />
+                     <main className="min-h-screen">
+                       <div className="container mx-auto px-12 sm:px-16 lg:px-24 py-8">
+                         <ReturnExchange />
+                       </div>
+                     </main>
+                     <Footer />
+                   </AnimatedBackground>
+                 } />
+                 
+                 <Route path="/faq" element={
+                   <AnimatedBackground>
+                     <Header />
+                     <main className="min-h-screen">
+                       <div className="container mx-auto px-12 sm:px-16 lg:px-24 py-8">
+                         <FAQ />
+                       </div>
+                     </main>
+                     <Footer />
+                   </AnimatedBackground>
+                 } />
                 
                 {/* Seller Routes - Seller Layout */}
                 <Route path="/seller-panel" element={
@@ -529,13 +585,13 @@ function App() {
                   </SellerRoute>
                 } />
                 
-                                           <Route path="/seller-panel/products" element={
-                             <SellerRoute>
-                               <SellerLayout>
-                                 <SellerProducts />
-                               </SellerLayout>
-                             </SellerRoute>
-                           } />
+                <Route path="/seller-panel/products" element={
+                  <SellerRoute>
+                    <SellerLayout>
+                      <SellerProducts />
+                    </SellerLayout>
+                  </SellerRoute>
+                } />
                 
                 <Route path="/seller-panel/statistics" element={
                   <SellerRoute>
@@ -569,14 +625,14 @@ function App() {
                   </SellerRoute>
                 } />
                 
-                                 <Route path="/seller-panel/settings" element={
-                   <SellerRoute>
-                     <SellerLayout>
-                       <SellerSettings />
-                     </SellerLayout>
-                   </SellerRoute>
-                 } />
-                 
+                <Route path="/seller-panel/settings" element={
+                  <SellerRoute>
+                    <SellerLayout>
+                      <SellerSettings />
+                    </SellerLayout>
+                  </SellerRoute>
+                } />
+                
                  {/* 404 - Catch All Route */}
                  <Route path="*" element={<NotFound />} />
                </Routes>

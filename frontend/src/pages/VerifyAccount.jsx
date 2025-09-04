@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { CheckCircle, XCircle, Loader2 } from 'lucide-react';
-import './VerifyAccount.css';
 
 const VerifyAccount = () => {
     const [searchParams] = useSearchParams();
@@ -54,36 +53,42 @@ const VerifyAccount = () => {
     };
 
     return (
-        <div className="verify-account-container">
-            <div className="verify-account-card">
-                <div className="verify-account-header">
-                    <h1>Hesap Doğrulama</h1>
-                    <p>Email adresinizi doğruluyoruz...</p>
+        <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4 sm:px-6 lg:px-8">
+            <div className="max-w-md w-full bg-white rounded-2xl shadow-xl p-8">
+                <div className="text-center mb-8">
+                    <h1 className="text-2xl font-bold text-gray-900 mb-2">Hesap Doğrulama</h1>
+                    <p className="text-gray-600">Email adresinizi doğruluyoruz...</p>
                 </div>
 
-                <div className="verify-account-content">
+                <div className="space-y-6">
                     {verificationStatus === 'loading' && (
-                        <div className="verification-loading">
-                            <Loader2 className="loading-icon" />
-                            <p>Hesabınız doğrulanıyor...</p>
+                        <div className="text-center space-y-4">
+                            <div className="flex justify-center">
+                                <Loader2 className="w-12 h-12 text-orange-500 animate-spin" />
+                            </div>
+                            <p className="text-gray-700 font-medium">Hesabınız doğrulanıyor...</p>
                         </div>
                     )}
 
                     {verificationStatus === 'success' && (
-                        <div className="verification-success">
-                            <CheckCircle className="success-icon" />
-                            <h2>Doğrulama Başarılı!</h2>
-                            <p>{message}</p>
-                            <div className="verification-actions">
+                        <div className="text-center space-y-6">
+                            <div className="flex justify-center">
+                                <CheckCircle className="w-16 h-16 text-green-500" />
+                            </div>
+                            <div className="space-y-2">
+                                <h2 className="text-xl font-bold text-gray-900">Doğrulama Başarılı!</h2>
+                                <p className="text-gray-600">{message}</p>
+                            </div>
+                            <div className="flex flex-col sm:flex-row gap-3">
                                 <button 
                                     onClick={handleLoginRedirect}
-                                    className="btn-primary"
+                                    className="flex-1 bg-orange-500 hover:bg-orange-600 text-white font-medium py-3 px-6 rounded-lg transition-colors duration-200"
                                 >
                                     Giriş Yap
                                 </button>
                                 <button 
                                     onClick={handleHomeRedirect}
-                                    className="btn-secondary"
+                                    className="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium py-3 px-6 rounded-lg transition-colors duration-200"
                                 >
                                     Ana Sayfaya Git
                                 </button>
@@ -92,20 +97,24 @@ const VerifyAccount = () => {
                     )}
 
                     {verificationStatus === 'error' && (
-                        <div className="verification-error">
-                            <XCircle className="error-icon" />
-                            <h2>Doğrulama Başarısız</h2>
-                            <p>{message}</p>
-                            <div className="verification-actions">
+                        <div className="text-center space-y-6">
+                            <div className="flex justify-center">
+                                <XCircle className="w-16 h-16 text-red-500" />
+                            </div>
+                            <div className="space-y-2">
+                                <h2 className="text-xl font-bold text-gray-900">Doğrulama Başarısız</h2>
+                                <p className="text-gray-600">{message}</p>
+                            </div>
+                            <div className="flex flex-col sm:flex-row gap-3">
                                 <button 
                                     onClick={handleLoginRedirect}
-                                    className="btn-primary"
+                                    className="flex-1 bg-orange-500 hover:bg-orange-600 text-white font-medium py-3 px-6 rounded-lg transition-colors duration-200"
                                 >
                                     Giriş Sayfasına Git
                                 </button>
                                 <button 
                                     onClick={handleHomeRedirect}
-                                    className="btn-secondary"
+                                    className="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium py-3 px-6 rounded-lg transition-colors duration-200"
                                 >
                                     Ana Sayfaya Git
                                 </button>

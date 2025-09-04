@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
 import PageTitle from '../components/PageTitle/PageTitle';
 import MetaTags from '../components/MetaTags/MetaTags';
-import { ChevronDown, ChevronUp, HelpCircle, ShoppingCart, CreditCard, Truck, Package, User, Shield } from 'lucide-react';
-import './FAQ.css';
+import { ChevronDown, ChevronUp, HelpCircle, ShoppingCart, CreditCard, Truck, Package, User, Shield, Mail, Phone, MessageCircle } from 'lucide-react';
 
 const FAQ = () => {
   const [openItems, setOpenItems] = useState(new Set());
@@ -131,7 +130,7 @@ const FAQ = () => {
   ];
 
   return (
-    <div className="faq-container">
+    <div className="min-h-screen ">
       <PageTitle title="Sıkça Sorulan Sorular" />
       <MetaTags 
         title="Sıkça Sorulan Sorular"
@@ -139,42 +138,60 @@ const FAQ = () => {
         keywords="sss, sıkça sorulan sorular, yardım, destek, shopping sss"
       />
       
-      <div className="faq-content">
-        <h1 className="faq-title">Sıkça Sorulan Sorular</h1>
-        
-        <div className="faq-intro">
-          <HelpCircle size={48} className="faq-intro-icon" />
-          <p>
-            Aradığınız sorunun cevabını bulamadıysanız, müşteri hizmetlerimizle iletişime geçebilirsiniz.
-          </p>
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        {/* Header */}
+        <div className="text-center mb-12">
+          <h1 className="text-4xl font-bold text-gray-900 mb-4">Sıkça Sorulan Sorular</h1>
+          
+          <div className="flex items-center justify-center space-x-3 text-gray-600 mb-6">
+            <HelpCircle size={24} className="text-orange-500" />
+            <p className="text-lg">
+              Aradığınız sorunun cevabını bulamadıysanız, müşteri hizmetlerimizle iletişime geçebilirsiniz.
+            </p>
+          </div>
         </div>
 
-        <div className="faq-sections">
+        {/* FAQ Sections */}
+        <div className="space-y-8">
           {faqData.map((category, categoryIndex) => (
-            <div key={categoryIndex} className="faq-category">
-              <div className="category-header">
-                {React.createElement(category.icon, { size: 24 })}
-                <h2>{category.category}</h2>
+            <div key={categoryIndex} className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+              <div className="bg-gradient-to-r from-orange-50 to-orange-100 px-6 py-4 border-b border-gray-200">
+                <div className="flex items-center space-x-3">
+                  <div className="p-2 bg-orange-500 rounded-lg">
+                    {React.createElement(category.icon, { size: 20, className: "text-white" })}
+                  </div>
+                  <h2 className="text-xl font-semibold text-gray-900">{category.category}</h2>
+                </div>
               </div>
               
-              <div className="faq-items">
+              <div className="divide-y divide-gray-200">
                 {category.questions.map((item, itemIndex) => {
                   const globalIndex = categoryIndex * 100 + itemIndex;
                   const isOpen = openItems.has(globalIndex);
                   
                   return (
-                    <div key={itemIndex} className="faq-item">
+                    <div key={itemIndex} className="bg-white">
                       <button
-                        className={`faq-question ${isOpen ? 'open' : ''}`}
+                        className={`w-full px-6 py-4 text-left hover:bg-gray-50 transition-colors flex items-center justify-between ${
+                          isOpen ? 'bg-orange-50' : ''
+                        }`}
                         onClick={() => toggleItem(globalIndex)}
                       >
-                        <span>{item.question}</span>
-                        {isOpen ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
+                        <span className="font-medium text-gray-900 pr-4">{item.question}</span>
+                        <div className="flex-shrink-0">
+                          {isOpen ? (
+                            <ChevronUp size={20} className="text-orange-500" />
+                          ) : (
+                            <ChevronDown size={20} className="text-gray-400" />
+                          )}
+                        </div>
                       </button>
                       
                       {isOpen && (
-                        <div className="faq-answer">
-                          <p>{item.answer}</p>
+                        <div className="px-6 pb-4">
+                          <div className="bg-gray-50 rounded-lg p-4">
+                            <p className="text-gray-700 leading-relaxed">{item.answer}</p>
+                          </div>
                         </div>
                       )}
                     </div>
@@ -185,27 +202,41 @@ const FAQ = () => {
           ))}
         </div>
 
-        {/* İletişim Bölümü */}
-        <div className="faq-contact">
-          <h2>Hala Sorunuz mu Var?</h2>
-          <p>
-            Yukarıdaki sorular sorunuzu yanıtlamadıysa, müşteri hizmetlerimizle iletişime geçebilirsiniz.
-          </p>
-          <div className="contact-options">
-            <div className="contact-option">
-              <h3>📧 E-posta</h3>
-              <p>destek@shopping.com</p>
-              <p>24 saat içinde yanıt</p>
+        {/* Contact Section */}
+        <div className="mt-16 bg-white rounded-2xl shadow-sm border border-gray-200 p-8">
+          <div className="text-center mb-8">
+            <h2 className="text-2xl font-bold text-gray-900 mb-2">Hala Sorunuz mu Var?</h2>
+            <p className="text-gray-600">
+              Yukarıdaki sorular sorunuzu yanıtlamadıysa, müşteri hizmetlerimizle iletişime geçebilirsiniz.
+            </p>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="text-center p-6 bg-orange-50 rounded-xl">
+              <div className="flex justify-center mb-3">
+                <Mail className="w-8 h-8 text-orange-500" />
+              </div>
+              <h3 className="font-semibold text-gray-900 mb-2">E-posta</h3>
+              <p className="text-orange-600 font-medium">destek@shopping.com</p>
+              <p className="text-sm text-gray-600 mt-1">24 saat içinde yanıt</p>
             </div>
-            <div className="contact-option">
-              <h3>📞 Telefon</h3>
-              <p>+90 (212) 555 0123</p>
-              <p>Pazartesi - Cuma: 09:00-18:00</p>
+            
+            <div className="text-center p-6 bg-blue-50 rounded-xl">
+              <div className="flex justify-center mb-3">
+                <Phone className="w-8 h-8 text-blue-500" />
+              </div>
+              <h3 className="font-semibold text-gray-900 mb-2">Telefon</h3>
+              <p className="text-blue-600 font-medium">+90 (212) 555 0123</p>
+              <p className="text-sm text-gray-600 mt-1">Pazartesi - Cuma: 09:00-18:00</p>
             </div>
-            <div className="contact-option">
-              <h3>💬 Canlı Destek</h3>
-              <p>Web sitesi üzerinden</p>
-              <p>Anlık yanıt</p>
+            
+            <div className="text-center p-6 bg-green-50 rounded-xl">
+              <div className="flex justify-center mb-3">
+                <MessageCircle className="w-8 h-8 text-green-500" />
+              </div>
+              <h3 className="font-semibold text-gray-900 mb-2">Canlı Destek</h3>
+              <p className="text-green-600 font-medium">Web sitesi üzerinden</p>
+              <p className="text-sm text-gray-600 mt-1">Anlık yanıt</p>
             </div>
           </div>
         </div>

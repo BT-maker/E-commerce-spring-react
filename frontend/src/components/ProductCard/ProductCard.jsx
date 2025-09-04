@@ -1,5 +1,4 @@
 import React, { useState, useRef, useEffect } from "react";
-import "./ProductCard.css";
 import { Link } from "react-router-dom";
 import Skeleton from 'react-loading-skeleton';
 import 'react-loading-skeleton/dist/skeleton.css';
@@ -50,7 +49,7 @@ const ProductCard = ({ product, loading, onAddToCart, isFavoritesPage = false })
 
   if (loading) {
     return (
-      <div className="product-card">
+      <div className="bg-white rounded-lg shadow-md border border-gray-200 p-4 transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
         <Skeleton height={200} className="mb-2" />
         <Skeleton height={20} width={150} className="mb-2" />
         <Skeleton height={16} width={80} className="mb-2" />
@@ -117,12 +116,12 @@ const ProductCard = ({ product, loading, onAddToCart, isFavoritesPage = false })
   };
 
   return (
-    <div className="product-card" onClick={handleCardClick} style={{ cursor: 'pointer' }}>
-      <div className="product-image-container">
+    <div className="bg-white rounded-lg shadow-md border border-gray-200 p-4 transition-all duration-300 hover:shadow-lg hover:-translate-y-1" onClick={handleCardClick} style={{ cursor: 'pointer' }}>
+      <div className="relative">
         <img 
           src={product.imageUrl1 || product.imageUrl || '/img/default-product.png'} 
           alt={product.name} 
-          className="product-card-img"
+          className="w-full h-64 object-contain rounded-lg mb-4"
           onError={(e) => {
             e.target.src = '/img/default-product.png';
           }}
@@ -130,39 +129,42 @@ const ProductCard = ({ product, loading, onAddToCart, isFavoritesPage = false })
         
         {/* İndirim Badge */}
         {product.isDiscountActive && (
-          <div className="discount-badge-image">%{product.discountPercentage} İndirim</div>
+          <div className="absolute top-2 right-2 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full">
+            %{product.discountPercentage} İndirim
+          </div>
         )}
         
-        
         {/* Quick Actions */}
-        <div className="quick-actions">
+        <div className="absolute top-2 left-2 flex flex-col gap-2">
           {isFavoritesPage ? (
             // Favoriler sayfası için özel buton
             <button
               onClick={handleFavorite}
-              className="quick-action-btn favorites-remove-btn"
+              className="bg-white hover:bg-red-50 p-2 rounded-full shadow-md transition-colors duration-200"
               title="Favorilerden çıkar"
             >
-              <X className="w-4 h-4" />
+              <X className="w-4 h-4 text-red-500" />
             </button>
           ) : (
             // Normal sayfa için standart buton
             <button
               onClick={handleFavorite}
-              className={`quick-action-btn ${isFavorite(product.id) ? 'active' : ''}`}
+              className={`bg-white hover:bg-red-50 p-2 rounded-full shadow-md transition-colors duration-200 ${
+                isFavorite(product.id) ? 'text-red-500' : 'text-gray-400'
+              }`}
               title={isFavorite(product.id) ? 'Favorilerden çıkar' : 'Favorilere ekle'}
             >
               <Heart className="w-4 h-4" />
             </button>
           )}
-          <Link to={`/product/${product.id}`} className="quick-action-btn" title="Hızlı görüntüle">
+          <Link to={`/product/${product.id}`} className="bg-white hover:bg-blue-50 p-2 rounded-full shadow-md transition-colors duration-200 text-gray-400 hover:text-blue-500" title="Hızlı görüntüle">
             <Eye className="w-4 h-4" />
           </Link>
         </div>
       </div>
 
-      <div className="product-info">
-        <Link to={`/product/${product.id}`} className="product-title">
+      <div>
+        <Link to={`/product/${product.id}`} className="text-gray-900 font-semibold text-lg mb-2 hover:text-orange-500 transition-colors block">
           {product.name}
         </Link>
         
@@ -180,33 +182,39 @@ const ProductCard = ({ product, loading, onAddToCart, isFavoritesPage = false })
         )}
         */}
         
-        <div className="price-container">
+        <div className="mb-3">
           {product.isDiscountActive ? (
-            <div className="discount-price-container">
-              <span className="original-price">{Number(product.price).toLocaleString("tr-TR", {minimumFractionDigits:2})} ₺</span>
-              <span className="discounted-price">{Number(product.discountedPrice).toLocaleString("tr-TR", {minimumFractionDigits:2})} ₺</span>
+            <div className="flex items-center gap-2">
+              <span className="text-gray-500 line-through text-sm">{Number(product.price).toLocaleString("tr-TR", {minimumFractionDigits:2})} ₺</span>
+              <span className="text-orange-500 font-bold text-xl">{Number(product.discountedPrice).toLocaleString("tr-TR", {minimumFractionDigits:2})} ₺</span>
             </div>
           ) : (
-            <span className="current-price">{Number(product.price).toLocaleString("tr-TR", {minimumFractionDigits:2})} ₺</span>
+            <span className="text-orange-500 font-bold text-xl">{Number(product.price).toLocaleString("tr-TR", {minimumFractionDigits:2})} ₺</span>
           )}
         </div>
         
-        <div className="stock-info">
+        <div className="mb-3">
           {product.stock > 0 ? (
             product.stock <= 5 ? (
-              <span className="stock-low">Kritik: {product.stock} adet</span>
+              <span className="inline-block px-2 py-1 text-xs font-medium rounded-full bg-red-100 text-red-800">Kritik: {product.stock} adet</span>
             ) : product.stock <= 10 ? (
-              <span className="stock-low">Düşük: {product.stock} adet</span>
+              <span className="inline-block px-2 py-1 text-xs font-medium rounded-full bg-yellow-100 text-yellow-800">Düşük: {product.stock} adet</span>
             ) : (
-              <span className="stock-available">Stokta var</span>
+              <span className="inline-block px-2 py-1 text-xs font-medium rounded-full bg-green-100 text-green-800">Stokta var</span>
             )
           ) : (
-            <span className="stock-unavailable">Stokta yok</span>
+            <span className="inline-block px-2 py-1 text-xs font-medium rounded-full bg-gray-100 text-gray-800">Stokta yok</span>
           )}
         </div>
         
         <button
-          className={`product-card-btn ${added ? 'added' : ''} ${product.stock <= 0 ? 'disabled' : ''}`}
+          className={`w-full font-medium py-2 px-4 rounded-lg transition-colors duration-200 flex items-center justify-center gap-2 ${
+            added 
+              ? 'bg-green-500 text-white' 
+              : product.stock <= 0 
+                ? 'bg-gray-400 text-white cursor-not-allowed' 
+                : 'bg-orange-500 hover:bg-orange-600 text-white'
+          }`}
           onClick={onAdd}
           disabled={added || loadingBtn || product.stock <= 0}
         >

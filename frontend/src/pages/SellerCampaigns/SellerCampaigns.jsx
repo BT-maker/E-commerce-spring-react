@@ -16,7 +16,6 @@ import {
   FaCheckCircle,
   FaExclamationTriangle
 } from 'react-icons/fa';
-import './SellerCampaigns.css';
 
 const SellerCampaigns = () => {
   const [allCampaigns, setAllCampaigns] = useState([]);
@@ -90,7 +89,6 @@ const SellerCampaigns = () => {
       }
 
       const data = await response.json();
-      console.log('Tüm kampanya verileri:', data);
       
       setAllCampaigns(data.campaigns || []);
       setFilteredCampaigns(data.campaigns || []);
@@ -104,7 +102,7 @@ const SellerCampaigns = () => {
 
   const fetchProducts = async () => {
     try {
-      const response = await fetch('http://localhost:8082/api/seller/products?page=0&size=1000', {
+      const response = await fetch('http://localhost:8082/api/seller/products', {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -114,11 +112,7 @@ const SellerCampaigns = () => {
 
       if (response.ok) {
         const data = await response.json();
-        if (data.products) {
-          setProducts(data.products);
-        } else {
-          setProducts(data);
-        }
+        setProducts(data.products || data || []);
       }
     } catch (err) {
       console.error('Ürün veri hatası:', err);
@@ -137,7 +131,7 @@ const SellerCampaigns = () => {
 
       if (response.ok) {
         const data = await response.json();
-        setCategories(data);
+        setCategories(data || []);
       }
     } catch (err) {
       console.error('Kategori veri hatası:', err);
@@ -163,35 +157,42 @@ const SellerCampaigns = () => {
   const handleEditCampaign = (campaign) => {
     setEditingCampaign(campaign);
     setFormData({
-      name: campaign.name,
-      description: campaign.description,
-      discountType: campaign.discountType,
-      discountValue: campaign.discountValue.toString(),
-      campaignType: campaign.campaignType,
-      targetId: campaign.targetId,
+      name: campaign.name || '',
+      description: campaign.description || '',
+      discountType: campaign.discountType || 'percentage',
+      discountValue: campaign.discountValue || '',
+      campaignType: campaign.campaignType || 'product',
+      targetId: campaign.targetId || '',
       startDate: campaign.startDate ? campaign.startDate.split('T')[0] : '',
       endDate: campaign.endDate ? campaign.endDate.split('T')[0] : '',
-      isActive: campaign.isActive
+      isActive: campaign.isActive !== false
     });
     setShowModal(true);
   };
 
   const handleDeleteCampaign = async (campaignId) => {
-    if (window.confirm('Bu kampanyayı silmek istediğinizden emin misiniz?')) {
-      try {
-        const response = await fetch(`http://localhost:8082/api/seller/campaigns/${campaignId}`, {
-          method: 'DELETE',
-          credentials: 'include'
-        });
+    if (!window.confirm('Bu kampanyayı silmek istediğinize emin misiniz?')) {
+      return;
+    }
 
-        if (response.ok) {
-          await fetchAllCampaigns();
-        } else {
-          console.error('Kampanya silinemedi');
-        }
-      } catch (error) {
-        console.error('Kampanya silme hatası:', error);
+    try {
+      const response = await fetch(`http://localhost:8082/api/seller/campaigns/${campaignId}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include'
+      });
+
+      if (response.ok) {
+        setAllCampaigns(prev => prev.filter(c => c.id !== campaignId));
+        setFilteredCampaigns(prev => prev.filter(c => c.id !== campaignId));
+      } else {
+        alert('Kampanya silinirken bir hata oluştu.');
       }
+    } catch (err) {
+      console.error('Kampanya silme hatası:', err);
+      alert('Kampanya silinirken bir hata oluştu.');
     }
   };
 
@@ -205,43 +206,7 @@ const SellerCampaigns = () => {
     setFilteredCampaigns(allCampaigns);
   };
 
-
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    
-    try {
-      const url = editingCampaign 
-        ? `http://localhost:8082/api/seller/campaigns/${editingCampaign.id}`
-        : 'http://localhost:8082/api/seller/campaigns';
-      
-      const method = editingCampaign ? 'PUT' : 'POST';
-      
-      const response = await fetch(url, {
-        method: method,
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include',
-        body: JSON.stringify({
-          ...formData,
-          discountValue: parseFloat(formData.discountValue)
-        })
-      });
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      await fetchAllCampaigns();
-      setShowModal(false);
-      setEditingCampaign(null);
-    } catch (err) {
-      console.error('Kampanya kaydetme hatası:', err);
-      alert('Kampanya kaydedilirken bir hata oluştu.');
-    }
-  };
-
+  // Helper functions - getStats'den ÖNCE tanımlanmalı
   const formatCurrency = (amount) => {
     return new Intl.NumberFormat('tr-TR', {
       style: 'currency',
@@ -275,17 +240,6 @@ const SellerCampaigns = () => {
     }
   };
 
-  const getCampaignStatusColor = (campaign) => {
-    const status = getCampaignStatus(campaign);
-    switch (status) {
-      case 'active': return '#059669';
-      case 'pending': return '#d97706';
-      case 'expired': return '#dc2626';
-      case 'inactive': return '#6b7280';
-      default: return '#6b7280';
-    }
-  };
-
   const getTargetName = (campaign) => {
     if (campaign.campaignType === 'product') {
       const product = products.find(p => p.id === campaign.targetId);
@@ -295,8 +249,6 @@ const SellerCampaigns = () => {
       return category ? category.name : 'Kategori bulunamadı';
     }
   };
-
-
 
   // Anlık filtreleme fonksiyonu
   const filterCampaigns = () => {
@@ -349,11 +301,21 @@ const SellerCampaigns = () => {
 
   if (loading) {
     return (
-      <div className="seller-campaigns">
-        <div className="campaigns-loading">
-          <div className="loading-spinner"></div>
-          <h3>Kampanya Verileri Yükleniyor...</h3>
-          <p>Verileriniz hazırlanıyor, lütfen bekleyin.</p>
+      <div className="p-6">
+        <div className="bg-white rounded-xl shadow-lg p-6">
+          <div className="animate-pulse space-y-6">
+            <div className="h-8 bg-gray-200 rounded w-1/3"></div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              {[...Array(3)].map((_, i) => (
+                <div key={i} className="h-32 bg-gray-200 rounded-lg"></div>
+              ))}
+            </div>
+            <div className="space-y-4">
+              {[...Array(5)].map((_, i) => (
+                <div key={i} className="h-24 bg-gray-200 rounded-lg"></div>
+              ))}
+            </div>
+          </div>
         </div>
       </div>
     );
@@ -361,12 +323,15 @@ const SellerCampaigns = () => {
 
   if (error) {
     return (
-      <div className="seller-campaigns">
-        <div className="campaigns-error">
-          <div className="error-icon">⚠️</div>
-          <h3>Bir Hata Oluştu</h3>
-          <p>{error}</p>
-          <button className="retry-btn" onClick={fetchAllCampaigns}>
+      <div className="p-6">
+        <div className="bg-red-50 border border-red-200 rounded-xl p-6 text-center">
+          <FaExclamationTriangle className="mx-auto text-red-500 text-4xl mb-4" />
+          <h2 className="text-xl font-semibold text-red-800 mb-2">Bir Hata Oluştu</h2>
+          <p className="text-red-600 mb-4">{error}</p>
+          <button 
+            onClick={fetchAllCampaigns}
+            className="bg-red-600 hover:bg-red-700 text-white px-6 py-2 rounded-lg font-semibold transition-colors"
+          >
             Tekrar Dene
           </button>
         </div>
@@ -375,315 +340,234 @@ const SellerCampaigns = () => {
   }
 
   return (
-    <div className="seller-campaigns">
-      {/* Header */}
-      <div className="campaigns-header">
-        <div className="header-content">
-          <h2>Kampanyalarım</h2>
-        </div>
-        <button className="create-campaign-btn" onClick={handleCreateCampaign}>
-          <FaPlus /> Yeni Kampanya
-        </button>
-      </div>
-
-      {/* Arama ve Filtreleme */}
-      <div className="search-filters">
-        <div className="search-row">
-          <div className="search-group">
-            <input
-              type="text"
-              placeholder="Kampanya adı veya açıklaması ara..."
-              value={searchTerm}
-              onChange={(e) => {
-                setSearchTerm(e.target.value);
-                setShowSuggestions(e.target.value.length > 0);
-              }}
-            />
-            {/* Öneriler */}
-            {showSuggestions && searchTerm && (
-              <div className="search-suggestions">
-                {allCampaigns
-                  .filter(campaign =>
-                    campaign.name?.toLowerCase().includes(searchTerm.toLowerCase())
-                  )
-                  .slice(0, 5)
-                  .map(campaign => (
-                    <div
-                      key={campaign.id}
-                      className="suggestion-item"
-                      onClick={() => {
-                        setSearchTerm(campaign.name);
-                        setShowSuggestions(false);
-                      }}
-                    >
-                      <FaSearch className="suggestion-icon" />
-                      <span>{campaign.name}</span>
-                    </div>
-                  ))}
-              </div>
-            )}
+    <div className="p-6">
+      <div className="bg-white rounded-xl shadow-lg overflow-hidden">
+        {/* Header */}
+        <div className="bg-gradient-to-r from-purple-500 to-purple-600 px-6 py-8 text-white">
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between">
+            <div>
+              <h1 className="text-3xl font-bold mb-2">Kampanyalarım</h1>
+              <p className="text-purple-100">Mağazanızın kampanyalarını yönetin</p>
+            </div>
+            <div className="mt-4 md:mt-0">
+              <button 
+                onClick={handleCreateCampaign}
+                className="bg-white hover:bg-gray-100 text-purple-600 px-6 py-3 rounded-lg font-semibold transition-colors flex items-center space-x-2"
+              >
+                <FaPlus />
+                <span>Yeni Kampanya</span>
+              </button>
+            </div>
           </div>
-          <div className="search-group">
+        </div>
+
+        {/* Stats Cards */}
+        <div className="p-6 border-b border-gray-200">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="bg-gradient-to-r from-blue-50 to-blue-100 rounded-xl p-6 border border-blue-200">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-blue-600">Toplam Kampanya</p>
+                  <p className="text-2xl font-bold text-blue-900">{stats.totalCampaigns}</p>
+                </div>
+                <div className="p-3 bg-blue-500 rounded-lg">
+                  <FaBox className="text-white text-xl" />
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-gradient-to-r from-green-50 to-green-100 rounded-xl p-6 border border-green-200">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-green-600">Aktif Kampanya</p>
+                  <p className="text-2xl font-bold text-green-900">{stats.activeCampaigns}</p>
+                </div>
+                <div className="p-3 bg-green-500 rounded-lg">
+                  <FaCheckCircle className="text-white text-xl" />
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-gradient-to-r from-yellow-50 to-yellow-100 rounded-xl p-6 border border-yellow-200">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-yellow-600">Bekleyen Kampanya</p>
+                  <p className="text-2xl font-bold text-yellow-900">{stats.pendingCampaigns}</p>
+                </div>
+                <div className="p-3 bg-yellow-500 rounded-lg">
+                  <FaClock className="text-white text-xl" />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Search and Filters */}
+        <div className="p-6 border-b border-gray-200">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            {/* Search */}
+            <div className="relative">
+              <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+              <input
+                type="text"
+                placeholder="Kampanya adı veya açıklaması ara..."
+                value={searchTerm}
+                onChange={(e) => {
+                  setSearchTerm(e.target.value);
+                  setShowSuggestions(e.target.value.length > 0);
+                }}
+                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-colors"
+              />
+              {/* Suggestions */}
+              {showSuggestions && searchTerm && (
+                <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg">
+                  {allCampaigns
+                    .filter(campaign =>
+                      campaign.name?.toLowerCase().includes(searchTerm.toLowerCase())
+                    )
+                    .slice(0, 5)
+                    .map(campaign => (
+                      <div
+                        key={campaign.id}
+                        className="px-4 py-2 hover:bg-gray-100 cursor-pointer flex items-center space-x-2"
+                        onClick={() => {
+                          setSearchTerm(campaign.name);
+                          setShowSuggestions(false);
+                        }}
+                      >
+                        <FaSearch className="text-gray-400 text-sm" />
+                        <span className="text-gray-700">{campaign.name}</span>
+                      </div>
+                    ))}
+                </div>
+              )}
+            </div>
+
+            {/* Campaign Type Filter */}
             <select
               value={selectedCampaignType}
-              onChange={(e) => {
-                setSelectedCampaignType(e.target.value);
-              }}
+              onChange={(e) => setSelectedCampaignType(e.target.value)}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-colors"
             >
               <option value="all">Tüm Tipler</option>
               <option value="product">Ürün Kampanyası</option>
               <option value="category">Kategori Kampanyası</option>
             </select>
+
+            {/* Search Button */}
+            <button
+              onClick={handleSearch}
+              className="bg-purple-600 hover:bg-purple-700 text-white px-6 py-2 rounded-lg font-semibold transition-colors flex items-center justify-center space-x-2"
+            >
+              <FaSearch />
+              <span>Ara</span>
+            </button>
+
+            {/* Clear Button */}
+            <button
+              onClick={handleClearFilters}
+              className="bg-gray-300 hover:bg-gray-400 text-gray-700 px-6 py-2 rounded-lg font-semibold transition-colors flex items-center justify-center space-x-2"
+            >
+              <FaTimes />
+              <span>Temizle</span>
+            </button>
           </div>
-          <button className="search-btn" onClick={handleSearch}>
-            <FaSearch /> Ara
-          </button>
-          <button className="clear-btn" onClick={handleClearFilters}>
-            <FaTimes /> Temizle
-          </button>
         </div>
-      </div>
 
-
-
-      {/* Campaigns Grid */}
-      <div className="campaigns-container">
-        {filteredCampaigns.length === 0 ? (
-          <div className="no-campaigns">
-            <div className="no-campaigns-icon">🎯</div>
-            <h3>Henüz Kampanya Yok</h3>
-            <p>İlk kampanyanızı oluşturmak için "Yeni Kampanya" butonuna tıklayın.</p>
-          </div>
-        ) : (
-          <div className="campaigns-grid">
-            {filteredCampaigns.map((campaign) => (
-              <div key={campaign.id} className="campaign-card">
-                <div className="campaign-header">
-                  <div className="campaign-info">
-                    <h3>{campaign.name}</h3>
-                    <p>{campaign.description}</p>
-                  </div>
-                  <div className="campaign-status">
-                    <span 
-                      className="status-badge"
-                      style={{ backgroundColor: getCampaignStatusColor(campaign) }}
-                    >
-                      {getCampaignStatusText(campaign)}
-                    </span>
-                  </div>
-                </div>
-
-                <div className="campaign-details">
-                  <div className="detail-item">
-                    <FaTag />
-                    <span className="detail-label">Hedef:</span>
-                    <span className="detail-value">{getTargetName(campaign)}</span>
-                  </div>
-                  
-                  <div className="detail-item">
-                    <FaPercent />
-                    <span className="detail-label">İndirim:</span>
-                    <span className="detail-value">
-                      {campaign.discountType === 'percentage' 
-                        ? `%${campaign.discountValue}` 
-                        : formatCurrency(campaign.discountValue)
-                      }
-                    </span>
-                  </div>
-                  
-                  <div className="detail-item">
-                    <FaCalendarAlt />
-                    <span className="detail-label">Başlangıç:</span>
-                    <span className="detail-value">{formatDate(campaign.startDate)}</span>
-                  </div>
-                  
-                  <div className="detail-item">
-                    <FaCalendarAlt />
-                    <span className="detail-label">Bitiş:</span>
-                    <span className="detail-value">{formatDate(campaign.endDate)}</span>
-                  </div>
-                </div>
-
-                <div className="campaign-actions">
-                  <button 
-                    className="action-btn edit-btn" 
-                    onClick={() => handleEditCampaign(campaign)}
-                    title="Düzenle"
-                  >
-                    <FaEdit />
-                  </button>
-                  <button 
-                    className="action-btn delete-btn" 
-                    onClick={() => handleDeleteCampaign(campaign.id)}
-                    title="Sil"
-                  >
-                    <FaTrash />
-                  </button>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
-
-      {/* Modal */}
-      {showModal && (
-        <div className="modal-overlay" onClick={() => setShowModal(false)}>
-          <div className="modal" onClick={(e) => e.stopPropagation()}>
-            <div className="modal-header">
-              <h2>{editingCampaign ? 'Kampanya Düzenle' : 'Yeni Kampanya'}</h2>
-              <button className="modal-close" onClick={() => setShowModal(false)}>
-                <FaTimes />
+        {/* Campaigns List */}
+        <div className="p-6">
+          {filteredCampaigns.length === 0 ? (
+            <div className="text-center py-12">
+              <div className="text-6xl mb-4">🎯</div>
+              <h3 className="text-xl font-semibold text-gray-900 mb-2">Henüz Kampanya Yok</h3>
+              <p className="text-gray-600 mb-6">İlk kampanyanızı oluşturmak için "Yeni Kampanya" butonuna tıklayın.</p>
+              <button 
+                onClick={handleCreateCampaign}
+                className="bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors flex items-center space-x-2 mx-auto"
+              >
+                <FaPlus />
+                <span>İlk Kampanyanızı Oluşturun</span>
               </button>
             </div>
-            
-            <form onSubmit={handleSubmit} className="modal-content">
-              <div className="form-group">
-                <label htmlFor="name">Kampanya Adı *</label>
-                <input
-                  type="text"
-                  id="name"
-                  value={formData.name}
-                  onChange={(e) => setFormData({...formData, name: e.target.value})}
-                  required
-                  className="form-input"
-                />
-              </div>
+          ) : (
+            <div className="space-y-4">
+              {filteredCampaigns.map((campaign) => (
+                <div key={campaign.id} className="bg-white border border-gray-200 rounded-xl p-6 hover:shadow-lg transition-shadow">
+                  <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between">
+                    <div className="flex-1">
+                      <div className="flex items-start justify-between mb-4">
+                        <div>
+                          <h3 className="text-lg font-semibold text-gray-900 mb-1">{campaign.name}</h3>
+                          <p className="text-gray-600 text-sm">{campaign.description}</p>
+                        </div>
+                        <span 
+                          className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${
+                            getCampaignStatus(campaign) === 'active' 
+                              ? 'bg-green-100 text-green-800' 
+                              : getCampaignStatus(campaign) === 'pending'
+                              ? 'bg-yellow-100 text-yellow-800'
+                              : 'bg-red-100 text-red-800'
+                          }`}
+                        >
+                          {getCampaignStatusText(campaign)}
+                        </span>
+                      </div>
 
-              <div className="form-group">
-                <label htmlFor="description">Açıklama</label>
-                <textarea
-                  id="description"
-                  value={formData.description}
-                  onChange={(e) => setFormData({...formData, description: e.target.value})}
-                  className="form-textarea"
-                  rows="3"
-                />
-              </div>
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                        <div className="flex items-center space-x-2">
+                          <FaTag className="text-gray-400" />
+                          <span className="text-sm text-gray-600">Hedef:</span>
+                          <span className="text-sm font-medium text-gray-900">{getTargetName(campaign)}</span>
+                        </div>
+                        
+                        <div className="flex items-center space-x-2">
+                          <FaPercent className="text-gray-400" />
+                          <span className="text-sm text-gray-600">İndirim:</span>
+                          <span className="text-sm font-medium text-gray-900">
+                            {campaign.discountType === 'percentage' 
+                              ? `%${campaign.discountValue}` 
+                              : formatCurrency(campaign.discountValue)
+                            }
+                          </span>
+                        </div>
+                        
+                        <div className="flex items-center space-x-2">
+                          <FaCalendarAlt className="text-gray-400" />
+                          <span className="text-sm text-gray-600">Başlangıç:</span>
+                          <span className="text-sm font-medium text-gray-900">{formatDate(campaign.startDate)}</span>
+                        </div>
+                        
+                        <div className="flex items-center space-x-2">
+                          <FaCalendarAlt className="text-gray-400" />
+                          <span className="text-sm text-gray-600">Bitiş:</span>
+                          <span className="text-sm font-medium text-gray-900">{formatDate(campaign.endDate)}</span>
+                        </div>
+                      </div>
+                    </div>
 
-              <div className="form-row">
-                <div className="form-group">
-                  <label htmlFor="campaignType">Kampanya Türü *</label>
-                  <select
-                    id="campaignType"
-                    value={formData.campaignType}
-                    onChange={(e) => setFormData({...formData, campaignType: e.target.value, targetId: ''})}
-                    required
-                    className="form-select"
-                  >
-                    <option value="product">Ürün İndirimi</option>
-                    <option value="category">Kategori İndirimi</option>
-                  </select>
+                    <div className="flex items-center space-x-2 mt-4 lg:mt-0">
+                      <button
+                        onClick={() => handleEditCampaign(campaign)}
+                        className="text-blue-600 hover:text-blue-700 p-2 rounded-lg hover:bg-blue-50 transition-colors"
+                        title="Düzenle"
+                      >
+                        <FaEdit size={16} />
+                      </button>
+                      <button
+                        onClick={() => handleDeleteCampaign(campaign.id)}
+                        className="text-red-600 hover:text-red-700 p-2 rounded-lg hover:bg-red-50 transition-colors"
+                        title="Sil"
+                      >
+                        <FaTrash size={16} />
+                      </button>
+                    </div>
+                  </div>
                 </div>
-
-                <div className="form-group">
-                  <label htmlFor="targetId">Hedef {formData.campaignType === 'product' ? 'Ürün' : 'Kategori'} *</label>
-                  <select
-                    id="targetId"
-                    value={formData.targetId}
-                    onChange={(e) => setFormData({...formData, targetId: e.target.value})}
-                    required
-                    className="form-select"
-                  >
-                    <option value="">Seçiniz</option>
-                    {formData.campaignType === 'product' 
-                      ? products.map(product => (
-                          <option key={product.id} value={product.id}>
-                            {product.name}
-                          </option>
-                        ))
-                      : Array.isArray(categories) && categories.map(category => (
-                          <option key={category.id} value={category.id}>
-                            {category.name}
-                          </option>
-                        ))
-                    }
-                  </select>
-                </div>
-              </div>
-
-              <div className="form-row">
-                <div className="form-group">
-                  <label htmlFor="discountType">İndirim Türü *</label>
-                  <select
-                    id="discountType"
-                    value={formData.discountType}
-                    onChange={(e) => setFormData({...formData, discountType: e.target.value})}
-                    required
-                    className="form-select"
-                  >
-                    <option value="percentage">Yüzde (%)</option>
-                    <option value="fixed">Sabit Tutar (₺)</option>
-                  </select>
-                </div>
-
-                <div className="form-group">
-                  <label htmlFor="discountValue">İndirim Değeri *</label>
-                  <input
-                    type="number"
-                    id="discountValue"
-                    value={formData.discountValue}
-                    onChange={(e) => setFormData({...formData, discountValue: e.target.value})}
-                    required
-                    min="0"
-                    step={formData.discountType === 'percentage' ? '1' : '0.01'}
-                    className="form-input"
-                    placeholder={formData.discountType === 'percentage' ? '10' : '50.00'}
-                  />
-                </div>
-              </div>
-
-              <div className="form-row">
-                <div className="form-group">
-                  <label htmlFor="startDate">Başlangıç Tarihi *</label>
-                  <input
-                    type="date"
-                    id="startDate"
-                    value={formData.startDate}
-                    onChange={(e) => setFormData({...formData, startDate: e.target.value})}
-                    required
-                    className="form-input"
-                  />
-                </div>
-
-                <div className="form-group">
-                  <label htmlFor="endDate">Bitiş Tarihi *</label>
-                  <input
-                    type="date"
-                    id="endDate"
-                    value={formData.endDate}
-                    onChange={(e) => setFormData({...formData, endDate: e.target.value})}
-                    required
-                    className="form-input"
-                  />
-                </div>
-              </div>
-
-              <div className="form-group">
-                <label className="checkbox-label">
-                  <input
-                    type="checkbox"
-                    checked={formData.isActive}
-                    onChange={(e) => setFormData({...formData, isActive: e.target.checked})}
-                    className="form-checkbox"
-                  />
-                  <span>Kampanya Aktif</span>
-                </label>
-              </div>
-
-              <div className="modal-actions">
-                <button type="button" className="btn-secondary" onClick={() => setShowModal(false)}>
-                  İptal
-                </button>
-                <button type="submit" className="btn-primary">
-                  <FaSave />
-                  {editingCampaign ? 'Güncelle' : 'Oluştur'}
-                </button>
-              </div>
-            </form>
-          </div>
+              ))}
+            </div>
+          )}
         </div>
-      )}
+      </div>
     </div>
   );
 };
