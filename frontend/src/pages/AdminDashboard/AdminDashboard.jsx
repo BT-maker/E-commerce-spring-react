@@ -210,18 +210,29 @@ const AdminDashboard = () => {
   };
 
   const StatCard = ({ title, value, icon: Icon, change, changeType }) => (
-    <div className="stat-card">
-      <div className="card-icon">
-        <Icon size={24} />
-      </div>
-      <div className="card-content">
-        <h3>{title}</h3>
-        <p>{value.toLocaleString()}</p>
-        {change && (
-          <span className={`growth ${changeType}`}>
-            {changeType === 'positive' ? '+' : ''}{change}%
-          </span>
-        )}
+    <div className="bg-white/80 backdrop-blur-lg rounded-xl p-6 border border-gray-200/50 shadow-sm hover:shadow-md transition-all duration-200">
+      <div className="flex items-center justify-between">
+        <div className="flex-1">
+          <p className="text-sm font-medium text-gray-600 mb-1">{title}</p>
+          <p className="text-3xl font-bold text-gray-900 mb-2">{value.toLocaleString()}</p>
+          {change && (
+            <div className="flex items-center space-x-1">
+              {changeType === 'positive' ? (
+                <ArrowUpRight className="w-4 h-4 text-green-500" />
+              ) : (
+                <ArrowDownRight className="w-4 h-4 text-red-500" />
+              )}
+              <span className={`text-sm font-medium ${
+                changeType === 'positive' ? 'text-green-600' : 'text-red-600'
+              }`}>
+                {changeType === 'positive' ? '+' : ''}{change}%
+              </span>
+            </div>
+          )}
+        </div>
+        <div className="w-12 h-12 bg-gradient-to-r from-orange-500 to-red-500 rounded-lg flex items-center justify-center">
+          <Icon className="w-6 h-6 text-white" />
+        </div>
       </div>
     </div>
   );
@@ -244,17 +255,25 @@ const AdminDashboard = () => {
     
     return (
       <div 
-        className={`notification-card ${getNotificationClass(notification.type)} ${notification.categoryRequestId || notification.orderId || notification.sellerId ? 'clickable' : ''}`}
+        className={`bg-white/60 backdrop-blur-sm rounded-lg p-4 border border-gray-200/50 hover:bg-white/80 transition-all duration-200 cursor-pointer ${
+          notification.categoryRequestId || notification.orderId || notification.sellerId ? 'hover:shadow-md' : ''
+        }`}
         onClick={handleNotificationClick}
       >
-        <div className="notification-icon">
-          {getNotificationIcon(notification.type)}
-        </div>
-        <div className="notification-content">
-          <div className="notification-title">{notification.title || 'Bildirim'}</div>
-          <div className="notification-message">{notification.message || 'Bildirim mesajı'}</div>
-          <div className="notification-time">
-            {notification.createdAt ? new Date(notification.createdAt).toLocaleDateString('tr-TR') : 'Yeni'}
+        <div className="flex items-start space-x-3">
+          <div className="flex-shrink-0 mt-1">
+            {getNotificationIcon(notification.type)}
+          </div>
+          <div className="flex-1 min-w-0">
+            <div className="text-sm font-medium text-gray-900 mb-1">
+              {notification.title || 'Bildirim'}
+            </div>
+            <div className="text-sm text-gray-600 mb-2 line-clamp-2">
+              {notification.message || 'Bildirim mesajı'}
+            </div>
+            <div className="text-xs text-gray-500">
+              {notification.createdAt ? new Date(notification.createdAt).toLocaleDateString('tr-TR') : 'Yeni'}
+            </div>
           </div>
         </div>
       </div>
@@ -263,17 +282,18 @@ const AdminDashboard = () => {
 
   if (loading) {
     return (
-      <div className="admin-dashboard">
-        <div className="loading-container">
-          <div className="loading-spinner"></div>
-          <p>Dashboard yükleniyor...</p>
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 flex items-center justify-center">
+        <div className="bg-white/80 backdrop-blur-lg rounded-2xl shadow-2xl border border-gray-200/50 p-8 text-center">
+          <div className="animate-spin rounded-full h-16 w-16 border-4 border-orange-500/30 border-t-orange-500 mx-auto mb-6"></div>
+          <div className="text-xl font-semibold text-gray-900 mb-2">Dashboard Yükleniyor</div>
+          <p className="text-gray-600">Veriler getiriliyor...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="admin-dashboard">
+    <div className="space-y-6">
       <PageTitle title="Admin Dashboard" />
       <MetaTags 
         title="Admin Dashboard"
@@ -281,27 +301,26 @@ const AdminDashboard = () => {
         keywords="admin, dashboard, yönetim paneli, istatistikler"
       />
 
-      <div className="dashboard-header">
-        <div className="header-content">
-          <h1>Admin Dashboard</h1>
-          <p>Platform genel durumu ve istatistikler</p>
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900">Admin Dashboard</h1>
+          <p className="text-gray-600 mt-1">Platform genel durumu ve istatistikler</p>
         </div>
-        <div className="header-actions">
-          <button 
-            className="refresh-btn" 
-            onClick={() => {
-              fetchDashboardData(0, true);
-              toast.success('Dashboard yenileniyor...', {
-                duration: 2000,
-                position: 'top-right'
-              });
-            }}
-            disabled={loading}
-          >
-            <Activity size={20} className={loading ? 'animate-spin' : ''} />
-            {loading ? 'Yenileniyor...' : 'Yenile'}
-          </button>
-        </div>
+        <button 
+          className="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white font-semibold py-2 px-4 rounded-lg transition-all duration-200 flex items-center space-x-2 disabled:opacity-50"
+          onClick={() => {
+            fetchDashboardData(0, true);
+            toast.success('Dashboard yenileniyor...', {
+              duration: 2000,
+              position: 'top-right'
+            });
+          }}
+          disabled={loading}
+        >
+          <Activity size={20} className={loading ? 'animate-spin' : ''} />
+          <span>{loading ? 'Yenileniyor...' : 'Yenile'}</span>
+        </button>
       </div>
 
       {/* İstatistik Kartları */}
@@ -351,93 +370,117 @@ const AdminDashboard = () => {
       </div>
 
       {/* Grafikler ve Detaylar */}
-      <div className="dashboard-content">
-        <div className="content-grid">
-                     {/* Bildirimler */}
-           <div className="content-card">
-             <div className="card-header">
-               <h3>Bildirimler</h3>
-               <div className="header-info">
-                 <span className="notifications-count">Toplam {notificationsPagination.totalNotifications} bildirim</span>
-                 <button 
-                   className="view-all-btn"
-                   onClick={() => navigate('/admin/notifications')}
-                 >
-                   Tümünü Gör
-                 </button>
-               </div>
-             </div>
-             <div className="notifications-list">
-               {notifications.length > 0 ? (
-                 notifications.map((notification, index) => (
-                   <NotificationCard key={notification.id || index} notification={notification} />
-                 ))
-               ) : (
-                 <div className="empty-state">
-                   <Bell size={48} />
-                   <p>Henüz bildirim bulunmuyor</p>
-                 </div>
-               )}
-             </div>
-             
-             {/* Sayfalama */}
-             {notificationsPagination.totalPages > 1 && (
-               <div className="pagination">
-                 <button 
-                   className={`pagination-btn ${!notificationsPagination.hasPrevious ? 'disabled' : ''}`}
-                   onClick={() => handlePageChange(notificationsPagination.currentPage - 1)}
-                   disabled={!notificationsPagination.hasPrevious}
-                 >
-                   Önceki
-                 </button>
-                 
-                 <div className="page-info">
-                   Sayfa {notificationsPagination.currentPage + 1} / {notificationsPagination.totalPages}
-                 </div>
-                 
-                 <button 
-                   className={`pagination-btn ${!notificationsPagination.hasNext ? 'disabled' : ''}`}
-                   onClick={() => handlePageChange(notificationsPagination.currentPage + 1)}
-                   disabled={!notificationsPagination.hasNext}
-                 >
-                   Sonraki
-                 </button>
-               </div>
-             )}
-           </div>
-
-          {/* Hızlı İstatistikler */}
-          <div className="quick-stats-card">
-            <div className="card-header">
-              <h3>Hızlı İstatistikler</h3>
-              <Calendar size={20} />
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Bildirimler */}
+        <div className="bg-white/80 backdrop-blur-lg rounded-xl border border-gray-200/50 shadow-sm">
+          <div className="p-6 border-b border-gray-200/50">
+            <div className="flex items-center justify-between">
+              <h3 className="text-lg font-semibold text-gray-900">Bildirimler</h3>
+              <div className="flex items-center space-x-4">
+                <span className="text-sm text-gray-500">
+                  Toplam {notificationsPagination.totalNotifications} bildirim
+                </span>
+                <button 
+                  className="text-orange-600 hover:text-orange-700 text-sm font-medium transition-colors"
+                  onClick={() => navigate('/admin/notifications')}
+                >
+                  Tümünü Gör
+                </button>
+              </div>
             </div>
-            <div className="quick-stats">
-              <div className="quick-stat">
-                <div className="quick-stat-icon">
-                  <BarChart3 size={20} />
+          </div>
+          <div className="p-6">
+            <div className="space-y-3">
+              {notifications.length > 0 ? (
+                notifications.map((notification, index) => (
+                  <NotificationCard key={notification.id || index} notification={notification} />
+                ))
+              ) : (
+                <div className="text-center py-8">
+                  <Bell className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                  <p className="text-gray-500">Henüz bildirim bulunmuyor</p>
                 </div>
-                <div className="quick-stat-content">
-                  <span className="quick-stat-value">{quickStats.weeklyOrders.toLocaleString()}</span>
-                  <span className="quick-stat-label">Bu Hafta Sipariş</span>
+              )}
+            </div>
+            
+            {/* Sayfalama */}
+            {notificationsPagination.totalPages > 1 && (
+              <div className="flex items-center justify-between mt-6 pt-4 border-t border-gray-200/50">
+                <button 
+                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                    !notificationsPagination.hasPrevious 
+                      ? 'bg-gray-100 text-gray-400 cursor-not-allowed' 
+                      : 'bg-orange-100 text-orange-700 hover:bg-orange-200'
+                  }`}
+                  onClick={() => handlePageChange(notificationsPagination.currentPage - 1)}
+                  disabled={!notificationsPagination.hasPrevious}
+                >
+                  Önceki
+                </button>
+                
+                <div className="text-sm text-gray-600">
+                  Sayfa {notificationsPagination.currentPage + 1} / {notificationsPagination.totalPages}
+                </div>
+                
+                <button 
+                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                    !notificationsPagination.hasNext 
+                      ? 'bg-gray-100 text-gray-400 cursor-not-allowed' 
+                      : 'bg-orange-100 text-orange-700 hover:bg-orange-200'
+                  }`}
+                  onClick={() => handlePageChange(notificationsPagination.currentPage + 1)}
+                  disabled={!notificationsPagination.hasNext}
+                >
+                  Sonraki
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Hızlı İstatistikler */}
+        <div className="bg-white/80 backdrop-blur-lg rounded-xl border border-gray-200/50 shadow-sm">
+          <div className="p-6 border-b border-gray-200/50">
+            <div className="flex items-center justify-between">
+              <h3 className="text-lg font-semibold text-gray-900">Hızlı İstatistikler</h3>
+              <Calendar className="w-5 h-5 text-gray-500" />
+            </div>
+          </div>
+          <div className="p-6">
+            <div className="space-y-4">
+              <div className="flex items-center justify-between p-4 bg-gradient-to-r from-blue-50 to-blue-100 rounded-lg">
+                <div className="flex items-center space-x-3">
+                  <div className="w-10 h-10 bg-blue-500 rounded-lg flex items-center justify-center">
+                    <BarChart3 className="w-5 h-5 text-white" />
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-600">Bu Hafta Sipariş</p>
+                    <p className="text-xl font-bold text-gray-900">{quickStats.weeklyOrders.toLocaleString()}</p>
+                  </div>
                 </div>
               </div>
-              <div className="quick-stat">
-                <div className="quick-stat-icon">
-                  <PieChart size={20} />
-                </div>
-                <div className="quick-stat-content">
-                  <span className="quick-stat-value">₺{quickStats.monthlyRevenue.toLocaleString()}</span>
-                  <span className="quick-stat-label">Bu Ay Gelir</span>
+              
+              <div className="flex items-center justify-between p-4 bg-gradient-to-r from-green-50 to-green-100 rounded-lg">
+                <div className="flex items-center space-x-3">
+                  <div className="w-10 h-10 bg-green-500 rounded-lg flex items-center justify-center">
+                    <PieChart className="w-5 h-5 text-white" />
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-600">Bu Ay Gelir</p>
+                    <p className="text-xl font-bold text-gray-900">₺{quickStats.monthlyRevenue.toLocaleString()}</p>
+                  </div>
                 </div>
               </div>
-              <div className="quick-stat">
-                <div className="quick-stat-icon">
-                  <Users size={20} />
-                </div>
-                <div className="quick-stat-content">
-                  <span className="quick-stat-value">{quickStats.newUsers.toLocaleString()}</span>
-                  <span className="quick-stat-label">Yeni Kullanıcı</span>
+              
+              <div className="flex items-center justify-between p-4 bg-gradient-to-r from-purple-50 to-purple-100 rounded-lg">
+                <div className="flex items-center space-x-3">
+                  <div className="w-10 h-10 bg-purple-500 rounded-lg flex items-center justify-center">
+                    <Users className="w-5 h-5 text-white" />
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-600">Yeni Kullanıcı</p>
+                    <p className="text-xl font-bold text-gray-900">{quickStats.newUsers.toLocaleString()}</p>
+                  </div>
                 </div>
               </div>
             </div>

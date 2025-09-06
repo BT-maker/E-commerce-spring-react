@@ -61,7 +61,7 @@ const DiscountedProducts = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background-primary">
+    <div className="min-h-screen ">
       <PageTitle title="İndirimli Ürünler" />
       <MetaTags 
         title="İndirimli Ürünler"

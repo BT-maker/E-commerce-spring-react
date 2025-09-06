@@ -28,6 +28,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.bahattintok.e_commerce.event.OrderStatusChangedEvent;
 import com.bahattintok.e_commerce.model.Campaign;
+import com.bahattintok.e_commerce.model.Category;
 import com.bahattintok.e_commerce.model.Order;
 import com.bahattintok.e_commerce.model.OrderItem;
 import com.bahattintok.e_commerce.model.Product;
@@ -35,6 +36,7 @@ import com.bahattintok.e_commerce.model.Review;
 import com.bahattintok.e_commerce.model.Store;
 import com.bahattintok.e_commerce.model.User;
 import com.bahattintok.e_commerce.repository.CampaignRepository;
+import com.bahattintok.e_commerce.repository.CategoryRepository;
 import com.bahattintok.e_commerce.repository.OrderRepository;
 import com.bahattintok.e_commerce.repository.ProductRepository;
 import com.bahattintok.e_commerce.repository.ReviewRepository;
@@ -68,6 +70,9 @@ public class SellerController {
 
     @Autowired
     private CampaignRepository campaignRepository;
+    
+    @Autowired
+    private CategoryRepository categoryRepository;
     
     @Autowired(required = false)
     private ElasticsearchService elasticsearchService;
@@ -2208,6 +2213,261 @@ public class SellerController {
             System.err.println("Search campaigns error: " + e.getMessage());
             e.printStackTrace();
             return ResponseEntity.internalServerError().build();
+        }
+    }
+    
+    @PutMapping("/products/{productId}/status")
+    @PreAuthorize("hasRole('SELLER') or hasRole('ROLE_SELLER')")
+    @Operation(summary = "Update product status", description = "Update the status of a product (AKTİF/PASİF)")
+    public ResponseEntity<Map<String, Object>> updateProductStatus(
+            @PathVariable String productId,
+            @RequestBody Map<String, String> request) {
+        try {
+            System.out.println("=== UPDATE PRODUCT STATUS DEBUG ===");
+            System.out.println("Product ID: " + productId);
+            System.out.println("Request body: " + request);
+            
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            String email = authentication.getName();
+            System.out.println("Current user email: " + email);
+            
+            User currentUser = userRepository.findByEmail(email)
+                    .orElseThrow(() -> new RuntimeException("User not found: " + email));
+            
+            if (!currentUser.getRole().getName().equals("SELLER") && !currentUser.getRole().isSeller()) {
+                System.out.println("User is not a seller, returning 403");
+                return ResponseEntity.status(403).body(Map.of("error", "Bu işlem için seller yetkisi gereklidir"));
+            }
+            
+            Store sellerStore = storeRepository.findBySeller(currentUser)
+                    .orElseThrow(() -> new RuntimeException("Store not found for seller: " + email));
+            
+            // Ürünü bul
+            Product product = productRepository.findById(productId)
+                    .orElseThrow(() -> new RuntimeException("Product not found: " + productId));
+            
+            // Ürünün bu seller'a ait olduğunu kontrol et
+            if (!product.getStoreId().equals(sellerStore.getId())) {
+                System.out.println("Product does not belong to this seller");
+                return ResponseEntity.status(403).body(Map.of("error", "Bu ürün size ait değil"));
+            }
+            
+            // Yeni durumu al
+            String newStatus = request.get("status");
+            if (newStatus == null || (!newStatus.equals("AKTİF") && !newStatus.equals("PASİF"))) {
+                return ResponseEntity.badRequest().body(Map.of("error", "Geçersiz durum. AKTİF veya PASİF olmalıdır"));
+            }
+            
+            // Eski durumu kaydet
+            String oldStatus = product.getStatus();
+            
+            // Durumu güncelle
+            product.setStatus(newStatus);
+            productRepository.save(product);
+            
+            System.out.println("Product status updated from " + oldStatus + " to " + newStatus);
+            System.out.println("=== END UPDATE PRODUCT STATUS DEBUG ===");
+            
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", true);
+            response.put("message", "Ürün durumu başarıyla güncellendi");
+            response.put("productId", productId);
+            response.put("oldStatus", oldStatus);
+            response.put("newStatus", newStatus);
+            
+            return ResponseEntity.ok(response);
+            
+        } catch (Exception e) {
+            System.err.println("Update product status error: " + e.getMessage());
+            e.printStackTrace();
+            return ResponseEntity.internalServerError().body(Map.of("error", "Ürün durumu güncellenirken bir hata oluştu: " + e.getMessage()));
+        }
+    }
+    
+    @PostMapping("/products/bulk")
+    @PreAuthorize("hasRole('SELLER') or hasRole('ROLE_SELLER')")
+    @Operation(summary = "Bulk add products", description = "Add multiple products from JSON array")
+    public ResponseEntity<Map<String, Object>> bulkAddProducts(@RequestBody List<Map<String, Object>> productsData) {
+        try {
+            System.out.println("=== BULK ADD PRODUCTS DEBUG ===");
+            System.out.println("Received " + productsData.size() + " products");
+            
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            String email = authentication.getName();
+            System.out.println("Current user email: " + email);
+            
+            User currentUser = userRepository.findByEmail(email)
+                    .orElseThrow(() -> new RuntimeException("User not found: " + email));
+            
+            if (!currentUser.getRole().getName().equals("SELLER") && !currentUser.getRole().isSeller()) {
+                System.out.println("User is not a seller, returning 403");
+                return ResponseEntity.status(403).body(Map.of("error", "Bu işlem için seller yetkisi gereklidir"));
+            }
+            
+            Store sellerStore = storeRepository.findBySeller(currentUser)
+                    .orElseThrow(() -> new RuntimeException("Store not found for seller: " + email));
+            
+            List<Product> savedProducts = new ArrayList<>();
+            List<Map<String, Object>> errors = new ArrayList<>();
+            
+            for (int i = 0; i < productsData.size(); i++) {
+                Map<String, Object> productData = productsData.get(i);
+                try {
+                    System.out.println("Processing product " + (i + 1) + ": " + productData.get("name"));
+                    
+                    // Gerekli alanları kontrol et
+                    if (productData.get("name") == null || productData.get("name").toString().trim().isEmpty()) {
+                        errors.add(Map.of(
+                            "index", i,
+                            "name", productData.get("name"),
+                            "error", "Ürün adı gereklidir"
+                        ));
+                        continue;
+                    }
+                    
+                    if (productData.get("price") == null) {
+                        errors.add(Map.of(
+                            "index", i,
+                            "name", productData.get("name"),
+                            "error", "Fiyat gereklidir"
+                        ));
+                        continue;
+                    }
+                    
+                    if (productData.get("categoryName") == null) {
+                        errors.add(Map.of(
+                            "index", i,
+                            "name", productData.get("name"),
+                            "error", "Kategori adı gereklidir"
+                        ));
+                        continue;
+                    }
+                    
+                    // Kategoriyi kontrol et
+                    String categoryName = productData.get("categoryName").toString();
+                    Category category;
+                    try {
+                        category = categoryRepository.findByName(categoryName)
+                                .orElseThrow(() -> new RuntimeException("Category not found: " + categoryName));
+                    } catch (Exception e) {
+                        errors.add(Map.of(
+                            "index", i,
+                            "name", productData.get("name"),
+                            "error", "Kategori bulunamadı: " + categoryName
+                        ));
+                        continue;
+                    }
+                    
+                    // Ürün oluştur
+                    Product product = new Product();
+                    product.setName(productData.get("name").toString().trim());
+                    product.setDescription(productData.get("description") != null ? 
+                        productData.get("description").toString().trim() : "");
+                    
+                    // Fiyat
+                    try {
+                        double price = Double.parseDouble(productData.get("price").toString());
+                        product.setPrice(BigDecimal.valueOf(price));
+                    } catch (NumberFormatException e) {
+                        errors.add(Map.of(
+                            "index", i,
+                            "name", productData.get("name"),
+                            "error", "Geçersiz fiyat formatı"
+                        ));
+                        continue;
+                    }
+                    
+                    // Stok
+                    int stock = 0;
+                    if (productData.get("stock") != null) {
+                        try {
+                            stock = Integer.parseInt(productData.get("stock").toString());
+                        } catch (NumberFormatException e) {
+                            errors.add(Map.of(
+                                "index", i,
+                                "name", productData.get("name"),
+                                "error", "Geçersiz stok formatı"
+                            ));
+                            continue;
+                        }
+                    }
+                    product.setStock(stock);
+                    
+                    // Resim URL'leri
+                    product.setImageUrl(productData.get("imageUrl") != null ? 
+                        productData.get("imageUrl").toString().trim() : "");
+                    product.setImageUrl1(productData.get("imageUrl1") != null ? 
+                        productData.get("imageUrl1").toString().trim() : "");
+                    product.setImageUrl2(productData.get("imageUrl2") != null ? 
+                        productData.get("imageUrl2").toString().trim() : "");
+                    product.setImageUrl3(productData.get("imageUrl3") != null ? 
+                        productData.get("imageUrl3").toString().trim() : "");
+                    
+                    // Durum
+                    String status = productData.get("status") != null ? 
+                        productData.get("status").toString() : "AKTİF";
+                    if (!status.equals("AKTİF") && !status.equals("PASİF")) {
+                        status = "AKTİF";
+                    }
+                    product.setStatus(status);
+                    
+                    // İndirim bilgileri
+                    int discountPercentage = 0;
+                    if (productData.get("discountPercentage") != null) {
+                        try {
+                            discountPercentage = Integer.parseInt(productData.get("discountPercentage").toString());
+                        } catch (NumberFormatException e) {
+                            discountPercentage = 0;
+                        }
+                    }
+                    product.setDiscountPercentage(discountPercentage);
+                    
+                    // Store ve kategori bilgileri
+                    product.setStore(sellerStore);
+                    product.setStoreId(sellerStore.getId());
+                    product.setCategory(category);
+                    product.setCategoryId(category.getId());
+                    
+                    // Ürünü kaydet
+                    Product savedProduct = productRepository.save(product);
+                    savedProducts.add(savedProduct);
+                    
+                    System.out.println("Product saved successfully: " + savedProduct.getName());
+                    
+                } catch (Exception e) {
+                    System.err.println("Error processing product " + (i + 1) + ": " + e.getMessage());
+                    errors.add(Map.of(
+                        "index", i,
+                        "name", productData.get("name"),
+                        "error", "Ürün işlenirken hata: " + e.getMessage()
+                    ));
+                }
+            }
+            
+            System.out.println("Bulk add completed. Saved: " + savedProducts.size() + ", Errors: " + errors.size());
+            System.out.println("=== END BULK ADD PRODUCTS DEBUG ===");
+            
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", true);
+            response.put("message", "Toplu ürün ekleme tamamlandı");
+            response.put("totalProcessed", productsData.size());
+            response.put("successful", savedProducts.size());
+            response.put("failed", errors.size());
+            response.put("savedProducts", savedProducts.stream().map(p -> Map.of(
+                "id", p.getId(),
+                "name", p.getName(),
+                "price", p.getPrice(),
+                "stock", p.getStock(),
+                "status", p.getStatus()
+            )).toList());
+            response.put("errors", errors);
+            
+            return ResponseEntity.ok(response);
+            
+        } catch (Exception e) {
+            System.err.println("Bulk add products error: " + e.getMessage());
+            e.printStackTrace();
+            return ResponseEntity.internalServerError().body(Map.of("error", "Toplu ürün ekleme sırasında bir hata oluştu: " + e.getMessage()));
         }
     }
 } 

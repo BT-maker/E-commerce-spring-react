@@ -102,9 +102,13 @@ const SellerStatistics = () => {
   const getChartData = () => {
     if (!statsData) return null;
 
-    const labels = statsData.dailySales?.map(item => item[0]) || [];
-    const salesData = statsData.dailySales?.map(item => item[1]) || [];
-    const revenueData = statsData.dailySales?.map(item => item[2]) || [];
+    // Backend'den gelen veri yapısına göre güncelleme
+    const salesData = statsData.salesData || [];
+    const revenueData = statsData.revenueData || [];
+    
+    const labels = salesData.map(item => item.date) || [];
+    const salesValues = salesData.map(item => item.count) || [];
+    const revenueValues = revenueData.map(item => item.amount) || [];
 
     switch (selectedChart) {
       case 'sales':
@@ -113,11 +117,16 @@ const SellerStatistics = () => {
           datasets: [
             {
               label: 'Satış Adedi',
-              data: salesData,
+              data: salesValues,
               borderColor: 'rgb(59, 130, 246)',
               backgroundColor: 'rgba(59, 130, 246, 0.1)',
               fill: true,
-              tension: 0.4
+              tension: 0.4,
+              pointBackgroundColor: 'rgb(59, 130, 246)',
+              pointBorderColor: '#fff',
+              pointBorderWidth: 2,
+              pointRadius: 5,
+              pointHoverRadius: 7
             }
           ]
         };
@@ -127,11 +136,16 @@ const SellerStatistics = () => {
           datasets: [
             {
               label: 'Gelir (₺)',
-              data: revenueData,
+              data: revenueValues,
               borderColor: 'rgb(34, 197, 94)',
               backgroundColor: 'rgba(34, 197, 94, 0.1)',
               fill: true,
-              tension: 0.4
+              tension: 0.4,
+              pointBackgroundColor: 'rgb(34, 197, 94)',
+              pointBorderColor: '#fff',
+              pointBorderWidth: 2,
+              pointRadius: 5,
+              pointHoverRadius: 7
             }
           ]
         };
@@ -141,10 +155,12 @@ const SellerStatistics = () => {
           datasets: [
             {
               label: 'Sipariş Sayısı',
-              data: salesData,
+              data: salesValues,
               backgroundColor: 'rgba(251, 146, 60, 0.8)',
               borderColor: 'rgb(251, 146, 60)',
-              borderWidth: 1
+              borderWidth: 1,
+              borderRadius: 4,
+              borderSkipped: false,
             }
           ]
         };
@@ -157,31 +173,98 @@ const SellerStatistics = () => {
     return {
       responsive: true,
       maintainAspectRatio: false,
+      interaction: {
+        intersect: false,
+        mode: 'index',
+      },
       plugins: {
         legend: {
           position: 'top',
+          labels: {
+            usePointStyle: true,
+            padding: 20,
+            font: {
+              size: 12,
+              weight: '500'
+            }
+          }
         },
         title: {
           display: true,
-          text: `${getPeriodLabel()} - ${selectedChart === 'sales' ? 'Satış Adedi' : selectedChart === 'revenue' ? 'Gelir' : 'Sipariş Sayısı'}`
+          text: `${getPeriodLabel()} - ${selectedChart === 'sales' ? 'Satış Adedi' : selectedChart === 'revenue' ? 'Gelir' : 'Sipariş Sayısı'}`,
+          font: {
+            size: 16,
+            weight: 'bold'
+          },
+          color: '#374151',
+          padding: 20
+        },
+        tooltip: {
+          backgroundColor: 'rgba(0, 0, 0, 0.8)',
+          titleColor: '#fff',
+          bodyColor: '#fff',
+          borderColor: 'rgba(255, 255, 255, 0.1)',
+          borderWidth: 1,
+          cornerRadius: 8,
+          displayColors: true,
+          callbacks: {
+            label: function(context) {
+              if (selectedChart === 'revenue') {
+                return `${context.dataset.label}: ${formatCurrency(context.parsed.y)}`;
+              }
+              return `${context.dataset.label}: ${formatNumber(context.parsed.y)}`;
+            }
+          }
         }
       },
       scales: {
+        x: {
+          grid: {
+            display: false
+          },
+          ticks: {
+            color: '#6B7280',
+            font: {
+              size: 11
+            }
+          }
+        },
         y: {
-          beginAtZero: true
+          beginAtZero: true,
+          grid: {
+            color: 'rgba(0, 0, 0, 0.05)',
+            drawBorder: false
+          },
+          ticks: {
+            color: '#6B7280',
+            font: {
+              size: 11
+            },
+            callback: function(value) {
+              if (selectedChart === 'revenue') {
+                return formatCurrency(value);
+              }
+              return formatNumber(value);
+            }
+          }
+        }
+      },
+      elements: {
+        point: {
+          hoverRadius: 8
         }
       }
     };
   };
 
   const getCategoryData = () => {
-    if (!statsData?.categoryStats) return null;
+    if (!statsData?.categoryData || statsData.categoryData.length === 0) return null;
 
     return {
-      labels: statsData.categoryStats.map(item => item[0]),
+      labels: statsData.categoryData.map(item => item.categoryName),
       datasets: [
         {
-          data: statsData.categoryStats.map(item => item[1]),
+          data: statsData.categoryData.map(item => item.salesCount),
           backgroundColor: [
             'rgba(59, 130, 246, 0.8)',
             'rgba(34, 197, 94, 0.8)',
@@ -190,10 +273,13 @@ const SellerStatistics = () => {
             'rgba(168, 85, 247, 0.8)',
             'rgba(6, 182, 212, 0.8)',
             'rgba(245, 158, 11, 0.8)',
-            'rgba(236, 72, 153, 0.8)'
+            'rgba(236, 72, 153, 0.8)',
+            'rgba(16, 185, 129, 0.8)',
+            'rgba(139, 92, 246, 0.8)'
           ],
           borderWidth: 2,
-          borderColor: '#ffffff'
+          borderColor: '#ffffff',
+          hoverOffset: 4
         }
       ]
     };
@@ -323,13 +409,14 @@ const SellerStatistics = () => {
         <div className="p-6">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
             {/* Toplam Satış */}
-            <div className="bg-gradient-to-r from-blue-50 to-blue-100 rounded-xl p-6 border border-blue-200">
+            <div className="bg-gradient-to-r from-blue-50 to-blue-100 rounded-xl p-6 border border-blue-200 hover:shadow-lg transition-shadow">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-blue-600">Toplam Satış</p>
                   <p className="text-2xl font-bold text-blue-900">
-                    {formatNumber(statsData?.totalSold || 0)}
+                    {formatNumber(statsData?.totalSales || 0)}
                   </p>
+                  <p className="text-xs text-blue-500 mt-1">Adet</p>
                 </div>
                 <div className="p-3 bg-blue-500 rounded-lg">
                   <FaShoppingCart className="text-white text-xl" />
@@ -338,13 +425,14 @@ const SellerStatistics = () => {
             </div>
 
             {/* Toplam Gelir */}
-            <div className="bg-gradient-to-r from-green-50 to-green-100 rounded-xl p-6 border border-green-200">
+            <div className="bg-gradient-to-r from-green-50 to-green-100 rounded-xl p-6 border border-green-200 hover:shadow-lg transition-shadow">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-green-600">Toplam Gelir</p>
                   <p className="text-2xl font-bold text-green-900">
                     {formatCurrency(statsData?.totalRevenue || 0)}
                   </p>
+                  <p className="text-xs text-green-500 mt-1">₺</p>
                 </div>
                 <div className="p-3 bg-green-500 rounded-lg">
                   <FaMoneyBillWave className="text-white text-xl" />
@@ -353,13 +441,14 @@ const SellerStatistics = () => {
             </div>
 
             {/* Ortalama Sipariş */}
-            <div className="bg-gradient-to-r from-orange-50 to-orange-100 rounded-xl p-6 border border-orange-200">
+            <div className="bg-gradient-to-r from-orange-50 to-orange-100 rounded-xl p-6 border border-orange-200 hover:shadow-lg transition-shadow">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-orange-600">Ortalama Sipariş</p>
                   <p className="text-2xl font-bold text-orange-900">
                     {formatCurrency(statsData?.averageOrderValue || 0)}
                   </p>
+                  <p className="text-xs text-orange-500 mt-1">₺/sipariş</p>
                 </div>
                 <div className="p-3 bg-orange-500 rounded-lg">
                   <FaBoxes className="text-white text-xl" />
@@ -368,13 +457,14 @@ const SellerStatistics = () => {
             </div>
 
             {/* Müşteri Sayısı */}
-            <div className="bg-gradient-to-r from-purple-50 to-purple-100 rounded-xl p-6 border border-purple-200">
+            <div className="bg-gradient-to-r from-purple-50 to-purple-100 rounded-xl p-6 border border-purple-200 hover:shadow-lg transition-shadow">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-purple-600">Müşteri Sayısı</p>
                   <p className="text-2xl font-bold text-purple-900">
-                    {formatNumber(statsData?.uniqueCustomers || 0)}
+                    {formatNumber(statsData?.totalCustomers || 0)}
                   </p>
+                  <p className="text-xs text-purple-500 mt-1">Benzersiz</p>
                 </div>
                 <div className="p-3 bg-purple-500 rounded-lg">
                   <FaUsers className="text-white text-xl" />
@@ -389,10 +479,20 @@ const SellerStatistics = () => {
             <div className="bg-gray-50 rounded-xl p-6">
               <h3 className="text-lg font-semibold text-gray-900 mb-4">Satış Trendi</h3>
               <div className="h-80">
-                {selectedChart === 'orders' ? (
-                  <Bar data={getChartData()} options={getChartOptions()} />
+                {getChartData() && getChartData().labels.length > 0 ? (
+                  selectedChart === 'orders' ? (
+                    <Bar data={getChartData()} options={getChartOptions()} />
+                  ) : (
+                    <Line data={getChartData()} options={getChartOptions()} />
+                  )
                 ) : (
-                  <Line data={getChartData()} options={getChartOptions()} />
+                  <div className="flex items-center justify-center h-full">
+                    <div className="text-center">
+                      <FaChartLine className="mx-auto text-gray-300 text-4xl mb-4" />
+                      <p className="text-gray-500 text-lg font-medium">Henüz veri yok</p>
+                      <p className="text-gray-400 text-sm">Satış yapmaya başladığınızda grafik burada görünecek</p>
+                    </div>
+                  </div>
                 )}
               </div>
             </div>
@@ -401,120 +501,140 @@ const SellerStatistics = () => {
             <div className="bg-gray-50 rounded-xl p-6">
               <h3 className="text-lg font-semibold text-gray-900 mb-4">Kategori Dağılımı</h3>
               <div className="h-80">
-                {getCategoryData() && (
+                {getCategoryData() && getCategoryData().labels.length > 0 ? (
                   <Doughnut 
                     data={getCategoryData()} 
                     options={{
                       responsive: true,
                       maintainAspectRatio: false,
+                      cutout: '60%',
                       plugins: {
                         legend: {
                           position: 'bottom',
+                          labels: {
+                            usePointStyle: true,
+                            padding: 20,
+                            font: {
+                              size: 12,
+                              weight: '500'
+                            }
+                          }
+                        },
+                        tooltip: {
+                          backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                          titleColor: '#fff',
+                          bodyColor: '#fff',
+                          borderColor: 'rgba(255, 255, 255, 0.1)',
+                          borderWidth: 1,
+                          cornerRadius: 8,
+                          callbacks: {
+                            label: function(context) {
+                              const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                              const percentage = ((context.parsed / total) * 100).toFixed(1);
+                              return `${context.label}: ${formatNumber(context.parsed)} (${percentage}%)`;
+                            }
+                          }
+                        }
+                      },
+                      elements: {
+                        arc: {
+                          borderWidth: 2,
+                          borderColor: '#ffffff'
                         }
                       }
                     }} 
                   />
+                ) : (
+                  <div className="flex items-center justify-center h-full">
+                    <div className="text-center">
+                      <FaBoxes className="mx-auto text-gray-300 text-4xl mb-4" />
+                      <p className="text-gray-500 text-lg font-medium">Kategori verisi yok</p>
+                      <p className="text-gray-400 text-sm">Ürün kategorilerinizde satış yapmaya başladığınızda burada görünecek</p>
+                    </div>
+                  </div>
                 )}
               </div>
             </div>
           </div>
 
           {/* Top Products */}
-          {statsData?.bestSellers && statsData.bestSellers.length > 0 && (
+          {statsData?.topProduct && statsData.topProduct.name !== "Veri yok" && (
             <div className="mt-8">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">En Çok Satan Ürünler</h3>
-              <div className="bg-gray-50 rounded-xl overflow-hidden">
-                <div className="overflow-x-auto">
-                  <table className="w-full">
-                    <thead className="bg-gray-100 border-b border-gray-200">
-                      <tr>
-                        <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">Sıra</th>
-                        <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">Ürün</th>
-                        <th className="px-6 py-3 text-center text-sm font-semibold text-gray-700">Satış Adedi</th>
-                        <th className="px-6 py-3 text-center text-sm font-semibold text-gray-700">Gelir</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-gray-200">
-                      {statsData.bestSellers.map((product, index) => (
-                        <tr key={index} className="hover:bg-gray-100 transition-colors">
-                          <td className="px-6 py-4">
-                            <span className={`inline-flex items-center justify-center w-8 h-8 rounded-full text-sm font-bold ${
-                              index === 0 ? 'bg-yellow-100 text-yellow-800' :
-                              index === 1 ? 'bg-gray-100 text-gray-800' :
-                              index === 2 ? 'bg-orange-100 text-orange-800' :
-                              'bg-blue-100 text-blue-800'
-                            }`}>
-                              {index + 1}
-                            </span>
-                          </td>
-                          <td className="px-6 py-4 font-medium text-gray-900">{product[0]}</td>
-                          <td className="px-6 py-4 text-center">
-                            <span className="bg-green-100 text-green-800 px-2 py-1 rounded-full text-sm font-medium">
-                              {formatNumber(product[1])}
-                            </span>
-                          </td>
-                          <td className="px-6 py-4 text-center font-medium text-gray-900">
-                            {formatCurrency(product[2])}
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">En Çok Satan Ürün</h3>
+              <div className="bg-gradient-to-r from-yellow-50 to-orange-50 rounded-xl p-6 border border-yellow-200">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-4">
+                    <div className="p-3 bg-yellow-500 rounded-lg">
+                      <FaStar className="text-white text-xl" />
+                    </div>
+                    <div>
+                      <h4 className="text-lg font-semibold text-gray-900">{statsData.topProduct.name}</h4>
+                      <p className="text-sm text-gray-600">En çok satan ürün</p>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-2xl font-bold text-yellow-600">
+                      {formatNumber(statsData.topProduct.salesCount || 0)}
+                    </p>
+                    <p className="text-sm text-gray-500">Satış Adedi</p>
+                  </div>
                 </div>
               </div>
             </div>
           )}
 
-          {/* Daily Sales Table */}
-          {statsData?.dailySales && statsData.dailySales.length > 0 && (
-            <div className="mt-8">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">Günlük Satışlar</h3>
-              <div className="bg-gray-50 rounded-xl overflow-hidden">
-                <div className="overflow-x-auto">
-                  <table className="w-full">
-                    <thead className="bg-gray-100 border-b border-gray-200">
-                      <tr>
-                        <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">Tarih</th>
-                        <th className="px-6 py-3 text-center text-sm font-semibold text-gray-700">Satış Adedi</th>
-                        <th className="px-6 py-3 text-center text-sm font-semibold text-gray-700">Gelir</th>
-                        <th className="px-6 py-3 text-center text-sm font-semibold text-gray-700">Trend</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-gray-200">
-                      {statsData.dailySales.map((day, index) => {
-                        const [date, sales, revenue] = day;
-                        const prevSales = index > 0 ? statsData.dailySales[index - 1][1] : sales;
-                        const trend = sales > prevSales ? 'up' : sales < prevSales ? 'down' : 'stable';
-                        
-                        return (
-                          <tr key={index} className="hover:bg-gray-100 transition-colors">
-                            <td className="px-6 py-4 font-medium text-gray-900">{date}</td>
-                            <td className="px-6 py-4 text-center">
-                              <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-sm font-medium">
-                                {formatNumber(sales)}
-                              </span>
-                            </td>
-                            <td className="px-6 py-4 text-center font-medium text-gray-900">
-                              {formatCurrency(revenue)}
-                            </td>
-                            <td className="px-6 py-4 text-center">
-                              {trend === 'up' ? (
-                                <FaArrowUp className="text-green-500 mx-auto" />
-                              ) : trend === 'down' ? (
-                                <FaArrowDown className="text-red-500 mx-auto" />
-                              ) : (
-                                <span className="text-gray-400">-</span>
-                              )}
-                            </td>
-                          </tr>
-                        );
-                      })}
-                    </tbody>
-                  </table>
+          {/* Performance Summary */}
+          <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-6">
+            {/* Top Category */}
+            {statsData?.topCategory && statsData.topCategory.name !== "Veri yok" && (
+              <div className="bg-gradient-to-r from-indigo-50 to-purple-50 rounded-xl p-6 border border-indigo-200">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-medium text-indigo-600">En Popüler Kategori</p>
+                    <p className="text-lg font-bold text-indigo-900">{statsData.topCategory.name}</p>
+                    <p className="text-xs text-indigo-500 mt-1">
+                      {formatNumber(statsData.topCategory.salesCount || 0)} satış
+                    </p>
+                  </div>
+                  <div className="p-3 bg-indigo-500 rounded-lg">
+                    <FaBoxes className="text-white text-xl" />
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Total Products */}
+            <div className="bg-gradient-to-r from-emerald-50 to-teal-50 rounded-xl p-6 border border-emerald-200">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-emerald-600">Toplam Ürün</p>
+                  <p className="text-lg font-bold text-emerald-900">
+                    {formatNumber(statsData?.totalProducts || 0)}
+                  </p>
+                  <p className="text-xs text-emerald-500 mt-1">Aktif ürün</p>
+                </div>
+                <div className="p-3 bg-emerald-500 rounded-lg">
+                  <FaBoxes className="text-white text-xl" />
                 </div>
               </div>
             </div>
-          )}
+
+            {/* Average Rating */}
+            <div className="bg-gradient-to-r from-amber-50 to-yellow-50 rounded-xl p-6 border border-amber-200">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-amber-600">Ortalama Puan</p>
+                  <p className="text-lg font-bold text-amber-900">
+                    {statsData?.averageRating ? statsData.averageRating.toFixed(1) : '0.0'}
+                  </p>
+                  <p className="text-xs text-amber-500 mt-1">5 üzerinden</p>
+                </div>
+                <div className="p-3 bg-amber-500 rounded-lg">
+                  <FaStar className="text-white text-xl" />
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>

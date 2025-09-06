@@ -79,7 +79,7 @@ const AdminLogin = () => {
   };
 
   return (
-    <div className="admin-login-container">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center p-4">
       <PageTitle title="Admin Girişi" />
       <MetaTags 
         title="Admin Girişi"
@@ -89,86 +89,107 @@ const AdminLogin = () => {
       
       {/* Loading durumu */}
       {authLoading && (
-        <div className="admin-login-card">
-          <div className="admin-login-header">
-            <div className="admin-icon">
-              <Shield size={48} />
-            </div>
-            <h1>Admin Girişi</h1>
-            <p>Backend bağlantısı kontrol ediliyor...</p>
+        <div className="w-full max-w-md">
+          <div className="bg-white/10 backdrop-blur-lg rounded-2xl shadow-2xl border border-white/20 p-8 text-center">
+            <div className="animate-spin rounded-full h-16 w-16 border-4 border-white/30 border-t-white mx-auto mb-6"></div>
+            <div className="text-white text-xl font-semibold mb-2">Admin Girişi</div>
+            <p className="text-white/70">Backend bağlantısı kontrol ediliyor...</p>
           </div>
         </div>
       )}
       
       {/* Normal form */}
       {!authLoading && (
-        <div className="admin-login-card">
-        <div className="admin-login-header">
-          <div className="admin-icon">
-            <Shield size={48} />
-          </div>
-          <h1>Admin Girişi</h1>
-          <p>Yönetim paneline erişim için giriş yapın</p>
-        </div>
+        <div className="w-full max-w-md">
+          <div className="bg-white/10 backdrop-blur-lg rounded-2xl shadow-2xl border border-white/20 p-8">
+            {/* Header */}
+            <div className="text-center mb-8">
+              <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-r from-orange-500 to-red-500 rounded-full mb-4 shadow-lg">
+                <Shield className="w-10 h-10 text-white" />
+              </div>
+              <h1 className="text-3xl font-bold text-white mb-2">Admin Girişi</h1>
+              <p className="text-white/70">Yönetim paneline erişim için giriş yapın</p>
+            </div>
 
-        {error && (
-          <div className="error-message">
-            <AlertCircle size={20} />
-            <span>{error}</span>
-          </div>
-        )}
+            {/* Error Message */}
+            {error && (
+              <div className="mb-6 p-4 bg-red-500/20 border border-red-500/30 rounded-lg flex items-center space-x-3">
+                <AlertCircle className="w-5 h-5 text-red-400 flex-shrink-0" />
+                <span className="text-red-100 text-sm">{error}</span>
+              </div>
+            )}
 
-        <form className="admin-login-form" onSubmit={handleSubmit}>
-          <div className="form-group">
-            <label htmlFor="email">E-posta</label>
-            <input
-              type="email"
-              id="email"
-              name="email"
-              value={form.email}
-              onChange={handleChange}
-              required
-              className="form-input"
-              disabled={loading}
-              placeholder="admin@example.com"
-            />
-          </div>
+            {/* Form */}
+            <form onSubmit={handleSubmit} className="space-y-6">
+              <div>
+                <label htmlFor="email" className="block text-sm font-medium text-white/90 mb-2">
+                  E-posta
+                </label>
+                <input
+                  type="email"
+                  id="email"
+                  name="email"
+                  value={form.email}
+                  onChange={handleChange}
+                  required
+                  disabled={loading}
+                  placeholder="admin@example.com"
+                  className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-200 backdrop-blur-sm"
+                />
+              </div>
 
-          <div className="form-group">
-            <label htmlFor="password">Şifre</label>
-            <div className="password-input-wrapper">
-              <input
-                type={showPassword ? "text" : "password"}
-                id="password"
-                name="password"
-                value={form.password}
-                onChange={handleChange}
-                required
-                className="form-input"
-                disabled={loading}
-                placeholder="••••••••"
-              />
+              <div>
+                <label htmlFor="password" className="block text-sm font-medium text-white/90 mb-2">
+                  Şifre
+                </label>
+                <div className="relative">
+                  <input
+                    type={showPassword ? "text" : "password"}
+                    id="password"
+                    name="password"
+                    value={form.password}
+                    onChange={handleChange}
+                    required
+                    disabled={loading}
+                    placeholder="••••••••"
+                    className="w-full px-4 py-3 pr-12 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-200 backdrop-blur-sm"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    disabled={loading}
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-white/50 hover:text-white transition-colors duration-200"
+                  >
+                    {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                  </button>
+                </div>
+              </div>
+
               <button
-                type="button"
-                className="password-toggle"
-                onClick={() => setShowPassword(!showPassword)}
+                type="submit"
                 disabled={loading}
+                className="w-full bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 disabled:from-gray-500 disabled:to-gray-600 text-white font-semibold py-3 px-4 rounded-lg transition-all duration-200 transform hover:scale-[1.02] disabled:scale-100 disabled:cursor-not-allowed shadow-lg"
               >
-                {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                {loading ? (
+                  <div className="flex items-center justify-center space-x-2">
+                    <div className="animate-spin rounded-full h-4 w-4 border-2 border-white/30 border-t-white"></div>
+                    <span>Giriş Yapılıyor...</span>
+                  </div>
+                ) : (
+                  "Giriş Yap"
+                )}
               </button>
+            </form>
+
+            {/* Security Notice */}
+            <div className="mt-8 p-4 bg-white/5 border border-white/10 rounded-lg">
+              <div className="flex items-center space-x-3 text-white/70">
+                <Shield className="w-4 h-4 flex-shrink-0" />
+                <span className="text-sm">Bu sayfa sadece yetkili admin kullanıcıları içindir.</span>
+              </div>
             </div>
           </div>
-
-          <button type="submit" className="login-btn" disabled={loading}>
-            {loading ? "Giriş Yapılıyor..." : "Giriş Yap"}
-          </button>
-        </form>
-
-        <div className="security-notice">
-          <Shield size={16} />
-          <span>Bu sayfa sadece yetkili admin kullanıcıları içindir.</span>
         </div>
-      </div>
       )}
     </div>
   );

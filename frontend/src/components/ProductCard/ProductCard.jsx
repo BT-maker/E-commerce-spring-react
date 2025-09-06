@@ -49,11 +49,14 @@ const ProductCard = ({ product, loading, onAddToCart, isFavoritesPage = false })
 
   if (loading) {
     return (
-      <div className="bg-white rounded-lg shadow-md border border-gray-200 p-4 transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
-        <Skeleton height={200} className="mb-2" />
-        <Skeleton height={20} width={150} className="mb-2" />
-        <Skeleton height={16} width={80} className="mb-2" />
-        <Skeleton height={40} width={120} />
+      <div className="bg-white rounded-lg shadow-md border border-gray-200 p-4 transition-all duration-300 hover:shadow-lg hover:-translate-y-1 h-full flex flex-col">
+        <Skeleton height={192} className="mb-4 flex-shrink-0" />
+        <div className="flex flex-col flex-grow">
+          <Skeleton height={48} className="mb-2" />
+          <Skeleton height={16} width={80} className="mb-2" />
+          <Skeleton height={16} width={100} className="mb-2" />
+          <Skeleton height={40} className="mt-auto" />
+        </div>
       </div>
     );
   }
@@ -115,13 +118,21 @@ const ProductCard = ({ product, loading, onAddToCart, isFavoritesPage = false })
     window.location.href = `/product/${product.id}`;
   };
 
+  // Ürün ismini 22 karakterle sınırla
+  const truncateName = (name) => {
+    if (name && name.length > 22) {
+      return name.substring(0, 22) + '...';
+    }
+    return name;
+  };
+
   return (
-    <div className="bg-white rounded-lg shadow-md border border-gray-200 p-4 transition-all duration-300 hover:shadow-lg hover:-translate-y-1" onClick={handleCardClick} style={{ cursor: 'pointer' }}>
-      <div className="relative">
+    <div className="bg-white rounded-lg shadow-md border border-gray-200 p-4 transition-all duration-300 hover:shadow-lg hover:-translate-y-1 h-full flex flex-col" onClick={handleCardClick} style={{ cursor: 'pointer' }}>
+      <div className="relative flex-shrink-0">
         <img 
           src={product.imageUrl1 || product.imageUrl || '/img/default-product.png'} 
           alt={product.name} 
-          className="w-full h-64 object-contain rounded-lg mb-4"
+          className="w-full h-48 object-contain rounded-lg mb-4"
           onError={(e) => {
             e.target.src = '/img/default-product.png';
           }}
@@ -163,9 +174,9 @@ const ProductCard = ({ product, loading, onAddToCart, isFavoritesPage = false })
         </div>
       </div>
 
-      <div>
-        <Link to={`/product/${product.id}`} className="text-gray-900 font-semibold text-lg mb-2 hover:text-orange-500 transition-colors block">
-          {product.name}
+      <div className="flex flex-col flex-grow">
+        <Link to={`/product/${product.id}`} className="text-gray-900 font-semibold text-lg mb-2 hover:text-orange-500 transition-colors block h-12 flex items-center">
+          {truncateName(product.name)}
         </Link>
         
         {/* Puanlama - Şimdilik devre dışı */}
@@ -208,7 +219,7 @@ const ProductCard = ({ product, loading, onAddToCart, isFavoritesPage = false })
         </div>
         
         <button
-          className={`w-full font-medium py-2 px-4 rounded-lg transition-colors duration-200 flex items-center justify-center gap-2 ${
+          className={`w-full font-medium py-2 px-4 rounded-lg transition-colors duration-200 flex items-center justify-center gap-2 mt-auto ${
             added 
               ? 'bg-green-500 text-white' 
               : product.stock <= 0 

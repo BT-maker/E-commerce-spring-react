@@ -1,0 +1,222 @@
+[
+  {
+    "name": "Bebek Bezi Premium 4 Numara",
+    "description": "Ultra emici ve yumuşak bebek bezi, 4 numara boyutunda. Bebeğinizin rahatlığı için özel olarak tasarlanmış.",
+    "price": 89.99,
+    "stock": 150,
+    "categoryName": "Anne & Çocuk",
+    "status": "AKTİF",
+    "imageUrl1": "https://productimages.hepsiburada.net/s/777/222-222/110001001625456.jpg/format:webp",
+    "isDiscountActive": false,
+    "discountPercentage": 0
+  },
+  {
+    "name": "Emzirme Yastığı Organik",
+    "description": "Organik pamuktan üretilmiş emzirme yastığı. Anne ve bebek için konforlu emzirme deneyimi.",
+    "price": 125.50,
+    "stock": 75,
+    "categoryName": "Anne & Çocuk",
+    "status": "AKTİF",
+    "imageUrl1": "https://productimages.hepsiburada.net/s/777/222-222/110000894197010.jpg/format:webp",
+    "isDiscountActive": false,
+    "discountPercentage": 0
+  },
+  {
+    "name": "Bebek Arabası 3'ü 1 Arada",
+    "description": "Bebek arabası, oto koltuğu ve puset olarak kullanılabilen 3'ü 1 arada sistem. 0-3 yaş arası uygun.",
+    "price": 1899.99,
+    "stock": 25,
+    "categoryName": "Anne & Çocuk",
+    "status": "AKTİF",
+    "imageUrl1": "https://productimages.hepsiburada.net/s/777/222-222/110001094487365.jpg/format:webp",
+    "isDiscountActive": true,
+    "discountPercentage": 10
+  },
+  {
+    "name": "Bebek Maması Organik 6+ Ay",
+    "description": "Organik tahıllardan üretilmiş bebek maması. 6 aydan itibaren kullanıma uygun, vitamin ve mineral açısından zengin.",
+    "price": 45.75,
+    "stock": 200,
+    "categoryName": "Anne & Çocuk",
+    "status": "AKTİF",
+    "imageUrl1": "https://productimages.hepsiburada.net/s/777/444-444/110000978913173.jpg/format:webp",
+    "isDiscountActive": false,
+    "discountPercentage": 0
+  },
+  {
+    "name": "Çocuk Oyuncak Seti Eğitici",
+    "description": "Çocukların zihinsel gelişimini destekleyen eğitici oyuncak seti. 2-5 yaş arası çocuklar için uygun.",
+    "price": 156.00,
+    "stock": 80,
+    "categoryName": "Anne & Çocuk",
+    "status": "AKTİF",
+    "imageUrl1": "https://productimages.hepsiburada.net/s/777/222-222/110000815341560.jpg/format:webp",
+    "isDiscountActive": false,
+    "discountPercentage": 0
+  },
+  {
+    "name": "Bebek Banyo Küveti",
+    "description": "Güvenli ve konforlu bebek banyo küveti. Kaymaz taban ve sıcaklık göstergesi ile donatılmış.",
+    "price": 89.99,
+    "stock": 60,
+    "categoryName": "Anne & Çocuk",
+    "status": "AKTİF",
+    "imageUrl1": "https://productimages.hepsiburada.net/s/777/444-444/110001094584874.jpg/format:webp",
+    "isDiscountActive": false,
+    "discountPercentage": 0
+  },
+  {
+    "name": "Çocuk Bisikleti 16 İnç",
+    "description": "16 inç tekerlekli çocuk bisikleti. Güvenlik frenleri ve ayarlanabilir sele ile donatılmış. 4-7 yaş arası uygun.",
+    "price": 425.50,
+    "stock": 35,
+    "categoryName": "Anne & Çocuk",
+    "status": "AKTİF",
+    "imageUrl1": "https://productimages.hepsiburada.net/s/777/222-222/110000928886757.jpg/format:webp",
+    "isDiscountActive": true,
+    "discountPercentage": 15
+  },
+  {
+    "name": "Bebek Giysi Seti Organik",
+    "description": "Organik pamuktan üretilmiş bebek giysi seti. 3 parça: body, pantolon ve çorap. 0-6 ay arası uygun.",
+    "price": 78.25,
+    "stock": 120,
+    "categoryName": "Anne & Çocuk",
+    "status": "AKTİF",
+    "imageUrl1": "https://productimages.hepsiburada.net/s/777/300-400/110000787243707.jpg/format:webp",
+    "isDiscountActive": false,
+    "discountPercentage": 0
+  },
+  {
+    "name": "Çocuk Kitapları Seti 10'lu",
+    "description": "Eğitici ve eğlenceli çocuk kitapları seti. 10 adet renkli resimli kitap. 3-6 yaş arası çocuklar için uygun.",
+    "price": 95.00,
+    "stock": 90,
+    "categoryName": "Anne & Çocuk",
+    "status": "AKTİF",
+    "imageUrl1": "https://productimages.hepsiburada.net/s/110/222-222/110000057678557.jpg/format:webp",
+    "isDiscountActive": false,
+    "discountPercentage": 0
+  },
+  {
+    "name": "Bebek Emzik Seti Silikon",
+    "description": "Silikon malzemeden üretilmiş bebek emzik seti. 3 farklı boyut ve şekilde. 0-18 ay arası uygun.",
+    "price": 32.75,
+    "stock": 180,
+    "categoryName": "Anne & Çocuk",
+    "status": "AKTİF",
+    "imageUrl1": "https://productimages.hepsiburada.net/s/777/222-222/110001040984305.jpg/format:webp",
+    "isDiscountActive": false,
+    "discountPercentage": 0
+  },
+  {
+    "name": "Anti-Aging Krem Premium",
+    "description": "Cilt yaşlanmasını önleyen premium anti-aging krem. Hyaluronik asit ve retinol içerir. 50ml.",
+    "price": 245.99,
+    "stock": 85,
+    "categoryName": "Kozmetik",
+    "status": "AKTİF",
+    "imageUrl1": "https://productimages.hepsiburada.net/s/352/222-222/110000361443602.jpg/format:webp",
+    "isDiscountActive": true,
+    "discountPercentage": 20
+  },
+  {
+    "name": "Mat Ruj Seti 6 Renk",
+    "description": "Uzun süre kalıcı mat ruj seti. 6 farklı renk seçeneği. 3.5g x 6 adet.",
+    "price": 89.50,
+    "stock": 120,
+    "categoryName": "Kozmetik",
+    "status": "AKTİF",
+    "imageUrl1": "https://productimages.hepsiburada.net/s/778/222-222/110000629377034.jpg/format:webp",
+    "isDiscountActive": false,
+    "discountPercentage": 0
+  },
+  {
+    "name": "Güneş Kremi SPF 50+",
+    "description": "Yüksek koruma faktörlü güneş kremi. Suya dayanıklı ve paraben içermez. 100ml.",
+    "price": 67.25,
+    "stock": 200,
+    "categoryName": "Kozmetik",
+    "status": "AKTİF",
+    "imageUrl1": "https://productimages.hepsiburada.net/s/363/222-222/110000378372744.jpg/format:webp",
+    "isDiscountActive": false,
+    "discountPercentage": 0
+  },
+  {
+    "name": "Göz Makyaj Seti Profesyonel",
+    "description": "Profesyonel göz makyaj seti. 12 renk göz farı, maskara ve eyeliner içerir.",
+    "price": 156.75,
+    "stock": 75,
+    "categoryName": "Kozmetik",
+    "status": "AKTİF",
+    "imageUrl1": "https://productimages.hepsiburada.net/s/777/222-222/110000733258205.jpg/format:webp",
+    "isDiscountActive": true,
+    "discountPercentage": 12
+  },
+  {
+    "name": "Nemlendirici Serum Vitamin C",
+    "description": "C vitamini içerikli nemlendirici serum. Cilt tonunu eşitleyici ve parlaklık verici. 30ml.",
+    "price": 128.99,
+    "stock": 95,
+    "categoryName": "Kozmetik",
+    "status": "AKTİF",
+    "imageUrl1": "https://productimages.hepsiburada.net/s/777/222-222/110001006649394.jpg/format:webp",
+    "isDiscountActive": false,
+    "discountPercentage": 0
+  },
+  {
+    "name": "Parfüm Seti Kadın 3'lü",
+    "description": "Kadın parfüm seti. 3 farklı koku seçeneği. Her biri 15ml. Günlük kullanım için ideal.",
+    "price": 189.00,
+    "stock": 60,
+    "categoryName": "Kozmetik",
+    "status": "AKTİF",
+    "imageUrl1": "https://productimages.hepsiburada.net/s/72/222-222/110000014049465.jpg/format:webp",
+    "isDiscountActive": true,
+    "discountPercentage": 18
+  },
+  {
+    "name": "Temizlik Jeli Yüz",
+    "description": "Hassas ciltler için yüz temizlik jeli. Doğal içerikli ve pH dengeli. 150ml.",
+    "price": 45.50,
+    "stock": 150,
+    "categoryName": "Kozmetik",
+    "status": "AKTİF",
+    "imageUrl1": "https://productimages.hepsiburada.net/s/777/444-444/110000884919595.jpg/format:webp",
+    "isDiscountActive": false,
+    "discountPercentage": 0
+  },
+  {
+    "name": "Saç Bakım Seti Argan Yağı",
+    "description": "Argan yağı içerikli saç bakım seti. Şampuan, saç kremi ve saç yağı. 3'lü set.",
+    "price": 98.75,
+    "stock": 110,
+    "categoryName": "Kozmetik",
+    "status": "AKTİF",
+    "imageUrl1": "https://productimages.hepsiburada.net/s/777/444-444/110000649043479.jpg/format:webp",
+    "isDiscountActive": false,
+    "discountPercentage": 0
+  },
+  {
+    "name": "BB Krem Tinted Moisturizer",
+    "description": "Renkli nemlendirici BB krem. Hafif kapatıcı özellikli ve günlük kullanım için ideal. 50ml.",
+    "price": 76.25,
+    "stock": 130,
+    "categoryName": "Kozmetik",
+    "status": "AKTİF",
+    "imageUrl1": "https://productimages.hepsiburada.net/s/777/222-222/110001174068946.jpg/format:webp",
+    "isDiscountActive": false,
+    "discountPercentage": 0
+  },
+  {
+    "name": "Makyaj Fırçası Seti 12'li",
+    "description": "Profesyonel makyaj fırçası seti. 12 farklı fırça türü. Yapay kıldan üretilmiş, yıkanabilir.",
+    "price": 112.99,
+    "stock": 80,
+    "categoryName": "Kozmetik",
+    "status": "AKTİF",
+    "imageUrl1": "https://productimages.hepsiburada.net/s/76/444-444/110000017947498.jpg/format:webp",
+    "isDiscountActive": true,
+    "discountPercentage": 8
+  }
+]

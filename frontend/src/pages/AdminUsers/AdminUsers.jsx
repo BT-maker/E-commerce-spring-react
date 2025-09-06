@@ -124,36 +124,37 @@ const AdminUsers = () => {
   };
 
   const getRoleBadge = (role) => {
-    if (!role) return <span className="role-badge unknown">BİLİNMİYOR</span>;
+    if (!role) return <span className="px-3 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">BİLİNMİYOR</span>;
     
     // Role string olarak geliyor, object değil
     const roleName = typeof role === 'string' ? role : role.name;
     
     switch (roleName) {
       case 'ADMIN':
-        return <span className="role-badge admin">ADMİN</span>;
+        return <span className="px-3 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">ADMİN</span>;
       case 'SELLER':
-        return <span className="role-badge seller">SATICI</span>;
+        return <span className="px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">SATICI</span>;
       case 'USER':
-        return <span className="role-badge user">KULLANICI</span>;
+        return <span className="px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">KULLANICI</span>;
       default:
-        return <span className="role-badge unknown">BİLİNMİYOR</span>;
+        return <span className="px-3 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">BİLİNMİYOR</span>;
     }
   };
 
   if (loading) {
     return (
-      <div className="admin-users">
-        <div className="loading-container">
-          <div className="loading-spinner"></div>
-          <p>Kullanıcılar yükleniyor...</p>
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 flex items-center justify-center">
+        <div className="bg-white/80 backdrop-blur-lg rounded-2xl shadow-2xl border border-gray-200/50 p-8 text-center">
+          <div className="animate-spin rounded-full h-16 w-16 border-4 border-orange-500/30 border-t-orange-500 mx-auto mb-6"></div>
+          <div className="text-xl font-semibold text-gray-900 mb-2">Kullanıcılar Yükleniyor</div>
+          <p className="text-gray-600">Veriler getiriliyor...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="admin-users">
+    <div className="space-y-6">
       <PageTitle title="Kullanıcı Yönetimi" />
       <MetaTags 
         title="Kullanıcı Yönetimi"
@@ -161,164 +162,188 @@ const AdminUsers = () => {
         keywords="admin, kullanıcı yönetimi, kullanıcı listesi"
       />
 
-      <div className="users-header">
-        <div className="header-content">
-          <h1>Kullanıcı Yönetimi</h1>
-          <p>Platform kullanıcılarını yönetin ve izleyin</p>
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900">Kullanıcı Yönetimi</h1>
+          <p className="text-gray-600 mt-1">Platform kullanıcılarını yönetin ve izleyin</p>
         </div>
       </div>
 
       {/* İstatistik Kartları */}
-      <div className="stats-cards">
-        <div className="stat-card">
-          <div className="stat-icon">
-            <Users size={24} />
-          </div>
-          <div className="stat-content">
-            <span className="stat-value">{stats.totalUserCount}</span>
-            <span className="stat-label">TOPLAM KULLANICI</span>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="bg-white/80 backdrop-blur-lg rounded-xl p-6 border border-gray-200/50 shadow-sm">
+          <div className="flex items-center justify-between">
+            <div className="flex-1">
+              <p className="text-sm font-medium text-gray-600 mb-1">Toplam Kullanıcı</p>
+              <p className="text-3xl font-bold text-gray-900">{stats.totalUserCount}</p>
+            </div>
+            <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-blue-600 rounded-lg flex items-center justify-center">
+              <Users className="w-6 h-6 text-white" />
+            </div>
           </div>
         </div>
-        <div className="stat-card">
-          <div className="stat-icon">
-            <Store size={24} />
-          </div>
-          <div className="stat-content">
-            <span className="stat-value">{stats.totalSellerCount}</span>
-            <span className="stat-label">TOPLAM SATICI</span>
+        
+        <div className="bg-white/80 backdrop-blur-lg rounded-xl p-6 border border-gray-200/50 shadow-sm">
+          <div className="flex items-center justify-between">
+            <div className="flex-1">
+              <p className="text-sm font-medium text-gray-600 mb-1">Toplam Satıcı</p>
+              <p className="text-3xl font-bold text-gray-900">{stats.totalSellerCount}</p>
+            </div>
+            <div className="w-12 h-12 bg-gradient-to-r from-green-500 to-green-600 rounded-lg flex items-center justify-center">
+              <Store className="w-6 h-6 text-white" />
+            </div>
           </div>
         </div>
       </div>
 
       {/* Arama ve Filtre */}
-      <div className="search-filter-section">
-        <form onSubmit={handleSearch} className="search-form">
-          <div className="search-input-group">
-            <Search size={20} className="search-icon" />
-            <input
-              type="text"
-              placeholder="Kullanıcı ara..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="search-input"
-            />
-            <button type="submit" className="search-btn">
-              Ara
-            </button>
-          </div>
-        </form>
+      <div className="bg-white/80 backdrop-blur-lg rounded-xl p-6 border border-gray-200/50 shadow-sm">
+        <div className="flex flex-col lg:flex-row gap-4">
+          <form onSubmit={handleSearch} className="flex-1">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+              <input
+                type="text"
+                placeholder="Kullanıcı ara..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent bg-white/50 backdrop-blur-sm"
+              />
+              <button 
+                type="submit"
+                className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-gradient-to-r from-orange-500 to-red-500 text-white px-4 py-1.5 rounded-md text-sm font-medium hover:from-orange-600 hover:to-red-600 transition-all duration-200"
+              >
+                Ara
+              </button>
+            </div>
+          </form>
 
-        <div className="filter-section">
-          <Filter size={20} />
-          <select
-            value={roleFilter}
-            onChange={(e) => handleRoleFilter(e.target.value)}
-            className="role-filter"
-          >
-            <option value="">Tüm Roller</option>
-            <option value="USER">Kullanıcı</option>
-            <option value="SELLER">Satıcı</option>
-            <option value="ADMIN">Admin</option>
-          </select>
+          <div className="flex items-center space-x-3">
+            <Filter className="w-5 h-5 text-gray-500" />
+            <select
+              value={roleFilter}
+              onChange={(e) => handleRoleFilter(e.target.value)}
+              className="px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent bg-white/50 backdrop-blur-sm"
+            >
+              <option value="">Tüm Roller</option>
+              <option value="USER">Kullanıcı</option>
+              <option value="SELLER">Satıcı</option>
+              <option value="ADMIN">Admin</option>
+            </select>
+          </div>
         </div>
       </div>
 
       {/* Kullanıcı Listesi */}
-      <div className="users-table-container">
+      <div className="bg-white/80 backdrop-blur-lg rounded-xl border border-gray-200/50 shadow-sm overflow-hidden">
         {users.length > 0 ? (
           <>
-            <table className="users-table">
-              <thead>
-                <tr>
-                  <th>Kullanıcı</th>
-                  <th>Email</th>
-                  <th>Rol</th>
-                  <th>Telefon</th>
-                  <th>Kayıt Tarihi</th>
-                  <th>İşlemler</th>
-                </tr>
-              </thead>
-              <tbody>
-                {users.map((user) => (
-                  <tr key={user.id}>
-                    <td>
-                      <div className="user-info">
-                        <div className="user-avatar">
-                          {getRoleIcon(user.role)}
-                        </div>
-                        <div className="user-details">
-                          <span className="user-name">
-                            {user.firstName} {user.lastName}
-                          </span>
-                          <span className="user-username">@{user.username}</span>
-                        </div>
-                      </div>
-                    </td>
-                    <td>{user.email}</td>
-                    <td>{getRoleBadge(user.role)}</td>
-                    <td>{user.phone || '-'}</td>
-                    <td>
-                      {user.registrationDate 
-                        ? new Date(user.registrationDate).toLocaleDateString('tr-TR', {
-                            year: 'numeric',
-                            month: 'long',
-                            day: 'numeric',
-                            hour: '2-digit',
-                            minute: '2-digit'
-                          })
-                        : '-'
-                      }
-                    </td>
-                    <td>
-                      <div className="admin-user-action-buttons">
-                        <button className="admin-user-action-btn admin-user-view-btn" title="Görüntüle">
-                          <Eye size={20} />
-                        </button>
-                        <button className="admin-user-action-btn admin-user-edit-btn" title="Düzenle">
-                          <Edit size={20} />
-                        </button>
-                        <button className="admin-user-action-btn admin-user-delete-btn" title="Sil">
-                          <Trash2 size={20} />
-                        </button>
-                      </div>
-                    </td>
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead className="bg-gray-50/50 border-b border-gray-200/50">
+                  <tr>
+                    <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Kullanıcı</th>
+                    <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
+                    <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Rol</th>
+                    <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Telefon</th>
+                    <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Kayıt Tarihi</th>
+                    <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">İşlemler</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody className="divide-y divide-gray-200/50">
+                  {users.map((user) => (
+                    <tr key={user.id} className="hover:bg-gray-50/50 transition-colors duration-200">
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="flex items-center space-x-3">
+                          <div className="w-10 h-10 bg-gradient-to-r from-orange-500 to-red-500 rounded-full flex items-center justify-center">
+                            {getRoleIcon(user.role)}
+                          </div>
+                          <div>
+                            <div className="text-sm font-medium text-gray-900">
+                              {user.firstName} {user.lastName}
+                            </div>
+                            <div className="text-sm text-gray-500">@{user.username}</div>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{user.email}</td>
+                      <td className="px-6 py-4 whitespace-nowrap">{getRoleBadge(user.role)}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{user.phone || '-'}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        {user.registrationDate 
+                          ? new Date(user.registrationDate).toLocaleDateString('tr-TR', {
+                              year: 'numeric',
+                              month: 'long',
+                              day: 'numeric',
+                              hour: '2-digit',
+                              minute: '2-digit'
+                            })
+                          : '-'
+                        }
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                        <div className="flex items-center space-x-2">
+                          <button className="p-2 text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded-lg transition-colors duration-200" title="Görüntüle">
+                            <Eye size={16} />
+                          </button>
+                          <button className="p-2 text-green-600 hover:text-green-800 hover:bg-green-50 rounded-lg transition-colors duration-200" title="Düzenle">
+                            <Edit size={16} />
+                          </button>
+                          <button className="p-2 text-red-600 hover:text-red-800 hover:bg-red-50 rounded-lg transition-colors duration-200" title="Sil">
+                            <Trash2 size={16} />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
 
             {/* Sayfalama */}
             {pagination.totalPages > 1 && (
-              <div className="pagination">
-                <button 
-                  className={`pagination-btn ${!pagination.hasPrevious ? 'disabled' : ''}`}
-                  onClick={() => handlePageChange(pagination.currentPage - 1)}
-                  disabled={!pagination.hasPrevious}
-                >
-                  <ChevronLeft size={16} />
-                  Önceki
-                </button>
-                
-                <div className="page-info">
-                  Sayfa {pagination.currentPage + 1} / {pagination.totalPages}
-                  <span className="total-users">({pagination.totalUsers} kullanıcı)</span>
+              <div className="px-6 py-4 border-t border-gray-200/50 bg-gray-50/50">
+                <div className="flex items-center justify-between">
+                  <button 
+                    className={`flex items-center space-x-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                      !pagination.hasPrevious 
+                        ? 'bg-gray-100 text-gray-400 cursor-not-allowed' 
+                        : 'bg-orange-100 text-orange-700 hover:bg-orange-200'
+                    }`}
+                    onClick={() => handlePageChange(pagination.currentPage - 1)}
+                    disabled={!pagination.hasPrevious}
+                  >
+                    <ChevronLeft size={16} />
+                    <span>Önceki</span>
+                  </button>
+                  
+                  <div className="text-sm text-gray-600">
+                    Sayfa {pagination.currentPage + 1} / {pagination.totalPages}
+                    <span className="ml-2 text-gray-500">({pagination.totalUsers} kullanıcı)</span>
+                  </div>
+                  
+                  <button 
+                    className={`flex items-center space-x-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                      !pagination.hasNext 
+                        ? 'bg-gray-100 text-gray-400 cursor-not-allowed' 
+                        : 'bg-orange-100 text-orange-700 hover:bg-orange-200'
+                    }`}
+                    onClick={() => handlePageChange(pagination.currentPage + 1)}
+                    disabled={!pagination.hasNext}
+                  >
+                    <span>Sonraki</span>
+                    <ChevronRight size={16} />
+                  </button>
                 </div>
-                
-                <button 
-                  className={`pagination-btn ${!pagination.hasNext ? 'disabled' : ''}`}
-                  onClick={() => handlePageChange(pagination.currentPage + 1)}
-                  disabled={!pagination.hasNext}
-                >
-                  Sonraki
-                  <ChevronRight size={16} />
-                </button>
               </div>
             )}
           </>
         ) : (
-          <div className="empty-state">
-            <Users size={48} />
-            <p>Kullanıcı bulunamadı</p>
+          <div className="text-center py-12">
+            <Users className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+            <h3 className="text-lg font-medium text-gray-900 mb-2">Kullanıcı bulunamadı</h3>
+            <p className="text-gray-500">Arama kriterlerinize uygun kullanıcı bulunmuyor.</p>
           </div>
         )}
       </div>

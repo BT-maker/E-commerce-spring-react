@@ -40,6 +40,7 @@ import SellerOrders from './pages/SellerOrders/SellerOrders.jsx';
 import SellerStock from './pages/SellerStock/SellerStock.jsx';
 import SellerCampaigns from './pages/SellerCampaigns/SellerCampaigns.jsx';
 import SellerSettings from './pages/SellerSettings/SellerSettings.jsx';
+import SellerNotifications from './pages/SellerNotifications/SellerNotifications.jsx';
 import StorePage from './pages/StorePage.jsx';
 import Favorites from './pages/Favorites.jsx';
 import AboutUs from './pages/AboutUs.jsx';
@@ -48,6 +49,7 @@ import OrderTracking from './pages/OrderTracking.jsx';
 import ReturnExchange from './pages/ReturnExchange.jsx';
 import FAQ from './pages/FAQ.jsx';
 import DiscountedProducts from './pages/DiscountedProducts.jsx';
+import TrendingProducts from './pages/TrendingProducts.jsx';
 import NotFound from './pages/NotFound.jsx';
 import VerifyAccount from './pages/VerifyAccount.jsx';
 import ForgotPassword from './components/ForgotPassword/ForgotPassword.jsx';
@@ -344,6 +346,16 @@ function App() {
                      <Footer />
                    </AnimatedBackground>
                  } />
+                 
+                 <Route path="/trending" element={
+                   <AnimatedBackground>
+                     <Header />
+                     <main className="min-h-screen">
+                       <TrendingProducts />
+                     </main>
+                     <Footer />
+                   </AnimatedBackground>
+                 } />
                 
                 {/* Admin Routes */}
                 <Route path="/admin/login" element={<AdminLogin />} />
@@ -629,6 +641,14 @@ function App() {
                   <SellerRoute>
                     <SellerLayout>
                       <SellerSettings />
+                    </SellerLayout>
+                  </SellerRoute>
+                } />
+                
+                <Route path="/seller-panel/notifications" element={
+                  <SellerRoute>
+                    <SellerLayout>
+                      <SellerNotifications />
                     </SellerLayout>
                   </SellerRoute>
                 } />

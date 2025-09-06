@@ -1,7 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { FaPlus, FaEdit, FaTrash, FaEye, FaSearch, FaTimes, FaBox, FaExclamationTriangle, FaUserClock } from 'react-icons/fa';
 import { MdDelete, MdEdit, MdVisibility } from "react-icons/md";
+import { Plus, Package, Upload } from 'lucide-react';
 import ProductModal from '../../components/ProductModal/ProductModal';
+import ModernProductModal from '../../components/ProductModal/ModernProductModal';
+import BulkProductModal from '../../components/ProductModal/BulkProductModal';
+import EditProductModal from '../../components/ProductModal/EditProductModal';
 
 const SellerProducts = () => {
   const [allProducts, setAllProducts] = useState([]); // Tüm ürünler
@@ -14,6 +18,9 @@ const SellerProducts = () => {
   const [maxPrice, setMaxPrice] = useState('');
   const [useElasticsearch, setUseElasticsearch] = useState(false);
   const [showModal, setShowModal] = useState(false);
+  const [showBulkModal, setShowBulkModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [editingProduct, setEditingProduct] = useState(null);
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [categories, setCategories] = useState([]);
   const [modalLoading, setModalLoading] = useState(false);
@@ -224,6 +231,185 @@ const SellerProducts = () => {
     }
   };
 
+  // Yeni ürün ekleme modal'ını aç
+  const handleAddProduct = () => {
+    setSelectedProduct(null);
+    setShowModal(true);
+  };
+
+  // Toplu ürün ekleme modal'ını aç
+  const handleBulkAddProduct = () => {
+    setShowBulkModal(true);
+  };
+
+  const handleEditProduct = (product) => {
+    setEditingProduct(product);
+    setShowEditModal(true);
+  };
+
+  const handleSaveEditProduct = async (productData) => {
+    try {
+      setModalLoading(true);
+      
+      const response = await fetch(`http://localhost:8082/api/seller/products/${editingProduct.id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        },
+        body: JSON.stringify({
+          ...productData,
+          category: categories.find(cat => cat.id === productData.categoryId)
+        })
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Ürün güncellenirken hata oluştu');
+      }
+
+      const updatedProduct = await response.json();
+      
+      // Ürün listesini güncelle
+      setAllProducts(prev => 
+        prev.map(p => p.id === editingProduct.id ? updatedProduct : p)
+      );
+      
+      setShowEditModal(false);
+      setEditingProduct(null);
+      
+      // Başarı mesajı
+      alert('Ürün başarıyla güncellendi!');
+      
+    } catch (error) {
+      console.error('Ürün güncelleme hatası:', error);
+      alert('Ürün güncellenirken hata oluştu: ' + error.message);
+    } finally {
+      setModalLoading(false);
+    }
+  };
+
+  // Ürün kaydetme fonksiyonu
+  const handleSaveProduct = async (productData) => {
+    try {
+      setModalLoading(true);
+      
+      const url = selectedProduct 
+        ? `http://localhost:8082/api/seller/products/${selectedProduct.id}`
+        : 'http://localhost:8082/api/seller/products';
+      
+      const method = selectedProduct ? 'PUT' : 'POST';
+      
+      const response = await fetch(url, {
+        method: method,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+        body: JSON.stringify(productData)
+      });
+
+      if (response.ok) {
+        // Başarılı kayıt
+        setShowModal(false);
+        setSelectedProduct(null);
+        // Ürün listesini yenile
+        await fetchAllProducts();
+      } else {
+        const errorData = await response.json();
+        alert(errorData.message || 'Ürün kaydedilirken bir hata oluştu.');
+      }
+    } catch (err) {
+      console.error('Ürün kaydetme hatası:', err);
+      alert('Ürün kaydedilirken bir hata oluştu.');
+    } finally {
+      setModalLoading(false);
+    }
+  };
+
+  // Toplu ürün kaydetme fonksiyonu
+  const handleBulkSaveProducts = async (productsData) => {
+    try {
+      setModalLoading(true);
+      
+      const response = await fetch('http://localhost:8082/api/seller/products/bulk', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+        body: JSON.stringify(productsData)
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        console.log('Toplu ürün ekleme sonucu:', result);
+        
+        // Modal'ı kapat
+        setShowBulkModal(false);
+        
+        // Başarı mesajı göster
+        alert(`Toplu ürün ekleme tamamlandı!\nBaşarılı: ${result.successful}\nBaşarısız: ${result.failed}`);
+        
+        // Ürün listesini yenile
+        await fetchAllProducts();
+      } else {
+        const errorData = await response.json();
+        console.error('Bulk API Error:', errorData);
+        alert(errorData.error || 'Toplu ürün ekleme sırasında bir hata oluştu.');
+      }
+    } catch (err) {
+      console.error('Toplu ürün ekleme hatası:', err);
+      alert('Toplu ürün ekleme sırasında bir hata oluştu.');
+    } finally {
+      setModalLoading(false);
+    }
+  };
+
+  // Ürün durumunu değiştir (Aktif/Pasif)
+  const handleToggleProductStatus = async (productId, currentStatus) => {
+    try {
+      const newStatus = currentStatus === 'AKTİF' || currentStatus === 'ACTIVE' ? 'PASİF' : 'AKTİF';
+      
+      const response = await fetch(`http://localhost:8082/api/seller/products/${productId}/status`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+        body: JSON.stringify({ status: newStatus })
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        console.log('Ürün durumu başarıyla güncellendi:', result);
+        
+        // Ürün listesini güncelle
+        setAllProducts(prev => 
+          prev.map(product => 
+            product.id === productId 
+              ? { ...product, status: newStatus }
+              : product
+          )
+        );
+        setFilteredProducts(prev => 
+          prev.map(product => 
+            product.id === productId 
+              ? { ...product, status: newStatus }
+              : product
+          )
+        );
+      } else {
+        const errorData = await response.json();
+        console.error('API Error:', errorData);
+        alert(errorData.error || 'Ürün durumu değiştirilirken bir hata oluştu.');
+      }
+    } catch (err) {
+      console.error('Ürün durumu değiştirme hatası:', err);
+      alert('Ürün durumu değiştirilirken bir hata oluştu.');
+    }
+  };
+
   // Ürün detayını göster
   const handleViewProduct = async (productId) => {
     setModalLoading(true);
@@ -319,10 +505,26 @@ const SellerProducts = () => {
               <h1 className="text-3xl font-bold mb-2">Ürünlerim</h1>
               <p className="text-orange-100">Mağazanızdaki tüm ürünleri yönetin</p>
             </div>
-            <div className="mt-4 md:mt-0">
+            <div className="mt-4 md:mt-0 flex items-center space-x-4">
               <div className="flex items-center space-x-2 text-sm">
-                <FaBox className="text-orange-200" />
+                <Package className="w-4 h-4 text-orange-200" />
                 <span>Toplam {totalProducts} ürün</span>
+              </div>
+              <div className="flex items-center space-x-2">
+                <button
+                  onClick={handleBulkAddProduct}
+                  className="bg-white bg-opacity-20 hover:bg-opacity-30 text-white px-4 py-2 rounded-lg font-semibold transition-all duration-200 flex items-center space-x-2 border border-white border-opacity-30"
+                >
+                  <Upload className="w-4 h-4" />
+                  <span>Toplu Ekle</span>
+                </button>
+                <button
+                  onClick={handleAddProduct}
+                  className="bg-white bg-opacity-20 hover:bg-opacity-30 text-white px-4 py-2 rounded-lg font-semibold transition-all duration-200 flex items-center space-x-2 border border-white border-opacity-30"
+                >
+                  <Plus className="w-4 h-4" />
+                  <span>Yeni Ürün Ekle</span>
+                </button>
               </div>
             </div>
           </div>
@@ -428,18 +630,20 @@ const SellerProducts = () => {
                 <tr key={product.id} className="hover:bg-gray-50 transition-colors">
                   <td className="px-6 py-4">
                     <div className="flex items-center space-x-3">
-                      <img
-                        src={product.imageUrl || '/img/default-product.png'}
-                        alt={product.name}
-                        className="w-12 h-12 rounded-lg object-cover"
-                        onError={(e) => {
-                          e.target.src = '/img/default-product.png';
-                        }}
-                      />
+                      <div className="w-12 h-12 rounded-lg overflow-hidden bg-gray-100 flex items-center justify-center">
+                        <img
+                          src={product.imageUrl1 || product.imageUrl || '/img/default-product.png'}
+                          alt={product.name}
+                          className="w-full h-full object-cover"
+                          onError={(e) => {
+                            e.target.src = '/img/default-product.png';
+                          }}
+                        />
+                      </div>
                       <div>
-                        <div className="font-medium text-gray-900">{product.name}</div>
+                        <div className="font-medium text-gray-900 truncate max-w-xs">{product.name}</div>
                         <div className="text-sm text-gray-500 truncate max-w-xs">
-                          {product.description}
+                          {product.description || 'Açıklama yok'}
                         </div>
                       </div>
                     </div>
@@ -470,25 +674,32 @@ const SellerProducts = () => {
                   </td>
                   <td className="px-6 py-4 text-center">
                     <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                      product.status === 'AKTİF' ? 'bg-green-100 text-green-800' :
+                      product.status === 'PASİF' ? 'bg-red-100 text-red-800' :
                       product.status === 'ACTIVE' ? 'bg-green-100 text-green-800' :
                       product.status === 'INACTIVE' ? 'bg-red-100 text-red-800' :
                       'bg-gray-100 text-gray-800'
                     }`}>
-                      {product.status === 'ACTIVE' ? 'Aktif' :
-                       product.status === 'INACTIVE' ? 'Pasif' : 'Bilinmiyor'}
+                      {product.status === 'AKTİF' || product.status === 'ACTIVE' ? 'Aktif' :
+                       product.status === 'PASİF' || product.status === 'INACTIVE' ? 'Pasif' : 
+                       product.status || 'Bilinmiyor'}
                     </span>
                   </td>
                   <td className="px-6 py-4 text-center">
                     <div className="flex items-center justify-center space-x-2">
                       <button
-                        onClick={() => handleViewProduct(product.id)}
-                        className="text-blue-600 hover:text-blue-700 p-2 rounded-lg hover:bg-blue-50 transition-colors"
-                        title="Görüntüle"
+                        onClick={() => handleToggleProductStatus(product.id, product.status)}
+                        className={`p-2 rounded-lg transition-colors ${
+                          product.status === 'AKTİF' || product.status === 'ACTIVE'
+                            ? 'text-green-600 hover:text-green-700 hover:bg-green-50'
+                            : 'text-gray-600 hover:text-gray-700 hover:bg-gray-50'
+                        }`}
+                        title={product.status === 'AKTİF' || product.status === 'ACTIVE' ? 'Pasif Yap' : 'Aktif Yap'}
                       >
                         <MdVisibility size={18} />
                       </button>
                       <button
-                        onClick={() => window.location.href = `/seller-panel/products/edit/${product.id}`}
+                        onClick={() => handleEditProduct(product)}
                         className="text-orange-600 hover:text-orange-700 p-2 rounded-lg hover:bg-orange-50 transition-colors"
                         title="Düzenle"
                       >
@@ -552,19 +763,68 @@ const SellerProducts = () => {
         {/* Boş Durum */}
         {filteredProducts.length === 0 && !loading && (
           <div className="text-center py-12">
-            <FaBox className="mx-auto text-gray-400 text-6xl mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">Ürün Bulunamadı</h3>
-            <p className="text-gray-500">Arama kriterlerinize uygun ürün bulunamadı.</p>
+            <Package className="mx-auto text-gray-400 w-16 h-16 mb-4" />
+            <h3 className="text-lg font-medium text-gray-900 mb-2">
+              {allProducts.length === 0 ? 'Henüz ürününüz yok' : 'Ürün Bulunamadı'}
+            </h3>
+            <p className="text-gray-500 mb-4">
+              {allProducts.length === 0 
+                ? 'İlk ürününüzü ekleyerek mağazanızı büyütmeye başlayın!' 
+                : 'Arama kriterlerinize uygun ürün bulunamadı.'}
+            </p>
+            {allProducts.length === 0 && (
+              <button
+                onClick={handleAddProduct}
+                className="bg-orange-500 hover:bg-orange-600 text-white px-6 py-3 rounded-lg font-semibold transition-colors flex items-center space-x-2 mx-auto"
+              >
+                <Plus className="w-5 h-5" />
+                <span>İlk Ürününüzü Ekleyin</span>
+              </button>
+            )}
           </div>
         )}
       </div>
 
-      {/* Ürün Detay Modal */}
+      {/* Modern Ürün Modal */}
       {showModal && (
-        <ProductModal
-          product={selectedProduct}
+        <ModernProductModal
+          show={showModal}
+          initial={selectedProduct}
           loading={modalLoading}
-          onClose={() => setShowModal(false)}
+          categories={categories}
+          onClose={() => {
+            setShowModal(false);
+            setSelectedProduct(null);
+          }}
+          onSave={handleSaveProduct}
+        />
+      )}
+
+      {/* Toplu Ürün Modal */}
+      {showBulkModal && (
+        <BulkProductModal
+          show={showBulkModal}
+          loading={modalLoading}
+          categories={categories}
+          onClose={() => {
+            setShowBulkModal(false);
+          }}
+          onSave={handleBulkSaveProducts}
+        />
+      )}
+
+      {/* Ürün Düzenleme Modal */}
+      {showEditModal && (
+        <EditProductModal
+          show={showEditModal}
+          product={editingProduct}
+          loading={modalLoading}
+          categories={categories}
+          onClose={() => {
+            setShowEditModal(false);
+            setEditingProduct(null);
+          }}
+          onSave={handleSaveEditProduct}
         />
       )}
     </div>

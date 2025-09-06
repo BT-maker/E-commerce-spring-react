@@ -224,6 +224,24 @@ const Header = () => {
               </div>
             ) : !isLoggedIn ? (
               <>
+                {/* Hızlı Erişim Butonları - Giriş yapmamış kullanıcılar için */}
+                <Link 
+                  to="/discounted-products" 
+                  className="relative flex items-center space-x-1 px-3 py-2 text-xs font-medium text-red-600 hover:text-red-700 transition-all duration-200 rounded-lg hover:bg-red-50 hover:shadow-md transform hover:-translate-y-0.5"
+                >
+                  <Gift size={14} />
+                  <span className="hidden xl:inline">İndirimler</span>
+                  <div className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
+                </Link>
+
+                <Link 
+                  to="/trending" 
+                  className="flex items-center space-x-1 px-3 py-2 text-xs font-medium text-purple-600 hover:text-purple-700 transition-all duration-200 rounded-lg hover:bg-purple-50 hover:shadow-md transform hover:-translate-y-0.5"
+                >
+                  <TrendingUp size={14} />
+                  <span className="hidden xl:inline">Trend</span>
+                </Link>
+
                 <Link 
                   to="/login" 
                   className="flex items-center space-x-2 px-4 py-2 text-sm font-medium text-gray-700 hover:text-orange-500 transition-all duration-200 rounded-xl hover:bg-orange-50 hover:shadow-md transform hover:-translate-y-0.5"

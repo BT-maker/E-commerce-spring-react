@@ -56,15 +56,14 @@ const SellerLayout = ({ children }) => {
       icon: Gift
     },
     {
+      path: "/seller-panel/notifications",
+      name: "Bildirimler",
+      icon: Bell
+    },
+    {
       path: "/seller-panel/settings",
       name: "Ayarlar",
       icon: Settings
-    },
-    {
-      path: "/seller-panel/notifications",
-      name: "Bildirimler",
-      icon: Bell,
-      badge: 3
     }
   ];
 

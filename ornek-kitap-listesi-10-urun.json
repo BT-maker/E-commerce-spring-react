@@ -1,0 +1,112 @@
+[
+  {
+    "name": "Harry Potter ve Felsefe Taşı",
+    "description": "J.K. Rowling'in dünyaca ünlü serisinin ilk kitabı. Büyücülük dünyasına giriş yapan Harry'nin maceraları.",
+    "price": 45.99,
+    "stock": 150,
+    "categoryName": "Kitap",
+    "status": "AKTİF",
+    "imageUrl1": "https://productimages.hepsiburada.net/s/36/444-444/10503164493874.jpg/format:webp",
+    "isDiscountActive": true,
+    "discountPercentage": 15
+  },
+  {
+    "name": "1984 - George Orwell",
+    "description": "Distopik edebiyatın başyapıtı. Büyük Birader'in gözetiminde yaşayan toplumun hikayesi.",
+    "price": 32.50,
+    "stock": 200,
+    "categoryName": "Kitap",
+    "status": "AKTİF",
+    "imageUrl1": "https://productimages.hepsiburada.net/s/37/444-444/10535266484274.jpg/format:webp",
+    "isDiscountActive": false,
+    "discountPercentage": 0
+  },
+  {
+    "name": "Savaş ve Barış - Tolstoy",
+    "description": "Rus edebiyatının en büyük eserlerinden biri. Napolyon savaşları döneminde geçen epik roman.",
+    "price": 89.99,
+    "stock": 75,
+    "categoryName": "Kitap",
+    "status": "AKTİF",
+    "imageUrl1": "https://productimages.hepsiburada.net/s/1/222-222/9530135085106.jpg/format:webp",
+    "isDiscountActive": true,
+    "discountPercentage": 20
+  },
+  {
+    "name": "Kürk Mantolu Madonna - Sabahattin Ali",
+    "description": "Türk edebiyatının klasiklerinden. Aşk, yalnızlık ve hayal kırıklığının hikayesi.",
+    "price": 28.75,
+    "stock": 300,
+    "categoryName": "Kitap",
+    "status": "AKTİF",
+    "imageUrl1": "https://productimages.hepsiburada.net/s/1/444-444/9503432015922.jpg/format:webp",
+    "isDiscountActive": false,
+    "discountPercentage": 0
+  },
+  {
+    "name": "Suç ve Ceza - Dostoyevski",
+    "description": "Rus edebiyatının başyapıtı. Raskolnikov'un işlediği cinayet ve sonrasında yaşadığı psikolojik çöküş.",
+    "price": 55.00,
+    "stock": 120,
+    "categoryName": "Kitap",
+    "status": "AKTİF",
+    "imageUrl1": "https://productimages.hepsiburada.net/s/199/222-222/110000169955578.jpg/format:webp",
+    "isDiscountActive": true,
+    "discountPercentage": 12
+  },
+  {
+    "name": "Simyacı - Paulo Coelho",
+    "description": "Kişisel gelişim ve felsefe romanı. Santiago'nun kendi efsanesini arayış yolculuğu.",
+    "price": 35.25,
+    "stock": 250,
+    "categoryName": "Kitap",
+    "status": "AKTİF",
+    "imageUrl1": "https://productimages.hepsiburada.net/s/40/222-222/10681289375794.jpg/format:webp",
+    "isDiscountActive": false,
+    "discountPercentage": 0
+  },
+  {
+    "name": "Beyaz Gemi - Cengiz Aytmatov",
+    "description": "Kırgız edebiyatının büyük yazarından. Çocukluğun masumiyeti ve hayal dünyasının hikayesi.",
+    "price": 24.99,
+    "stock": 180,
+    "categoryName": "Kitap",
+    "status": "AKTİF",
+    "imageUrl1": "https://productimages.hepsiburada.net/s/84/222-222/110000026568618.jpg/format:webp",
+    "isDiscountActive": true,
+    "discountPercentage": 10
+  },
+  {
+    "name": "Dönüşüm - Franz Kafka",
+    "description": "Modern edebiyatın başyapıtı. Gregor Samsa'nın bir sabah böcek olarak uyanmasının hikayesi.",
+    "price": 19.50,
+    "stock": 220,
+    "categoryName": "Kitap",
+    "status": "AKTİF",
+    "imageUrl1": "https://productimages.hepsiburada.net/s/27/222-222/10195420282930.jpg/format:webp",
+    "isDiscountActive": false,
+    "discountPercentage": 0
+  },
+  {
+    "name": "İnce Memed - Yaşar Kemal",
+    "description": "Türk edebiyatının en önemli eserlerinden. Çukurova'da geçen eşkıya hikayesi.",
+    "price": 42.00,
+    "stock": 160,
+    "categoryName": "Kitap",
+    "status": "AKTİF",
+    "imageUrl1": "https://productimages.hepsiburada.net/s/199/444-444/110000170542453.jpg/format:webp",
+    "isDiscountActive": true,
+    "discountPercentage": 18
+  },
+  {
+    "name": "Küçük Prens - Antoine de Saint-Exupéry",
+    "description": "Çocuklar ve yetişkinler için yazılmış felsefi masal. Sevgi, dostluk ve hayatın anlamı üzerine.",
+    "price": 26.75,
+    "stock": 400,
+    "categoryName": "Kitap",
+    "status": "AKTİF",
+    "imageUrl1": "https://productimages.hepsiburada.net/s/8/222-222/8799140970546.jpg/format:webp",
+    "isDiscountActive": false,
+    "discountPercentage": 0
+  }
+]

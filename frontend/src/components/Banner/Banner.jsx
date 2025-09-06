@@ -54,7 +54,7 @@ const Banner = () => {
   };
 
   return (
-    <section className="relative w-full h-96 md:h-128 overflow-hidden rounded-lg">
+    <section className="relative w-full h-96 md:h-128 overflow-hidden rounded-lg group">
       {slides.map((slide, idx) => (
         <div
           key={idx}
@@ -69,14 +69,14 @@ const Banner = () => {
         >
           {current === idx && <div className="absolute inset-0 bg-black bg-opacity-40"></div>}
           {current === idx && (
-            <div className={`absolute inset-0 flex flex-col justify-center p-8 ${
+            <div className={`absolute inset-0 flex flex-col justify-center p-8 z-10 ${
               slide.align === 'left' ? 'items-start' : 'items-end'
             }`}>
               <div className={`max-w-md ${slide.align === 'left' ? 'text-left' : 'text-right'}`}>
-                <h2 className="text-4xl md:text-5xl font-bold text-white mb-4">{slide.title}</h2>
-                <p className="text-lg text-white mb-6">{slide.desc}</p>
+                <h2 className="text-4xl md:text-5xl font-bold text-white mb-4 drop-shadow-lg">{slide.title}</h2>
+                <p className="text-lg text-white mb-6 drop-shadow-md">{slide.desc}</p>
                 <button 
-                  className="bg-orange-500 hover:bg-orange-600 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200"
+                  className="bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-semibold py-3 px-6 rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 hover:scale-105"
                   onClick={() => handleBannerButtonClick(slide.button)}
                 >
                   {slide.button}
@@ -84,38 +84,41 @@ const Banner = () => {
               </div>
             </div>
           )}
-          {/* Sol Ok */}
-          {current === idx && (
-            <button
-              onClick={prevSlide}
-              className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-white bg-opacity-80 hover:bg-opacity-100 p-2 rounded-full transition-all duration-200"
-              aria-label="Önceki"
-            >
-              <svg className="w-6 h-6 text-gray-800" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" /></svg>
-            </button>
-          )}
-          {/* Sağ Ok */}
-          {current === idx && (
-            <button
-              onClick={nextSlide}
-              className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-white bg-opacity-80 hover:bg-opacity-100 p-2 rounded-full transition-all duration-200"
-              aria-label="Sonraki"
-            >
-              <svg className="w-6 h-6 text-gray-800" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" /></svg>
-            </button>
-          )}
         </div>
       ))}
+      
+      {/* Sol Ok - Tüm slide'lar için tek buton */}
+      <button
+        onClick={prevSlide}
+        className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-white bg-opacity-90 hover:bg-opacity-100 p-3 rounded-full transition-all duration-200 shadow-lg hover:shadow-xl z-20 group-hover:opacity-100 opacity-0 md:opacity-100"
+        aria-label="Önceki slide"
+      >
+        <svg className="w-6 h-6 text-gray-800" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+        </svg>
+      </button>
+      
+      {/* Sağ Ok - Tüm slide'lar için tek buton */}
+      <button
+        onClick={nextSlide}
+        className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-white bg-opacity-90 hover:bg-opacity-100 p-3 rounded-full transition-all duration-200 shadow-lg hover:shadow-xl z-20 group-hover:opacity-100 opacity-0 md:opacity-100"
+        aria-label="Sonraki slide"
+      >
+        <svg className="w-6 h-6 text-gray-800" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+        </svg>
+      </button>
+      
       {/* Dot Navigasyon */}
-      <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-2">
+      <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-2 z-20">
         {slides.map((_, idx) => (
           <button
             key={idx}
             onClick={() => setCurrent(idx)}
             className={`w-3 h-3 rounded-full transition-all duration-200 ${
-              current === idx ? "bg-orange-500" : "bg-white bg-opacity-50 hover:bg-opacity-75"
+              current === idx ? "bg-orange-500 scale-125" : "bg-white bg-opacity-50 hover:bg-opacity-75"
             }`}
-            aria-label={`Slide ${idx + 1}`}
+            aria-label={`Slide ${idx + 1}'e git`}
           />
         ))}
       </div>
