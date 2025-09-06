@@ -12,12 +12,16 @@ import {
   XCircle,
   Clock,
   AlertCircle,
-  Filter
+  Filter,
+  Mail,
+  Phone,
+  MapPin,
+  TrendingUp
 } from "lucide-react";
-
 import PageTitle from '../../components/PageTitle/PageTitle';
 import MetaTags from '../../components/MetaTags/MetaTags';
 import api from "../../services/api";
+import toast from 'react-hot-toast';
 
 const AdminSellers = () => {
   const [sellers, setSellers] = useState([]);
@@ -32,8 +36,17 @@ const AdminSellers = () => {
   const [selectedSeller, setSelectedSeller] = useState(null);
   const [rejectionReason, setRejectionReason] = useState("");
 
+  // Stats
+  const [stats, setStats] = useState({
+    totalSellers: 0,
+    activeSellers: 0,
+    pendingSellers: 0,
+    rejectedSellers: 0
+  });
+
   useEffect(() => {
     fetchSellers();
+    fetchSellerStats();
   }, []);
 
   useEffect(() => {
@@ -47,71 +60,91 @@ const AdminSellers = () => {
       setSellers(response.data.sellers || []);
     } catch (error) {
       console.error("Satıcılar yüklenirken hata:", error);
+      toast.error('Satıcılar yüklenirken hata oluştu');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchSellerStats = async () => {
+    try {
+      const response = await api.get("/admin/sellers/stats");
+      setStats(response.data);
+    } catch (error) {
+      console.error("Satıcı istatistikleri yüklenirken hata:", error);
     }
   };
 
   const filterSellers = () => {
     let filtered = sellers;
 
-    // Arama filtresi
     if (searchQuery) {
-      filtered = filtered.filter(seller => 
+      filtered = filtered.filter(seller =>
         seller.firstName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
         seller.lastName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        seller.email?.toLowerCase().includes(searchQuery.toLowerCase())
+        seller.email?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        seller.storeName?.toLowerCase().includes(searchQuery.toLowerCase())
       );
     }
 
-    // Durum filtresi
     if (statusFilter !== "all") {
-      filtered = filtered.filter(seller => seller.sellerStatus === statusFilter);
+      filtered = filtered.filter(seller => seller.status === statusFilter);
     }
 
     setFilteredSellers(filtered);
   };
 
-  const handleApprove = async (sellerId) => {
-    try {
-      await api.post(`/admin/sellers/${sellerId}/approve`, {});
-      fetchSellers();
-    } catch (error) {
-      console.error("Satıcı onaylanamadı:", error);
+  const formatDate = (dateString) => {
+    return new Date(dateString).toLocaleDateString('tr-TR', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
+  };
+
+  const getStatusBadge = (status) => {
+    switch (status) {
+      case 'ACTIVE':
+        return 'bg-green-100 text-green-800';
+      case 'PENDING':
+        return 'bg-yellow-100 text-yellow-800';
+      case 'REJECTED':
+        return 'bg-red-100 text-red-800';
+      case 'SUSPENDED':
+        return 'bg-gray-100 text-gray-800';
+      default:
+        return 'bg-gray-100 text-gray-800';
     }
   };
 
-  const handleReject = async () => {
-    if (!rejectionReason.trim()) {
-      alert("Red sebebi belirtilmelidir");
-      return;
-    }
-
-    try {
-      await api.post(`/admin/sellers/${selectedSeller.id}/reject`, {
-        rejectionReason: rejectionReason
-      });
-      setShowRejectModal(false);
-      setSelectedSeller(null);
-      setRejectionReason("");
-      fetchSellers();
-    } catch (error) {
-      console.error("Satıcı reddedilemedi:", error);
+  const getStatusIcon = (status) => {
+    switch (status) {
+      case 'ACTIVE':
+        return <CheckCircle className="w-4 h-4" />;
+      case 'PENDING':
+        return <Clock className="w-4 h-4" />;
+      case 'REJECTED':
+        return <XCircle className="w-4 h-4" />;
+      case 'SUSPENDED':
+        return <AlertCircle className="w-4 h-4" />;
+      default:
+        return <AlertCircle className="w-4 h-4" />;
     }
   };
 
-  const handleToggleStatus = async (sellerId) => {
-    try {
-      await api.post(`/admin/sellers/${sellerId}/toggle-status`);
-      fetchSellers();
-    } catch (error) {
-      console.error("Satıcı durumu değiştirilemedi:", error);
+  const getStatusText = (status) => {
+    switch (status) {
+      case 'ACTIVE':
+        return 'Aktif';
+      case 'PENDING':
+        return 'Beklemede';
+      case 'REJECTED':
+        return 'Reddedildi';
+      case 'SUSPENDED':
+        return 'Askıya Alındı';
+      default:
+        return status;
     }
-  };
-
-  const openRejectModal = (seller) => {
-    setSelectedSeller(seller);
-    setShowRejectModal(true);
   };
 
   const openDetailModal = (seller) => {
@@ -119,376 +152,438 @@ const AdminSellers = () => {
     setShowDetailModal(true);
   };
 
-  const getStatusIcon = (status) => {
-    switch (status) {
-      case "PENDING":
-        return <Clock size={16} />;
-      case "APPROVED":
-        return <CheckCircle size={16} />;
-      case "REJECTED":
-        return <XCircle size={16} />;
-      case "ACTIVE":
-        return <UserCheck size={16} />;
-      case "INACTIVE":
-        return <UserX size={16} />;
-      default:
-        return <AlertCircle size={16} />;
+  const openRejectModal = (seller) => {
+    setSelectedSeller(seller);
+    setShowRejectModal(true);
+  };
+
+  const closeModals = () => {
+    setShowDetailModal(false);
+    setShowRejectModal(false);
+    setSelectedSeller(null);
+    setRejectionReason("");
+  };
+
+  const approveSeller = async (sellerId) => {
+    try {
+      await api.put(`/admin/sellers/${sellerId}/approve`);
+      toast.success('Satıcı onaylandı');
+      fetchSellers();
+      fetchSellerStats();
+    } catch (error) {
+      console.error("Satıcı onaylanırken hata:", error);
+      toast.error('Satıcı onaylanırken hata oluştu');
     }
   };
 
-  const getStatusText = (status) => {
-    switch (status) {
-      case "PENDING":
-        return "Beklemede";
-      case "APPROVED":
-        return "Onaylandı";
-      case "REJECTED":
-        return "Reddedildi";
-      case "ACTIVE":
-        return "Aktif";
-      case "INACTIVE":
-        return "Pasif";
-      default:
-        return "Bilinmiyor";
+  const rejectSeller = async () => {
+    if (!rejectionReason.trim()) {
+      toast.error('Red sebebi gerekli');
+      return;
+    }
+
+    try {
+      await api.put(`/admin/sellers/${selectedSeller.id}/reject`, {
+        rejectionReason: rejectionReason
+      });
+      toast.success('Satıcı reddedildi');
+      closeModals();
+      fetchSellers();
+      fetchSellerStats();
+    } catch (error) {
+      console.error("Satıcı reddedilirken hata:", error);
+      toast.error('Satıcı reddedilirken hata oluştu');
     }
   };
 
-  const formatDate = (dateString) => {
-    if (!dateString) return "-";
-    return new Date(dateString).toLocaleDateString('tr-TR', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    });
-  };
-
-  const SellerCard = ({ seller }) => (
-    <div className="seller-card">
-      <div className="seller-header">
-        <div className="seller-avatar">
-          <Store size={24} />
+  // StatCard component
+  const StatCard = ({ title, value, icon: Icon, change, changeType }) => (
+    <div className="bg-white/80 backdrop-blur-lg rounded-xl p-6 border border-gray-200/50 shadow-sm hover:shadow-md transition-all duration-200">
+      <div className="flex items-center justify-between">
+        <div className="flex-1">
+          <p className="text-sm font-medium text-gray-600 mb-1">{title}</p>
+          <p className="text-3xl font-bold text-gray-900 mb-2">{value.toLocaleString()}</p>
+          {change && (
+            <div className={`flex items-center text-sm ${
+              changeType === 'positive' ? 'text-green-600' : 'text-red-600'
+            }`}>
+              <span className="font-medium">{change}</span>
+            </div>
+          )}
         </div>
-        <div className="seller-info">
-          <h3 className="seller-name">{seller.firstName} {seller.lastName}</h3>
-          <p className="seller-email">{seller.email}</p>
+        <div className="w-12 h-12 bg-gradient-to-r from-orange-500 to-red-500 rounded-lg flex items-center justify-center">
+          <Icon className="w-6 h-6 text-white" />
         </div>
-        <div className="seller-status">
-          <span className={`status-badge ${seller.sellerStatus?.toLowerCase() || 'pending'}`}>
-            {getStatusIcon(seller.sellerStatus)}
-            {getStatusText(seller.sellerStatus)}
-          </span>
-        </div>
-      </div>
-      
-      <div className="seller-details">
-        <div className="detail-item">
-          <Calendar size={16} />
-          <span className="detail-label">Kayıt:</span>
-          <span className="detail-value">
-            {formatDate(seller.registrationDate)}
-          </span>
-        </div>
-        
-        <div className="detail-item">
-          <Calendar size={16} />
-          <span className="detail-label">Başvuru:</span>
-          <span className="detail-value">
-            {formatDate(seller.sellerApplicationDate)}
-          </span>
-        </div>
-        
-        <div className="detail-item">
-          <Package size={16} />
-          <span className="detail-label">Telefon:</span>
-          <span className="detail-value">{seller.phone || '-'}</span>
-        </div>
-      </div>
-      
-      <div className="seller-actions">
-        <button 
-          className="action-btn-secondary"
-          onClick={() => openDetailModal(seller)}
-        >
-          <Eye size={16} />
-          Detayları Gör
-        </button>
-        
-        {seller.sellerStatus === "PENDING" && (
-          <>
-            <button 
-              className="action-btn-success"
-              onClick={() => handleApprove(seller.id)}
-            >
-              <CheckCircle size={16} />
-              Onayla
-            </button>
-            <button 
-              className="action-btn-danger"
-              onClick={() => openRejectModal(seller)}
-            >
-              <XCircle size={16} />
-              Reddet
-            </button>
-          </>
-        )}
-        
-        {(seller.sellerStatus === "APPROVED" || 
-          seller.sellerStatus === "ACTIVE" || 
-          seller.sellerStatus === "INACTIVE") && (
-          <button 
-            className={seller.sellerStatus === "ACTIVE" ? "action-btn-danger" : "action-btn-success"}
-            onClick={() => handleToggleStatus(seller.id)}
-          >
-            {seller.sellerStatus === "ACTIVE" ? <UserX size={16} /> : <UserCheck size={16} />}
-            {seller.sellerStatus === "ACTIVE" ? "Pasifleştir" : "Aktifleştir"}
-          </button>
-        )}
       </div>
     </div>
   );
 
   if (loading) {
     return (
-      <div className="admin-sellers">
-        <div className="loading-container">
-          <div className="loading-spinner"></div>
-          <p>Satıcılar yükleniyor...</p>
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-500 mx-auto mb-4"></div>
+          <p className="text-gray-600">Satıcılar yükleniyor...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="admin-sellers">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
       <PageTitle title="Satıcı Yönetimi" />
       <MetaTags 
         title="Satıcı Yönetimi"
-        description="E-Ticaret platformu satıcı yönetimi sayfası."
-        keywords="admin, satıcı yönetimi, satıcılar"
+        description="Satıcı hesap yönetimi. Satıcı onayları ve durum takibi."
+        keywords="satıcı yönetimi, satıcı onayı, satıcı durumları"
       />
 
-      <div className="page-header">
-        <div className="header-content">
-          <h1>Satıcı Yönetimi</h1>
-          <p>Platform satıcılarını yönetin ve izleyin</p>
-        </div>
-                 <div className="header-stats">
-           <div className="admin-seller-stat-item admin-seller-stat-item-total">
-             <div className="stat-icon total">
-               <Store size={24} />
-             </div>
-             <div className="stat-content">
-               <span className="stat-value">{sellers.length}</span>
-               <span className="stat-label">Toplam Satıcı</span>
-             </div>
-           </div>
-           <div className="admin-seller-stat-item admin-seller-stat-item-active">
-             <div className="stat-icon active">
-               <UserCheck size={24} />
-             </div>
-             <div className="stat-content">
-               <span className="stat-value">{sellers.filter(s => s.sellerStatus === 'ACTIVE').length}</span>
-               <span className="stat-label">Aktif Satıcı</span>
-             </div>
-           </div>
-           <div className="admin-seller-stat-item admin-seller-stat-item-pending">
-             <div className="stat-icon pending">
-               <Clock size={24} />
-             </div>
-             <div className="stat-content">
-               <span className="stat-value">{sellers.filter(s => s.sellerStatus === 'PENDING').length}</span>
-               <span className="stat-label">Onay Bekleyen</span>
-             </div>
-           </div>
-         </div>
-      </div>
-
-      {/* Filtreler */}
-      <div className="filters-section">
-        <div className="search-filter">
-          <div className="search-input-wrapper">
-            <Search size={20} />
-            <input
-              type="text"
-              placeholder="Satıcı ara..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="search-input"
-            />
-          </div>
-        </div>
-
-        <div className="filter-controls">
-          <div className="filter-item">
-            <Filter size={16} />
-            <select 
-              value={statusFilter} 
-              onChange={(e) => setStatusFilter(e.target.value)}
-              className="filter-select"
-            >
-              <option value="all">Tüm Durumlar</option>
-              <option value="PENDING">Beklemede</option>
-              <option value="APPROVED">Onaylandı</option>
-              <option value="REJECTED">Reddedildi</option>
-              <option value="ACTIVE">Aktif</option>
-              <option value="INACTIVE">Pasif</option>
-            </select>
-          </div>
-        </div>
-      </div>
-
-      {/* Satıcı Listesi */}
-      <div className="sellers-grid">
-        {filteredSellers.length > 0 ? (
-          filteredSellers.map((seller) => (
-            <SellerCard key={seller.id} seller={seller} />
-          ))
-        ) : (
-          <div className="empty-state">
-            <Store size={48} />
-            <p>Satıcı bulunamadı</p>
-          </div>
-        )}
-      </div>
-
-      {/* Reject Modal */}
-      {showRejectModal && (
-        <div className="modal-overlay">
-          <div className="modal">
-            <div className="modal-header">
-              <h3>Satıcı Başvurusunu Reddet</h3>
-              <button 
-                className="close-btn"
-                onClick={() => setShowRejectModal(false)}
-              >
-                <XCircle size={20} />
-              </button>
+      <div className="space-y-6">
+        {/* Header */}
+        <div className="bg-white/80 backdrop-blur-lg border border-gray-200/50 shadow-sm rounded-xl p-6 mb-8">
+          <div className="flex items-center space-x-4">
+            <div className="w-12 h-12 bg-gradient-to-r from-orange-500 to-red-500 rounded-xl flex items-center justify-center shadow-lg">
+              <Store className="w-7 h-7 text-white" />
             </div>
-            
-            <div className="modal-content">
-              <div className="seller-info-modal">
-                <p><strong>Satıcı:</strong> {selectedSeller?.firstName} {selectedSeller?.lastName}</p>
-                <p><strong>Email:</strong> {selectedSeller?.email}</p>
-              </div>
-              
-              <div className="form-group">
-                <label htmlFor="rejectionReason">Red Sebebi *</label>
-                <textarea
-                  id="rejectionReason"
-                  value={rejectionReason}
-                  onChange={(e) => setRejectionReason(e.target.value)}
-                  placeholder="Red sebebini belirtin..."
-                  rows={4}
-                  required
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900">Satıcı Yönetimi</h1>
+              <p className="text-gray-600 mt-1">Satıcı hesap yönetimi ve onayları</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Stats Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 px-6">
+          <StatCard
+            title="Toplam Satıcı"
+            value={stats.totalSellers || 0}
+            icon={Store}
+            change="+8%"
+            changeType="positive"
+          />
+          <StatCard
+            title="Aktif Satıcı"
+            value={stats.activeSellers || 0}
+            icon={UserCheck}
+            change="+12%"
+            changeType="positive"
+          />
+          <StatCard
+            title="Bekleyen"
+            value={stats.pendingSellers || 0}
+            icon={Clock}
+            change="+3%"
+            changeType="positive"
+          />
+          <StatCard
+            title="Reddedilen"
+            value={stats.rejectedSellers || 0}
+            icon={UserX}
+            change="-2%"
+            changeType="negative"
+          />
+        </div>
+
+        {/* Filters */}
+        <div className="bg-white/80 backdrop-blur-lg rounded-xl border border-gray-200/50 shadow-sm mx-6">
+          <div className="p-6">
+            <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between space-y-4 lg:space-y-0 lg:space-x-4">
+              {/* Search */}
+              <div className="relative flex-1">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+                <input
+                  type="text"
+                  placeholder="Satıcı ara..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full pl-12 pr-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent bg-white/50 backdrop-blur-sm"
                 />
               </div>
+
+              {/* Status Filter */}
+              <div className="flex items-center space-x-4">
+                <Filter className="w-5 h-5 text-gray-400" />
+                <select
+                  value={statusFilter}
+                  onChange={(e) => setStatusFilter(e.target.value)}
+                  className="px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent bg-white/50 backdrop-blur-sm"
+                >
+                  <option value="all">Tüm Durumlar</option>
+                  <option value="ACTIVE">Aktif</option>
+                  <option value="PENDING">Beklemede</option>
+                  <option value="REJECTED">Reddedildi</option>
+                  <option value="SUSPENDED">Askıya Alındı</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Sellers Table */}
+        <div className="bg-white/80 backdrop-blur-lg rounded-xl border border-gray-200/50 shadow-sm mx-6 overflow-hidden">
+          {filteredSellers.length > 0 ? (
+            <>
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead className="bg-gray-50/50 border-b border-gray-200/50">
+                    <tr>
+                      <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                        Satıcı
+                      </th>
+                      <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                        Mağaza
+                      </th>
+                      <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                        İletişim
+                      </th>
+                      <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                        Kayıt Tarihi
+                      </th>
+                      <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                        Durum
+                      </th>
+                      <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                        İşlemler
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-200/50">
+                    {filteredSellers.map((seller) => (
+                      <tr key={seller.id} className="hover:bg-gray-50/50 transition-colors duration-200">
+                        <td className="px-6 py-4">
+                          <div className="flex items-center space-x-3">
+                            <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center">
+                              <span className="text-white font-semibold text-sm">
+                                {(seller.firstName || 'S').charAt(0).toUpperCase()}
+                              </span>
+                            </div>
+                            <div>
+                              <p className="text-sm font-semibold text-gray-900">
+                                {seller.firstName} {seller.lastName}
+                              </p>
+                              <p className="text-xs text-gray-500">{seller.email}</p>
+                            </div>
+                          </div>
+                        </td>
+                        <td className="px-6 py-4">
+                          <div className="flex items-center space-x-2">
+                            <Store className="w-4 h-4 text-gray-400" />
+                            <span className="text-sm text-gray-600">
+                              {seller.storeName || 'Mağaza Adı Yok'}
+                            </span>
+                          </div>
+                        </td>
+                        <td className="px-6 py-4">
+                          <div className="space-y-1">
+                            <div className="flex items-center space-x-2">
+                              <Mail className="w-3 h-3 text-gray-400" />
+                              <span className="text-xs text-gray-500">{seller.email}</span>
+                            </div>
+                            {seller.phone && (
+                              <div className="flex items-center space-x-2">
+                                <Phone className="w-3 h-3 text-gray-400" />
+                                <span className="text-xs text-gray-500">{seller.phone}</span>
+                              </div>
+                            )}
+                          </div>
+                        </td>
+                        <td className="px-6 py-4">
+                          <div className="flex items-center space-x-2">
+                            <Calendar className="w-4 h-4 text-gray-400" />
+                            <span className="text-sm text-gray-600">
+                              {formatDate(seller.createdAt)}
+                            </span>
+                          </div>
+                        </td>
+                        <td className="px-6 py-4">
+                          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusBadge(seller.status)}`}>
+                            {getStatusIcon(seller.status)}
+                            <span className="ml-1">{getStatusText(seller.status)}</span>
+                          </span>
+                        </td>
+                        <td className="px-6 py-4">
+                          <div className="flex items-center space-x-2">
+                            <button
+                              onClick={() => openDetailModal(seller)}
+                              className="p-2 text-blue-600 hover:bg-blue-100 rounded-lg transition-colors duration-200"
+                              title="Detayları Görüntüle"
+                            >
+                              <Eye className="w-4 h-4" />
+                            </button>
+                            {seller.status === 'PENDING' && (
+                              <>
+                                <button
+                                  onClick={() => approveSeller(seller.id)}
+                                  className="p-2 text-green-600 hover:bg-green-100 rounded-lg transition-colors duration-200"
+                                  title="Onayla"
+                                >
+                                  <CheckCircle className="w-4 h-4" />
+                                </button>
+                                <button
+                                  onClick={() => openRejectModal(seller)}
+                                  className="p-2 text-red-600 hover:bg-red-100 rounded-lg transition-colors duration-200"
+                                  title="Reddet"
+                                >
+                                  <XCircle className="w-4 h-4" />
+                                </button>
+                              </>
+                            )}
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </>
+          ) : (
+            <div className="text-center py-12">
+              <Store className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">Satıcı Bulunamadı</h3>
+              <p className="text-gray-500">Arama kriterlerinize uygun satıcı bulunamadı.</p>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Seller Detail Modal */}
+      {showDetailModal && selectedSeller && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="p-6 border-b border-gray-200">
+              <div className="flex items-center justify-between">
+                <h2 className="text-xl font-bold text-gray-900">Satıcı Detayları</h2>
+                <button
+                  onClick={closeModals}
+                  className="p-2 hover:bg-gray-100 rounded-lg transition-colors duration-200"
+                >
+                  <XCircle className="w-6 h-6 text-gray-500" />
+                </button>
+              </div>
             </div>
             
-            <div className="modal-actions">
-              <button 
-                className="cancel-btn"
-                onClick={() => setShowRejectModal(false)}
+            <div className="p-6 space-y-6">
+              {/* Seller Info */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Ad Soyad</label>
+                  <p className="text-gray-900 font-semibold">{selectedSeller.firstName} {selectedSeller.lastName}</p>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Email</label>
+                  <p className="text-gray-900">{selectedSeller.email}</p>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Telefon</label>
+                  <p className="text-gray-900">{selectedSeller.phone || 'Telefon yok'}</p>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Durum</label>
+                  <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusBadge(selectedSeller.status)}`}>
+                    {getStatusIcon(selectedSeller.status)}
+                    <span className="ml-1">{getStatusText(selectedSeller.status)}</span>
+                  </span>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Mağaza Adı</label>
+                  <p className="text-gray-900">{selectedSeller.storeName || 'Mağaza adı yok'}</p>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Kayıt Tarihi</label>
+                  <p className="text-gray-900">{formatDate(selectedSeller.createdAt)}</p>
+                </div>
+              </div>
+
+              {/* Address */}
+              {selectedSeller.address && (
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Adres</label>
+                  <div className="bg-gray-50 p-4 rounded-lg">
+                    <div className="flex items-start space-x-2">
+                      <MapPin className="w-4 h-4 text-gray-400 mt-0.5" />
+                      <p className="text-gray-900">{selectedSeller.address}</p>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Rejection Reason */}
+              {selectedSeller.rejectionReason && (
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Red Sebebi</label>
+                  <div className="bg-red-50 p-4 rounded-lg">
+                    <p className="text-red-800">{selectedSeller.rejectionReason}</p>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            <div className="p-6 border-t border-gray-200 flex justify-end space-x-3">
+              <button
+                onClick={closeModals}
+                className="px-6 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors duration-200"
               >
-                İptal
+                Kapat
               </button>
-              <button 
-                className="submit-btn reject"
-                onClick={handleReject}
-              >
-                Reddet
-              </button>
+              {selectedSeller.status === 'PENDING' && (
+                <>
+                  <button
+                    onClick={() => approveSeller(selectedSeller.id)}
+                    className="px-6 py-2 bg-green-500 hover:bg-green-600 text-white rounded-lg transition-colors duration-200"
+                  >
+                    Onayla
+                  </button>
+                  <button
+                    onClick={() => {
+                      closeModals();
+                      openRejectModal(selectedSeller);
+                    }}
+                    className="px-6 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg transition-colors duration-200"
+                  >
+                    Reddet
+                  </button>
+                </>
+              )}
             </div>
           </div>
         </div>
       )}
 
-      {/* Detail Modal */}
-      {showDetailModal && (
-        <div className="modal-overlay">
-          <div className="modal">
-            <div className="modal-header">
-              <h3>Satıcı Detayları</h3>
-              <button 
-                className="close-btn"
-                onClick={() => setShowDetailModal(false)}
-              >
-                <XCircle size={20} />
-              </button>
+      {/* Reject Modal */}
+      {showRejectModal && selectedSeller && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full">
+            <div className="p-6 border-b border-gray-200">
+              <h2 className="text-xl font-bold text-gray-900">Satıcıyı Reddet</h2>
             </div>
             
-            <div className="modal-content">
-              <div className="seller-detail-info">
-                <div className="detail-section">
-                  <h4>Kişisel Bilgiler</h4>
-                  <div className="detail-row">
-                    <span className="detail-label">Ad Soyad:</span>
-                    <span className="detail-value">{selectedSeller?.firstName} {selectedSeller?.lastName}</span>
-                  </div>
-                  <div className="detail-row">
-                    <span className="detail-label">Email:</span>
-                    <span className="detail-value">{selectedSeller?.email}</span>
-                  </div>
-                  <div className="detail-row">
-                    <span className="detail-label">Telefon:</span>
-                    <span className="detail-value">{selectedSeller?.phone || '-'}</span>
-                  </div>
-                </div>
-
-                <div className="detail-section">
-                  <h4>Satıcı Durumu</h4>
-                  <div className="detail-row">
-                    <span className="detail-label">Durum:</span>
-                    <span className={`status-badge ${selectedSeller?.sellerStatus?.toLowerCase() || 'pending'}`}>
-                      {getStatusIcon(selectedSeller?.sellerStatus)}
-                      {getStatusText(selectedSeller?.sellerStatus)}
-                    </span>
-                  </div>
-                  <div className="detail-row">
-                    <span className="detail-label">Kayıt Tarihi:</span>
-                    <span className="detail-value">{formatDate(selectedSeller?.registrationDate)}</span>
-                  </div>
-                  <div className="detail-row">
-                    <span className="detail-label">Başvuru Tarihi:</span>
-                    <span className="detail-value">{formatDate(selectedSeller?.sellerApplicationDate)}</span>
-                  </div>
-                  {selectedSeller?.approvalDate && (
-                    <div className="detail-row">
-                      <span className="detail-label">Onay Tarihi:</span>
-                      <span className="detail-value">{formatDate(selectedSeller?.approvalDate)}</span>
-                    </div>
-                  )}
-                  {selectedSeller?.rejectionReason && (
-                    <div className="detail-row">
-                      <span className="detail-label">Red Sebebi:</span>
-                      <span className="detail-value rejection-reason">{selectedSeller?.rejectionReason}</span>
-                    </div>
-                  )}
-                </div>
-
-                {selectedSeller?.approvedBy && (
-                  <div className="detail-section">
-                    <h4>Onaylayan Admin</h4>
-                    <div className="detail-row">
-                      <span className="detail-label">Admin:</span>
-                      <span className="detail-value">{selectedSeller?.approvedBy?.firstName} {selectedSeller?.approvedBy?.lastName}</span>
-                    </div>
-                    <div className="detail-row">
-                      <span className="detail-label">Admin Email:</span>
-                      <span className="detail-value">{selectedSeller?.approvedBy?.email}</span>
-                    </div>
-                  </div>
-                )}
+            <div className="p-6">
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Red Sebebi
+                </label>
+                <textarea
+                  value={rejectionReason}
+                  onChange={(e) => setRejectionReason(e.target.value)}
+                  placeholder="Red sebebini açıklayın..."
+                  className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                  rows={4}
+                />
               </div>
             </div>
-            
-            <div className="modal-actions">
-              <button 
-                className="cancel-btn"
-                onClick={() => setShowDetailModal(false)}
+
+            <div className="p-6 border-t border-gray-200 flex justify-end space-x-3">
+              <button
+                onClick={closeModals}
+                className="px-6 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors duration-200"
               >
-                Kapat
+                İptal
+              </button>
+              <button
+                onClick={rejectSeller}
+                className="px-6 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg transition-colors duration-200"
+              >
+                Reddet
               </button>
             </div>
           </div>

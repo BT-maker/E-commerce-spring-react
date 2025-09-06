@@ -1,6 +1,5 @@
 import React, { useState } from "react";
-import { Mail, Send, TestTube, FileText, UserCheck, AlertTriangle, Users, ShoppingCart } from "lucide-react";
-
+import { Mail, Send, TestTube, FileText, UserCheck, AlertTriangle, Users, ShoppingCart, Plus, Eye, Trash2, Edit } from "lucide-react";
 import PageTitle from '../../components/PageTitle/PageTitle';
 import MetaTags from '../../components/MetaTags/MetaTags';
 import toast from 'react-hot-toast';
@@ -21,6 +20,41 @@ const AdminEmail = () => {
     productName: '',
     currentStock: ''
   });
+
+  const [emailTemplates, setEmailTemplates] = useState([
+    {
+      id: 1,
+      name: 'Hoş Geldin Emaili',
+      type: 'welcome',
+      subject: 'Hoş Geldiniz!',
+      content: 'Merhaba {{customerName}}, hesabınız başarıyla oluşturuldu.',
+      isActive: true
+    },
+    {
+      id: 2,
+      name: 'Sipariş Onayı',
+      type: 'order_confirmation',
+      subject: 'Siparişiniz Onaylandı',
+      content: 'Merhaba {{customerName}}, {{orderNumber}} numaralı siparişiniz onaylandı.',
+      isActive: true
+    },
+    {
+      id: 3,
+      name: 'Şifre Sıfırlama',
+      type: 'password_reset',
+      subject: 'Şifre Sıfırlama',
+      content: 'Merhaba {{username}}, şifre sıfırlama linkiniz: {{resetToken}}',
+      isActive: true
+    },
+    {
+      id: 4,
+      name: 'Stok Uyarısı',
+      type: 'low_stock',
+      subject: 'Stok Uyarısı',
+      content: '{{productName}} ürününün stoku azaldı. Mevcut stok: {{currentStock}}',
+      isActive: false
+    }
+  ]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -60,425 +94,388 @@ const AdminEmail = () => {
           currentStock: ''
         });
       } else {
-        toast.error(result.error || 'Email gönderilemedi!');
+        toast.error(result.message || 'Email gönderilirken hata oluştu!');
       }
     } catch (error) {
       console.error('Email gönderme hatası:', error);
-      toast.error('Email gönderilirken bir hata oluştu!');
+      toast.error('Email gönderilirken hata oluştu!');
     } finally {
       setLoading(false);
     }
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    
-    switch (emailType) {
-      case 'test':
-        sendEmail('test', { to: formData.to });
-        break;
-      case 'simple':
-        sendEmail('simple', {
-          to: formData.to,
-          subject: formData.subject,
-          content: formData.content
-        });
-        break;
-      case 'html':
-        sendEmail('html', {
-          to: formData.to,
-          subject: formData.subject,
-          htmlContent: formData.content
-        });
-        break;
-      case 'order-confirmation':
-        sendEmail('order-confirmation', {
-          to: formData.to,
-          customerName: formData.customerName,
-          orderNumber: formData.orderNumber,
-          totalAmount: parseFloat(formData.totalAmount) || 0
-        });
-        break;
-      case 'password-reset':
-        sendEmail('password-reset', {
-          to: formData.to,
-          resetToken: formData.resetToken,
-          username: formData.username
-        });
-        break;
+  const handleSendTestEmail = () => {
+    if (!formData.to || !formData.subject || !formData.content) {
+      toast.error('Lütfen tüm alanları doldurun!');
+      return;
+    }
+
+    sendEmail('test', {
+      to: formData.to,
+      subject: formData.subject,
+      content: formData.content
+    });
+  };
+
+  const handleSendWelcomeEmail = () => {
+    if (!formData.to || !formData.customerName) {
+      toast.error('Lütfen email ve müşteri adını girin!');
+      return;
+    }
+
+    sendEmail('welcome', {
+      to: formData.to,
+      customerName: formData.customerName
+    });
+  };
+
+  const handleSendOrderConfirmation = () => {
+    if (!formData.to || !formData.customerName || !formData.orderNumber || !formData.totalAmount) {
+      toast.error('Lütfen tüm alanları doldurun!');
+      return;
+    }
+
+    sendEmail('order-confirmation', {
+      to: formData.to,
+      customerName: formData.customerName,
+      orderNumber: formData.orderNumber,
+      totalAmount: formData.totalAmount
+    });
+  };
+
+  const handleSendPasswordReset = () => {
+    if (!formData.to || !formData.username || !formData.resetToken) {
+      toast.error('Lütfen tüm alanları doldurun!');
+      return;
+    }
+
+    sendEmail('password-reset', {
+      to: formData.to,
+      username: formData.username,
+      resetToken: formData.resetToken
+    });
+  };
+
+  const handleSendLowStockAlert = () => {
+    if (!formData.to || !formData.productName || !formData.currentStock) {
+      toast.error('Lütfen tüm alanları doldurun!');
+      return;
+    }
+
+    sendEmail('low-stock', {
+      to: formData.to,
+      productName: formData.productName,
+      currentStock: formData.currentStock
+    });
+  };
+
+  const getEmailTypeIcon = (type) => {
+    switch (type) {
       case 'welcome':
-        sendEmail('welcome', {
-          to: formData.to,
-          customerName: formData.customerName
-        });
-        break;
-      case 'order-status-update':
-        sendEmail('order-status-update', {
-          to: formData.to,
-          customerName: formData.customerName,
-          orderNumber: formData.orderNumber,
-          status: formData.status
-        });
-        break;
-      case 'low-stock-alert':
-        sendEmail('low-stock-alert', {
-          to: formData.to,
-          productName: formData.productName,
-          currentStock: parseInt(formData.currentStock) || 0
-        });
-        break;
+        return <UserCheck className="w-5 h-5 text-green-600" />;
+      case 'order_confirmation':
+        return <ShoppingCart className="w-5 h-5 text-blue-600" />;
+      case 'password_reset':
+        return <AlertTriangle className="w-5 h-5 text-orange-600" />;
+      case 'low_stock':
+        return <AlertTriangle className="w-5 h-5 text-red-600" />;
       default:
-        toast.error('Geçersiz email tipi!');
+        return <Mail className="w-5 h-5 text-gray-600" />;
     }
   };
 
-  const renderForm = () => {
-    switch (emailType) {
-      case 'test':
-        return (
-          <div className="form-group">
-            <label>Email Adresi *</label>
-            <input
-              type="email"
-              name="to"
-              value={formData.to}
-              onChange={handleInputChange}
-              placeholder="test@example.com"
-              required
-            />
-          </div>
-        );
-
-      case 'simple':
-      case 'html':
-        return (
-          <>
-            <div className="form-group">
-              <label>Email Adresi *</label>
-              <input
-                type="email"
-                name="to"
-                value={formData.to}
-                onChange={handleInputChange}
-                placeholder="test@example.com"
-                required
-              />
-            </div>
-            <div className="form-group">
-              <label>Konu</label>
-              <input
-                type="text"
-                name="subject"
-                value={formData.subject}
-                onChange={handleInputChange}
-                placeholder="Email konusu"
-              />
-            </div>
-            <div className="form-group">
-              <label>{emailType === 'html' ? 'HTML İçerik' : 'İçerik'}</label>
-              <textarea
-                name="content"
-                value={formData.content}
-                onChange={handleInputChange}
-                placeholder={emailType === 'html' ? '<h1>HTML içerik</h1>' : 'Email içeriği'}
-                rows={6}
-              />
-            </div>
-          </>
-        );
-
-      case 'order-confirmation':
-        return (
-          <>
-            <div className="form-group">
-              <label>Email Adresi *</label>
-              <input
-                type="email"
-                name="to"
-                value={formData.to}
-                onChange={handleInputChange}
-                placeholder="musteri@example.com"
-                required
-              />
-            </div>
-            <div className="form-group">
-              <label>Müşteri Adı</label>
-              <input
-                type="text"
-                name="customerName"
-                value={formData.customerName}
-                onChange={handleInputChange}
-                placeholder="Müşteri adı"
-              />
-            </div>
-            <div className="form-group">
-              <label>Sipariş Numarası</label>
-              <input
-                type="text"
-                name="orderNumber"
-                value={formData.orderNumber}
-                onChange={handleInputChange}
-                placeholder="ORD-123456"
-              />
-            </div>
-            <div className="form-group">
-              <label>Toplam Tutar (₺)</label>
-              <input
-                type="number"
-                name="totalAmount"
-                value={formData.totalAmount}
-                onChange={handleInputChange}
-                placeholder="1250.00"
-                step="0.01"
-              />
-            </div>
-          </>
-        );
-
-      case 'password-reset':
-        return (
-          <>
-            <div className="form-group">
-              <label>Email Adresi *</label>
-              <input
-                type="email"
-                name="to"
-                value={formData.to}
-                onChange={handleInputChange}
-                placeholder="kullanici@example.com"
-                required
-              />
-            </div>
-            <div className="form-group">
-              <label>Kullanıcı Adı</label>
-              <input
-                type="text"
-                name="username"
-                value={formData.username}
-                onChange={handleInputChange}
-                placeholder="Kullanıcı adı"
-              />
-            </div>
-            <div className="form-group">
-              <label>Reset Token</label>
-              <input
-                type="text"
-                name="resetToken"
-                value={formData.resetToken}
-                onChange={handleInputChange}
-                placeholder="reset-token-123"
-              />
-            </div>
-          </>
-        );
-
+  const getEmailTypeColor = (type) => {
+    switch (type) {
       case 'welcome':
-        return (
-          <>
-            <div className="form-group">
-              <label>Email Adresi *</label>
-              <input
-                type="email"
-                name="to"
-                value={formData.to}
-                onChange={handleInputChange}
-                placeholder="yeni@example.com"
-                required
-              />
-            </div>
-            <div className="form-group">
-              <label>Müşteri Adı</label>
-              <input
-                type="text"
-                name="customerName"
-                value={formData.customerName}
-                onChange={handleInputChange}
-                placeholder="Müşteri adı"
-              />
-            </div>
-          </>
-        );
-
-      case 'order-status-update':
-        return (
-          <>
-            <div className="form-group">
-              <label>Email Adresi *</label>
-              <input
-                type="email"
-                name="to"
-                value={formData.to}
-                onChange={handleInputChange}
-                placeholder="musteri@example.com"
-                required
-              />
-            </div>
-            <div className="form-group">
-              <label>Müşteri Adı</label>
-              <input
-                type="text"
-                name="customerName"
-                value={formData.customerName}
-                onChange={handleInputChange}
-                placeholder="Müşteri adı"
-              />
-            </div>
-            <div className="form-group">
-              <label>Sipariş Numarası</label>
-              <input
-                type="text"
-                name="orderNumber"
-                value={formData.orderNumber}
-                onChange={handleInputChange}
-                placeholder="ORD-123456"
-              />
-            </div>
-            <div className="form-group">
-              <label>Durum</label>
-              <select
-                name="status"
-                value={formData.status}
-                onChange={handleInputChange}
-              >
-                <option value="">Durum seçin</option>
-                <option value="Hazırlanıyor">Hazırlanıyor</option>
-                <option value="Kargoya Verildi">Kargoya Verildi</option>
-                <option value="Teslim Edildi">Teslim Edildi</option>
-                <option value="İptal Edildi">İptal Edildi</option>
-              </select>
-            </div>
-          </>
-        );
-
-      case 'low-stock-alert':
-        return (
-          <>
-            <div className="form-group">
-              <label>Email Adresi *</label>
-              <input
-                type="email"
-                name="to"
-                value={formData.to}
-                onChange={handleInputChange}
-                placeholder="admin@example.com"
-                required
-              />
-            </div>
-            <div className="form-group">
-              <label>Ürün Adı</label>
-              <input
-                type="text"
-                name="productName"
-                value={formData.productName}
-                onChange={handleInputChange}
-                placeholder="Ürün adı"
-              />
-            </div>
-            <div className="form-group">
-              <label>Mevcut Stok</label>
-              <input
-                type="number"
-                name="currentStock"
-                value={formData.currentStock}
-                onChange={handleInputChange}
-                placeholder="5"
-                min="0"
-              />
-            </div>
-          </>
-        );
-
+        return 'bg-green-100 text-green-800';
+      case 'order_confirmation':
+        return 'bg-blue-100 text-blue-800';
+      case 'password_reset':
+        return 'bg-orange-100 text-orange-800';
+      case 'low_stock':
+        return 'bg-red-100 text-red-800';
       default:
-        return null;
+        return 'bg-gray-100 text-gray-800';
     }
   };
-
-  const emailTypes = [
-    { id: 'test', name: 'Test Email', icon: TestTube, description: 'Basit test emaili gönderir' },
-    { id: 'simple', name: 'Basit Email', icon: FileText, description: 'Text formatında email gönderir' },
-    { id: 'html', name: 'HTML Email', icon: FileText, description: 'HTML formatında email gönderir' },
-    { id: 'order-confirmation', name: 'Sipariş Onayı', icon: ShoppingCart, description: 'Sipariş onay emaili gönderir' },
-    { id: 'password-reset', name: 'Şifre Sıfırlama', icon: AlertTriangle, description: 'Şifre sıfırlama emaili gönderir' },
-    { id: 'welcome', name: 'Hoş Geldin', icon: UserCheck, description: 'Hoş geldin emaili gönderir' },
-    { id: 'order-status-update', name: 'Sipariş Durumu', icon: ShoppingCart, description: 'Sipariş durumu güncelleme emaili gönderir' },
-    { id: 'low-stock-alert', name: 'Düşük Stok Uyarısı', icon: AlertTriangle, description: 'Düşük stok uyarısı emaili gönderir' }
-  ];
 
   return (
-    <div className="admin-email">
-      <MetaTags title="Email Yönetimi - Admin Panel" description="Email gönderme ve yönetimi" />
-      
-      <div className="admin-email-header">
-        <div className="header-content">
-          <div className="header-title">
-            <Mail className="header-icon" />
-            <div>
-              <h1>Email Yönetimi</h1>
-              <p>Farklı türde email gönderimi yapabilirsiniz</p>
-            </div>
-          </div>
-        </div>
-      </div>
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
+      <PageTitle title="Email Yönetimi" />
+      <MetaTags 
+        title="Email Yönetimi"
+        description="E-posta yönetimi. Email şablonları ve otomatik gönderimler."
+        keywords="email yönetimi, email şablonları, otomatik email"
+      />
 
-      <div className="email-container">
-        <div className="email-sidebar">
-          <h3>Email Türleri</h3>
-          <div className="email-type-list">
-            {emailTypes.map((type) => (
-              <div
-                key={type.id}
-                className={`email-type-item ${emailType === type.id ? 'active' : ''}`}
-                onClick={() => setEmailType(type.id)}
-              >
-                <type.icon className="email-type-icon" />
-                <div className="email-type-content">
-                  <h4>{type.name}</h4>
-                  <p>{type.description}</p>
+      <div className="space-y-6">
+        {/* Header */}
+        <div className="bg-white/80 backdrop-blur-lg border-b border-gray-200/50 shadow-sm">
+          <div className="px-6 py-6">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-4">
+                <div className="w-12 h-12 bg-gradient-to-r from-orange-500 to-red-500 rounded-xl flex items-center justify-center shadow-lg">
+                  <Mail className="w-7 h-7 text-white" />
+                </div>
+                <div>
+                  <h1 className="text-3xl font-bold text-gray-900">Email Yönetimi</h1>
+                  <p className="text-gray-600 mt-1">E-posta şablonları ve otomatik gönderimler</p>
                 </div>
               </div>
-            ))}
+              <button className="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white px-6 py-3 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-200 flex items-center space-x-2">
+                <Plus className="w-5 h-5" />
+                <span>Yeni Şablon</span>
+              </button>
+            </div>
           </div>
         </div>
 
-        <div className="email-form-container">
-          <div className="email-form-card">
-            <h3>{emailTypes.find(t => t.id === emailType)?.name} Emaili Gönder</h3>
-            
-            <form onSubmit={handleSubmit} className="email-form">
-              {renderForm()}
-              
-              <div className="form-actions">
-                <button
-                  type="submit"
-                  className="send-button"
-                  disabled={loading || !formData.to}
-                >
-                  {loading ? (
-                    <div className="loading-spinner"></div>
-                  ) : (
-                    <>
-                      <Send className="button-icon" />
-                      Email Gönder
-                    </>
-                  )}
-                </button>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 px-6">
+          {/* Email Templates */}
+          <div className="lg:col-span-1">
+            <div className="bg-white/80 backdrop-blur-lg rounded-xl border border-gray-200/50 shadow-sm">
+              <div className="p-6 border-b border-gray-200/50">
+                <h2 className="text-xl font-bold text-gray-900">Email Şablonları</h2>
+                <p className="text-gray-600 text-sm mt-1">Mevcut email şablonları</p>
               </div>
-            </form>
+              <div className="p-6">
+                <div className="space-y-4">
+                  {emailTemplates.map((template) => (
+                    <div key={template.id} className="bg-gray-50 rounded-lg p-4 hover:bg-gray-100 transition-colors duration-200">
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1">
+                          <div className="flex items-center space-x-3 mb-2">
+                            {getEmailTypeIcon(template.type)}
+                            <h3 className="font-semibold text-gray-900">{template.name}</h3>
+                          </div>
+                          <p className="text-sm text-gray-600 mb-2">{template.subject}</p>
+                          <p className="text-xs text-gray-500 line-clamp-2">{template.content}</p>
+                        </div>
+                        <div className="flex items-center space-x-2 ml-4">
+                          <button className="p-1 text-blue-600 hover:bg-blue-100 rounded transition-colors duration-200">
+                            <Eye className="w-4 h-4" />
+                          </button>
+                          <button className="p-1 text-orange-600 hover:bg-orange-100 rounded transition-colors duration-200">
+                            <Edit className="w-4 h-4" />
+                          </button>
+                          <button className="p-1 text-red-600 hover:bg-red-100 rounded transition-colors duration-200">
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
+                      </div>
+                      <div className="flex items-center justify-between mt-3">
+                        <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${getEmailTypeColor(template.type)}`}>
+                          {template.type}
+                        </span>
+                        <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
+                          template.isActive ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
+                        }`}>
+                          {template.isActive ? 'Aktif' : 'Pasif'}
+                        </span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
           </div>
 
-          <div className="email-info">
-            <h4>Email Konfigürasyonu</h4>
-            <div className="info-item">
-              <strong>SMTP Sunucu:</strong> smtp.gmail.com
-            </div>
-            <div className="info-item">
-              <strong>Port:</strong> 587
-            </div>
-            <div className="info-item">
-              <strong>Güvenlik:</strong> STARTTLS
-            </div>
-            <div className="info-item">
-              <strong>Gönderen:</strong> noreply@ecommerce.com
+          {/* Email Sender */}
+          <div className="lg:col-span-2">
+            <div className="bg-white/80 backdrop-blur-lg rounded-xl border border-gray-200/50 shadow-sm">
+              <div className="p-6 border-b border-gray-200/50">
+                <h2 className="text-xl font-bold text-gray-900">Email Gönder</h2>
+                <p className="text-gray-600 text-sm mt-1">Test emaili gönder veya şablon kullan</p>
+              </div>
+              <div className="p-6">
+                <div className="space-y-6">
+                  {/* Email Type Selection */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-3">Email Türü</label>
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                      {[
+                        { value: 'test', label: 'Test Email', icon: TestTube },
+                        { value: 'welcome', label: 'Hoş Geldin', icon: UserCheck },
+                        { value: 'order', label: 'Sipariş', icon: ShoppingCart },
+                        { value: 'reset', label: 'Şifre Sıfır', icon: AlertTriangle }
+                      ].map((type) => {
+                        const Icon = type.icon;
+                        return (
+                          <button
+                            key={type.value}
+                            onClick={() => setEmailType(type.value)}
+                            className={`p-3 rounded-lg border-2 transition-all duration-200 flex flex-col items-center space-y-2 ${
+                              emailType === type.value
+                                ? 'border-orange-500 bg-orange-50 text-orange-700'
+                                : 'border-gray-200 hover:border-gray-300 text-gray-600'
+                            }`}
+                          >
+                            <Icon className="w-5 h-5" />
+                            <span className="text-xs font-medium">{type.label}</span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  {/* Common Fields */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Alıcı Email</label>
+                      <input
+                        type="email"
+                        name="to"
+                        value={formData.to}
+                        onChange={handleInputChange}
+                        className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                        placeholder="ornek@email.com"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Konu</label>
+                      <input
+                        type="text"
+                        name="subject"
+                        value={formData.subject}
+                        onChange={handleInputChange}
+                        className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                        placeholder="Email konusu"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Dynamic Fields Based on Email Type */}
+                  {emailType === 'welcome' && (
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Müşteri Adı</label>
+                      <input
+                        type="text"
+                        name="customerName"
+                        value={formData.customerName}
+                        onChange={handleInputChange}
+                        className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                        placeholder="Müşteri adı"
+                      />
+                    </div>
+                  )}
+
+                  {emailType === 'order' && (
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Müşteri Adı</label>
+                        <input
+                          type="text"
+                          name="customerName"
+                          value={formData.customerName}
+                          onChange={handleInputChange}
+                          className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                          placeholder="Müşteri adı"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Sipariş No</label>
+                        <input
+                          type="text"
+                          name="orderNumber"
+                          value={formData.orderNumber}
+                          onChange={handleInputChange}
+                          className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                          placeholder="Sipariş numarası"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Toplam Tutar</label>
+                        <input
+                          type="number"
+                          name="totalAmount"
+                          value={formData.totalAmount}
+                          onChange={handleInputChange}
+                          className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                          placeholder="0.00"
+                        />
+                      </div>
+                    </div>
+                  )}
+
+                  {emailType === 'reset' && (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Kullanıcı Adı</label>
+                        <input
+                          type="text"
+                          name="username"
+                          value={formData.username}
+                          onChange={handleInputChange}
+                          className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                          placeholder="Kullanıcı adı"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Reset Token</label>
+                        <input
+                          type="text"
+                          name="resetToken"
+                          value={formData.resetToken}
+                          onChange={handleInputChange}
+                          className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                          placeholder="Reset token"
+                        />
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Content Field */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">İçerik</label>
+                    <textarea
+                      name="content"
+                      value={formData.content}
+                      onChange={handleInputChange}
+                      rows={6}
+                      className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                      placeholder="Email içeriği..."
+                    />
+                  </div>
+
+                  {/* Send Button */}
+                  <div className="flex justify-end">
+                    <button
+                      onClick={() => {
+                        switch (emailType) {
+                          case 'test':
+                            handleSendTestEmail();
+                            break;
+                          case 'welcome':
+                            handleSendWelcomeEmail();
+                            break;
+                          case 'order':
+                            handleSendOrderConfirmation();
+                            break;
+                          case 'reset':
+                            handleSendPasswordReset();
+                            break;
+                          default:
+                            handleSendTestEmail();
+                        }
+                      }}
+                      disabled={loading}
+                      className="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 disabled:from-gray-400 disabled:to-gray-500 text-white px-8 py-3 rounded-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-200 flex items-center space-x-2"
+                    >
+                      {loading ? (
+                        <>
+                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                          <span>Gönderiliyor...</span>
+                        </>
+                      ) : (
+                        <>
+                          <Send className="w-4 h-4" />
+                          <span>Email Gönder</span>
+                        </>
+                      )}
+                    </button>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>

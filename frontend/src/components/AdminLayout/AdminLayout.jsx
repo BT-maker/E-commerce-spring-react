@@ -28,7 +28,7 @@ const AdminLayout = ({ children }) => {
   const [searchQuery, setSearchQuery] = useState("");
   const location = useLocation();
   const navigate = useNavigate();
-  const { logout } = useContext(AuthContext);
+  const { user, logout } = useContext(AuthContext);
 
   const menuItems = [
     {
@@ -51,7 +51,6 @@ const AdminLayout = ({ children }) => {
       name: "Kategori Yönetimi",
       icon: FolderOpen
     },
-
     {
       path: "/admin/products",
       name: "Ürün Yönetimi",
@@ -107,67 +106,167 @@ const AdminLayout = ({ children }) => {
   };
 
   return (
-    <div className="admin-layout">
-      {/* Sidebar */}
-      <div className={`admin-sidebar ${sidebarOpen ? 'open' : ''}`}>
-        <div className="sidebar-header">
-          <div className="logo">
-            <Shield size={32} />
-            <span>Admin Panel</span>
-          </div>
-          <button 
-            className="sidebar-close"
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
+      <div className="flex h-screen">
+        {/* Mobile Sidebar Overlay */}
+        {sidebarOpen && (
+          <div
+            className="fixed inset-0 bg-black/50 z-40 md:hidden"
             onClick={() => setSidebarOpen(false)}
-          >
-            <X size={24} />
-          </button>
-        </div>
+          />
+        )}
 
-        <nav className="sidebar-nav">
-          {menuItems.map((item) => {
-            const Icon = item.icon;
-            const isActive = location.pathname === item.path;
-            
-            return (
-              <Link
-                key={item.path}
-                to={item.path}
-                className={`nav-item ${isActive ? 'active' : ''}`}
-                onClick={() => setSidebarOpen(false)}
+        {/* Sidebar */}
+        <aside className={`fixed md:static inset-y-0 left-0 z-50 w-72 bg-white border-r border-gray-200 shadow-xl transform transition-all duration-300 ease-in-out md:translate-x-0 ${
+          sidebarOpen ? 'translate-x-0' : '-translate-x-full'
+        }`}>
+          <div className="flex flex-col h-full">
+            {/* Sidebar Header */}
+            <div className="p-4 border-b border-gray-200 bg-orange-50">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-3">
+                  <div className="relative">
+                    <div className="w-11 h-11 bg-orange-500 rounded-lg flex items-center justify-center shadow-lg">
+                      <Shield className="w-6 h-6 text-white" />
+                    </div>
+                    <div className="absolute -top-1 -right-1 w-3 h-3 bg-green-500 rounded-full border-2 border-white"></div>
+                  </div>
+                  <div>
+                    <h1 className="text-lg font-bold text-gray-900">Admin Panel</h1>
+                    <p className="text-xs text-gray-600">Yönetim Merkezi</p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setSidebarOpen(false)}
+                  className="md:hidden p-2 rounded-lg hover:bg-gray-100 transition-colors duration-200"
+                >
+                  <X className="w-4 h-4 text-gray-500" />
+                </button>
+              </div>
+            </div>
+
+            {/* Navigation Menu */}
+            <nav className="flex-1 p-3 space-y-1">
+              <div className="mb-4">
+                <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3 px-2">
+                  Ana Menü
+                </h3>
+                <div className="space-y-1">
+                  {menuItems.slice(0, 6).map((item) => {
+                    const Icon = item.icon;
+                    const isActive = location.pathname === item.path;
+                    return (
+                      <Link
+                        key={item.path}
+                        to={item.path}
+                        onClick={() => setSidebarOpen(false)}
+                        className={`group w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg text-left transition-all duration-200 ${
+                          isActive 
+                            ? 'bg-orange-500 text-white shadow-lg' 
+                            : 'text-gray-700 hover:bg-gray-100 hover:shadow-md'
+                        }`}
+                      >
+                        <div className={`p-1.5 rounded-lg ${
+                          isActive ? 'bg-white bg-opacity-20' : 'bg-gray-100 group-hover:bg-gray-200'
+                        }`}>
+                          <Icon className={`w-4 h-4 ${isActive ? 'text-white' : 'text-gray-600'}`} />
+                        </div>
+                        <span className="font-medium text-sm">{item.name}</span>
+                      </Link>
+                    );
+                  })}
+                </div>
+              </div>
+
+              <div className="mb-4">
+                <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3 px-2">
+                  Yönetim
+                </h3>
+                <div className="space-y-1">
+                  {menuItems.slice(6, 10).map((item) => {
+                    const Icon = item.icon;
+                    const isActive = location.pathname === item.path;
+                    return (
+                      <Link
+                        key={item.path}
+                        to={item.path}
+                        onClick={() => setSidebarOpen(false)}
+                        className={`group w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg text-left transition-all duration-200 ${
+                          isActive 
+                            ? 'bg-orange-500 text-white shadow-lg' 
+                            : 'text-gray-700 hover:bg-gray-100 hover:shadow-md'
+                        }`}
+                      >
+                        <div className={`p-1.5 rounded-lg ${
+                          isActive ? 'bg-white bg-opacity-20' : 'bg-gray-100 group-hover:bg-gray-200'
+                        }`}>
+                          <Icon className={`w-4 h-4 ${isActive ? 'text-white' : 'text-gray-600'}`} />
+                        </div>
+                        <span className="font-medium text-sm">{item.name}</span>
+                      </Link>
+                    );
+                  })}
+                </div>
+              </div>
+
+              <div>
+                <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3 px-2">
+                  Sistem
+                </h3>
+                <div className="space-y-1">
+                  {menuItems.slice(10).map((item) => {
+                    const Icon = item.icon;
+                    const isActive = location.pathname === item.path;
+                    return (
+                      <Link
+                        key={item.path}
+                        to={item.path}
+                        onClick={() => setSidebarOpen(false)}
+                        className={`group w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg text-left transition-all duration-200 ${
+                          isActive 
+                            ? 'bg-orange-500 text-white shadow-lg' 
+                            : 'text-gray-700 hover:bg-gray-100 hover:shadow-md'
+                        }`}
+                      >
+                        <div className={`p-1.5 rounded-lg ${
+                          isActive ? 'bg-white bg-opacity-20' : 'bg-gray-100 group-hover:bg-gray-200'
+                        }`}>
+                          <Icon className={`w-4 h-4 ${isActive ? 'text-white' : 'text-gray-600'}`} />
+                        </div>
+                        <span className="font-medium text-sm">{item.name}</span>
+                      </Link>
+                    );
+                  })}
+                </div>
+              </div>
+            </nav>
+
+            {/* Logout Button */}
+            <div className="p-3 border-t border-gray-200 bg-red-50">
+              <button
+                onClick={handleLogout}
+                className="group w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg text-left text-red-600 hover:bg-red-100 transition-all duration-200 hover:shadow-md"
               >
-                <Icon size={20} />
-                <span>{item.name}</span>
-              </Link>
-            );
-          })}
-        </nav>
+                <div className="p-1.5 rounded-lg bg-red-100 group-hover:bg-red-200">
+                  <LogOut className="w-4 h-4 text-red-600" />
+                </div>
+                <span className="font-medium text-sm">Çıkış Yap</span>
+              </button>
+            </div>
+          </div>
+        </aside>
 
-        <div className="sidebar-footer">
-          <button className="logout-btn" onClick={handleLogout}>
-            <LogOut size={20} />
-            <span>Çıkış Yap</span>
-          </button>
+        {/* Main Content */}
+        <div className="flex-1 flex flex-col overflow-hidden">
+
+          {/* Page Content */}
+          <main className="flex-1 overflow-y-auto p-6 bg-gray-50">
+            <div className="max-w-7xl mx-auto">
+              {children}
+            </div>
+          </main>
         </div>
       </div>
-
-      {/* Main Content */}
-      <div className="admin-main">
-        {/* Top Header */}
-        
-
-        {/* Page Content */}
-        <main className="admin-content items-center">
-          {children}
-        </main>
-      </div>
-
-      {/* Mobile Overlay */}
-      {sidebarOpen && (
-        <div 
-          className="mobile-overlay"
-          onClick={() => setSidebarOpen(false)}
-        />
-      )}
     </div>
   );
 };

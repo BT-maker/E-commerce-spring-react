@@ -163,10 +163,15 @@ const AdminUsers = () => {
       />
 
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900">Kullanıcı Yönetimi</h1>
-          <p className="text-gray-600 mt-1">Platform kullanıcılarını yönetin ve izleyin</p>
+      <div className="bg-white/80 backdrop-blur-lg border border-gray-200/50 shadow-sm rounded-xl p-6 mb-8">
+        <div className="flex items-center space-x-4">
+          <div className="w-12 h-12 bg-gradient-to-r from-orange-500 to-red-500 rounded-xl flex items-center justify-center shadow-lg">
+            <Users className="w-7 h-7 text-white" />
+          </div>
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900">Kullanıcı Yönetimi</h1>
+            <p className="text-gray-600 mt-1">Platform kullanıcılarını yönetin ve izleyin</p>
+          </div>
         </div>
       </div>
 

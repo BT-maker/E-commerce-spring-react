@@ -284,11 +284,16 @@ const AdminNotifications = () => {
       
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
-        <div className="mb-8">
+        <div className="bg-white/80 backdrop-blur-lg border border-gray-200/50 shadow-sm rounded-xl p-6 mb-8">
           <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900">Bildirimler</h1>
-              <p className="text-gray-600 mt-2">Sistem bildirimlerini yönetin ve filtreleyin</p>
+            <div className="flex items-center space-x-4">
+              <div className="w-12 h-12 bg-gradient-to-r from-orange-500 to-red-500 rounded-xl flex items-center justify-center shadow-lg">
+                <Bell className="w-7 h-7 text-white" />
+              </div>
+              <div>
+                <h1 className="text-3xl font-bold text-gray-900">Bildirimler</h1>
+                <p className="text-gray-600 mt-1">Sistem bildirimlerini yönetin ve filtreleyin</p>
+              </div>
             </div>
             <div className="flex items-center space-x-3">
               <button

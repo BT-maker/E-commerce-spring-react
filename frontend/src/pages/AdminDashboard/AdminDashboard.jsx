@@ -302,25 +302,32 @@ const AdminDashboard = () => {
       />
 
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900">Admin Dashboard</h1>
-          <p className="text-gray-600 mt-1">Platform genel durumu ve istatistikler</p>
+      <div className="bg-white/80 backdrop-blur-lg border border-gray-200/50 shadow-sm rounded-xl p-6 mb-8">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-4">
+            <div className="w-12 h-12 bg-gradient-to-r from-orange-500 to-red-500 rounded-xl flex items-center justify-center shadow-lg">
+              <BarChart3 className="w-7 h-7 text-white" />
+            </div>
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900">Admin Dashboard</h1>
+              <p className="text-gray-600 mt-1">Platform genel durumu ve istatistikler</p>
+            </div>
+          </div>
+          <button 
+            className="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white font-semibold py-2 px-4 rounded-lg transition-all duration-200 flex items-center space-x-2 disabled:opacity-50"
+            onClick={() => {
+              fetchDashboardData(0, true);
+              toast.success('Dashboard yenileniyor...', {
+                duration: 2000,
+                position: 'top-right'
+              });
+            }}
+            disabled={loading}
+          >
+            <Activity size={20} className={loading ? 'animate-spin' : ''} />
+            <span>{loading ? 'Yenileniyor...' : 'Yenile'}</span>
+          </button>
         </div>
-        <button 
-          className="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white font-semibold py-2 px-4 rounded-lg transition-all duration-200 flex items-center space-x-2 disabled:opacity-50"
-          onClick={() => {
-            fetchDashboardData(0, true);
-            toast.success('Dashboard yenileniyor...', {
-              duration: 2000,
-              position: 'top-right'
-            });
-          }}
-          disabled={loading}
-        >
-          <Activity size={20} className={loading ? 'animate-spin' : ''} />
-          <span>{loading ? 'Yenileniyor...' : 'Yenile'}</span>
-        </button>
       </div>
 
       {/* İstatistik Kartları */}

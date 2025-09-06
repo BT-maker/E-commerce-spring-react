@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useContext } from "react";
-import AdminCategories from "../AdminCategories/AdminCategories";
-import AdminProducts from "../AdminProducts/AdminProducts";
+import AdminCategories from "../../pages/AdminCategories/AdminCategories";
+import AdminProducts from "../../pages/AdminProducts/AdminProducts";
 import AdminDashboard from "../../pages/AdminDashboard/AdminDashboard";
 import AdminUsers from "../../pages/AdminUsers/AdminUsers";
 import AdminOrders from "../../pages/AdminOrders/AdminOrders";
@@ -81,24 +81,6 @@ const AdminPanel = () => {
     { id: "settings", label: "Ayarlar", icon: Settings, color: "gray" }
   ];
 
-  const getColorClasses = (color, isActive) => {
-    const colors = {
-      blue: isActive ? "bg-blue-500 text-white" : "text-blue-600 hover:bg-blue-50",
-      green: isActive ? "bg-green-500 text-white" : "text-green-600 hover:bg-green-50",
-      purple: isActive ? "bg-purple-500 text-white" : "text-purple-600 hover:bg-purple-50",
-      orange: isActive ? "bg-orange-500 text-white" : "text-orange-600 hover:bg-orange-50",
-      indigo: isActive ? "bg-indigo-500 text-white" : "text-indigo-600 hover:bg-indigo-50",
-      pink: isActive ? "bg-pink-500 text-white" : "text-pink-600 hover:bg-pink-50",
-      yellow: isActive ? "bg-yellow-500 text-white" : "text-yellow-600 hover:bg-yellow-50",
-      red: isActive ? "bg-red-500 text-white" : "text-red-600 hover:bg-red-50",
-      emerald: isActive ? "bg-emerald-500 text-white" : "text-emerald-600 hover:bg-emerald-50",
-      cyan: isActive ? "bg-cyan-500 text-white" : "text-cyan-600 hover:bg-cyan-50",
-      amber: isActive ? "bg-amber-500 text-white" : "text-amber-600 hover:bg-amber-50",
-      gray: isActive ? "bg-gray-500 text-white" : "text-gray-600 hover:bg-gray-50"
-    };
-    return colors[color] || colors.gray;
-  };
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
       <PageTitle title="Admin Paneli" />
@@ -118,16 +100,16 @@ const AdminPanel = () => {
         )}
 
         {/* Sidebar */}
-        <aside className={`fixed lg:static inset-y-0 left-0 z-50 w-80 bg-gradient-to-b from-white via-white to-gray-50/50 backdrop-blur-xl border-r border-gray-200/60 shadow-2xl transform transition-all duration-300 ease-in-out lg:translate-x-0 ${
+        <aside className={`fixed lg:static inset-y-0 left-0 z-50 w-80 bg-white border-r border-gray-200 shadow-xl transform transition-all duration-300 ease-in-out lg:translate-x-0 ${
           sidebarOpen ? 'translate-x-0' : '-translate-x-full'
         }`}>
           <div className="flex flex-col h-full">
             {/* Sidebar Header */}
-            <div className="p-6 border-b border-gray-200/60 bg-gradient-to-r from-orange-500/5 to-red-500/5">
+            <div className="p-6 border-b border-gray-200 bg-orange-50">
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-4">
                   <div className="relative">
-                    <div className="w-12 h-12 bg-gradient-to-r from-orange-500 to-red-500 rounded-xl flex items-center justify-center shadow-lg">
+                    <div className="w-12 h-12 bg-orange-500 rounded-xl flex items-center justify-center shadow-lg">
                       <Shield className="w-7 h-7 text-white" />
                     </div>
                     <div className="absolute -top-1 -right-1 w-4 h-4 bg-green-500 rounded-full border-2 border-white"></div>
@@ -139,7 +121,7 @@ const AdminPanel = () => {
                 </div>
                 <button
                   onClick={() => setSidebarOpen(false)}
-                  className="lg:hidden p-2 rounded-lg hover:bg-gray-100/80 transition-colors duration-200"
+                  className="lg:hidden p-2 rounded-lg hover:bg-gray-100 transition-colors duration-200"
                 >
                   <X className="w-5 h-5 text-gray-500" />
                 </button>
@@ -147,12 +129,11 @@ const AdminPanel = () => {
             </div>
 
             {/* User Info */}
-            <div className="p-4 border-b border-gray-200/60">
-              <div className="relative overflow-hidden">
-                <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 via-purple-500/10 to-pink-500/10 rounded-xl"></div>
-                <div className="relative flex items-center space-x-3 p-4">
+            <div className="p-4 border-b border-gray-200">
+              <div className="bg-blue-50 rounded-xl p-4">
+                <div className="flex items-center space-x-3">
                   <div className="relative">
-                    <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center shadow-lg">
+                    <div className="w-12 h-12 bg-blue-500 rounded-full flex items-center justify-center shadow-lg">
                       <span className="text-white font-bold text-lg">
                         {user?.firstName?.charAt(0) || 'A'}
                       </span>
@@ -190,24 +171,18 @@ const AdminPanel = () => {
                           setTab(item.id);
                           setSidebarOpen(false);
                         }}
-                        className={`group w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-left transition-all duration-200 relative overflow-hidden ${
+                        className={`group w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-left transition-all duration-200 ${
                           isActive 
-                            ? 'bg-gradient-to-r from-orange-500 to-red-500 text-white shadow-lg transform scale-[1.02]' 
-                            : 'text-gray-700 hover:bg-gray-100/80 hover:scale-[1.01] hover:shadow-md'
+                            ? 'bg-orange-500 text-white shadow-lg' 
+                            : 'text-gray-700 hover:bg-gray-100 hover:shadow-md'
                         }`}
                       >
-                        {isActive && (
-                          <div className="absolute inset-0 bg-gradient-to-r from-orange-500/20 to-red-500/20"></div>
-                        )}
-                        <div className={`relative z-10 p-1.5 rounded-lg ${
-                          isActive ? 'bg-white/20' : 'bg-gray-100 group-hover:bg-gray-200'
+                        <div className={`p-1.5 rounded-lg ${
+                          isActive ? 'bg-white bg-opacity-20' : 'bg-gray-100 group-hover:bg-gray-200'
                         }`}>
                           <Icon className={`w-4 h-4 ${isActive ? 'text-white' : 'text-gray-600'}`} />
                         </div>
-                        <span className="relative z-10 font-medium">{item.label}</span>
-                        {isActive && (
-                          <div className="absolute right-3 top-1/2 transform -translate-y-1/2 w-2 h-2 bg-white rounded-full"></div>
-                        )}
+                        <span className="font-medium">{item.label}</span>
                       </button>
                     );
                   })}
@@ -229,24 +204,18 @@ const AdminPanel = () => {
                           setTab(item.id);
                           setSidebarOpen(false);
                         }}
-                        className={`group w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-left transition-all duration-200 relative overflow-hidden ${
+                        className={`group w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-left transition-all duration-200 ${
                           isActive 
-                            ? 'bg-gradient-to-r from-orange-500 to-red-500 text-white shadow-lg transform scale-[1.02]' 
-                            : 'text-gray-700 hover:bg-gray-100/80 hover:scale-[1.01] hover:shadow-md'
+                            ? 'bg-orange-500 text-white shadow-lg' 
+                            : 'text-gray-700 hover:bg-gray-100 hover:shadow-md'
                         }`}
                       >
-                        {isActive && (
-                          <div className="absolute inset-0 bg-gradient-to-r from-orange-500/20 to-red-500/20"></div>
-                        )}
-                        <div className={`relative z-10 p-1.5 rounded-lg ${
-                          isActive ? 'bg-white/20' : 'bg-gray-100 group-hover:bg-gray-200'
+                        <div className={`p-1.5 rounded-lg ${
+                          isActive ? 'bg-white bg-opacity-20' : 'bg-gray-100 group-hover:bg-gray-200'
                         }`}>
                           <Icon className={`w-4 h-4 ${isActive ? 'text-white' : 'text-gray-600'}`} />
                         </div>
-                        <span className="relative z-10 font-medium">{item.label}</span>
-                        {isActive && (
-                          <div className="absolute right-3 top-1/2 transform -translate-y-1/2 w-2 h-2 bg-white rounded-full"></div>
-                        )}
+                        <span className="font-medium">{item.label}</span>
                       </button>
                     );
                   })}
@@ -268,24 +237,18 @@ const AdminPanel = () => {
                           setTab(item.id);
                           setSidebarOpen(false);
                         }}
-                        className={`group w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-left transition-all duration-200 relative overflow-hidden ${
+                        className={`group w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-left transition-all duration-200 ${
                           isActive 
-                            ? 'bg-gradient-to-r from-orange-500 to-red-500 text-white shadow-lg transform scale-[1.02]' 
-                            : 'text-gray-700 hover:bg-gray-100/80 hover:scale-[1.01] hover:shadow-md'
+                            ? 'bg-orange-500 text-white shadow-lg' 
+                            : 'text-gray-700 hover:bg-gray-100 hover:shadow-md'
                         }`}
                       >
-                        {isActive && (
-                          <div className="absolute inset-0 bg-gradient-to-r from-orange-500/20 to-red-500/20"></div>
-                        )}
-                        <div className={`relative z-10 p-1.5 rounded-lg ${
-                          isActive ? 'bg-white/20' : 'bg-gray-100 group-hover:bg-gray-200'
+                        <div className={`p-1.5 rounded-lg ${
+                          isActive ? 'bg-white bg-opacity-20' : 'bg-gray-100 group-hover:bg-gray-200'
                         }`}>
                           <Icon className={`w-4 h-4 ${isActive ? 'text-white' : 'text-gray-600'}`} />
                         </div>
-                        <span className="relative z-10 font-medium">{item.label}</span>
-                        {isActive && (
-                          <div className="absolute right-3 top-1/2 transform -translate-y-1/2 w-2 h-2 bg-white rounded-full"></div>
-                        )}
+                        <span className="font-medium">{item.label}</span>
                       </button>
                     );
                   })}
@@ -294,16 +257,15 @@ const AdminPanel = () => {
             </nav>
 
             {/* Logout Button */}
-            <div className="p-4 border-t border-gray-200/60 bg-gradient-to-r from-red-50/50 to-pink-50/50">
+            <div className="p-4 border-t border-gray-200 bg-red-50">
               <button
                 onClick={handleLogout}
-                className="group w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-left text-red-600 hover:bg-red-100/80 transition-all duration-200 hover:scale-[1.01] hover:shadow-md relative overflow-hidden"
+                className="group w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-left text-red-600 hover:bg-red-100 transition-all duration-200 hover:shadow-md"
               >
-                <div className="absolute inset-0 bg-gradient-to-r from-red-500/5 to-pink-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
-                <div className="relative z-10 p-1.5 rounded-lg bg-red-100 group-hover:bg-red-200">
+                <div className="p-1.5 rounded-lg bg-red-100 group-hover:bg-red-200">
                   <LogOut className="w-4 h-4 text-red-600" />
                 </div>
-                <span className="relative z-10 font-medium">Çıkış Yap</span>
+                <span className="font-medium">Çıkış Yap</span>
               </button>
             </div>
           </div>
@@ -312,7 +274,7 @@ const AdminPanel = () => {
         {/* Main Content */}
         <div className="flex-1 flex flex-col overflow-hidden">
           {/* Top Header */}
-          <header className="bg-white/80 backdrop-blur-lg border-b border-gray-200/50 px-6 py-4">
+          <header className="bg-white border-b border-gray-200 px-6 py-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-4">
                 <button
@@ -347,7 +309,7 @@ const AdminPanel = () => {
                   <Bell className="w-6 h-6 text-gray-600" />
                   <span className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full"></span>
                 </button>
-                <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center">
+                <div className="w-8 h-8 bg-orange-500 rounded-full flex items-center justify-center">
                   <span className="text-white font-semibold text-sm">
                     {user?.firstName?.charAt(0) || 'A'}
                   </span>
@@ -357,7 +319,7 @@ const AdminPanel = () => {
           </header>
 
           {/* Page Content */}
-          <main className="flex-1 overflow-y-auto p-6">
+          <main className="flex-1 overflow-y-auto p-6 bg-gray-50">
             <div className="max-w-7xl mx-auto">
               {tab === "dashboard" && <AdminDashboard />}
               {tab === "categories" && <AdminCategories />}
@@ -380,16 +342,3 @@ const AdminPanel = () => {
 };
 
 export default AdminPanel;
-
-/**
- * Bu component şu işlevleri sağlar:
- * 
- * 1. Admin Panel Ana Sayfası: Yönetim panelinin ana container'ı
- * 2. Tab Navigation: Kategoriler ve ürünler arası geçiş
- * 3. Yetki Kontrolü: Sadece admin kullanıcıların erişimi
- * 4. Responsive Design: Mobil ve desktop uyumlu tasarım
- * 5. SEO Optimizasyonu: Sayfa başlığı ve meta etiketleri
- * 6. Component Routing: Alt component'lerin yönetimi
- * 
- * Bu component sayesinde admin kullanıcıları sistem yönetimini kolayca yapabilir!
- */ 
