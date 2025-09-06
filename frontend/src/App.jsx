@@ -71,13 +71,33 @@ window.BACKEND_OFFLINE = false;
 const AnimatedBackground = ({ children }) => {
   return (
     <div className="relative min-h-screen bg-gradient-to-br from-orange-50 via-white to-orange-100 overflow-hidden">
-      {/* Arka plan dekoratif öğeler */}
+      {/* Animasyonlu Arka Plan Elementleri */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-40 -right-40 w-80 h-80 bg-orange-200 rounded-full mix-blend-multiply filter blur-xl opacity-30 animate-blob"></div>
-        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-yellow-200 rounded-full mix-blend-multiply filter blur-xl opacity-30 animate-blob animation-delay-2000"></div>
-        <div className="absolute top-40 left-40 w-80 h-80 bg-pink-200 rounded-full mix-blend-multiply filter blur-xl opacity-30 animate-blob animation-delay-4000"></div>
-        <div className="absolute top-1/2 right-1/4 w-60 h-60 bg-blue-200 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob animation-delay-1000"></div>
-        <div className="absolute bottom-1/4 right-1/3 w-40 h-40 bg-green-200 rounded-full mix-blend-multiply filter blur-xl opacity-25 animate-blob animation-delay-3000"></div>
+        {/* Yüzen Geometrik Şekiller */}
+        <div className="absolute top-20 left-20 w-32 h-32 bg-orange-200/20 rounded-full animate-float-slow"></div>
+        <div className="absolute top-40 right-32 w-24 h-24 bg-orange-300/30 rounded-lg rotate-45 animate-float-medium"></div>
+        <div className="absolute bottom-32 left-40 w-40 h-40 bg-orange-100/30 rounded-full animate-float-fast"></div>
+        <div className="absolute bottom-20 right-20 w-28 h-28 bg-orange-400/25 rounded-lg rotate-12 animate-float-slow"></div>
+        
+        {/* Orta Kısımda Büyük Şekiller */}
+        <div className="absolute top-1/2 left-1/4 w-48 h-48 bg-gradient-to-r from-orange-200/20 to-orange-300/20 rounded-full animate-pulse-slow"></div>
+        <div className="absolute top-1/3 right-1/4 w-36 h-36 bg-orange-200/15 rounded-lg rotate-45 animate-spin-slow"></div>
+        
+        {/* Üst Kısımda Küçük Şekiller */}
+        <div className="absolute top-10 left-1/2 w-16 h-16 bg-orange-300/30 rounded-full animate-bounce-slow"></div>
+        <div className="absolute top-32 right-10 w-20 h-20 bg-orange-200/20 rounded-lg animate-float-medium"></div>
+        
+        {/* Alt Kısımda Şekiller */}
+        <div className="absolute bottom-10 left-1/3 w-24 h-24 bg-orange-300/25 rounded-full animate-float-fast"></div>
+        <div className="absolute bottom-40 right-1/3 w-32 h-32 bg-orange-100/20 rounded-lg rotate-45 animate-pulse-medium"></div>
+        
+        {/* Parçacık Efektleri */}
+        <div className="absolute top-1/4 left-1/3 w-2 h-2 bg-orange-400/40 rounded-full animate-twinkle"></div>
+        <div className="absolute top-1/3 right-1/3 w-1 h-1 bg-orange-300/50 rounded-full animate-twinkle-delay-1"></div>
+        <div className="absolute bottom-1/3 left-1/4 w-1.5 h-1.5 bg-orange-200/35 rounded-full animate-twinkle-delay-2"></div>
+        <div className="absolute bottom-1/4 right-1/4 w-2 h-2 bg-orange-400/45 rounded-full animate-twinkle-delay-3"></div>
+        <div className="absolute top-1/2 left-1/5 w-1 h-1 bg-orange-300/30 rounded-full animate-twinkle-delay-4"></div>
+        <div className="absolute top-2/3 right-1/5 w-1.5 h-1.5 bg-orange-200/40 rounded-full animate-twinkle-delay-5"></div>
       </div>
       
       {/* İçerik */}
@@ -85,35 +105,97 @@ const AnimatedBackground = ({ children }) => {
         {children}
       </div>
 
-      <style jsx>{`
-        @keyframes blob {
-          0% {
-            transform: translate(0px, 0px) scale(1);
-          }
-          33% {
-            transform: translate(30px, -50px) scale(1.1);
-          }
-          66% {
-            transform: translate(-20px, 20px) scale(0.9);
-          }
-          100% {
-            transform: translate(0px, 0px) scale(1);
-          }
+      <style jsx="true">{`
+        @keyframes float-slow {
+          0%, 100% { transform: translateY(0px) rotate(0deg); }
+          50% { transform: translateY(-20px) rotate(5deg); }
         }
-        .animate-blob {
-          animation: blob 7s infinite;
+        
+        @keyframes float-medium {
+          0%, 100% { transform: translateY(0px) rotate(0deg); }
+          50% { transform: translateY(-15px) rotate(-3deg); }
         }
-        .animation-delay-1000 {
-          animation-delay: 1s;
+        
+        @keyframes float-fast {
+          0%, 100% { transform: translateY(0px) rotate(0deg); }
+          50% { transform: translateY(-25px) rotate(8deg); }
         }
-        .animation-delay-2000 {
-          animation-delay: 2s;
+        
+        @keyframes pulse-slow {
+          0%, 100% { opacity: 0.3; transform: scale(1); }
+          50% { opacity: 0.6; transform: scale(1.05); }
         }
-        .animation-delay-3000 {
-          animation-delay: 3s;
+        
+        @keyframes pulse-medium {
+          0%, 100% { opacity: 0.2; transform: scale(1); }
+          50% { opacity: 0.5; transform: scale(1.1); }
         }
-        .animation-delay-4000 {
-          animation-delay: 4s;
+        
+        @keyframes spin-slow {
+          from { transform: rotate(0deg); }
+          to { transform: rotate(360deg); }
+        }
+        
+        @keyframes bounce-slow {
+          0%, 100% { transform: translateY(0px); }
+          50% { transform: translateY(-10px); }
+        }
+        
+        @keyframes twinkle {
+          0%, 100% { opacity: 0.3; transform: scale(1); }
+          50% { opacity: 1; transform: scale(1.2); }
+        }
+        
+        .animate-float-slow {
+          animation: float-slow 6s ease-in-out infinite;
+        }
+        
+        .animate-float-medium {
+          animation: float-medium 4s ease-in-out infinite;
+        }
+        
+        .animate-float-fast {
+          animation: float-fast 3s ease-in-out infinite;
+        }
+        
+        .animate-pulse-slow {
+          animation: pulse-slow 8s ease-in-out infinite;
+        }
+        
+        .animate-pulse-medium {
+          animation: pulse-medium 5s ease-in-out infinite;
+        }
+        
+        .animate-spin-slow {
+          animation: spin-slow 20s linear infinite;
+        }
+        
+        .animate-bounce-slow {
+          animation: bounce-slow 4s ease-in-out infinite;
+        }
+        
+        .animate-twinkle {
+          animation: twinkle 2s ease-in-out infinite;
+        }
+        
+        .animate-twinkle-delay-1 {
+          animation: twinkle 2s ease-in-out infinite 0.3s;
+        }
+        
+        .animate-twinkle-delay-2 {
+          animation: twinkle 2s ease-in-out infinite 0.6s;
+        }
+        
+        .animate-twinkle-delay-3 {
+          animation: twinkle 2s ease-in-out infinite 0.9s;
+        }
+        
+        .animate-twinkle-delay-4 {
+          animation: twinkle 2s ease-in-out infinite 1.2s;
+        }
+        
+        .animate-twinkle-delay-5 {
+          animation: twinkle 2s ease-in-out infinite 1.5s;
         }
       `}</style>
     </div>
