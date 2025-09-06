@@ -6,7 +6,22 @@ import api from '../../services/api';
 
 import PageTitle from '../PageTitle/PageTitle';
 import MetaTags from '../MetaTags/MetaTags';
-import { CreditCard, Lock, Eye, EyeOff } from 'lucide-react';
+import { 
+  CreditCard, 
+  Lock, 
+  Eye, 
+  EyeOff, 
+  MapPin, 
+  Truck, 
+  Shield, 
+  CheckCircle,
+  Plus,
+  Edit,
+  ArrowLeft,
+  Package,
+  Clock,
+  AlertCircle
+} from 'lucide-react';
 
 const CheckoutPage = () => {
   const { cartItems, clearCart } = useContext(CartContext);
@@ -310,7 +325,7 @@ const CheckoutPage = () => {
   }
 
   return (
-    <div className="checkout-page">
+    <div className="min-h-screen  from-slate-50 to-blue-50">
       <PageTitle title="Teslimat ve Ödeme" />
       <MetaTags 
         title="Teslimat ve Ödeme"
@@ -318,85 +333,138 @@ const CheckoutPage = () => {
         keywords="teslimat, ödeme, sipariş, adres, kredi kartı"
       />
       
-      <div className="checkout-container">
-        <h1 className="checkout-title">Teslimat ve Ödeme</h1>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Header */}
+        <div className="mb-8">
+          <button 
+            onClick={() => navigate('/cart')}
+            className="flex items-center text-gray-600 hover:text-gray-900 mb-4 transition-colors duration-200"
+          >
+            <ArrowLeft size={20} className="mr-2" />
+            Sepete Dön
+          </button>
+          
+          <div className="flex items-center space-x-4">
+            <div className="w-12 h-12 bg-gradient-to-r from-orange-500 to-red-500 rounded-xl flex items-center justify-center shadow-lg">
+              <CreditCard className="w-7 h-7 text-white" />
+            </div>
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900">Teslimat ve Ödeme</h1>
+              <p className="text-gray-600 mt-1">Siparişinizi güvenle tamamlayın</p>
+            </div>
+          </div>
+        </div>
         
-        {error && <div className="error-message">{error}</div>}
+        {error && (
+          <div className="mb-6 bg-red-50 border border-red-200 rounded-xl p-4 flex items-center space-x-3">
+            <AlertCircle className="w-5 h-5 text-red-500 flex-shrink-0" />
+            <p className="text-red-700">{error}</p>
+          </div>
+        )}
         
-        <div className="checkout-content">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Sol taraf - Form alanları */}
-          <div className="checkout-form">
+          <div className="lg:col-span-2 space-y-6">
             {/* Teslimat Adresi */}
-            <div className="form-section">
-              <h3 className="section-title">Teslimat Adresi</h3>
+            <div className="bg-white/80 backdrop-blur-lg rounded-xl border border-gray-200/50 shadow-sm p-6">
+              <div className="flex items-center space-x-3 mb-6">
+                <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                  <MapPin className="w-5 h-5 text-blue-600" />
+                </div>
+                <h3 className="text-xl font-semibold text-gray-900">Teslimat Adresi</h3>
+              </div>
               
               {!userAddress && !showAddressForm ? (
-                <div className="address-empty">
-                  <p>Henüz adres bilginiz bulunmuyor.</p>
+                <div className="text-center py-8">
+                  <MapPin className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+                  <p className="text-gray-600 mb-4">Henüz adres bilginiz bulunmuyor.</p>
                   <button 
-                    className="add-address-btn"
+                    className="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white px-6 py-3 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-200 flex items-center space-x-2 mx-auto"
                     onClick={() => setShowAddressForm(true)}
                   >
-                    Adres Ekle
+                    <Plus size={20} />
+                    <span>Adres Ekle</span>
                   </button>
                 </div>
               ) : userAddress && !showAddressForm ? (
-                <div className="address-display">
-                  <div className="address-info">
-                    <p><strong>Ev</strong></p>
-                    <p>{userAddress.address1}</p>
-                    {userAddress.address2 && <p>{userAddress.address2}</p>}
-                    <p>📞 {userAddress.phone}</p>
+                <div className="bg-gray-50 rounded-lg p-4">
+                  <div className="flex items-start justify-between">
+                    <div className="flex-1">
+                      <div className="flex items-center space-x-2 mb-2">
+                        <CheckCircle className="w-5 h-5 text-green-500" />
+                        <span className="font-semibold text-gray-900">Ev Adresi</span>
+                      </div>
+                      <p className="text-gray-700 mb-1">{userAddress.address1}</p>
+                      {userAddress.address2 && <p className="text-gray-700 mb-1">{userAddress.address2}</p>}
+                      <p className="text-gray-600">📞 {userAddress.phone}</p>
+                    </div>
+                    <button 
+                      className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors duration-200"
+                      onClick={() => setShowAddressForm(true)}
+                    >
+                      <Edit size={18} />
+                    </button>
                   </div>
-                  <button 
-                    className="edit-address-btn"
-                    onClick={() => setShowAddressForm(true)}
-                  >
-                    Adresi Düzenle
-                  </button>
                 </div>
               ) : (
-                <form onSubmit={handleAddressSubmit} className="address-form">
-                  <div className="form-group">
-                    <label>Adres Satırı 1 *</label>
+                <form onSubmit={handleAddressSubmit} className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Adres Satırı 1 *</label>
                     <input
                       type="text"
                       value={addressForm.address1}
                       onChange={(e) => setAddressForm({...addressForm, address1: e.target.value})}
                       placeholder="Sokak, cadde, mahalle"
+                      className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-200"
                       required
                     />
                   </div>
                   
-                  <div className="form-group">
-                    <label>Adres Satırı 2</label>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Adres Satırı 2</label>
                     <input
                       type="text"
                       value={addressForm.address2}
                       onChange={(e) => setAddressForm({...addressForm, address2: e.target.value})}
                       placeholder="Apartman, kat, daire no"
+                      className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-200"
                     />
                   </div>
                   
-                  <div className="form-group">
-                    <label>Telefon *</label>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Telefon *</label>
                     <input
                       type="tel"
                       value={addressForm.phone}
                       onChange={(e) => setAddressForm({...addressForm, phone: e.target.value})}
                       placeholder="0555 123 45 67"
+                      className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-200"
                       required
                     />
                   </div>
                   
-                  <div className="form-actions">
-                    <button type="submit" className="save-address-btn" disabled={loading}>
-                      {loading ? 'Kaydediliyor...' : 'Adresi Kaydet'}
+                  <div className="flex items-center space-x-3 pt-4">
+                    <button 
+                      type="submit" 
+                      className="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white px-6 py-3 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-200 flex items-center space-x-2 disabled:opacity-50"
+                      disabled={loading}
+                    >
+                      {loading ? (
+                        <>
+                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                          <span>Kaydediliyor...</span>
+                        </>
+                      ) : (
+                        <>
+                          <CheckCircle size={20} />
+                          <span>Adresi Kaydet</span>
+                        </>
+                      )}
                     </button>
                     {userAddress && (
                       <button 
                         type="button" 
-                        className="cancel-btn"
+                        className="px-6 py-3 text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-xl font-semibold transition-colors duration-200"
                         onClick={() => setShowAddressForm(false)}
                       >
                         İptal
@@ -408,32 +476,50 @@ const CheckoutPage = () => {
             </div>
 
             {/* Teslimat Seçenekleri */}
-            <div className="form-section">
-              <h3 className="section-title">Teslimat Seçenekleri</h3>
-              <div className="delivery-options">
+            <div className="bg-white/80 backdrop-blur-lg rounded-xl border border-gray-200/50 shadow-sm p-6">
+              <div className="flex items-center space-x-3 mb-6">
+                <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
+                  <Truck className="w-5 h-5 text-green-600" />
+                </div>
+                <h3 className="text-xl font-semibold text-gray-900">Teslimat Seçenekleri</h3>
+              </div>
+              
+              <div className="space-y-3">
                 {deliveryOptions.map((option) => (
                   <div 
                     key={option.id}
-                    className={`delivery-option ${selectedDelivery === option.id ? 'selected' : ''}`}
+                    className={`border-2 rounded-lg p-4 cursor-pointer transition-all duration-200 ${
+                      selectedDelivery === option.id 
+                        ? 'border-orange-500 bg-orange-50' 
+                        : 'border-gray-200 hover:border-gray-300'
+                    }`}
                     onClick={() => setSelectedDelivery(option.id)}
                   >
-                    <div className="option-content">
-                      <div className="option-header">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center space-x-4">
                         <input
                           type="radio"
                           name="delivery"
                           value={option.id}
                           checked={selectedDelivery === option.id}
                           onChange={() => setSelectedDelivery(option.id)}
+                          className="w-4 h-4 text-orange-600 focus:ring-orange-500"
                         />
-                        <div className="option-info">
-                          <h4>{option.name}</h4>
-                          <p>{option.description}</p>
-                          <span className="delivery-time">{option.estimatedDays}</span>
+                        <div className="flex-1">
+                          <div className="flex items-center space-x-2 mb-1">
+                            <h4 className="font-semibold text-gray-900">{option.name}</h4>
+                            <div className="flex items-center space-x-1 text-sm text-gray-500">
+                              <Clock size={14} />
+                              <span>{option.estimatedDays}</span>
+                            </div>
+                          </div>
+                          <p className="text-sm text-gray-600">{option.description}</p>
                         </div>
                       </div>
-                      <div className="option-price">
-                        {option.price > 0 ? `${option.price.toFixed(2)} ₺` : 'Ücretsiz'}
+                      <div className="text-right">
+                        <span className="font-semibold text-gray-900">
+                          {option.price > 0 ? `${option.price.toFixed(2)} ₺` : 'Ücretsiz'}
+                        </span>
                       </div>
                     </div>
                   </div>
@@ -442,28 +528,39 @@ const CheckoutPage = () => {
             </div>
 
             {/* Ödeme Yöntemi */}
-            <div className="form-section">
-              <h3 className="section-title">Ödeme Yöntemi</h3>
-              <div className="payment-methods">
+            <div className="bg-white/80 backdrop-blur-lg rounded-xl border border-gray-200/50 shadow-sm p-6">
+              <div className="flex items-center space-x-3 mb-6">
+                <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
+                  <CreditCard className="w-5 h-5 text-purple-600" />
+                </div>
+                <h3 className="text-xl font-semibold text-gray-900">Ödeme Yöntemi</h3>
+              </div>
+              
+              <div className="space-y-3">
                 {paymentMethods.map((method) => (
                   <div 
                     key={method.id}
-                    className={`payment-method ${selectedPayment === method.id ? 'selected' : ''}`}
+                    className={`border-2 rounded-lg p-4 cursor-pointer transition-all duration-200 ${
+                      selectedPayment === method.id 
+                        ? 'border-orange-500 bg-orange-50' 
+                        : 'border-gray-200 hover:border-gray-300'
+                    }`}
                     onClick={() => setSelectedPayment(method.id)}
                   >
-                    <div className="method-content">
-                      <div className="method-icon">{getPaymentIcon(method)}</div>
-                      <div className="method-info">
-                        <h4>{method.name}</h4>
-                        <p>{method.description}</p>
-                      </div>
+                    <div className="flex items-center space-x-4">
                       <input
                         type="radio"
                         name="payment"
                         value={method.id}
                         checked={selectedPayment === method.id}
                         onChange={() => setSelectedPayment(method.id)}
+                        className="w-4 h-4 text-orange-600 focus:ring-orange-500"
                       />
+                      <div className="text-2xl">{getPaymentIcon(method)}</div>
+                      <div className="flex-1">
+                        <h4 className="font-semibold text-gray-900">{method.name}</h4>
+                        <p className="text-sm text-gray-600">{method.description}</p>
+                      </div>
                     </div>
                   </div>
                 ))}
@@ -472,152 +569,193 @@ const CheckoutPage = () => {
 
             {/* Kredi Kartı Bilgileri */}
             {selectedPayment === 'CREDIT_CARD' && (
-              <div className="form-section">
-                <h3 className="section-title">
-                  <CreditCard size={20} className="section-icon" />
-                  Kredi Kartı Bilgileri
-                </h3>
-                <div className="credit-card-form">
-                                     <div className="form-group">
-                     <label>Kart Numarası *</label>
-                     <div className="card-input-wrapper">
-                       <div className={`card-type-icon ${cardType}`}>
-                         {cardType ? '💳' : <CreditCard size={20} />}
-                       </div>
-                       <input
-                         type="text"
-                         value={creditCardForm.cardNumber}
-                         onChange={handleCardNumberChange}
-                         placeholder="1234 5678 9012 3456"
-                         maxLength="19"
-                         className="card-number-input"
-                       />
-                     </div>
-                   </div>
+              <div className="bg-white/80 backdrop-blur-lg rounded-xl border border-gray-200/50 shadow-sm p-6 relative">
+                {/* Yakında Overlay */}
+                <div className="absolute inset-0 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center z-10">
+                  <div className="text-center">
+                    <div className="w-16 h-16 bg-gradient-to-r from-orange-500 to-red-500 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
+                      <Clock className="w-8 h-8 text-white" />
+                    </div>
+                    <h4 className="text-2xl font-bold text-gray-900 mb-2">Yakında</h4>
+                    <p className="text-gray-600">Kredi kartı ödemesi yakında aktif olacak</p>
+                  </div>
+                </div>
 
-                  <div className="form-group">
-                    <label>Kart Sahibi *</label>
+                <div className="flex items-center space-x-3 mb-6">
+                  <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                    <Shield className="w-5 h-5 text-blue-600" />
+                  </div>
+                  <h3 className="text-xl font-semibold text-gray-900">Kredi Kartı Bilgileri</h3>
+                </div>
+                
+                <div className="space-y-4 opacity-70">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Kart Numarası *</label>
+                    <div className="relative">
+                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <div className="text-gray-400">
+                          {cardType ? '💳' : <CreditCard size={20} />}
+                        </div>
+                      </div>
+                      <input
+                        type="text"
+                        value={creditCardForm.cardNumber}
+                        onChange={handleCardNumberChange}
+                        placeholder="1234 5678 9012 3456"
+                        maxLength="19"
+                        className="w-full pl-12 pr-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-200"
+                        disabled
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Kart Sahibi *</label>
                     <input
                       type="text"
                       value={creditCardForm.cardHolder}
                       onChange={handleCardHolderChange}
                       placeholder="AD SOYAD"
                       maxLength="50"
+                      className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-200"
+                      disabled
                     />
                   </div>
 
-                  <div className="card-details-row">
-                    <div className="form-group">
-                      <label>Son Kullanma Tarihi *</label>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Son Kullanma Tarihi *</label>
                       <input
                         type="text"
                         value={creditCardForm.expiryMonth}
                         onChange={handleExpiryChange}
                         placeholder="AA/YY"
                         maxLength="5"
-                        className="expiry-input"
+                        className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-200"
+                        disabled
                       />
                     </div>
 
-                    <div className="form-group">
-                      <label>
-                        Güvenlik Kodu *
-                      </label>
-                      <div className="cvv-input-wrapper">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Güvenlik Kodu *</label>
+                      <div className="relative">
                         <input
                           type={showCvv ? "text" : "password"}
                           value={creditCardForm.cvv}
                           onChange={handleCvvChange}
                           placeholder="123"
                           maxLength="4"
-                          className="cvv-input"
+                          className="w-full px-4 py-3 pr-12 border border-gray-200 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-200"
+                          disabled
                         />
                         <button
                           type="button"
-                          className="toggle-cvv-btn"
+                          className="absolute inset-y-0 right-0 pr-3 flex items-center"
                           onClick={() => setShowCvv(!showCvv)}
+                          disabled
                         >
-                          {showCvv ? <EyeOff size={16} /> : <Eye size={16} />}
+                          {showCvv ? <EyeOff size={16} className="text-gray-400" /> : <Eye size={16} className="text-gray-400" />}
                         </button>
                       </div>
                     </div>
                   </div>
 
-                  <div className="security-notice">
-                    <Lock size={14} />
-                    <span>Kart bilgileriniz SSL ile şifrelenerek güvenle işlenir</span>
+                  <div className="bg-green-50 border border-green-200 rounded-lg p-3 flex items-center space-x-2">
+                    <Lock size={16} className="text-green-600" />
+                    <span className="text-sm text-green-700">Kart bilgileriniz SSL ile şifrelenerek güvenle işlenir</span>
                   </div>
                 </div>
               </div>
             )}
 
             {/* Notlar */}
-            <div className="form-section">
-              <h3 className="section-title">Sipariş Notları (Opsiyonel)</h3>
+            <div className="bg-white/80 backdrop-blur-lg rounded-xl border border-gray-200/50 shadow-sm p-6">
+              <div className="flex items-center space-x-3 mb-6">
+                <div className="w-10 h-10 bg-yellow-100 rounded-lg flex items-center justify-center">
+                  <Package className="w-5 h-5 text-yellow-600" />
+                </div>
+                <h3 className="text-xl font-semibold text-gray-900">Sipariş Notları (Opsiyonel)</h3>
+              </div>
+              
               <textarea
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
                 placeholder="Teslimat ile ilgili özel notlarınızı buraya yazabilirsiniz..."
                 rows="3"
-                className="notes-textarea"
+                className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-200 resize-none"
               />
             </div>
           </div>
 
           {/* Sağ taraf - Sipariş özeti */}
-          <div className="checkout-summary">
-            <h3 className="summary-title">Sipariş Özeti</h3>
-            
-            <div className="order-items">
-              {cartItems.map((item) => (
-                <div key={item.id} className="order-item">
-                  <div className="item-image">
-                    <img 
-                      src={item.product.imageUrl1 || item.product.imageUrl || '/img/default-product.png'} 
-                      alt={item.product.name}
-                      onError={(e) => {
-                        e.target.src = '/img/default-product.png';
-                      }}
-                    />
-                  </div>
-                  <div className="item-details">
-                    <h4 className="item-name">{item.product.name}</h4>
-                    <div className="item-info">
-                      <p className="item-price">
-                        {(item.product.isDiscountActive ? item.product.discountedPrice : item.product.price).toFixed(2)} ₺
+          <div className="lg:col-span-1">
+            <div className="bg-white/80 backdrop-blur-lg rounded-xl border border-gray-200/50 shadow-sm p-6 sticky top-8">
+              <h3 className="text-xl font-semibold text-gray-900 mb-6">Sipariş Özeti</h3>
+              
+              <div className="space-y-4 mb-6">
+                {cartItems.map((item) => (
+                  <div key={item.id} className="flex items-center space-x-3">
+                    <div className="w-16 h-16 bg-gray-100 rounded-lg flex-shrink-0 overflow-hidden">
+                      <img 
+                        src={item.product.imageUrl1 || item.product.imageUrl || '/img/default-product.png'} 
+                        alt={item.product.name}
+                        className="w-full h-full object-cover"
+                        onError={(e) => {
+                          e.target.src = '/img/default-product.png';
+                        }}
+                      />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <h4 className="font-medium text-gray-900 text-sm line-clamp-2">{item.product.name}</h4>
+                      <div className="flex items-center justify-between mt-1">
+                        <p className="text-sm text-gray-600">
+                          {(item.product.isDiscountActive ? item.product.discountedPrice : item.product.price).toFixed(2)} ₺
+                        </p>
+                        <p className="text-sm text-gray-500">× {item.quantity}</p>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <p className="font-semibold text-gray-900 text-sm">
+                        {((item.product.isDiscountActive ? item.product.discountedPrice : item.product.price) * item.quantity).toFixed(2)} ₺
                       </p>
-                      <p className="item-quantity">Adet: {item.quantity}</p>
                     </div>
                   </div>
-                  <div className="item-total">
-                    {((item.product.isDiscountActive ? item.product.discountedPrice : item.product.price) * item.quantity).toFixed(2)} ₺
-                  </div>
+                ))}
+              </div>
+
+              <div className="border-t border-gray-200 pt-4 space-y-3">
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-600">Ara Toplam:</span>
+                  <span className="font-medium text-gray-900">{subtotal.toFixed(2)} ₺</span>
                 </div>
-              ))}
-            </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-600">Teslimat Ücreti:</span>
+                  <span className="font-medium text-gray-900">{deliveryFee.toFixed(2)} ₺</span>
+                </div>
+                <div className="flex justify-between items-center text-lg font-bold text-gray-900 pt-3 border-t border-gray-200">
+                  <span>Toplam:</span>
+                  <span>{total.toFixed(2)} ₺</span>
+                </div>
+              </div>
 
-            <div className="order-totals">
-              <div className="total-row">
-                <span>Ara Toplam:</span>
-                <span>{subtotal.toFixed(2)} ₺</span>
-              </div>
-              <div className="total-row">
-                <span>Teslimat Ücreti:</span>
-                <span>{deliveryFee.toFixed(2)} ₺</span>
-              </div>
-              <div className="total-row final-total">
-                <span>Toplam:</span>
-                <span>{total.toFixed(2)} ₺</span>
-              </div>
+              <button 
+                className="w-full mt-6 bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white py-4 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-200 flex items-center justify-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                onClick={handleCheckout}
+                disabled={loading || (!userAddress && !showAddressForm)}
+              >
+                {loading ? (
+                  <>
+                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                    <span>Sipariş Oluşturuluyor...</span>
+                  </>
+                ) : (
+                  <>
+                    <CheckCircle size={20} />
+                    <span>Siparişi Tamamla</span>
+                  </>
+                )}
+              </button>
             </div>
-
-            <button 
-              className="complete-order-btn"
-              onClick={handleCheckout}
-              disabled={loading || (!userAddress && !showAddressForm)}
-            >
-              {loading ? 'Sipariş Oluşturuluyor...' : 'Siparişi Tamamla'}
-            </button>
           </div>
         </div>
       </div>

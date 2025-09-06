@@ -176,18 +176,14 @@ const Header = () => {
           {/* Logo */}
           <Link to="/" className="flex items-center space-x-3 group relative flex-shrink-0">
             <div className="relative">
-              <img src="/img/mascot2.png" alt="Logo" className="h-12 w-12 object-contain group-hover:scale-110 transition-all duration-300" />
-              <div className="absolute inset-0 bg-gradient-to-r from-orange-400 to-orange-600 rounded-full opacity-0 group-hover:opacity-20 transition-opacity duration-300 animate-pulse"></div>
-              <div className="absolute -top-1 -right-1 w-3 h-3 bg-green-500 rounded-full border-2 border-white animate-pulse"></div>
+              <img src="/img/mascot2.png" alt="Logo" className="h-12 w-12 object-contain" />
             </div>
             <div className="flex flex-col">
-              <span className="text-2xl font-bold bg-gradient-to-r from-orange-500 via-red-500 to-pink-500 bg-clip-text text-transparent group-hover:from-orange-600 group-hover:via-red-600 group-hover:to-pink-600 transition-all duration-300">
+              <span className="text-2xl font-bold bg-gradient-to-r from-orange-500 via-red-500 to-pink-500 bg-clip-text text-transparent">
                 Shopping
               </span>
               <span className="text-xs text-gray-500 font-medium">Premium Alışveriş</span>
             </div>
-            {/* Hover efekti */}
-            <div className="absolute inset-0 bg-gradient-to-r from-orange-500/10 to-pink-500/10 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 -z-10"></div>
           </Link>
 
           {/* Desktop Arama kutusu - Genişletilmiş */}

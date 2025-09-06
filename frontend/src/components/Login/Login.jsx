@@ -209,7 +209,7 @@ const Login = () => {
         </div>
       </div>
 
-      <style jsx>{`
+      <style jsx="true">{`
         @keyframes blob {
           0% {
             transform: translate(0px, 0px) scale(1);
