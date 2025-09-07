@@ -180,7 +180,7 @@ const ElasticSearch = () => {
       <div className="flex flex-col lg:flex-row gap-8">
         {/* Sol Filtreleme Paneli */}
         <div className="lg:w-1/4">
-          <div className="filter-panel bg-white rounded-lg shadow-md p-6">
+          <div className="filter-panel bg-white p-4 flex-shrink-5 border border-gray-200 rounded-lg">
             <div className="flex items-center justify-between mb-6">
               <h3 className="text-lg font-semibold text-gray-800">Filtreler</h3>
               <button

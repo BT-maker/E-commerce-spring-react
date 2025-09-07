@@ -506,7 +506,7 @@ const Header = () => {
         )}
 
         {/* Kategori menüsü */}
-        <nav className="bg-gradient-to-r from-orange-50 via-pink-50 to-orange-100/50 border-t border-orange-200/50">
+        <nav className="bg-gradient-to-r from-orange-50 via-orange-50 to-orange-100/50 border-t border-orange-200/50">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             {catLoading ? (
               <div className="flex justify-center gap-4 py-3">

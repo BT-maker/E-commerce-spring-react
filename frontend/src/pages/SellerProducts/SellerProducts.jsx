@@ -255,8 +255,8 @@ const SellerProducts = () => {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
         },
+        credentials: 'include',
         body: JSON.stringify({
           ...productData,
           category: categories.find(cat => cat.id === productData.categoryId)
@@ -264,11 +264,30 @@ const SellerProducts = () => {
       });
 
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Ürün güncellenirken hata oluştu');
+        // Response'un boş olup olmadığını kontrol et
+        const contentType = response.headers.get('content-type');
+        if (contentType && contentType.includes('application/json')) {
+          const errorData = await response.json();
+          throw new Error(errorData.message || 'Ürün güncellenirken hata oluştu');
+        } else {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
       }
 
-      const updatedProduct = await response.json();
+      // Response'un boş olup olmadığını kontrol et
+      const contentType = response.headers.get('content-type');
+      let updatedProduct;
+      
+      if (contentType && contentType.includes('application/json')) {
+        updatedProduct = await response.json();
+      } else {
+        // JSON değilse, mevcut ürünü güncelle
+        updatedProduct = {
+          ...editingProduct,
+          ...productData,
+          category: categories.find(cat => cat.id === productData.categoryId)
+        };
+      }
       
       // Ürün listesini güncelle
       setAllProducts(prev => 

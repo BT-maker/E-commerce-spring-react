@@ -29,6 +29,7 @@ const SellerCampaigns = () => {
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [editingCampaign, setEditingCampaign] = useState(null);
+  const [productSearchTerm, setProductSearchTerm] = useState('');
   const [formData, setFormData] = useState({
     name: '',
     description: '',
@@ -102,7 +103,8 @@ const SellerCampaigns = () => {
 
   const fetchProducts = async () => {
     try {
-      const response = await fetch('http://localhost:8082/api/seller/products', {
+      // Tüm ürünleri çekmek için büyük bir sayfa boyutu kullan
+      const response = await fetch('http://localhost:8082/api/seller/products?page=0&size=1000', {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -113,6 +115,7 @@ const SellerCampaigns = () => {
       if (response.ok) {
         const data = await response.json();
         setProducts(data.products || data || []);
+        console.log('Çekilen ürün sayısı:', (data.products || data || []).length);
       }
     } catch (err) {
       console.error('Ürün veri hatası:', err);
@@ -151,6 +154,7 @@ const SellerCampaigns = () => {
       endDate: '',
       isActive: true
     });
+    setProductSearchTerm('');
     setShowModal(true);
   };
 
@@ -167,6 +171,15 @@ const SellerCampaigns = () => {
       endDate: campaign.endDate ? campaign.endDate.split('T')[0] : '',
       isActive: campaign.isActive !== false
     });
+    
+    // Seçilen ürünün adını arama terimine set et
+    if (campaign.campaignType === 'product' && campaign.targetId) {
+      const selectedProduct = products.find(p => p.id === campaign.targetId);
+      setProductSearchTerm(selectedProduct ? selectedProduct.name : '');
+    } else {
+      setProductSearchTerm('');
+    }
+    
     setShowModal(true);
   };
 
@@ -287,6 +300,50 @@ const SellerCampaigns = () => {
     }
 
     setFilteredCampaigns(filtered);
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    
+    try {
+      const url = editingCampaign 
+        ? `http://localhost:8082/api/seller/campaigns/${editingCampaign.id}`
+        : 'http://localhost:8082/api/seller/campaigns';
+      
+      const method = editingCampaign ? 'PUT' : 'POST';
+      
+      const response = await fetch(url, {
+        method: method,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+        body: JSON.stringify({
+          name: formData.name,
+          description: formData.description,
+          campaignType: formData.campaignType,
+          targetId: formData.targetId,
+          discountType: formData.discountType,
+          discountValue: parseFloat(formData.discountValue),
+          startDate: formData.startDate,
+          endDate: formData.endDate,
+          isActive: formData.isActive
+        })
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        alert(editingCampaign ? 'Kampanya başarıyla güncellendi!' : 'Kampanya başarıyla oluşturuldu!');
+        setShowModal(false);
+        fetchAllCampaigns(); // Kampanyaları yeniden yükle
+      } else {
+        const errorData = await response.json();
+        alert(errorData.error || 'Bir hata oluştu!');
+      }
+    } catch (err) {
+      console.error('Kampanya işlemi hatası:', err);
+      alert('Bir hata oluştu!');
+    }
   };
 
   const getStats = () => {
@@ -568,6 +625,272 @@ const SellerCampaigns = () => {
           )}
         </div>
       </div>
+
+      {/* Yeni Kampanya Modal */}
+      {showModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+            {/* Modal Header */}
+            <div className="bg-gradient-to-r from-purple-500 to-purple-600 px-6 py-4 text-white rounded-t-xl">
+              <div className="flex items-center justify-between">
+                <h2 className="text-xl font-bold">
+                  {editingCampaign ? 'Kampanyayı Düzenle' : 'Yeni Kampanya Oluştur'}
+                </h2>
+                <button
+                  onClick={() => setShowModal(false)}
+                  className="text-white hover:text-gray-200 transition-colors"
+                >
+                  <FaTimes size={20} />
+                </button>
+              </div>
+            </div>
+
+            {/* Modal Body */}
+            <div className="p-6">
+              <form onSubmit={handleSubmit} className="space-y-6">
+                {/* Kampanya Adı */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Kampanya Adı *
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.name}
+                    onChange={(e) => setFormData({...formData, name: e.target.value})}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-colors"
+                    placeholder="Kampanya adını girin"
+                    required
+                  />
+                </div>
+
+                {/* Açıklama */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Açıklama
+                  </label>
+                  <textarea
+                    value={formData.description}
+                    onChange={(e) => setFormData({...formData, description: e.target.value})}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-colors"
+                    placeholder="Kampanya açıklamasını girin"
+                    rows={3}
+                  />
+                </div>
+
+                {/* Kampanya Tipi */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Kampanya Tipi *
+                  </label>
+                  <div className="grid grid-cols-2 gap-4">
+                    <label className="flex items-center p-4 border border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors">
+                      <input
+                        type="radio"
+                        value="product"
+                        checked={formData.campaignType === 'product'}
+                        onChange={(e) => setFormData({...formData, campaignType: e.target.value, targetId: ''})}
+                        className="mr-3 text-purple-600 focus:ring-purple-500"
+                      />
+                      <div>
+                        <div className="font-medium text-gray-900">Tek Ürün</div>
+                        <div className="text-sm text-gray-500">Belirli bir ürün için indirim</div>
+                      </div>
+                    </label>
+                    <label className="flex items-center p-4 border border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors">
+                      <input
+                        type="radio"
+                        value="category"
+                        checked={formData.campaignType === 'category'}
+                        onChange={(e) => setFormData({...formData, campaignType: e.target.value, targetId: ''})}
+                        className="mr-3 text-purple-600 focus:ring-purple-500"
+                      />
+                      <div>
+                        <div className="font-medium text-gray-900">Kategori</div>
+                        <div className="text-sm text-gray-500">Tüm kategori için indirim</div>
+                      </div>
+                    </label>
+                  </div>
+                </div>
+
+                {/* Hedef Seçimi */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    {formData.campaignType === 'product' ? 'Ürün Seçin *' : 'Kategori Seçin *'}
+                  </label>
+                  
+                  {formData.campaignType === 'product' ? (
+                    <div className="relative">
+                      {/* Ürün Arama */}
+                      <input
+                        type="text"
+                        placeholder="Ürün ara..."
+                        value={productSearchTerm}
+                        onChange={(e) => setProductSearchTerm(e.target.value)}
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-colors mb-2"
+                      />
+                      
+                      {/* Ürün Listesi */}
+                      <div className="max-h-48 overflow-y-auto border border-gray-300 rounded-lg">
+                        {products
+                          .filter(product => 
+                            product.name.toLowerCase().includes(productSearchTerm.toLowerCase())
+                          )
+                          .map(product => (
+                            <div
+                              key={product.id}
+                              className={`px-4 py-2 cursor-pointer hover:bg-gray-100 transition-colors ${
+                                formData.targetId === product.id ? 'bg-purple-100 text-purple-800' : ''
+                              }`}
+                              onClick={() => {
+                                setFormData({...formData, targetId: product.id});
+                                setProductSearchTerm(product.name);
+                              }}
+                            >
+                              <div className="font-medium">{product.name}</div>
+                              <div className="text-sm text-gray-500">
+                                {product.price ? `₺${product.price}` : 'Fiyat belirtilmemiş'}
+                              </div>
+                            </div>
+                          ))
+                        }
+                        {products.filter(product => 
+                          product.name.toLowerCase().includes(productSearchTerm.toLowerCase())
+                        ).length === 0 && (
+                          <div className="px-4 py-2 text-gray-500 text-center">
+                            Ürün bulunamadı
+                          </div>
+                        )}
+                      </div>
+                      
+                      {/* Seçilen Ürün */}
+                      {formData.targetId && (
+                        <div className="mt-2 p-2 bg-purple-50 border border-purple-200 rounded-lg">
+                          <div className="text-sm text-purple-800">
+                            Seçilen: {products.find(p => p.id === formData.targetId)?.name}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  ) : (
+                    <select
+                      value={formData.targetId}
+                      onChange={(e) => setFormData({...formData, targetId: e.target.value})}
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-colors"
+                      required
+                    >
+                      <option value="">Seçin...</option>
+                      {categories.map(category => (
+                        <option key={category.id} value={category.id}>
+                          {category.name}
+                        </option>
+                      ))}
+                    </select>
+                  )}
+                </div>
+
+                {/* İndirim Tipi ve Değeri */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      İndirim Tipi *
+                    </label>
+                    <select
+                      value={formData.discountType}
+                      onChange={(e) => setFormData({...formData, discountType: e.target.value})}
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-colors"
+                    >
+                      <option value="percentage">Yüzde (%)</option>
+                      <option value="fixed">Sabit Tutar (₺)</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      İndirim Değeri *
+                    </label>
+                    <div className="relative">
+                      <input
+                        type="number"
+                        value={formData.discountValue}
+                        onChange={(e) => setFormData({...formData, discountValue: e.target.value})}
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-colors"
+                        placeholder={formData.discountType === 'percentage' ? '20' : '50'}
+                        min="0"
+                        max={formData.discountType === 'percentage' ? '100' : undefined}
+                        step={formData.discountType === 'percentage' ? '1' : '0.01'}
+                        required
+                      />
+                      <span className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500">
+                        {formData.discountType === 'percentage' ? '%' : '₺'}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Tarih Aralığı */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Başlangıç Tarihi *
+                    </label>
+                    <input
+                      type="date"
+                      value={formData.startDate}
+                      onChange={(e) => setFormData({...formData, startDate: e.target.value})}
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-colors"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Bitiş Tarihi *
+                    </label>
+                    <input
+                      type="date"
+                      value={formData.endDate}
+                      onChange={(e) => setFormData({...formData, endDate: e.target.value})}
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-colors"
+                      required
+                    />
+                  </div>
+                </div>
+
+                {/* Aktif Durumu */}
+                <div>
+                  <label className="flex items-center">
+                    <input
+                      type="checkbox"
+                      checked={formData.isActive}
+                      onChange={(e) => setFormData({...formData, isActive: e.target.checked})}
+                      className="mr-3 text-purple-600 focus:ring-purple-500"
+                    />
+                    <span className="text-sm font-medium text-gray-700">
+                      Kampanyayı aktif olarak başlat
+                    </span>
+                  </label>
+                </div>
+
+                {/* Modal Footer */}
+                <div className="flex justify-end space-x-4 pt-6 border-t border-gray-200">
+                  <button
+                    type="button"
+                    onClick={() => setShowModal(false)}
+                    className="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+                  >
+                    İptal
+                  </button>
+                  <button
+                    type="submit"
+                    className="px-6 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg font-semibold transition-colors flex items-center space-x-2"
+                  >
+                    <FaSave />
+                    <span>{editingCampaign ? 'Güncelle' : 'Oluştur'}</span>
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

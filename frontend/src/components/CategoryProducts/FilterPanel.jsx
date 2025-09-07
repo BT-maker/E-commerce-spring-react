@@ -21,8 +21,8 @@ const FilterPanel = memo(({
   onClearFilters
 }) => {
   return (
-    <div className="lg:w-1/5 lg:sticky lg:top-4 ">
-      <div className="filter-panel bg-white p-4 flex-shrink-5">
+    <div className="w-full lg:w-1/5 lg:sticky lg:top-4 lg:self-start h-fit z-10 mt-20">
+      <div className="filter-panel bg-white p-4 flex-shrink-5 border border-gray-200 rounded-lg">
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-sm font-medium text-gray-700">Filtreler</h3> 
           <button

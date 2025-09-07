@@ -358,6 +358,11 @@ public class SellerController {
             existingProduct.setImageUrl1(product.getImageUrl1());
             existingProduct.setCategory(product.getCategory());
             
+            // Status güncelle (eğer gönderilmişse)
+            if (product.getStatus() != null) {
+                existingProduct.setStatus(product.getStatus());
+            }
+            
             // Category ID'yi doğru şekilde set et
             if (product.getCategory() != null && product.getCategory().getId() != null) {
                 existingProduct.setCategoryId(product.getCategory().getId());
@@ -390,7 +395,13 @@ public class SellerController {
         } catch (Exception e) {
             System.err.println("Error in updateProduct: " + e.getMessage());
             e.printStackTrace();
-            return ResponseEntity.badRequest().build();
+            
+            Map<String, Object> errorResponse = new HashMap<>();
+            errorResponse.put("error", "Ürün güncellenirken hata oluştu");
+            errorResponse.put("message", e.getMessage());
+            errorResponse.put("timestamp", java.time.LocalDateTime.now().toString());
+            
+            return ResponseEntity.badRequest().body(errorResponse);
         }
     }
 

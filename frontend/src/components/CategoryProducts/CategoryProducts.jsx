@@ -264,7 +264,7 @@ const CategoryProducts = () => {
         keywords={category ? `${category.name}, ${category.name} ürünleri, kategori, alışveriş` : "kategori ürünleri, alışveriş"}
       />
       
-      <div className="flex flex-col lg:flex-row gap-4 justify-start items-start">
+      <div className="flex flex-col lg:flex-row gap-4 justify-start items-stretch min-h-screen">
         {/* Sol Filtreleme Paneli */}
         <FilterPanel
           searchQuery={searchQuery}

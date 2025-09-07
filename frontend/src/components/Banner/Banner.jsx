@@ -67,12 +67,12 @@ const Banner = () => {
             backgroundPosition: 'center'
           }}
         >
-          {current === idx && <div className="absolute inset-0 bg-black bg-opacity-40"></div>}
+          {current === idx && <div className="absolute inset-0 bg-black bg-opacity-15"></div>}
           {current === idx && (
-            <div className={`absolute inset-0 flex flex-col justify-center p-8 z-10 ${
+            <div className={`absolute inset-0 flex flex-col justify-center p-12 md:p-16 z-10 ${
               slide.align === 'left' ? 'items-start' : 'items-end'
             }`}>
-              <div className={`max-w-md ${slide.align === 'left' ? 'text-left' : 'text-right'}`}>
+              <div className={`max-w-md ${slide.align === 'left' ? 'text-left ml-4 md:ml-8' : 'text-right mr-4 md:mr-8'}`}>
                 <h2 className="text-4xl md:text-5xl font-bold text-white mb-4 drop-shadow-lg">{slide.title}</h2>
                 <p className="text-lg text-white mb-6 drop-shadow-md">{slide.desc}</p>
                 <button 
