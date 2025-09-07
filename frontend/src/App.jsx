@@ -69,35 +69,108 @@ window.BACKEND_OFFLINE = false;
 
 // Arka plan animasyonları için component
 const AnimatedBackground = ({ children }) => {
+  // Rastgele pozisyonlar ve boyutlar için fonksiyon
+  const generateRandomElement = (index) => {
+    const positions = [
+      // Sol taraf - üst kısım
+      { top: '8%', left: '12%' },
+      { top: '15%', left: '25%' },
+      { top: '22%', left: '8%' },
+      { top: '28%', left: '35%' },
+      
+      // Sağ taraf - üst kısım
+      { top: '8%', right: '12%' },
+      { top: '15%', right: '25%' },
+      { top: '22%', right: '8%' },
+      { top: '28%', right: '35%' },
+      
+      // Sol taraf - orta kısım
+      { top: '38%', left: '15%' },
+      { top: '45%', left: '30%' },
+      { top: '52%', left: '8%' },
+      { top: '58%', left: '40%' },
+      
+      // Sağ taraf - orta kısım
+      { top: '38%', right: '15%' },
+      { top: '45%', right: '30%' },
+      { top: '52%', right: '8%' },
+      { top: '58%', right: '40%' },
+      
+      // Sol taraf - alt kısım
+      { top: '68%', left: '20%' },
+      { top: '75%', left: '10%' },
+      { top: '82%', left: '35%' },
+      { top: '88%', left: '15%' },
+      
+      // Sağ taraf - alt kısım
+      { top: '68%', right: '20%' },
+      { top: '75%', right: '10%' },
+      { top: '82%', right: '35%' },
+      { top: '88%', right: '15%' },
+    ];
+
+    const sizes = ['w-8 h-8', 'w-12 h-12', 'w-16 h-16', 'w-20 h-20', 'w-24 h-24', 'w-28 h-28', 'w-32 h-32', 'w-36 h-36', 'w-40 h-40', 'w-44 h-44', 'w-48 h-48'];
+    const colors = [
+      'bg-orange-100/15', 'bg-orange-200/20', 'bg-orange-300/25', 'bg-orange-400/30',
+      'bg-orange-100/10', 'bg-orange-200/15', 'bg-orange-300/20', 'bg-orange-400/25',
+      'bg-gradient-to-r from-orange-100/15 to-orange-200/20', 'bg-gradient-to-r from-orange-200/20 to-orange-300/25'
+    ];
+    const shapes = ['rounded-full', 'rounded-lg', 'rounded-xl', 'rounded-2xl'];
+    const animations = ['animate-float-slow', 'animate-float-medium', 'animate-float-fast', 'animate-pulse-slow', 'animate-pulse-medium', 'animate-spin-slow', 'animate-bounce-slow'];
+    const rotations = ['rotate-0', 'rotate-12', 'rotate-45', 'rotate-90', 'rotate-180', 'rotate-270'];
+
+    const position = positions[index % positions.length];
+    const size = sizes[index % sizes.length];
+    const color = colors[index % colors.length];
+    const shape = shapes[index % shapes.length];
+    const animation = animations[index % animations.length];
+    const rotation = rotations[index % rotations.length];
+
+    return { position, size, color, shape, animation, rotation };
+  };
+
   return (
     <div className="relative min-h-screen bg-gradient-to-br from-orange-50 via-white to-orange-100 overflow-hidden">
       {/* Animasyonlu Arka Plan Elementleri */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        {/* Yüzen Geometrik Şekiller */}
-        <div className="absolute top-20 left-20 w-32 h-32 bg-orange-200/20 rounded-full animate-float-slow"></div>
-        <div className="absolute top-40 right-32 w-24 h-24 bg-orange-300/30 rounded-lg rotate-45 animate-float-medium"></div>
-        <div className="absolute bottom-32 left-40 w-40 h-40 bg-orange-100/30 rounded-full animate-float-fast"></div>
-        <div className="absolute bottom-20 right-20 w-28 h-28 bg-orange-400/25 rounded-lg rotate-12 animate-float-slow"></div>
-        
-        {/* Orta Kısımda Büyük Şekiller */}
-        <div className="absolute top-1/2 left-1/4 w-48 h-48 bg-gradient-to-r from-orange-200/20 to-orange-300/20 rounded-full animate-pulse-slow"></div>
-        <div className="absolute top-1/3 right-1/4 w-36 h-36 bg-orange-200/15 rounded-lg rotate-45 animate-spin-slow"></div>
-        
-        {/* Üst Kısımda Küçük Şekiller */}
-        <div className="absolute top-10 left-1/2 w-16 h-16 bg-orange-300/30 rounded-full animate-bounce-slow"></div>
-        <div className="absolute top-32 right-10 w-20 h-20 bg-orange-200/20 rounded-lg animate-float-medium"></div>
-        
-        {/* Alt Kısımda Şekiller */}
-        <div className="absolute bottom-10 left-1/3 w-24 h-24 bg-orange-300/25 rounded-full animate-float-fast"></div>
-        <div className="absolute bottom-40 right-1/3 w-32 h-32 bg-orange-100/20 rounded-lg rotate-45 animate-pulse-medium"></div>
+        {/* 25 adet rastgele dağıtılmış animasyonlu element */}
+        {Array.from({ length: 20 }, (_, index) => {
+          const element = generateRandomElement(index);
+          return (
+            <div
+              key={index}
+              className={`absolute ${element.size} ${element.color} ${element.shape} ${element.animation} ${element.rotation}`}
+              style={element.position}
+            ></div>
+          );
+        })}
         
         {/* Parçacık Efektleri */}
-        <div className="absolute top-1/4 left-1/3 w-2 h-2 bg-orange-400/40 rounded-full animate-twinkle"></div>
-        <div className="absolute top-1/3 right-1/3 w-1 h-1 bg-orange-300/50 rounded-full animate-twinkle-delay-1"></div>
-        <div className="absolute bottom-1/3 left-1/4 w-1.5 h-1.5 bg-orange-200/35 rounded-full animate-twinkle-delay-2"></div>
-        <div className="absolute bottom-1/4 right-1/4 w-2 h-2 bg-orange-400/45 rounded-full animate-twinkle-delay-3"></div>
-        <div className="absolute top-1/2 left-1/5 w-1 h-1 bg-orange-300/30 rounded-full animate-twinkle-delay-4"></div>
-        <div className="absolute top-2/3 right-1/5 w-1.5 h-1.5 bg-orange-200/40 rounded-full animate-twinkle-delay-5"></div>
+        {Array.from({ length: 10 }, (_, index) => {
+          const particleSizes = ['w-1 h-1', 'w-1.5 h-1.5', 'w-2 h-2', 'w-2.5 h-2.5'];
+          const particleColors = ['bg-orange-200/40', 'bg-orange-300/50', 'bg-orange-400/60', 'bg-orange-500/30'];
+          const particleAnimations = ['animate-twinkle', 'animate-twinkle-delay-1', 'animate-twinkle-delay-2', 'animate-twinkle-delay-3', 'animate-twinkle-delay-4', 'animate-twinkle-delay-5'];
+          
+          const particlePositions = [
+            { top: `${Math.random() * 100}%`, left: `${Math.random() * 100}%` },
+            { top: `${Math.random() * 100}%`, right: `${Math.random() * 100}%` },
+            { bottom: `${Math.random() * 100}%`, left: `${Math.random() * 100}%` },
+            { bottom: `${Math.random() * 100}%`, right: `${Math.random() * 100}%` }
+          ];
+
+          const size = particleSizes[index % particleSizes.length];
+          const color = particleColors[index % particleColors.length];
+          const animation = particleAnimations[index % particleAnimations.length];
+          const position = particlePositions[index % particlePositions.length];
+
+          return (
+            <div
+              key={`particle-${index}`}
+              className={`absolute ${size} ${color} rounded-full ${animation}`}
+              style={position}
+            ></div>
+          );
+        })}
       </div>
       
       {/* İçerik */}
