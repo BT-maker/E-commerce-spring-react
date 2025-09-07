@@ -170,7 +170,7 @@ const Header = () => {
       )}
 
       {/* Ana Header */}
-      <header className="sticky top-0 z-50 w-full bg-white/90 backdrop-blur-xl border-b border-white/30 shadow-lg">
+      <header className="sticky top-0 z-50 w-full bg-white/90 backdrop-blur-xl border-b border-white/30 shadow-lg overflow-visible">
         {/* Üst kısım */}
         <div className="flex items-center justify-between px-4 sm:px-6 lg:px-8 py-3 max-w-7xl mx-auto">
           {/* Logo */}
@@ -189,7 +189,7 @@ const Header = () => {
           {/* Desktop Arama kutusu - Genişletilmiş */}
           <div className="hidden lg:flex flex-1 mx-8 max-w-4xl relative">
             <div className="absolute inset-0 bg-gradient-to-r from-orange-500/20 to-pink-500/20 rounded-2xl blur-xl opacity-0 hover:opacity-100 transition-opacity duration-300"></div>
-            <div className="relative w-full">
+            <div className="relative w-full overflow-visible">
               <SearchSuggestions
                 onSearch={handleSearch}
                 placeholder="🔍 Ürün, kategori veya mağaza ara..."
@@ -201,7 +201,7 @@ const Header = () => {
           {/* Tablet Arama kutusu - Orta boyut */}
           <div className="hidden md:flex lg:hidden flex-1 mx-4 max-w-2xl relative">
             <div className="absolute inset-0 bg-gradient-to-r from-orange-500/20 to-pink-500/20 rounded-2xl blur-xl opacity-0 hover:opacity-100 transition-opacity duration-300"></div>
-            <div className="relative w-full">
+            <div className="relative w-full overflow-visible">
               <SearchSuggestions
                 onSearch={handleSearch}
                 placeholder="🔍 Ara..."
@@ -422,7 +422,7 @@ const Header = () => {
           <div className="md:hidden bg-white/95 backdrop-blur-xl border-t border-white/30">
             <div className="px-4 py-4 space-y-4">
               {/* Mobile Search - Tam genişlik */}
-              <div className="w-full">
+              <div className="w-full overflow-visible">
                 <SearchSuggestions
                   onSearch={handleSearch}
                   placeholder="🔍 Ürün, kategori veya mağaza ara..."

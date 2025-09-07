@@ -153,4 +153,69 @@
   .save-button {
     @apply bg-orange-500 hover:bg-orange-600 transition-colors duration-300;
   }
+
+  /* Search Suggestions Styles */
+  .header-search-suggestions-container {
+    @apply relative w-full;
+  }
+
+  .header-search-form {
+    @apply flex items-center w-full;
+  }
+
+  .header-search-input-wrapper {
+    @apply relative flex-1;
+  }
+
+  .header-search-input {
+    @apply w-full px-4 py-2 border border-gray-300 rounded-l-xl focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 bg-white text-gray-900;
+  }
+
+  .header-search-button {
+    @apply px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-r-xl transition-colors duration-200 font-medium;
+  }
+
+  .suggestions-dropdown {
+    @apply absolute top-full left-0 right-0 z-50 mt-1 bg-white border border-gray-200 rounded-xl shadow-lg max-h-80 overflow-y-auto;
+  }
+
+  .suggestions-list {
+    @apply py-2;
+  }
+
+  .suggestion-item {
+    @apply flex items-center space-x-3 px-4 py-2 hover:bg-orange-50 cursor-pointer transition-colors duration-200;
+  }
+
+  .suggestion-icon {
+    @apply text-gray-400 flex-shrink-0;
+  }
+
+  .no-suggestions {
+    @apply px-4 py-3 text-gray-500 text-center;
+  }
+
+  .popular-terms {
+    @apply absolute top-full left-0 right-0 z-50 mt-1 bg-white border border-gray-200 rounded-xl shadow-lg p-4;
+  }
+
+  .popular-terms h4 {
+    @apply text-sm font-semibold text-gray-700 mb-3;
+  }
+
+  .popular-terms-list {
+    @apply flex flex-wrap gap-2;
+  }
+
+  .popular-term-chip {
+    @apply px-3 py-1 bg-orange-100 hover:bg-orange-200 text-orange-700 text-sm rounded-full transition-colors duration-200;
+  }
+
+  .loading-spinner {
+    @apply absolute right-3 top-1/2 transform -translate-y-1/2;
+  }
+
+  .spinner {
+    @apply w-4 h-4 border-2 border-orange-200 border-t-orange-500 rounded-full animate-spin;
+  }
 }

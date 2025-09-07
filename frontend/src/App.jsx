@@ -134,7 +134,7 @@ const AnimatedBackground = ({ children }) => {
       {/* Animasyonlu Arka Plan Elementleri */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         {/* 25 adet rastgele dağıtılmış animasyonlu element */}
-        {Array.from({ length: 20 }, (_, index) => {
+        {Array.from({ length: 25 }, (_, index) => {
           const element = generateRandomElement(index);
           return (
             <div
@@ -146,7 +146,7 @@ const AnimatedBackground = ({ children }) => {
         })}
         
         {/* Parçacık Efektleri */}
-        {Array.from({ length: 10 }, (_, index) => {
+        {Array.from({ length: 15 }, (_, index) => {
           const particleSizes = ['w-1 h-1', 'w-1.5 h-1.5', 'w-2 h-2', 'w-2.5 h-2.5'];
           const particleColors = ['bg-orange-200/40', 'bg-orange-300/50', 'bg-orange-400/60', 'bg-orange-500/30'];
           const particleAnimations = ['animate-twinkle', 'animate-twinkle-delay-1', 'animate-twinkle-delay-2', 'animate-twinkle-delay-3', 'animate-twinkle-delay-4', 'animate-twinkle-delay-5'];

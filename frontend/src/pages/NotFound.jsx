@@ -19,7 +19,7 @@ const NotFound = () => {
   const randomMessage = funnyMessages[Math.floor(Math.random() * funnyMessages.length)];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 flex items-center justify-center px-4">
+    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-orange-100 flex items-center justify-center px-4">
       <PageTitle title="404 - Sayfa Bulunamadı" />
       <MetaTags 
         title="404 - Sayfa Bulunamadı"
@@ -31,7 +31,7 @@ const NotFound = () => {
         {/* Ana İçerik */}
         <div className="mb-8">
           {/* Büyük 404 */}
-          <div className="text-9xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-pink-600 mb-4">
+          <div className="text-9xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-orange-500 to-orange-700 mb-4">
             404
           </div>
           
@@ -60,7 +60,7 @@ const NotFound = () => {
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link
               to="/"
-              className="flex items-center justify-center gap-2 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-6 py-3 rounded-lg font-medium transition-all duration-300 transform hover:scale-105 shadow-lg"
+              className="flex items-center justify-center gap-2 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white px-6 py-3 rounded-lg font-medium transition-all duration-300 transform hover:scale-105 shadow-lg"
             >
               <Home size={20} />
               Ana Sayfaya Dön
@@ -83,15 +83,15 @@ const NotFound = () => {
           </h3>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-sm">
             <div className="text-center">
-              <div className="text-2xl font-bold text-purple-600">404</div>
+              <div className="text-2xl font-bold text-orange-600">404</div>
               <div className="text-gray-600">Bu sayfayı bulan kişi sayısı</div>
             </div>
             <div className="text-center">
-              <div className="text-2xl font-bold text-green-600">∞</div>
+              <div className="text-2xl font-bold text-orange-500">∞</div>
               <div className="text-gray-600">Keşfedilecek sayfa sayısı</div>
             </div>
             <div className="text-center">
-              <div className="text-2xl font-bold text-blue-600">100%</div>
+              <div className="text-2xl font-bold text-orange-700">100%</div>
               <div className="text-gray-600">Bu sayfayı beğenme oranı</div>
             </div>
           </div>
@@ -101,7 +101,7 @@ const NotFound = () => {
         <div className="mt-8 text-gray-500 text-sm">
           <p>
             Eğer bu bir hata olduğunu düşünüyorsanız,{' '}
-            <Link to="/contact" className="text-blue-600 hover:underline">
+            <Link to="/contact" className="text-orange-600 hover:underline">
               bizimle iletişime geçin
             </Link>
           </p>
