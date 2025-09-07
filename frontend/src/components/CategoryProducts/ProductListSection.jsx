@@ -17,7 +17,7 @@ const ProductListSection = memo(({
     return (
       <div className="lg:w-3/4">
         <h2 className="text-2xl md:text-3xl font-bold mb-8 text-gray-800 text-center">
-          {category ? category.name : "Kategori"} Ürünleri
+          {category ? `${category.name} Ürünleri` : "Öne Çıkan Ürünler"}
         </h2>
                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-5 py-8">
           {Array.from({ length: 8 }).map((_, i) => (
@@ -44,7 +44,7 @@ const ProductListSection = memo(({
   return (
     <div className="lg:w-3/4">
       <h2 className="text-2xl md:text-3xl font-bold mb-8 text-gray-800 text-center">
-        {category ? category.name : "Kategori"} Ürünleri
+        {category ? `${category.name} Ürünleri` : "Öne Çıkan Ürünler"}
       </h2>
       
       {products.length === 0 ? (
