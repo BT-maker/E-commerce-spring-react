@@ -16,7 +16,9 @@ import {
   Mail,
   Phone,
   MapPin,
-  TrendingUp
+  TrendingUp,
+  ToggleLeft,
+  ToggleRight
 } from "lucide-react";
 import PageTitle from '../../components/PageTitle/PageTitle';
 import MetaTags from '../../components/MetaTags/MetaTags';
@@ -95,22 +97,35 @@ const AdminSellers = () => {
   };
 
   const formatDate = (dateString) => {
-    return new Date(dateString).toLocaleDateString('tr-TR', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
-    });
+    if (!dateString) return 'Tarih Yok';
+    
+    try {
+      const date = new Date(dateString);
+      if (isNaN(date.getTime())) {
+        return 'Geçersiz Tarih';
+      }
+      return date.toLocaleDateString('tr-TR', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+      });
+    } catch (error) {
+      console.error('Date formatting error:', error);
+      return 'Tarih Hatası';
+    }
   };
 
   const getStatusBadge = (status) => {
     switch (status) {
       case 'ACTIVE':
+      case 'APPROVED':
         return 'bg-green-100 text-green-800';
       case 'PENDING':
         return 'bg-yellow-100 text-yellow-800';
       case 'REJECTED':
         return 'bg-red-100 text-red-800';
       case 'SUSPENDED':
+      case 'INACTIVE':
         return 'bg-gray-100 text-gray-800';
       default:
         return 'bg-gray-100 text-gray-800';
@@ -120,12 +135,14 @@ const AdminSellers = () => {
   const getStatusIcon = (status) => {
     switch (status) {
       case 'ACTIVE':
+      case 'APPROVED':
         return <CheckCircle className="w-4 h-4" />;
       case 'PENDING':
         return <Clock className="w-4 h-4" />;
       case 'REJECTED':
         return <XCircle className="w-4 h-4" />;
       case 'SUSPENDED':
+      case 'INACTIVE':
         return <AlertCircle className="w-4 h-4" />;
       default:
         return <AlertCircle className="w-4 h-4" />;
@@ -135,15 +152,17 @@ const AdminSellers = () => {
   const getStatusText = (status) => {
     switch (status) {
       case 'ACTIVE':
+      case 'APPROVED':
         return 'Aktif';
       case 'PENDING':
         return 'Beklemede';
       case 'REJECTED':
         return 'Reddedildi';
       case 'SUSPENDED':
+      case 'INACTIVE':
         return 'Askıya Alındı';
       default:
-        return status;
+        return status || 'Bilinmiyor';
     }
   };
 
@@ -193,6 +212,18 @@ const AdminSellers = () => {
     } catch (error) {
       console.error("Satıcı reddedilirken hata:", error);
       toast.error('Satıcı reddedilirken hata oluştu');
+    }
+  };
+
+  const toggleSellerStatus = async (sellerId) => {
+    try {
+      await api.post(`/admin/sellers/${sellerId}/toggle-status`);
+      toast.success('Satıcı durumu güncellendi');
+      fetchSellers();
+      fetchSellerStats();
+    } catch (error) {
+      console.error("Satıcı durumu değiştirilirken hata:", error);
+      toast.error('Satıcı durumu değiştirilirken hata oluştu');
     }
   };
 
@@ -432,6 +463,27 @@ const AdminSellers = () => {
                                 </button>
                               </>
                             )}
+                            {(seller.status === 'ACTIVE' || seller.status === 'APPROVED' || seller.status === 'INACTIVE') && (
+                              <button
+                                onClick={() => toggleSellerStatus(seller.id)}
+                                className={`p-2 rounded-lg transition-colors duration-200 ${
+                                  seller.status === 'ACTIVE' || seller.status === 'APPROVED'
+                                    ? 'text-orange-600 hover:bg-orange-100'
+                                    : 'text-green-600 hover:bg-green-100'
+                                }`}
+                                title={
+                                  seller.status === 'ACTIVE' || seller.status === 'APPROVED'
+                                    ? 'Pasifleştir'
+                                    : 'Aktifleştir'
+                                }
+                              >
+                                {seller.status === 'ACTIVE' || seller.status === 'APPROVED' ? (
+                                  <ToggleLeft className="w-4 h-4" />
+                                ) : (
+                                  <ToggleRight className="w-4 h-4" />
+                                )}
+                              </button>
+                            )}
                           </div>
                         </td>
                       </tr>
@@ -547,6 +599,24 @@ const AdminSellers = () => {
                     Reddet
                   </button>
                 </>
+              )}
+              {(selectedSeller.status === 'ACTIVE' || selectedSeller.status === 'APPROVED' || selectedSeller.status === 'INACTIVE') && (
+                <button
+                  onClick={() => {
+                    toggleSellerStatus(selectedSeller.id);
+                    closeModals();
+                  }}
+                  className={`px-6 py-2 text-white rounded-lg transition-colors duration-200 ${
+                    selectedSeller.status === 'ACTIVE' || selectedSeller.status === 'APPROVED'
+                      ? 'bg-orange-500 hover:bg-orange-600'
+                      : 'bg-green-500 hover:bg-green-600'
+                  }`}
+                >
+                  {selectedSeller.status === 'ACTIVE' || selectedSeller.status === 'APPROVED'
+                    ? 'Pasifleştir'
+                    : 'Aktifleştir'
+                  }
+                </button>
               )}
             </div>
           </div>

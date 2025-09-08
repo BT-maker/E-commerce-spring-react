@@ -326,7 +326,7 @@ public class SellerController {
     @PutMapping("/products/{id}")
     @PreAuthorize("hasRole('SELLER') or hasRole('ROLE_SELLER')")
     @Operation(summary = "Update product", description = "Update an existing product")
-    public ResponseEntity<Product> updateProduct(@PathVariable String id, @RequestBody Product product) {
+    public ResponseEntity<?> updateProduct(@PathVariable String id, @RequestBody Product product) {
         try {
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
             String email = authentication.getName();
@@ -1519,7 +1519,7 @@ public class SellerController {
                     if (product.getPrice().compareTo(BigDecimal.ZERO) > 0) {
                         BigDecimal discountAmount = campaign.getDiscountValue();
                         BigDecimal percentage = discountAmount.multiply(new BigDecimal("100"))
-                            .divide(product.getPrice(), 2, BigDecimal.ROUND_HALF_UP);
+                            .divide(product.getPrice(), 2, java.math.RoundingMode.HALF_UP);
                         discountPercentage = percentage.intValue();
                         System.out.println("Sabit tutar indirimi: " + discountAmount + "₺ (%" + discountPercentage + ")");
                     }
@@ -1529,7 +1529,7 @@ public class SellerController {
                 BigDecimal discountedPrice = null;
                 if (discountPercentage > 0) {
                     BigDecimal discountMultiplier = new BigDecimal("100").subtract(new BigDecimal(discountPercentage))
-                        .divide(new BigDecimal("100"), 4, BigDecimal.ROUND_HALF_UP);
+                        .divide(new BigDecimal("100"), 4, java.math.RoundingMode.HALF_UP);
                     discountedPrice = product.getPrice().multiply(discountMultiplier);
                     System.out.println("İndirimli Fiyat: " + discountedPrice + "₺");
                 }
@@ -1552,7 +1552,7 @@ public class SellerController {
                 product.setDiscountedPrice(null);
                 product.setDiscountEndDate(null);
                 
-                Product savedProduct = productRepository.save(product);
+                productRepository.save(product);
                 System.out.println("İndirimler kaldırıldı!");
             }
             
@@ -1878,7 +1878,7 @@ public class SellerController {
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
             String email = authentication.getName();
             
-            User currentUser = userRepository.findByEmail(email)
+            userRepository.findByEmail(email)
                     .orElseThrow(() -> new RuntimeException("User not found: " + email));
             
             Map<String, Object> response = new HashMap<>();

@@ -129,7 +129,6 @@ const AdminLayout = ({ children }) => {
                     <div className="w-11 h-11 bg-orange-500 rounded-lg flex items-center justify-center shadow-lg">
                       <Shield className="w-6 h-6 text-white" />
                     </div>
-                    <div className="absolute -top-1 -right-1 w-3 h-3 bg-green-500 rounded-full border-2 border-white"></div>
                   </div>
                   <div>
                     <h1 className="text-lg font-bold text-gray-900">Admin Panel</h1>

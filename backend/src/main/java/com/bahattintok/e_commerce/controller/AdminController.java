@@ -1263,6 +1263,47 @@ public class AdminController {
 
     // ==================== SATICI ONAY SİSTEMİ ENDPOINT'LERİ ====================
 
+    // Satıcı istatistikleri
+    @GetMapping("/sellers/stats")
+    public ResponseEntity<Map<String, Object>> getSellerStats() {
+        try {
+            System.out.println("=== DEBUG: getSellerStats called ===");
+            
+            List<User> allSellers = userRepository.findByRoleName("SELLER");
+            
+            // İstatistikleri hesapla
+            long totalSellers = allSellers.size();
+            long activeSellers = allSellers.stream()
+                .filter(seller -> seller.getSellerStatus() != null && 
+                        (seller.getSellerStatus().name().equals("ACTIVE") || 
+                         seller.getSellerStatus().name().equals("APPROVED")))
+                .count();
+            long pendingSellers = allSellers.stream()
+                .filter(seller -> seller.getSellerStatus() != null && 
+                        seller.getSellerStatus().name().equals("PENDING"))
+                .count();
+            long rejectedSellers = allSellers.stream()
+                .filter(seller -> seller.getSellerStatus() != null && 
+                        seller.getSellerStatus().name().equals("REJECTED"))
+                .count();
+            
+            Map<String, Object> stats = new HashMap<>();
+            stats.put("totalSellers", totalSellers);
+            stats.put("activeSellers", activeSellers);
+            stats.put("pendingSellers", pendingSellers);
+            stats.put("rejectedSellers", rejectedSellers);
+            
+            System.out.println("Seller stats: " + stats);
+            return ResponseEntity.ok(stats);
+        } catch (Exception e) {
+            System.out.println("Error in getSellerStats: " + e.getMessage());
+            e.printStackTrace();
+            Map<String, Object> error = new HashMap<>();
+            error.put("error", "Satıcı istatistikleri alınamadı: " + e.getMessage());
+            return ResponseEntity.badRequest().body(error);
+        }
+    }
+
     // Satıcı listesi (onay bekleyenler dahil)
     @GetMapping("/sellers")
     public ResponseEntity<Map<String, Object>> getSellers(
@@ -1312,11 +1353,41 @@ public class AdminController {
                 sellerData.put("lastName", seller.getLastName());
                 sellerData.put("email", seller.getEmail());
                 sellerData.put("phone", seller.getPhone());
+                sellerData.put("createdAt", seller.getRegistrationDate()); // Kayıt tarihi için
                 sellerData.put("registrationDate", seller.getRegistrationDate());
+                sellerData.put("status", seller.getSellerStatus() != null ? seller.getSellerStatus().name() : "PENDING");
                 sellerData.put("sellerStatus", seller.getSellerStatus() != null ? seller.getSellerStatus().name() : "PENDING");
                 sellerData.put("sellerApplicationDate", seller.getSellerApplicationDate());
                 sellerData.put("approvalDate", seller.getApprovalDate());
                 sellerData.put("rejectionReason", seller.getRejectionReason());
+                
+                // Mağaza bilgilerini ekle
+                try {
+                    Store sellerStore = storeRepository.findBySeller(seller).orElse(null);
+                    if (sellerStore != null) {
+                        sellerData.put("storeName", sellerStore.getName());
+                        sellerData.put("storeId", sellerStore.getId());
+                        sellerData.put("storeDescription", sellerStore.getDescription());
+                        sellerData.put("storeAddress", sellerStore.getAddress());
+                        sellerData.put("storePhone", sellerStore.getPhone());
+                        sellerData.put("storeEmail", sellerStore.getEmail());
+                    } else {
+                        sellerData.put("storeName", null);
+                        sellerData.put("storeId", null);
+                        sellerData.put("storeDescription", null);
+                        sellerData.put("storeAddress", null);
+                        sellerData.put("storePhone", null);
+                        sellerData.put("storeEmail", null);
+                    }
+                } catch (Exception e) {
+                    System.out.println("Store bilgisi alınamadı: " + e.getMessage());
+                    sellerData.put("storeName", null);
+                    sellerData.put("storeId", null);
+                    sellerData.put("storeDescription", null);
+                    sellerData.put("storeAddress", null);
+                    sellerData.put("storePhone", null);
+                    sellerData.put("storeEmail", null);
+                }
                 
                 // Onaylayan admin bilgisi
                 if (seller.getApprovedBy() != null) {
