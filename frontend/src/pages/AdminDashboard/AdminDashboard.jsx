@@ -210,7 +210,7 @@ const AdminDashboard = () => {
   };
 
   const StatCard = ({ title, value, icon: Icon, change, changeType, iconColor }) => (
-    <div className="bg-white/80 backdrop-blur-lg rounded-xl p-6 border border-gray-200/50 shadow-sm hover:shadow-md transition-all duration-200">
+    <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm hover:shadow-md transition-all duration-200">
       <div className="flex items-center justify-between">
         <div className="flex-1">
           <p className="text-sm font-medium text-gray-600 mb-1">{title}</p>
@@ -282,8 +282,8 @@ const AdminDashboard = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 flex items-center justify-center">
-        <div className="bg-white/80 backdrop-blur-lg rounded-2xl shadow-2xl border border-gray-200/50 p-8 text-center">
+      <div className="min-h-screen bg-white flex items-center justify-center">
+        <div className="bg-white rounded-2xl shadow-2xl border border-gray-200 p-8 text-center">
           <div className="animate-spin rounded-full h-16 w-16 border-4 border-orange-500/30 border-t-orange-500 mx-auto mb-6"></div>
           <div className="text-xl font-semibold text-gray-900 mb-2">Dashboard Yükleniyor</div>
           <p className="text-gray-600">Veriler getiriliyor...</p>
@@ -302,7 +302,7 @@ const AdminDashboard = () => {
       />
 
       {/* Header */}
-      <div className="bg-white/80 backdrop-blur-lg border border-gray-200/50 shadow-sm rounded-xl p-6 mb-8">
+      <div className="bg-white border border-gray-200 shadow-sm rounded-xl p-6 mb-8">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-4">
             <div className="w-12 h-12 bg-gradient-to-r from-orange-500 to-red-500 rounded-xl flex items-center justify-center shadow-lg">
@@ -385,7 +385,7 @@ const AdminDashboard = () => {
       {/* Grafikler ve Detaylar */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Bildirimler */}
-        <div className="bg-white/80 backdrop-blur-lg rounded-xl border border-gray-200/50 shadow-sm">
+        <div className="bg-white rounded-xl border border-gray-200 shadow-sm">
           <div className="p-6 border-b border-gray-200/50">
             <div className="flex items-center justify-between">
               <h3 className="text-lg font-semibold text-gray-900">Bildirimler</h3>
@@ -452,7 +452,7 @@ const AdminDashboard = () => {
         </div>
 
         {/* Hızlı İstatistikler */}
-        <div className="bg-white/80 backdrop-blur-lg rounded-xl border border-gray-200/50 shadow-sm">
+        <div className="bg-white rounded-xl border border-gray-200 shadow-sm">
           <div className="p-6 border-b border-gray-200/50">
             <div className="flex items-center justify-between">
               <h3 className="text-lg font-semibold text-gray-900">Hızlı İstatistikler</h3>

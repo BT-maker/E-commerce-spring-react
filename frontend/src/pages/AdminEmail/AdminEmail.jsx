@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Mail, Send, TestTube, FileText, UserCheck, AlertTriangle, Users, ShoppingCart, Plus, Eye, Trash2, Edit } from "lucide-react";
+import { Mail, Send, TestTube, FileText, UserCheck, AlertTriangle, Users, ShoppingCart, Eye } from "lucide-react";
 import PageTitle from '../../components/PageTitle/PageTitle';
 import MetaTags from '../../components/MetaTags/MetaTags';
 import toast from 'react-hot-toast';
@@ -14,8 +14,7 @@ const AdminEmail = () => {
     customerName: '',
     orderNumber: '',
     totalAmount: '',
-    resetToken: '',
-    username: '',
+    fullName: '',
     status: '',
     productName: '',
     currentStock: ''
@@ -43,7 +42,7 @@ const AdminEmail = () => {
       name: 'Şifre Sıfırlama',
       type: 'password_reset',
       subject: 'Şifre Sıfırlama',
-      content: 'Merhaba {{username}}, şifre sıfırlama linkiniz: {{resetToken}}',
+      content: 'Merhaba {{fullName}}, şifre sıfırlama linkiniz otomatik olarak oluşturulmuştur.',
       isActive: true
     },
     {
@@ -87,8 +86,7 @@ const AdminEmail = () => {
           customerName: '',
           orderNumber: '',
           totalAmount: '',
-          resetToken: '',
-          username: '',
+          fullName: '',
           status: '',
           productName: '',
           currentStock: ''
@@ -144,15 +142,18 @@ const AdminEmail = () => {
   };
 
   const handleSendPasswordReset = () => {
-    if (!formData.to || !formData.username || !formData.resetToken) {
+    if (!formData.to || !formData.fullName) {
       toast.error('Lütfen tüm alanları doldurun!');
       return;
     }
 
+    // Otomatik reset token oluştur
+    const resetToken = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+
     sendEmail('password-reset', {
       to: formData.to,
-      username: formData.username,
-      resetToken: formData.resetToken
+      fullName: formData.fullName,
+      resetToken: resetToken
     });
   };
 
@@ -200,7 +201,7 @@ const AdminEmail = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
+    <div className="min-h-screen bg-white">
       <PageTitle title="Email Yönetimi" />
       <MetaTags 
         title="Email Yönetimi"
@@ -210,7 +211,7 @@ const AdminEmail = () => {
 
       <div className="space-y-6">
         {/* Header */}
-        <div className="bg-white/80 backdrop-blur-lg border-b border-gray-200/50 shadow-sm">
+        <div className="bg-white border-b border-gray-200 shadow-sm">
           <div className="px-6 py-6">
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-4">
@@ -222,10 +223,6 @@ const AdminEmail = () => {
                   <p className="text-gray-600 mt-1">E-posta şablonları ve otomatik gönderimler</p>
                 </div>
               </div>
-              <button className="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white px-6 py-3 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-200 flex items-center space-x-2">
-                <Plus className="w-5 h-5" />
-                <span>Yeni Şablon</span>
-              </button>
             </div>
           </div>
         </div>
@@ -233,7 +230,7 @@ const AdminEmail = () => {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 px-6">
           {/* Email Templates */}
           <div className="lg:col-span-1">
-            <div className="bg-white/80 backdrop-blur-lg rounded-xl border border-gray-200/50 shadow-sm">
+            <div className="bg-white rounded-xl border border-gray-200 shadow-sm">
               <div className="p-6 border-b border-gray-200/50">
                 <h2 className="text-xl font-bold text-gray-900">Email Şablonları</h2>
                 <p className="text-gray-600 text-sm mt-1">Mevcut email şablonları</p>
@@ -252,14 +249,23 @@ const AdminEmail = () => {
                           <p className="text-xs text-gray-500 line-clamp-2">{template.content}</p>
                         </div>
                         <div className="flex items-center space-x-2 ml-4">
-                          <button className="p-1 text-blue-600 hover:bg-blue-100 rounded transition-colors duration-200">
+                          <button 
+                            className={`p-1 rounded transition-colors duration-200 ${
+                              template.isActive 
+                                ? 'text-green-600 hover:bg-green-100' 
+                                : 'text-gray-400 hover:bg-gray-100'
+                            }`}
+                            onClick={() => {
+                              setEmailTemplates(prev => 
+                                prev.map(t => 
+                                  t.id === template.id 
+                                    ? { ...t, isActive: !t.isActive }
+                                    : t
+                                )
+                              );
+                            }}
+                          >
                             <Eye className="w-4 h-4" />
-                          </button>
-                          <button className="p-1 text-orange-600 hover:bg-orange-100 rounded transition-colors duration-200">
-                            <Edit className="w-4 h-4" />
-                          </button>
-                          <button className="p-1 text-red-600 hover:bg-red-100 rounded transition-colors duration-200">
-                            <Trash2 className="w-4 h-4" />
                           </button>
                         </div>
                       </div>
@@ -282,7 +288,7 @@ const AdminEmail = () => {
 
           {/* Email Sender */}
           <div className="lg:col-span-2">
-            <div className="bg-white/80 backdrop-blur-lg rounded-xl border border-gray-200/50 shadow-sm">
+            <div className="bg-white rounded-xl border border-gray-200 shadow-sm">
               <div className="p-6 border-b border-gray-200/50">
                 <h2 className="text-xl font-bold text-gray-900">Email Gönder</h2>
                 <p className="text-gray-600 text-sm mt-1">Test emaili gönder veya şablon kullan</p>
@@ -398,29 +404,16 @@ const AdminEmail = () => {
                   )}
 
                   {emailType === 'reset' && (
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">Kullanıcı Adı</label>
-                        <input
-                          type="text"
-                          name="username"
-                          value={formData.username}
-                          onChange={handleInputChange}
-                          className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                          placeholder="Kullanıcı adı"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">Reset Token</label>
-                        <input
-                          type="text"
-                          name="resetToken"
-                          value={formData.resetToken}
-                          onChange={handleInputChange}
-                          className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                          placeholder="Reset token"
-                        />
-                      </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">İsim Soyisim</label>
+                      <input
+                        type="text"
+                        name="fullName"
+                        value={formData.fullName}
+                        onChange={handleInputChange}
+                        className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                        placeholder="İsim Soyisim"
+                      />
                     </div>
                   )}
 

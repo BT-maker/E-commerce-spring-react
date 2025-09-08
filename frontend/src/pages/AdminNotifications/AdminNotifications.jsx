@@ -271,7 +271,7 @@ const AdminNotifications = () => {
 
   // StatCard component
   const StatCard = ({ title, value, icon: Icon, iconColor }) => (
-    <div className="bg-white/80 backdrop-blur-lg rounded-xl p-6 border border-gray-200/50 shadow-sm hover:shadow-md transition-all duration-200">
+    <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm hover:shadow-md transition-all duration-200">
       <div className="flex items-center justify-between">
         <div className="flex-1">
           <p className="text-sm font-medium text-gray-600 mb-1">{title}</p>
@@ -289,7 +289,7 @@ const AdminNotifications = () => {
   }
 
   return (
-    <div className="admin-notifications min-h-screen bg-gray-50">
+    <div className="admin-notifications min-h-screen bg-white">
       <PageTitle title="Admin Bildirimler" />
       <MetaTags 
         title="Admin Bildirimler"
@@ -299,7 +299,7 @@ const AdminNotifications = () => {
       
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
-        <div className="bg-white/80 backdrop-blur-lg border border-gray-200/50 shadow-sm rounded-xl p-6 mb-8">
+        <div className="bg-white border border-gray-200 shadow-sm rounded-xl p-6 mb-8">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
               <div className="w-12 h-12 bg-gradient-to-r from-orange-500 to-red-500 rounded-xl flex items-center justify-center shadow-lg">
@@ -451,26 +451,23 @@ const AdminNotifications = () => {
             </div>
           ) : notifications.length > 0 ? (
             <>
-              <div className="overflow-hidden">
+              <div className="overflow-x-auto">
                 <table className="min-w-full divide-y divide-gray-200">
                   <thead className="bg-gray-50">
                     <tr>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-2/5">
                         Bildirim
                       </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Tip
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-1/6">
                         Kullanıcı
                       </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-1/6">
                         Tarih
                       </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-1/6">
                         Durum
                       </th>
-                      <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider w-1/6">
                         İşlemler
                       </th>
                     </tr>
@@ -483,20 +480,15 @@ const AdminNotifications = () => {
                             <div className="flex-shrink-0">
                               {getNotificationIcon(notification.type)}
                             </div>
-                            <div className="ml-3">
+                            <div className="ml-3 flex-1">
                               <div className="text-sm font-medium text-gray-900">
                                 {notification.title}
                               </div>
-                              <div className="text-sm text-gray-500 max-w-md truncate">
+                              <div className="text-sm text-gray-500 break-words">
                                 {notification.message}
                               </div>
                             </div>
                           </div>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getNotificationColor(notification.type)}`}>
-                            {notification.type}
-                          </span>
                         </td>
                                                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                            {notification.userName || '-'}

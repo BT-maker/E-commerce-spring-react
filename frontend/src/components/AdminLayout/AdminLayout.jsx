@@ -106,7 +106,7 @@ const AdminLayout = ({ children }) => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
+    <div className="min-h-screen bg-white">
       <div className="flex h-screen">
         {/* Mobile Sidebar Overlay */}
         {sidebarOpen && (
@@ -122,7 +122,7 @@ const AdminLayout = ({ children }) => {
         }`}>
           <div className="flex flex-col h-full">
             {/* Sidebar Header */}
-            <div className="p-4 border-b border-gray-200 bg-orange-50">
+            <div className="p-4 border-b border-gray-200 bg-white">
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-3">
                   <div className="relative">
@@ -242,7 +242,7 @@ const AdminLayout = ({ children }) => {
             </nav>
 
             {/* Logout Button */}
-            <div className="p-3 border-t border-gray-200 bg-red-50">
+            <div className="p-3 border-t border-gray-200 bg-white">
               <button
                 onClick={handleLogout}
                 className="group w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg text-left text-red-600 hover:bg-red-100 transition-all duration-200 hover:shadow-md"
@@ -258,9 +258,8 @@ const AdminLayout = ({ children }) => {
 
         {/* Main Content */}
         <div className="flex-1 flex flex-col overflow-hidden">
-
           {/* Page Content */}
-          <main className="flex-1 overflow-y-auto p-6 bg-gray-50">
+          <main className="flex-1 overflow-y-auto p-6 bg-white">
             <div className="max-w-7xl mx-auto">
               {children}
             </div>

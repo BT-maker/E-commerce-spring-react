@@ -323,7 +323,7 @@ const AdminSystemSettings = () => {
   // Artık loading durumu yok, statik veri kullanıyoruz
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
+    <div className="min-h-screen bg-white">
       <PageTitle title="Sistem Ayarları" />
       <MetaTags 
         title="Sistem Ayarları"
@@ -333,7 +333,7 @@ const AdminSystemSettings = () => {
 
       <div className="space-y-6">
         {/* Header */}
-        <div className="bg-white/80 backdrop-blur-lg border-b border-gray-200/50 shadow-sm">
+        <div className="bg-white border-b border-gray-200 shadow-sm">
           <div className="px-6 py-6">
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-4">
@@ -361,7 +361,7 @@ const AdminSystemSettings = () => {
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 px-6">
           {/* Categories Sidebar */}
           <div className="lg:col-span-1">
-            <div className="bg-white/80 backdrop-blur-lg rounded-xl border border-gray-200/50 shadow-sm">
+            <div className="bg-white rounded-xl border border-gray-200 shadow-sm">
               <div className="p-6 border-b border-gray-200/50">
                 <h2 className="text-lg font-semibold text-gray-900">Kategoriler</h2>
               </div>
@@ -392,7 +392,7 @@ const AdminSystemSettings = () => {
 
           {/* Settings Content */}
           <div className="lg:col-span-3">
-            <div className="bg-white/80 backdrop-blur-lg rounded-xl border border-gray-200/50 shadow-sm">
+            <div className="bg-white rounded-xl border border-gray-200 shadow-sm">
               <div className="p-6 border-b border-gray-200/50">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center space-x-3">

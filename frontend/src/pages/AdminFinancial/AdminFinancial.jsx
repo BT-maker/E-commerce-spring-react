@@ -217,7 +217,7 @@ const AdminFinancial = () => {
 
   // StatCard component
   const StatCard = ({ title, value, icon: Icon, change, changeType, isPrice = false, iconColor }) => (
-    <div className="bg-white/80 backdrop-blur-lg rounded-xl p-6 border border-gray-200/50 shadow-sm hover:shadow-md transition-all duration-200">
+    <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm hover:shadow-md transition-all duration-200">
       <div className="flex items-center justify-between">
         <div className="flex-1">
           <p className="text-sm font-medium text-gray-600 mb-1">{title}</p>
@@ -289,7 +289,7 @@ const AdminFinancial = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
+    <div className="min-h-screen bg-white">
       <PageTitle title="Finansal Yönetim" />
       <MetaTags 
         title="Finansal Yönetim"
