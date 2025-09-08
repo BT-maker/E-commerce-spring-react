@@ -269,6 +269,21 @@ const AdminNotifications = () => {
     });
   };
 
+  // StatCard component
+  const StatCard = ({ title, value, icon: Icon, iconColor }) => (
+    <div className="bg-white/80 backdrop-blur-lg rounded-xl p-6 border border-gray-200/50 shadow-sm hover:shadow-md transition-all duration-200">
+      <div className="flex items-center justify-between">
+        <div className="flex-1">
+          <p className="text-sm font-medium text-gray-600 mb-1">{title}</p>
+          <p className="text-3xl font-bold text-gray-900 mb-2">{value.toLocaleString()}</p>
+        </div>
+        <div className={`w-12 h-12 ${iconColor} rounded-lg flex items-center justify-center`}>
+          <Icon className="w-6 h-6 text-white" />
+        </div>
+      </div>
+    </div>
+  );
+
   if (!user || user.role !== 'ADMIN') {
     return <div className="flex items-center justify-center min-h-screen">Yetkisiz erişim</div>;
   }
@@ -316,53 +331,24 @@ const AdminNotifications = () => {
 
         {/* İstatistikler */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          <div className="bg-white overflow-hidden shadow rounded-lg stats-card">
-            <div className="p-5">
-              <div className="flex items-center">
-                <div className="flex-shrink-0 bell-icon">
-                  <Bell className="h-6 w-6 text-orange-400" />
-                </div>
-                <div className="ml-5 w-0 flex-1">
-                  <dl>
-                    <dt className="text-sm font-medium text-gray-500 truncate">Toplam Bildirim</dt>
-                    <dd className="text-lg font-medium text-gray-900">{stats.total}</dd>
-                  </dl>
-                </div>
-              </div>
-            </div>
-          </div>
-          
-          <div className="bg-white overflow-hidden shadow rounded-lg stats-card">
-            <div className="p-5">
-              <div className="flex items-center">
-                <div className="flex-shrink-0">
-                  <Eye className="h-6 w-6 text-green-400" />
-                </div>
-                <div className="ml-5 w-0 flex-1">
-                  <dl>
-                    <dt className="text-sm font-medium text-gray-500 truncate">Okunmuş</dt>
-                    <dd className="text-lg font-medium text-gray-900">{stats.read}</dd>
-                  </dl>
-                </div>
-              </div>
-            </div>
-          </div>
-          
-          <div className="bg-white overflow-hidden shadow rounded-lg stats-card">
-            <div className="p-5">
-              <div className="flex items-center">
-                <div className="flex-shrink-0">
-                  <EyeOff className="h-6 w-6 text-red-400" />
-                </div>
-                <div className="ml-5 w-0 flex-1">
-                  <dl>
-                    <dt className="text-sm font-medium text-gray-500 truncate">Okunmamış</dt>
-                    <dd className="text-lg font-medium text-gray-900">{stats.unread}</dd>
-                  </dl>
-                </div>
-              </div>
-            </div>
-          </div>
+          <StatCard
+            title="Toplam Bildirim"
+            value={stats.total}
+            icon={Bell}
+            iconColor="bg-gradient-to-r from-orange-500 to-orange-600"
+          />
+          <StatCard
+            title="Okunmuş"
+            value={stats.read}
+            icon={Eye}
+            iconColor="bg-gradient-to-r from-green-500 to-green-600"
+          />
+          <StatCard
+            title="Okunmamış"
+            value={stats.unread}
+            icon={EyeOff}
+            iconColor="bg-gradient-to-r from-red-500 to-red-600"
+          />
         </div>
 
         {/* Filtreler */}

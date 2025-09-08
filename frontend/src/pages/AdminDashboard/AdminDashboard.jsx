@@ -209,7 +209,7 @@ const AdminDashboard = () => {
     }
   };
 
-  const StatCard = ({ title, value, icon: Icon, change, changeType }) => (
+  const StatCard = ({ title, value, icon: Icon, change, changeType, iconColor }) => (
     <div className="bg-white/80 backdrop-blur-lg rounded-xl p-6 border border-gray-200/50 shadow-sm hover:shadow-md transition-all duration-200">
       <div className="flex items-center justify-between">
         <div className="flex-1">
@@ -230,7 +230,7 @@ const AdminDashboard = () => {
             </div>
           )}
         </div>
-        <div className="w-12 h-12 bg-gradient-to-r from-orange-500 to-red-500 rounded-lg flex items-center justify-center">
+        <div className={`w-12 h-12 ${iconColor} rounded-lg flex items-center justify-center`}>
           <Icon className="w-6 h-6 text-white" />
         </div>
       </div>
@@ -338,6 +338,7 @@ const AdminDashboard = () => {
           icon={Users}
           change={12}
           changeType="positive"
+          iconColor="bg-gradient-to-r from-blue-500 to-blue-600"
         />
         <StatCard
           title="Toplam Satıcı"
@@ -345,6 +346,7 @@ const AdminDashboard = () => {
           icon={Store}
           change={8}
           changeType="positive"
+          iconColor="bg-gradient-to-r from-green-500 to-green-600"
         />
         <StatCard
           title="Toplam Ürün"
@@ -352,6 +354,7 @@ const AdminDashboard = () => {
           icon={Package}
           change={15}
           changeType="positive"
+          iconColor="bg-gradient-to-r from-purple-500 to-purple-600"
         />
         <StatCard
           title="Toplam Sipariş"
@@ -359,6 +362,7 @@ const AdminDashboard = () => {
           icon={ShoppingCart}
           change={-3}
           changeType="negative"
+          iconColor="bg-gradient-to-r from-orange-500 to-orange-600"
         />
         <StatCard
           title="Toplam Gelir"
@@ -366,6 +370,7 @@ const AdminDashboard = () => {
           icon={DollarSign}
           change={25}
           changeType="positive"
+          iconColor="bg-gradient-to-r from-emerald-500 to-emerald-600"
         />
         <StatCard
           title="Aylık Büyüme"
@@ -373,6 +378,7 @@ const AdminDashboard = () => {
           icon={TrendingUp}
           change={18}
           changeType="positive"
+          iconColor="bg-gradient-to-r from-pink-500 to-pink-600"
         />
       </div>
 

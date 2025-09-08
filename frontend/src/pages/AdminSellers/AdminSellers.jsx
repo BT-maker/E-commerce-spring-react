@@ -197,7 +197,7 @@ const AdminSellers = () => {
   };
 
   // StatCard component
-  const StatCard = ({ title, value, icon: Icon, change, changeType }) => (
+  const StatCard = ({ title, value, icon: Icon, change, changeType, iconColor }) => (
     <div className="bg-white/80 backdrop-blur-lg rounded-xl p-6 border border-gray-200/50 shadow-sm hover:shadow-md transition-all duration-200">
       <div className="flex items-center justify-between">
         <div className="flex-1">
@@ -211,7 +211,7 @@ const AdminSellers = () => {
             </div>
           )}
         </div>
-        <div className="w-12 h-12 bg-gradient-to-r from-orange-500 to-red-500 rounded-lg flex items-center justify-center">
+        <div className={`w-12 h-12 ${iconColor} rounded-lg flex items-center justify-center`}>
           <Icon className="w-6 h-6 text-white" />
         </div>
       </div>
@@ -260,6 +260,7 @@ const AdminSellers = () => {
             icon={Store}
             change="+8%"
             changeType="positive"
+            iconColor="bg-gradient-to-r from-blue-500 to-blue-600"
           />
           <StatCard
             title="Aktif Satıcı"
@@ -267,6 +268,7 @@ const AdminSellers = () => {
             icon={UserCheck}
             change="+12%"
             changeType="positive"
+            iconColor="bg-gradient-to-r from-green-500 to-green-600"
           />
           <StatCard
             title="Bekleyen"
@@ -274,6 +276,7 @@ const AdminSellers = () => {
             icon={Clock}
             change="+3%"
             changeType="positive"
+            iconColor="bg-gradient-to-r from-yellow-500 to-yellow-600"
           />
           <StatCard
             title="Reddedilen"
@@ -281,6 +284,7 @@ const AdminSellers = () => {
             icon={UserX}
             change="-2%"
             changeType="negative"
+            iconColor="bg-gradient-to-r from-red-500 to-red-600"
           />
         </div>
 

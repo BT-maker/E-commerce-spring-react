@@ -553,7 +553,7 @@ const ProductDetail = () => {
             </div>
 
             {/* Fiyat Bilgisi */}
-            <div className="bg-gradient-to-r from-orange-50 to-indigo-50 rounded-2xl p-6">
+            <div className="bg-gradient-to-r from-orange-50/30 to-orange-50/30 backdrop-blur-md shadow-xl border border-orange-500/30 rounded-2xl p-6">
               <div className="flex items-baseline space-x-2">
                 <span className="text-2xl font-bold text-gray-900">₺</span>
                 <span className="text-4xl font-bold text-gray-900">{product.price?.toLocaleString() || '0'}</span>

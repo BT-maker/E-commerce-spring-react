@@ -113,7 +113,7 @@ const AdminProducts = () => {
     };
 
     // StatCard component
-    const StatCard = ({ title, value, icon: Icon, change, changeType }) => (
+    const StatCard = ({ title, value, icon: Icon, change, changeType, iconColor }) => (
         <div className="bg-white/80 backdrop-blur-lg rounded-xl p-6 border border-gray-200/50 shadow-sm hover:shadow-md transition-all duration-200">
             <div className="flex items-center justify-between">
                 <div className="flex-1">
@@ -127,7 +127,7 @@ const AdminProducts = () => {
                         </div>
                     )}
                 </div>
-                <div className="w-12 h-12 bg-gradient-to-r from-orange-500 to-red-500 rounded-lg flex items-center justify-center">
+                <div className={`w-12 h-12 ${iconColor} rounded-lg flex items-center justify-center`}>
                     <Icon className="w-6 h-6 text-white" />
                 </div>
             </div>
@@ -182,6 +182,7 @@ const AdminProducts = () => {
                         icon={Package}
                         change="+12%"
                         changeType="positive"
+                        iconColor="bg-gradient-to-r from-blue-500 to-blue-600"
                     />
                     <StatCard
                         title="Aktif Ürün"
@@ -189,6 +190,7 @@ const AdminProducts = () => {
                         icon={CheckCircle}
                         change="+8%"
                         changeType="positive"
+                        iconColor="bg-gradient-to-r from-green-500 to-green-600"
                     />
                     <StatCard
                         title="Stokta Az"
@@ -196,6 +198,7 @@ const AdminProducts = () => {
                         icon={AlertCircle}
                         change="-3%"
                         changeType="negative"
+                        iconColor="bg-gradient-to-r from-orange-500 to-orange-600"
                     />
                     <StatCard
                         title="Toplam Stok"
@@ -203,6 +206,7 @@ const AdminProducts = () => {
                         icon={ShoppingBag}
                         change="+15%"
                         changeType="positive"
+                        iconColor="bg-gradient-to-r from-purple-500 to-purple-600"
                     />
                 </div>
 

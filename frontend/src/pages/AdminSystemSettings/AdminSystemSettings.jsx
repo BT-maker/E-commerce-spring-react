@@ -1,26 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { 
   Settings, 
-  Save, 
   RefreshCw, 
-  Plus, 
-  Trash2, 
   Edit, 
-  Eye,
-  Globe,
   Mail,
   CreditCard,
-  Users,
-  Package,
   Bell,
   Shield,
   Check,
   X,
-  AlertCircle,
-  Database,
-  Server,
   Lock,
-  Key,
   DollarSign
 } from 'lucide-react';
 import PageTitle from '../../components/PageTitle/PageTitle';
@@ -36,7 +25,7 @@ const AdminSystemSettings = () => {
       value: 'E-Ticaret Platformu',
       description: 'Platform adı',
       category: 'GENERAL',
-      type: 'STRING',
+      type: 'METİN',
       defaultValue: 'E-Ticaret Platformu',
       editable: true
     },
@@ -45,7 +34,7 @@ const AdminSystemSettings = () => {
       value: 'Modern e-ticaret çözümü',
       description: 'Platform açıklaması',
       category: 'GENERAL',
-      type: 'STRING',
+      type: 'METİN',
       defaultValue: 'Modern e-ticaret çözümü',
       editable: true
     },
@@ -63,7 +52,7 @@ const AdminSystemSettings = () => {
       value: '10',
       description: 'Maksimum dosya yükleme boyutu (MB)',
       category: 'GENERAL',
-      type: 'NUMBER',
+      type: 'SAYI',
       defaultValue: '10',
       editable: true
     },
@@ -74,7 +63,7 @@ const AdminSystemSettings = () => {
       value: '5.0',
       description: 'Platform komisyon oranı (%)',
       category: 'COMMISSION',
-      type: 'NUMBER',
+      type: 'SAYI',
       defaultValue: '5.0',
       editable: true
     },
@@ -83,7 +72,7 @@ const AdminSystemSettings = () => {
       value: '1.00',
       description: 'Minimum komisyon tutarı (₺)',
       category: 'COMMISSION',
-      type: 'NUMBER',
+      type: 'SAYI',
       defaultValue: '1.00',
       editable: true
     },
@@ -92,7 +81,7 @@ const AdminSystemSettings = () => {
       value: '7',
       description: 'Komisyon ödeme günü',
       category: 'COMMISSION',
-      type: 'NUMBER',
+      type: 'SAYI',
       defaultValue: '7',
       editable: true
     },
@@ -103,7 +92,7 @@ const AdminSystemSettings = () => {
       value: 'smtp.gmail.com',
       description: 'SMTP sunucu adresi',
       category: 'EMAIL',
-      type: 'STRING',
+      type: 'METİN',
       defaultValue: 'smtp.gmail.com',
       editable: true
     },
@@ -112,7 +101,7 @@ const AdminSystemSettings = () => {
       value: '587',
       description: 'SMTP port numarası',
       category: 'EMAIL',
-      type: 'NUMBER',
+      type: 'SAYI',
       defaultValue: '587',
       editable: true
     },
@@ -121,7 +110,7 @@ const AdminSystemSettings = () => {
       value: 'noreply@eticaret.com',
       description: 'SMTP kullanıcı adı',
       category: 'EMAIL',
-      type: 'STRING',
+      type: 'METİN',
       defaultValue: 'noreply@eticaret.com',
       editable: true
     },
@@ -130,7 +119,7 @@ const AdminSystemSettings = () => {
       value: '••••••••',
       description: 'SMTP şifresi',
       category: 'EMAIL',
-      type: 'PASSWORD',
+      type: 'ŞİFRE',
       defaultValue: '',
       editable: true
     },
@@ -141,7 +130,7 @@ const AdminSystemSettings = () => {
       value: '30',
       description: 'Oturum zaman aşımı (dakika)',
       category: 'SECURITY',
-      type: 'NUMBER',
+      type: 'SAYI',
       defaultValue: '30',
       editable: true
     },
@@ -150,7 +139,7 @@ const AdminSystemSettings = () => {
       value: '5',
       description: 'Maksimum giriş denemesi',
       category: 'SECURITY',
-      type: 'NUMBER',
+      type: 'SAYI',
       defaultValue: '5',
       editable: true
     },
@@ -159,7 +148,7 @@ const AdminSystemSettings = () => {
       value: '8',
       description: 'Minimum şifre uzunluğu',
       category: 'SECURITY',
-      type: 'NUMBER',
+      type: 'SAYI',
       defaultValue: '8',
       editable: true
     },
@@ -177,7 +166,7 @@ const AdminSystemSettings = () => {
     {
       key: 'EMAIL_NOTIFICATIONS',
       value: 'true',
-      description: 'Email bildirimleri',
+      description: 'E-posta bildirimleri',
       category: 'NOTIFICATION',
       type: 'BOOLEAN',
       defaultValue: 'true',
@@ -195,7 +184,7 @@ const AdminSystemSettings = () => {
     {
       key: 'PUSH_NOTIFICATIONS',
       value: 'true',
-      description: 'Push bildirimleri',
+      description: 'Anlık bildirimler',
       category: 'NOTIFICATION',
       type: 'BOOLEAN',
       defaultValue: 'true',
@@ -208,7 +197,7 @@ const AdminSystemSettings = () => {
       value: 'iyzico',
       description: 'Ödeme sağlayıcısı',
       category: 'PAYMENT',
-      type: 'STRING',
+      type: 'METİN',
       defaultValue: 'iyzico',
       editable: true
     },
@@ -217,7 +206,7 @@ const AdminSystemSettings = () => {
       value: 'TRY',
       description: 'Para birimi',
       category: 'PAYMENT',
-      type: 'STRING',
+      type: 'METİN',
       defaultValue: 'TRY',
       editable: true
     },
@@ -226,28 +215,25 @@ const AdminSystemSettings = () => {
       value: '10.00',
       description: 'Minimum sipariş tutarı (₺)',
       category: 'PAYMENT',
-      type: 'NUMBER',
+      type: 'SAYI',
       defaultValue: '10.00',
       editable: true
     }
   ]);
 
-  const [categories] = useState(['GENERAL', 'COMMISSION', 'EMAIL', 'SECURITY', 'NOTIFICATION', 'PAYMENT']);
+  const [categories] = useState([
+    { key: 'GENERAL', name: 'GENEL' },
+    { key: 'COMMISSION', name: 'KOMİSYON' },
+    { key: 'EMAIL', name: 'E-POSTA' },
+    { key: 'SECURITY', name: 'GÜVENLİK' },
+    { key: 'NOTIFICATION', name: 'BİLDİRİM' },
+    { key: 'PAYMENT', name: 'ÖDEME' }
+  ]);
   const [activeCategory, setActiveCategory] = useState('GENERAL');
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [editingKey, setEditingKey] = useState(null);
   const [editValue, setEditValue] = useState('');
-  const [showCreateModal, setShowCreateModal] = useState(false);
-  const [newSetting, setNewSetting] = useState({
-    key: '',
-    value: '',
-    description: '',
-    category: 'GENERAL',
-    type: 'STRING',
-    defaultValue: '',
-    editable: true
-  });
 
   // Artık database'den çekmiyoruz, statik veri kullanıyoruz
   const fetchSettings = () => {
@@ -278,49 +264,6 @@ const AdminSystemSettings = () => {
     }
   };
 
-  const createSetting = () => {
-    try {
-      setSaving(true);
-      
-      // Statik veriye yeni ayar ekle
-      setSettings(prevSettings => [...prevSettings, newSetting]);
-      
-      toast.success('Yeni ayar başarıyla oluşturuldu');
-      setShowCreateModal(false);
-      setNewSetting({
-        key: '',
-        value: '',
-        description: '',
-        category: 'GENERAL',
-        type: 'STRING',
-        defaultValue: '',
-        editable: true
-      });
-    } catch (error) {
-      console.error('Create setting error:', error);
-      toast.error('Ayar oluşturulurken hata oluştu');
-    } finally {
-      setSaving(false);
-    }
-  };
-
-  const deleteSetting = (key) => {
-    if (!window.confirm('Bu ayarı silmek istediğinizden emin misiniz?')) {
-      return;
-    }
-
-    try {
-      // Statik veriden ayarı sil
-      setSettings(prevSettings => 
-        prevSettings.filter(setting => setting.key !== key)
-      );
-      
-      toast.success('Ayar başarıyla silindi');
-    } catch (error) {
-      console.error('Delete setting error:', error);
-      toast.error('Ayar silinirken hata oluştu');
-    }
-  };
 
   const getCategoryIcon = (category) => {
     switch (category) {
@@ -410,13 +353,6 @@ const AdminSystemSettings = () => {
                 >
                   <RefreshCw className="w-5 h-5" />
                 </button>
-                <button
-                  onClick={() => setShowCreateModal(true)}
-                  className="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white px-6 py-3 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-200 flex items-center space-x-2"
-                >
-                  <Plus className="w-5 h-5" />
-                  <span>Yeni Ayar</span>
-                </button>
               </div>
             </div>
           </div>
@@ -433,20 +369,20 @@ const AdminSystemSettings = () => {
                 <div className="space-y-2">
                   {categories.map((category) => (
                     <button
-                      key={category}
-                      onClick={() => setActiveCategory(category)}
+                      key={category.key}
+                      onClick={() => setActiveCategory(category.key)}
                       className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg text-left transition-all duration-200 ${
-                        activeCategory === category
+                        activeCategory === category.key
                           ? 'bg-orange-500 text-white shadow-lg'
                           : 'text-gray-700 hover:bg-gray-100'
                       }`}
                     >
                       <div className={`p-1.5 rounded-lg ${
-                        activeCategory === category ? 'bg-white bg-opacity-20' : 'bg-gray-100'
+                        activeCategory === category.key ? 'bg-white bg-opacity-20' : 'bg-gray-100'
                       }`}>
-                        {getCategoryIcon(category)}
+                        {getCategoryIcon(category.key)}
                       </div>
-                      <span className="font-medium">{category}</span>
+                      <span className="font-medium">{category.name}</span>
                     </button>
                   ))}
                 </div>
@@ -464,7 +400,9 @@ const AdminSystemSettings = () => {
                       {getCategoryIcon(activeCategory)}
                     </div>
                     <div>
-                      <h2 className="text-xl font-bold text-gray-900">{activeCategory} Ayarları</h2>
+                      <h2 className="text-xl font-bold text-gray-900">
+                        {categories.find(cat => cat.key === activeCategory)?.name || activeCategory} Ayarları
+                      </h2>
                       <p className="text-gray-600 text-sm">{filteredSettings.length} ayar</p>
                     </div>
                   </div>
@@ -494,7 +432,7 @@ const AdminSystemSettings = () => {
                             {editingKey === setting.key ? (
                               <div className="flex items-center space-x-2">
                                 <input
-                                  type={setting.type === 'PASSWORD' ? 'password' : setting.type === 'NUMBER' ? 'number' : 'text'}
+                                  type={setting.type === 'ŞİFRE' ? 'password' : setting.type === 'SAYI' ? 'number' : 'text'}
                                   value={editValue}
                                   onChange={(e) => setEditValue(e.target.value)}
                                   className="flex-1 px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
@@ -520,7 +458,7 @@ const AdminSystemSettings = () => {
                               <div className="flex items-center justify-between">
                                 <div className="flex-1">
                                   <p className="text-sm font-mono bg-white px-3 py-2 rounded border">
-                                    {setting.type === 'PASSWORD' ? '••••••••' : setting.value}
+                                    {setting.type === 'ŞİFRE' ? '••••••••' : setting.value}
                                   </p>
                                   {setting.defaultValue && (
                                     <p className="text-xs text-gray-500 mt-1">
@@ -541,13 +479,6 @@ const AdminSystemSettings = () => {
                                       <Edit className="w-4 h-4" />
                                     </button>
                                   )}
-                                  <button
-                                    onClick={() => deleteSetting(setting.key)}
-                                    className="p-2 text-red-600 hover:bg-red-100 rounded-lg transition-colors duration-200"
-                                    title="Sil"
-                                  >
-                                    <Trash2 className="w-4 h-4" />
-                                  </button>
                                 </div>
                               </div>
                             )}
@@ -569,133 +500,6 @@ const AdminSystemSettings = () => {
         </div>
       </div>
 
-      {/* Create Setting Modal */}
-      {showCreateModal && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full">
-            <div className="p-6 border-b border-gray-200">
-              <h2 className="text-xl font-bold text-gray-900">Yeni Ayar Oluştur</h2>
-            </div>
-            
-            <div className="p-6 space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Ayar Anahtarı</label>
-                <input
-                  type="text"
-                  value={newSetting.key}
-                  onChange={(e) => setNewSetting(prev => ({ ...prev, key: e.target.value }))}
-                  className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                  placeholder="SETTING_KEY"
-                />
-              </div>
-              
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Değer</label>
-                <input
-                  type="text"
-                  value={newSetting.value}
-                  onChange={(e) => setNewSetting(prev => ({ ...prev, value: e.target.value }))}
-                  className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                  placeholder="Ayar değeri"
-                />
-              </div>
-              
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Açıklama</label>
-                <textarea
-                  value={newSetting.description}
-                  onChange={(e) => setNewSetting(prev => ({ ...prev, description: e.target.value }))}
-                  className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                  rows={3}
-                  placeholder="Ayar açıklaması"
-                />
-              </div>
-              
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Kategori</label>
-                  <select
-                    value={newSetting.category}
-                    onChange={(e) => setNewSetting(prev => ({ ...prev, category: e.target.value }))}
-                    className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                  >
-                    <option value="GENERAL">Genel</option>
-                    <option value="COMMISSION">Komisyon</option>
-                    <option value="EMAIL">Email</option>
-                    <option value="PAYMENT">Ödeme</option>
-                    <option value="SECURITY">Güvenlik</option>
-                    <option value="NOTIFICATION">Bildirim</option>
-                  </select>
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Tip</label>
-                  <select
-                    value={newSetting.type}
-                    onChange={(e) => setNewSetting(prev => ({ ...prev, type: e.target.value }))}
-                    className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                  >
-                    <option value="STRING">Metin</option>
-                    <option value="NUMBER">Sayı</option>
-                    <option value="BOOLEAN">Boolean</option>
-                    <option value="PASSWORD">Şifre</option>
-                  </select>
-                </div>
-              </div>
-              
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Varsayılan Değer</label>
-                <input
-                  type="text"
-                  value={newSetting.defaultValue}
-                  onChange={(e) => setNewSetting(prev => ({ ...prev, defaultValue: e.target.value }))}
-                  className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                  placeholder="Varsayılan değer"
-                />
-              </div>
-              
-              <div className="flex items-center">
-                <input
-                  type="checkbox"
-                  id="editable"
-                  checked={newSetting.editable}
-                  onChange={(e) => setNewSetting(prev => ({ ...prev, editable: e.target.checked }))}
-                  className="h-4 w-4 text-orange-600 focus:ring-orange-500 border-gray-300 rounded"
-                />
-                <label htmlFor="editable" className="ml-2 block text-sm text-gray-700">
-                  Düzenlenebilir
-                </label>
-              </div>
-            </div>
-
-            <div className="p-6 border-t border-gray-200 flex justify-end space-x-3">
-              <button
-                onClick={() => setShowCreateModal(false)}
-                className="px-6 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors duration-200"
-              >
-                İptal
-              </button>
-              <button
-                onClick={createSetting}
-                disabled={saving || !newSetting.key || !newSetting.value}
-                className="px-6 py-2 bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 disabled:from-gray-400 disabled:to-gray-500 text-white rounded-lg transition-all duration-200 flex items-center space-x-2"
-              >
-                {saving ? (
-                  <>
-                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                    <span>Oluşturuluyor...</span>
-                  </>
-                ) : (
-                  <>
-                    <Plus className="w-4 h-4" />
-                    <span>Oluştur</span>
-                  </>
-                )}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 };
