@@ -138,16 +138,136 @@ const AdminFinancial = () => {
     try {
       setLoading(true);
       
-      // Mock data - gerçek API çağrıları burada yapılacak
-      // Simulated API delay
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      // Gerçek API çağrıları
+      const [financialResponse, revenueResponse, expenseResponse, categoryResponse, transactionsResponse, budgetResponse] = await Promise.all([
+        fetch(`http://localhost:8082/api/admin/financial/data?range=${timeRange}`, {
+          credentials: 'include'
+        }),
+        fetch(`http://localhost:8082/api/admin/financial/revenue?range=${timeRange}`, {
+          credentials: 'include'
+        }),
+        fetch(`http://localhost:8082/api/admin/financial/expenses?range=${timeRange}`, {
+          credentials: 'include'
+        }),
+        fetch(`http://localhost:8082/api/admin/financial/expense-categories`, {
+          credentials: 'include'
+        }),
+        fetch(`http://localhost:8082/api/admin/financial/transactions`, {
+          credentials: 'include'
+        }),
+        fetch(`http://localhost:8082/api/admin/financial/budget`, {
+          credentials: 'include'
+        })
+      ]);
+
+      // Finansal veriler
+      if (financialResponse.ok) {
+        const financialData = await financialResponse.json();
+        setFinancialData({
+          revenue: financialData.revenue || 0,
+          expenses: financialData.expenses || 0,
+          profit: financialData.profit || 0,
+          profitMargin: financialData.profitMargin || 0,
+          growthRate: financialData.growthRate || 0
+        });
+      }
+
+      // Gelir trendi
+      if (revenueResponse.ok) {
+        const revenueData = await revenueResponse.json();
+        setRevenueData({
+          labels: revenueData.labels || [],
+          datasets: [{
+            label: 'Gelir',
+            data: revenueData.data || [],
+            borderColor: 'rgb(20, 184, 166)',
+            backgroundColor: 'rgba(20, 184, 166, 0.1)',
+            tension: 0.4,
+            fill: true
+          }]
+        });
+      }
+
+      // Gider trendi
+      if (expenseResponse.ok) {
+        const expenseData = await expenseResponse.json();
+        setExpenseData({
+          labels: expenseData.labels || [],
+          datasets: [{
+            label: 'Gider',
+            data: expenseData.data || [],
+            borderColor: 'rgb(239, 68, 68)',
+            backgroundColor: 'rgba(239, 68, 68, 0.1)',
+            tension: 0.4,
+            fill: true
+          }]
+        });
+      }
+
+      // Gider kategorileri
+      if (categoryResponse.ok) {
+        const categoryData = await categoryResponse.json();
+        setExpenseCategories({
+          labels: categoryData.labels || [],
+          datasets: [{
+            data: categoryData.data || [],
+            backgroundColor: [
+              'rgba(255, 99, 132, 0.8)',
+              'rgba(54, 162, 235, 0.8)',
+              'rgba(255, 205, 86, 0.8)',
+              'rgba(75, 192, 192, 0.8)',
+              'rgba(153, 102, 255, 0.8)'
+            ],
+            borderWidth: 2
+          }]
+        });
+      }
+
+      // İşlemler
+      if (transactionsResponse.ok) {
+        const transactionsData = await transactionsResponse.json();
+        setTransactions(transactionsData || []);
+      }
+
+      // Bütçe
+      if (budgetResponse.ok) {
+        const budgetData = await budgetResponse.json();
+        setBudget({
+          total: budgetData.total || 0,
+          used: budgetData.used || 0,
+          remaining: budgetData.remaining || 0,
+          percentage: budgetData.percentage || 0
+        });
+      }
       
-      // Mock data zaten state'te tanımlı
-      console.log('Financial data loaded');
+      console.log('Financial data loaded successfully');
       
     } catch (error) {
       console.error('Error fetching financial data:', error);
       toast.error('Finansal veriler yüklenirken hata oluştu');
+      
+      // Hata durumunda sıfır değerler
+      setFinancialData({
+        revenue: 0,
+        expenses: 0,
+        profit: 0,
+        profitMargin: 0,
+        growthRate: 0
+      });
+      setRevenueData({
+        labels: [],
+        datasets: [{ label: 'Gelir', data: [], borderColor: 'rgb(20, 184, 166)', backgroundColor: 'rgba(20, 184, 166, 0.1)', tension: 0.4, fill: true }]
+      });
+      setExpenseData({
+        labels: [],
+        datasets: [{ label: 'Gider', data: [], borderColor: 'rgb(239, 68, 68)', backgroundColor: 'rgba(239, 68, 68, 0.1)', tension: 0.4, fill: true }]
+      });
+      setExpenseCategories({
+        labels: [],
+        datasets: [{ data: [], backgroundColor: [], borderWidth: 2 }]
+      });
+      setTransactions([]);
+      setBudget({ total: 0, used: 0, remaining: 0, percentage: 0 });
     } finally {
       setLoading(false);
     }

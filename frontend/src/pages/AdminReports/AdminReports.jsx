@@ -76,82 +76,144 @@ const AdminReports = () => {
     try {
       setLoading(true);
       
-      // Simulated API calls - replace with actual API endpoints
+      // Gerçek API çağrıları
       const [salesResponse, revenueResponse, categoryResponse, statsResponse] = await Promise.all([
-        fetch(`http://localhost:8082/api/admin/reports/sales?period=${timeRange}`, {
+        fetch(`http://localhost:8082/api/admin/reports/sales?range=${timeRange}`, {
           credentials: 'include'
         }),
-        fetch(`http://localhost:8082/api/admin/reports/revenue?period=${timeRange}`, {
+        fetch(`http://localhost:8082/api/admin/reports/revenue?range=${timeRange}`, {
           credentials: 'include'
         }),
-        fetch(`http://localhost:8082/api/admin/reports/categories?period=${timeRange}`, {
+        fetch(`http://localhost:8082/api/admin/reports/categories`, {
           credentials: 'include'
         }),
-        fetch(`http://localhost:8082/api/admin/reports/stats?period=${timeRange}`, {
+        fetch(`http://localhost:8082/api/admin/reports/stats`, {
           credentials: 'include'
         })
       ]);
 
-      // Mock data for demonstration
-      const mockSalesData = {
-        labels: getTimeLabels(),
-        datasets: [{
-          label: 'Satışlar',
-          data: [12, 19, 3, 5, 2, 3, 8, 15, 12, 18, 25, 30],
-          backgroundColor: 'rgba(255, 99, 132, 0.2)',
-          borderColor: 'rgba(255, 99, 132, 1)',
-          borderWidth: 2,
-          tension: 0.4
-        }]
-      };
+      // Satış verileri
+      if (salesResponse.ok) {
+        const salesData = await salesResponse.json();
+        setSalesData({
+          labels: salesData.labels || [],
+          datasets: [{
+            label: 'Satışlar',
+            data: salesData.data || [],
+            backgroundColor: 'rgba(255, 99, 132, 0.2)',
+            borderColor: 'rgba(255, 99, 132, 1)',
+            borderWidth: 2,
+            tension: 0.4
+          }]
+        });
+      } else {
+        setSalesData({
+          labels: [],
+          datasets: [{ label: 'Satışlar', data: [], backgroundColor: 'rgba(255, 99, 132, 0.2)', borderColor: 'rgba(255, 99, 132, 1)', borderWidth: 2, tension: 0.4 }]
+        });
+      }
 
-      const mockRevenueData = {
-        labels: getTimeLabels(),
-        datasets: [{
-          label: 'Gelir (₺)',
-          data: [12000, 19000, 3000, 5000, 2000, 3000, 8000, 15000, 12000, 18000, 25000, 30000],
-          backgroundColor: 'rgba(54, 162, 235, 0.2)',
-          borderColor: 'rgba(54, 162, 235, 1)',
-          borderWidth: 2,
-          tension: 0.4
-        }]
-      };
+      // Gelir verileri
+      if (revenueResponse.ok) {
+        const revenueData = await revenueResponse.json();
+        setRevenueData({
+          labels: revenueData.labels || [],
+          datasets: [{
+            label: 'Gelir (₺)',
+            data: revenueData.data || [],
+            backgroundColor: 'rgba(54, 162, 235, 0.2)',
+            borderColor: 'rgba(54, 162, 235, 1)',
+            borderWidth: 2,
+            tension: 0.4
+          }]
+        });
+      } else {
+        setRevenueData({
+          labels: [],
+          datasets: [{ label: 'Gelir (₺)', data: [], backgroundColor: 'rgba(54, 162, 235, 0.2)', borderColor: 'rgba(54, 162, 235, 1)', borderWidth: 2, tension: 0.4 }]
+        });
+      }
 
-      const mockCategoryData = {
-        labels: ['Elektronik', 'Giyim', 'Ev & Yaşam', 'Kitap', 'Spor', 'Kozmetik'],
-        datasets: [{
-          data: [30, 25, 20, 10, 8, 7],
-          backgroundColor: [
-            'rgba(255, 99, 132, 0.8)',
-            'rgba(54, 162, 235, 0.8)',
-            'rgba(255, 205, 86, 0.8)',
-            'rgba(75, 192, 192, 0.8)',
-            'rgba(153, 102, 255, 0.8)',
-            'rgba(255, 159, 64, 0.8)'
-          ],
-          borderWidth: 2
-        }]
-      };
+      // Kategori verileri
+      if (categoryResponse.ok) {
+        const categoryData = await categoryResponse.json();
+        setCategoryData({
+          labels: categoryData.labels || [],
+          datasets: [{
+            data: categoryData.data || [],
+            backgroundColor: [
+              'rgba(255, 99, 132, 0.8)',
+              'rgba(54, 162, 235, 0.8)',
+              'rgba(255, 205, 86, 0.8)',
+              'rgba(75, 192, 192, 0.8)',
+              'rgba(153, 102, 255, 0.8)',
+              'rgba(255, 159, 64, 0.8)'
+            ],
+            borderWidth: 2
+          }]
+        });
+      } else {
+        setCategoryData({
+          labels: [],
+          datasets: [{ data: [], backgroundColor: [], borderWidth: 2 }]
+        });
+      }
 
-      const mockStats = {
-        totalRevenue: 125000,
-        totalOrders: 1250,
-        totalCustomers: 850,
-        totalProducts: 125,
-        revenueGrowth: 15.5,
-        orderGrowth: 12.3,
-        customerGrowth: 8.7,
-        productGrowth: 5.2
-      };
+      // İstatistik verileri
+      if (statsResponse.ok) {
+        const statsData = await statsResponse.json();
+        setStats({
+          totalRevenue: statsData.totalRevenue || 0,
+          totalOrders: statsData.totalOrders || 0,
+          totalCustomers: statsData.totalCustomers || 0,
+          totalProducts: statsData.totalProducts || 0,
+          revenueGrowth: statsData.revenueGrowth || 0,
+          orderGrowth: statsData.orderGrowth || 0,
+          customerGrowth: statsData.customerGrowth || 0,
+          productGrowth: statsData.productGrowth || 0
+        });
+      } else {
+        setStats({
+          totalRevenue: 0,
+          totalOrders: 0,
+          totalCustomers: 0,
+          totalProducts: 0,
+          revenueGrowth: 0,
+          orderGrowth: 0,
+          customerGrowth: 0,
+          productGrowth: 0
+        });
+      }
 
-      setSalesData(mockSalesData);
-      setRevenueData(mockRevenueData);
-      setCategoryData(mockCategoryData);
-      setStats(mockStats);
+      console.log('Report data loaded successfully');
 
     } catch (error) {
       console.error('Rapor verileri yüklenirken hata:', error);
       toast.error('Rapor verileri yüklenirken hata oluştu');
+      
+      // Hata durumunda sıfır değerler
+      setSalesData({
+        labels: [],
+        datasets: [{ label: 'Satışlar', data: [], backgroundColor: 'rgba(255, 99, 132, 0.2)', borderColor: 'rgba(255, 99, 132, 1)', borderWidth: 2, tension: 0.4 }]
+      });
+      setRevenueData({
+        labels: [],
+        datasets: [{ label: 'Gelir (₺)', data: [], backgroundColor: 'rgba(54, 162, 235, 0.2)', borderColor: 'rgba(54, 162, 235, 1)', borderWidth: 2, tension: 0.4 }]
+      });
+      setCategoryData({
+        labels: [],
+        datasets: [{ data: [], backgroundColor: [], borderWidth: 2 }]
+      });
+      setStats({
+        totalRevenue: 0,
+        totalOrders: 0,
+        totalCustomers: 0,
+        totalProducts: 0,
+        revenueGrowth: 0,
+        orderGrowth: 0,
+        customerGrowth: 0,
+        productGrowth: 0
+      });
     } finally {
       setLoading(false);
     }
