@@ -11,6 +11,7 @@ import {
   Filter,
   RefreshCw
 } from "lucide-react";
+import * as XLSX from 'xlsx';
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -181,8 +182,117 @@ const AdminReports = () => {
   };
 
   const exportReport = () => {
-    toast.success('Rapor dışa aktarılıyor...');
-    // Implement export functionality
+    try {
+      // Excel dosyası oluştur
+      const workbook = createReportData();
+      
+      // Dosyayı indir
+      const fileName = `sistem-raporu-${new Date().toISOString().split('T')[0]}.xlsx`;
+      downloadExcelFile(workbook, fileName);
+      
+      toast.success('Rapor başarıyla indirildi!');
+    } catch (error) {
+      console.error('Rapor indirme hatası:', error);
+      toast.error('Rapor indirilirken hata oluştu!');
+    }
+  };
+
+  const createReportData = () => {
+    const currentDate = new Date().toLocaleDateString('tr-TR');
+    const timeRangeText = {
+      'week': 'Son Hafta',
+      'month': 'Son Ay', 
+      'quarter': 'Son Çeyrek',
+      'year': 'Son Yıl'
+    }[timeRange] || 'Bilinmeyen';
+
+    // Detaylı Excel verisi oluştur
+    const reportData = {
+      'Genel İstatistikler': [
+        ['SİSTEM RAPORU', ''],
+        ['Rapor Tarihi', currentDate],
+        ['Zaman Aralığı', timeRangeText],
+        [''],
+        ['Metrik', 'Değer', 'Büyüme (%)'],
+        ['Toplam Gelir', formatPrice(stats.totalRevenue), `%${stats.revenueGrowth}`],
+        ['Toplam Sipariş', stats.totalOrders.toLocaleString(), `%${stats.orderGrowth}`],
+        ['Toplam Müşteri', stats.totalCustomers.toLocaleString(), `%${stats.customerGrowth}`],
+        ['Toplam Ürün', stats.totalProducts.toLocaleString(), `%${stats.productGrowth}`],
+        [''],
+        ['PERFORMANS METRİKLERİ', '', ''],
+        ['Ortalama Sipariş Değeri', formatPrice(stats.totalRevenue / stats.totalOrders), ''],
+        ['Müşteri Başına Ortalama', formatPrice(stats.totalRevenue / stats.totalCustomers), ''],
+        ['Ürün Başına Ortalama', formatPrice(stats.totalRevenue / stats.totalProducts), ''],
+        ['Dönüşüm Oranı', `%${((stats.totalOrders / stats.totalCustomers) * 100).toFixed(1)}`, '']
+      ],
+      'Satış Trendi': [
+        ['SATIŞ TRENDİ', ''],
+        ['Rapor Tarihi', currentDate],
+        ['Zaman Aralığı', timeRangeText],
+        [''],
+        ['Dönem', 'Satış Sayısı'],
+        ...salesData.labels.map((label, index) => [
+          label,
+          salesData.datasets[0].data[index]
+        ]),
+        [''],
+        ['Toplam Satış', salesData.datasets[0].data.reduce((sum, val) => sum + val, 0)],
+        ['Ortalama Satış', (salesData.datasets[0].data.reduce((sum, val) => sum + val, 0) / salesData.datasets[0].data.length).toFixed(1)]
+      ],
+      'Gelir Trendi': [
+        ['GELİR TRENDİ', ''],
+        ['Rapor Tarihi', currentDate],
+        ['Zaman Aralığı', timeRangeText],
+        [''],
+        ['Dönem', 'Gelir (₺)'],
+        ...revenueData.labels.map((label, index) => [
+          label,
+          revenueData.datasets[0].data[index]
+        ]),
+        [''],
+        ['Toplam Gelir', revenueData.datasets[0].data.reduce((sum, val) => sum + val, 0)],
+        ['Ortalama Gelir', (revenueData.datasets[0].data.reduce((sum, val) => sum + val, 0) / revenueData.datasets[0].data.length).toFixed(0)]
+      ],
+      'Kategori Dağılımı': [
+        ['KATEGORİ DAĞILIMI', ''],
+        ['Rapor Tarihi', currentDate],
+        ['Zaman Aralığı', timeRangeText],
+        [''],
+        ['Kategori', 'Yüzde (%)', 'Sıralama'],
+        ...categoryData.labels.map((label, index) => [
+          label,
+          categoryData.datasets[0].data[index],
+          index + 1
+        ]),
+        [''],
+        ['En Popüler Kategori', categoryData.labels[0], `%${categoryData.datasets[0].data[0]}`],
+        ['En Az Popüler Kategori', categoryData.labels[categoryData.labels.length - 1], `%${categoryData.datasets[0].data[categoryData.datasets[0].data.length - 1]}`]
+      ]
+    };
+
+    return reportData;
+  };
+
+  const downloadExcelFile = (workbook, fileName) => {
+    // XLSX kütüphanesi ile gerçek Excel dosyası oluştur
+    const wb = XLSX.utils.book_new();
+    
+    // Her sheet için ayrı worksheet oluştur
+    Object.entries(workbook).forEach(([sheetName, data]) => {
+      const ws = XLSX.utils.aoa_to_sheet(data);
+      
+      // Sütun genişliklerini ayarla
+      const colWidths = data[0].map((_, index) => ({
+        wch: Math.max(...data.map(row => String(row[index] || '').length)) + 2
+      }));
+      ws['!cols'] = colWidths;
+      
+      // Sheet'i workbook'a ekle
+      XLSX.utils.book_append_sheet(wb, ws, sheetName);
+    });
+    
+    // Excel dosyasını indir
+    XLSX.writeFile(wb, fileName);
   };
 
   // StatCard component

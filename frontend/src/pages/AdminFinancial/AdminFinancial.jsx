@@ -17,6 +17,7 @@ import {
   Clock,
   RefreshCw
 } from "lucide-react";
+import * as XLSX from 'xlsx';
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -153,8 +154,115 @@ const AdminFinancial = () => {
   };
 
   const exportFinancialReport = () => {
-    toast.success('Finansal rapor dışa aktarılıyor...');
-    // PDF export işlemi burada yapılacak
+    try {
+      // Excel dosyası oluştur
+      const workbook = createFinancialReport();
+      
+      // Dosyayı indir
+      const fileName = `finansal-rapor-${new Date().toISOString().split('T')[0]}.xlsx`;
+      downloadExcelFile(workbook, fileName);
+      
+      toast.success('Finansal rapor başarıyla indirildi!');
+    } catch (error) {
+      console.error('Rapor indirme hatası:', error);
+      toast.error('Rapor indirilirken hata oluştu!');
+    }
+  };
+
+  const createFinancialReport = () => {
+    const currentDate = new Date().toLocaleDateString('tr-TR');
+    
+    // Detaylı Excel verisi oluştur
+    const reportData = {
+      'Finansal Özet': [
+        ['FİNANSAL RAPOR', ''],
+        ['Rapor Tarihi', currentDate],
+        [''],
+        ['Metrik', 'Değer'],
+        ['Toplam Gelir', formatCurrency(financialData.revenue)],
+        ['Toplam Gider', formatCurrency(financialData.expenses)],
+        ['Net Kar', formatCurrency(financialData.profit)],
+        ['Kar Marjı', `%${financialData.profitMargin}`],
+        ['Büyüme Oranı', `%${financialData.growthRate}`],
+        [''],
+        ['BÜTÇE DURUMU', ''],
+        ['Toplam Bütçe', formatCurrency(budget.total)],
+        ['Kullanılan Bütçe', formatCurrency(budget.used)],
+        ['Kalan Bütçe', formatCurrency(budget.remaining)],
+        ['Bütçe Kullanım Oranı', `%${budget.percentage}`]
+      ],
+      'Son İşlemler': [
+        ['SON FİNANSAL İŞLEMLER', ''],
+        ['Rapor Tarihi', currentDate],
+        [''],
+        ['İşlem', 'Tür', 'Tutar', 'Tarih', 'Durum'],
+        ...transactions.map(t => [
+          t.title,
+          t.type === 'REVENUE' ? 'Gelir' : t.type === 'EXPENSE' ? 'Gider' : 'İade',
+          formatCurrency(t.amount),
+          formatDate(t.date),
+          getStatusText(t.status)
+        ])
+      ],
+      'Gelir Trendi': [
+        ['GELİR TRENDİ', ''],
+        ['Rapor Tarihi', currentDate],
+        [''],
+        ['Hafta', 'Gelir (₺)'],
+        ...revenueData.labels.map((label, index) => [
+          label,
+          revenueData.datasets[0].data[index]
+        ]),
+        [''],
+        ['Toplam Gelir', revenueData.datasets[0].data.reduce((sum, val) => sum + val, 0)]
+      ],
+      'Gider Trendi': [
+        ['GİDER TRENDİ', ''],
+        ['Rapor Tarihi', currentDate],
+        [''],
+        ['Hafta', 'Gider (₺)'],
+        ...expenseData.labels.map((label, index) => [
+          label,
+          expenseData.datasets[0].data[index]
+        ]),
+        [''],
+        ['Toplam Gider', expenseData.datasets[0].data.reduce((sum, val) => sum + val, 0)]
+      ],
+      'Gider Kategorileri': [
+        ['GİDER KATEGORİLERİ', ''],
+        ['Rapor Tarihi', currentDate],
+        [''],
+        ['Kategori', 'Yüzde (%)'],
+        ...expenseCategories.labels.map((label, index) => [
+          label,
+          expenseCategories.datasets[0].data[index]
+        ])
+      ]
+    };
+
+    return reportData;
+  };
+
+  const downloadExcelFile = (workbook, fileName) => {
+    // XLSX kütüphanesi ile gerçek Excel dosyası oluştur
+    const wb = XLSX.utils.book_new();
+    
+    // Her sheet için ayrı worksheet oluştur
+    Object.entries(workbook).forEach(([sheetName, data]) => {
+      const ws = XLSX.utils.aoa_to_sheet(data);
+      
+      // Sütun genişliklerini ayarla
+      const colWidths = data[0].map((_, index) => ({
+        wch: Math.max(...data.map(row => String(row[index] || '').length)) + 2
+      }));
+      ws['!cols'] = colWidths;
+      
+      // Sheet'i workbook'a ekle
+      XLSX.utils.book_append_sheet(wb, ws, sheetName);
+    });
+    
+    // Excel dosyasını indir
+    XLSX.writeFile(wb, fileName);
   };
 
   const formatCurrency = (amount) => {
