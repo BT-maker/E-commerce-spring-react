@@ -32,6 +32,11 @@ const AdminUsers = () => {
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [roleFilter, setRoleFilter] = useState("");
+  const [selectedUser, setSelectedUser] = useState(null);
+  const [showViewModal, setShowViewModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [editFormData, setEditFormData] = useState({});
 
   useEffect(() => {
     fetchUsersWithRole();
@@ -110,6 +115,146 @@ const AdminUsers = () => {
     fetchUsersWithRole(newPage);
   };
 
+  // Kullanıcı görüntüle
+  const handleViewUser = async (userId) => {
+    try {
+      const response = await fetch(`http://localhost:8082/api/admin/users/${userId}`, {
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        credentials: 'include'
+      });
+
+      if (response.ok) {
+        const userData = await response.json();
+        setSelectedUser(userData);
+        setShowViewModal(true);
+      } else {
+        console.error("Kullanıcı bilgileri alınamadı:", response.status);
+      }
+    } catch (error) {
+      console.error("Kullanıcı görüntüleme hatası:", error);
+    }
+  };
+
+  // Kullanıcı düzenle
+  const handleEditUser = async (userId) => {
+    try {
+      const response = await fetch(`http://localhost:8082/api/admin/users/${userId}`, {
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        credentials: 'include'
+      });
+
+      if (response.ok) {
+        const userData = await response.json();
+        setSelectedUser(userData);
+        setEditFormData({
+          firstName: userData.firstName || '',
+          lastName: userData.lastName || '',
+          phone: userData.phone || '',
+          address1: userData.address1 || '',
+          address2: userData.address2 || '',
+          birthDate: userData.birthDate || ''
+        });
+        setShowEditModal(true);
+      } else {
+        console.error("Kullanıcı bilgileri alınamadı:", response.status);
+      }
+    } catch (error) {
+      console.error("Kullanıcı düzenleme hatası:", error);
+    }
+  };
+
+  // Kullanıcı güncelle
+  const handleUpdateUser = async () => {
+    try {
+      const response = await fetch(`http://localhost:8082/api/admin/users/${selectedUser.id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        credentials: 'include',
+        body: JSON.stringify(editFormData)
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        console.log("Kullanıcı güncellendi:", result);
+        setShowEditModal(false);
+        setSelectedUser(null);
+        setEditFormData({});
+        // Kullanıcı listesini yenile
+        fetchUsersWithRole(pagination.currentPage);
+      } else {
+        console.error("Kullanıcı güncellenemedi:", response.status);
+      }
+    } catch (error) {
+      console.error("Kullanıcı güncelleme hatası:", error);
+    }
+  };
+
+  // Kullanıcıyı aktifleştir
+  const handleActivateUser = async () => {
+    try {
+      const response = await fetch(`http://localhost:8082/api/admin/users/${selectedUser.id}/activate`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        credentials: 'include'
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        console.log("Kullanıcı aktifleştirildi:", result);
+        setShowDeleteModal(false);
+        setSelectedUser(null);
+        // Kullanıcı listesini yenile
+        fetchUsersWithRole(pagination.currentPage);
+        alert("Kullanıcı başarıyla aktifleştirildi!");
+      } else {
+        const errorData = await response.json();
+        console.error("Kullanıcı aktifleştirilemedi:", response.status, errorData);
+        alert(`Hata: ${errorData.error || 'Kullanıcı aktifleştirilemedi'}`);
+      }
+    } catch (error) {
+      console.error("Kullanıcı aktifleştirme hatası:", error);
+      alert("Kullanıcı aktifleştirilirken bir hata oluştu!");
+    }
+  };
+
+  // Kullanıcıyı pasifleştir
+  const handleDeactivateUser = async () => {
+    try {
+      const response = await fetch(`http://localhost:8082/api/admin/users/${selectedUser.id}/deactivate`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        credentials: 'include'
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        console.log("Kullanıcı pasifleştirildi:", result);
+        setShowDeleteModal(false);
+        setSelectedUser(null);
+        // Kullanıcı listesini yenile
+        fetchUsersWithRole(pagination.currentPage);
+        alert("Kullanıcı başarıyla pasifleştirildi!");
+      } else {
+        const errorData = await response.json();
+        console.error("Kullanıcı pasifleştirilemedi:", response.status, errorData);
+        alert(`Hata: ${errorData.error || 'Kullanıcı pasifleştirilemedi'}`);
+      }
+    } catch (error) {
+      console.error("Kullanıcı pasifleştirme hatası:", error);
+    }
+  };
+
+
   const getRoleIcon = (role) => {
     switch (role) {
       case 'ADMIN':
@@ -121,6 +266,11 @@ const AdminUsers = () => {
       default:
         return <User size={16} className="text-gray-500" />;
     }
+  };
+
+  // Kullanıcının pasif olup olmadığını kontrol et
+  const isUserDeactivated = (user) => {
+    return user.email && user.email.includes('_DEACTIVATED_');
   };
 
   const getRoleBadge = (role) => {
@@ -249,7 +399,6 @@ const AdminUsers = () => {
                 <thead className="bg-gray-50/50 border-b border-gray-200/50">
                   <tr>
                     <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Kullanıcı</th>
-                    <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
                     <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Rol</th>
                     <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Telefon</th>
                     <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Kayıt Tarihi</th>
@@ -258,7 +407,9 @@ const AdminUsers = () => {
                 </thead>
                 <tbody className="divide-y divide-gray-200/50">
                   {users.map((user) => (
-                    <tr key={user.id} className="hover:bg-gray-50/50 transition-colors duration-200">
+                    <tr key={user.id} className={`hover:bg-gray-50/50 transition-colors duration-200 ${
+                      isUserDeactivated(user) ? "opacity-60 bg-gray-50/30" : ""
+                    }`}>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex items-center space-x-3">
                           <div className="w-10 h-10 bg-gradient-to-r from-orange-500 to-red-500 rounded-full flex items-center justify-center">
@@ -268,11 +419,17 @@ const AdminUsers = () => {
                             <div className="text-sm font-medium text-gray-900">
                               {user.firstName} {user.lastName}
                             </div>
-                            <div className="text-sm text-gray-500">@{user.username}</div>
+                            <div className="text-sm text-gray-500 flex items-center space-x-2">
+                              <span>{user.email}</span>
+                              {isUserDeactivated(user) && (
+                                <span className="px-2 py-1 bg-red-100 text-red-600 text-xs rounded-full font-medium">
+                                  PASİF
+                                </span>
+                              )}
+                            </div>
                           </div>
                         </div>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{user.email}</td>
                       <td className="px-6 py-4 whitespace-nowrap">{getRoleBadge(user.role)}</td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{user.phone || '-'}</td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
@@ -289,14 +446,33 @@ const AdminUsers = () => {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                         <div className="flex items-center space-x-2">
-                          <button className="p-2 text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded-lg transition-colors duration-200" title="Görüntüle">
+                          <button 
+                            onClick={() => handleViewUser(user.id)}
+                            className="p-2 text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded-lg transition-colors duration-200" 
+                            title="Görüntüle"
+                          >
                             <Eye size={16} />
                           </button>
-                          <button className="p-2 text-green-600 hover:text-green-800 hover:bg-green-50 rounded-lg transition-colors duration-200" title="Düzenle">
+                          <button 
+                            onClick={() => handleEditUser(user.id)}
+                            className="p-2 text-green-600 hover:text-green-800 hover:bg-green-50 rounded-lg transition-colors duration-200" 
+                            title="Düzenle"
+                          >
                             <Edit size={16} />
                           </button>
-                          <button className="p-2 text-red-600 hover:text-red-800 hover:bg-red-50 rounded-lg transition-colors duration-200" title="Sil">
-                            <Trash2 size={16} />
+                          <button
+                            onClick={() => {
+                              setSelectedUser(user);
+                              setShowDeleteModal(true);
+                            }}
+                            className={`p-2 rounded-lg transition-colors duration-200 ${
+                              isUserDeactivated(user) 
+                                ? "text-green-600 hover:text-green-800 hover:bg-green-50" 
+                                : "text-orange-600 hover:text-orange-800 hover:bg-orange-50"
+                            }`}
+                            title={isUserDeactivated(user) ? "Aktifleştir" : "Pasifleştir"}
+                          >
+                            <User size={16} />
                           </button>
                         </div>
                       </td>
@@ -352,6 +528,294 @@ const AdminUsers = () => {
           </div>
         )}
       </div>
+
+      {/* Kullanıcı Görüntüleme Modal */}
+      {showViewModal && selectedUser && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-xl p-6 max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-2xl font-bold text-gray-900">Kullanıcı Detayları</h2>
+              <button
+                onClick={() => setShowViewModal(false)}
+                className="text-gray-400 hover:text-gray-600"
+              >
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+            
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Ad</label>
+                  <p className="text-gray-900">{selectedUser.firstName}</p>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Soyad</label>
+                  <p className="text-gray-900">{selectedUser.lastName}</p>
+                </div>
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                <p className="text-gray-900">{selectedUser.email}</p>
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Telefon</label>
+                <p className="text-gray-900">{selectedUser.phone || '-'}</p>
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Rol</label>
+                <p className="text-gray-900">{selectedUser.role}</p>
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Kayıt Tarihi</label>
+                <p className="text-gray-900">
+                  {selectedUser.registrationDate 
+                    ? new Date(selectedUser.registrationDate).toLocaleDateString('tr-TR', {
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                      })
+                    : '-'
+                  }
+                </p>
+              </div>
+              
+              {selectedUser.address1 && (
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Adres 1</label>
+                  <p className="text-gray-900">{selectedUser.address1}</p>
+                </div>
+              )}
+              
+              {selectedUser.address2 && (
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Adres 2</label>
+                  <p className="text-gray-900">{selectedUser.address2}</p>
+                </div>
+              )}
+              
+              {selectedUser.birthDate && (
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Doğum Tarihi</label>
+                  <p className="text-gray-900">{selectedUser.birthDate}</p>
+                </div>
+              )}
+            </div>
+            
+            <div className="flex justify-end mt-6">
+              <button
+                onClick={() => setShowViewModal(false)}
+                className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors"
+              >
+                Kapat
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Kullanıcı Düzenleme Modal */}
+      {showEditModal && selectedUser && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-xl p-6 max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-2xl font-bold text-gray-900">Kullanıcı Düzenle</h2>
+              <button
+                onClick={() => setShowEditModal(false)}
+                className="text-gray-400 hover:text-gray-600"
+              >
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+            
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Ad</label>
+                  <input
+                    type="text"
+                    value={editFormData.firstName}
+                    onChange={(e) => setEditFormData({...editFormData, firstName: e.target.value})}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Soyad</label>
+                  <input
+                    type="text"
+                    value={editFormData.lastName}
+                    onChange={(e) => setEditFormData({...editFormData, lastName: e.target.value})}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
+                  />
+                </div>
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Telefon</label>
+                <input
+                  type="text"
+                  value={editFormData.phone}
+                  onChange={(e) => setEditFormData({...editFormData, phone: e.target.value})}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Adres 1</label>
+                <input
+                  type="text"
+                  value={editFormData.address1}
+                  onChange={(e) => setEditFormData({...editFormData, address1: e.target.value})}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Adres 2</label>
+                <input
+                  type="text"
+                  value={editFormData.address2}
+                  onChange={(e) => setEditFormData({...editFormData, address2: e.target.value})}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Doğum Tarihi</label>
+                <input
+                  type="date"
+                  value={editFormData.birthDate}
+                  onChange={(e) => setEditFormData({...editFormData, birthDate: e.target.value})}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
+                />
+              </div>
+            </div>
+            
+            <div className="flex justify-end space-x-3 mt-6">
+              <button
+                onClick={() => setShowEditModal(false)}
+                className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors"
+              >
+                İptal
+              </button>
+              <button
+                onClick={handleUpdateUser}
+                className="px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors"
+              >
+                Güncelle
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Kullanıcı Pasifleştirme/Aktifleştirme Onay Modal */}
+      {showDeleteModal && selectedUser && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-xl p-6 max-w-md w-full mx-4">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-2xl font-bold text-gray-900">
+                {isUserDeactivated(selectedUser) ? "Kullanıcı Aktifleştir" : "Kullanıcı Pasifleştir"}
+              </h2>
+              <button
+                onClick={() => setShowDeleteModal(false)}
+                className="text-gray-400 hover:text-gray-600"
+              >
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+            
+            <div className="mb-6">
+              <div className={`border rounded-lg p-4 mb-4 ${
+                isUserDeactivated(selectedUser) 
+                  ? "bg-green-50 border-green-200" 
+                  : "bg-blue-50 border-blue-200"
+              }`}>
+                <div className="flex items-center">
+                  <svg className={`w-5 h-5 mr-2 ${
+                    isUserDeactivated(selectedUser) ? "text-green-600" : "text-blue-600"
+                  }`} fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+                  </svg>
+                  <p className={`font-medium ${
+                    isUserDeactivated(selectedUser) ? "text-green-800" : "text-blue-800"
+                  }`}>
+                    {isUserDeactivated(selectedUser) ? "Kullanıcı Aktifleştirme" : "Kullanıcı Pasifleştirme"}
+                  </p>
+                </div>
+                <p className={`text-sm mt-2 ${
+                  isUserDeactivated(selectedUser) ? "text-green-700" : "text-blue-700"
+                }`}>
+                  {isUserDeactivated(selectedUser) 
+                    ? "Kullanıcı aktifleştirildiğinde tekrar giriş yapabilir ve tüm özelliklerini kullanabilir."
+                    : "Kullanıcı pasifleştirildiğinde giriş yapamaz ancak tüm verileri korunur."
+                  }
+                </p>
+              </div>
+              
+              <p className="text-gray-700 mb-4">
+                <strong>{selectedUser.firstName} {selectedUser.lastName}</strong> kullanıcısını {isUserDeactivated(selectedUser) ? "aktifleştirmek" : "pasifleştirmek"} istediğinizden emin misiniz?
+              </p>
+              
+              <div className="bg-gray-50 rounded-lg p-3 text-sm text-gray-600">
+                <p className="font-medium mb-2">
+                  {isUserDeactivated(selectedUser) ? "Aktifleştirme sonrası:" : "Pasifleştirme sonrası:"}
+                </p>
+                <ul className="list-disc list-inside space-y-1">
+                  {isUserDeactivated(selectedUser) ? (
+                    <>
+                      <li>Kullanıcı tekrar giriş yapabilir</li>
+                      <li>Tüm özellikler aktif olur</li>
+                      <li>Email adresi orijinal haline döner</li>
+                      <li>Tüm veriler korunur</li>
+                    </>
+                  ) : (
+                    <>
+                      <li>Kullanıcı giriş yapamaz</li>
+                      <li>Tüm siparişler korunur</li>
+                      <li>Sepet bilgileri korunur</li>
+                      <li>Favoriler korunur</li>
+                      <li>Email adresi değiştirilir</li>
+                    </>
+                  )}
+                </ul>
+              </div>
+            </div>
+            
+            <div className="flex justify-end space-x-3">
+              <button
+                onClick={() => setShowDeleteModal(false)}
+                className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors"
+              >
+                İptal
+              </button>
+              <button
+                onClick={isUserDeactivated(selectedUser) ? handleActivateUser : handleDeactivateUser}
+                className={`px-4 py-2 text-white rounded-lg transition-colors flex items-center space-x-2 ${
+                  isUserDeactivated(selectedUser) 
+                    ? "bg-green-500 hover:bg-green-600" 
+                    : "bg-orange-500 hover:bg-orange-600"
+                }`}
+              >
+                <User size={16} />
+                <span>{isUserDeactivated(selectedUser) ? "Aktifleştir" : "Pasifleştir"}</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

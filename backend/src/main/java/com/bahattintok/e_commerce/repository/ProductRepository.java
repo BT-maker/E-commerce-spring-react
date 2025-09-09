@@ -144,6 +144,12 @@ public interface ProductRepository extends JpaRepository<Product, String> {
     Page<Product> findDiscountedProducts(Pageable pageable);
     
     /**
+     * Tüm ürünleri Store, Seller ve Category bilgileri ile birlikte getirir (Admin için).
+     */
+    @Query("SELECT p FROM Product p LEFT JOIN FETCH p.store s LEFT JOIN FETCH s.seller LEFT JOIN FETCH p.category")
+    List<Product> findAllWithStoreAndSeller();
+    
+    /**
      * Bu repository şu işlevleri sağlar:
      * 
      * 1. Temel CRUD İşlemleri: Product entity'si için standart veritabanı işlemleri

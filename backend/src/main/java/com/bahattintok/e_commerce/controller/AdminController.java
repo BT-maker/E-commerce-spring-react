@@ -21,12 +21,16 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.bahattintok.e_commerce.event.OrderShippedEvent;
+import com.bahattintok.e_commerce.model.Cart;
+import com.bahattintok.e_commerce.model.Category;
 import com.bahattintok.e_commerce.model.CategoryRequest;
 import com.bahattintok.e_commerce.model.Order;
 import com.bahattintok.e_commerce.model.Product;
 import com.bahattintok.e_commerce.model.Store;
 import com.bahattintok.e_commerce.model.User;
 import com.bahattintok.e_commerce.model.enums.SellerStatus;
+import com.bahattintok.e_commerce.repository.CartRepository;
+import com.bahattintok.e_commerce.repository.CategoryRepository;
 import com.bahattintok.e_commerce.repository.CategoryRequestRepository;
 import com.bahattintok.e_commerce.repository.OrderRepository;
 import com.bahattintok.e_commerce.repository.ProductRepository;
@@ -47,6 +51,9 @@ public class AdminController {
     private UserRepository userRepository;
 
     @Autowired
+    private CartRepository cartRepository;
+
+    @Autowired
     private OrderRepository orderRepository;
 
     @Autowired
@@ -57,6 +64,9 @@ public class AdminController {
 
     @Autowired
     private CategoryRequestRepository categoryRequestRepository;
+
+    @Autowired
+    private CategoryRepository categoryRepository;
 
     @Autowired
     private ApplicationEventPublisher eventPublisher;
@@ -89,8 +99,7 @@ public class AdminController {
                     .filter(user -> 
                         (user.getFirstName() != null && user.getFirstName().toLowerCase().contains(search.toLowerCase())) ||
                         (user.getLastName() != null && user.getLastName().toLowerCase().contains(search.toLowerCase())) ||
-                        (user.getEmail() != null && user.getEmail().toLowerCase().contains(search.toLowerCase())) ||
-                        (user.getUsername() != null && user.getUsername().toLowerCase().contains(search.toLowerCase()))
+                        (user.getEmail() != null && user.getEmail().toLowerCase().contains(search.toLowerCase()))
                     )
                     .collect(Collectors.toList());
             }
@@ -152,6 +161,287 @@ public class AdminController {
             e.printStackTrace();
             Map<String, Object> error = new HashMap<>();
             error.put("error", "Kullanıcılar alınamadı: " + e.getMessage());
+            return ResponseEntity.badRequest().body(error);
+        }
+    }
+
+    // Kullanıcı detaylarını getir
+    @GetMapping("/users/{userId}")
+    public ResponseEntity<Map<String, Object>> getUserById(@PathVariable String userId) {
+        try {
+            System.out.println("=== DEBUG: getUserById called ===");
+            System.out.println("User ID: " + userId);
+            
+            User user = userRepository.findById(userId).orElse(null);
+            
+            if (user == null) {
+                Map<String, Object> error = new HashMap<>();
+                error.put("error", "Kullanıcı bulunamadı");
+                return ResponseEntity.status(404).body(error);
+            }
+            
+            Map<String, Object> userResponse = new HashMap<>();
+            userResponse.put("id", user.getId());
+            userResponse.put("firstName", user.getFirstName());
+            userResponse.put("lastName", user.getLastName());
+            userResponse.put("email", user.getEmail());
+            userResponse.put("phone", user.getPhone());
+            userResponse.put("address1", user.getAddress1());
+            userResponse.put("address2", user.getAddress2());
+            userResponse.put("birthDate", user.getBirthDate());
+            userResponse.put("registrationDate", user.getRegistrationDate());
+            userResponse.put("role", user.getRole() != null ? user.getRole().getName() : null);
+            userResponse.put("sellerStatus", user.getSellerStatus());
+            userResponse.put("sellerApplicationDate", user.getSellerApplicationDate());
+            userResponse.put("approvalDate", user.getApprovalDate());
+            userResponse.put("rejectionReason", user.getRejectionReason());
+            
+            return ResponseEntity.ok(userResponse);
+        } catch (Exception e) {
+            System.out.println("Error in getUserById: " + e.getMessage());
+            e.printStackTrace();
+            Map<String, Object> error = new HashMap<>();
+            error.put("error", "Kullanıcı bilgileri alınamadı: " + e.getMessage());
+            return ResponseEntity.badRequest().body(error);
+        }
+    }
+
+    // Kullanıcı güncelle
+    @PutMapping("/users/{userId}")
+    public ResponseEntity<Map<String, Object>> updateUser(@PathVariable String userId, @RequestBody Map<String, Object> userData) {
+        try {
+            System.out.println("=== DEBUG: updateUser called ===");
+            System.out.println("User ID: " + userId);
+            System.out.println("User Data: " + userData);
+            
+            User user = userRepository.findById(userId).orElse(null);
+            
+            if (user == null) {
+                Map<String, Object> error = new HashMap<>();
+                error.put("error", "Kullanıcı bulunamadı");
+                return ResponseEntity.status(404).body(error);
+            }
+            
+            // Kullanıcı bilgilerini güncelle
+            if (userData.containsKey("firstName")) {
+                user.setFirstName((String) userData.get("firstName"));
+            }
+            if (userData.containsKey("lastName")) {
+                user.setLastName((String) userData.get("lastName"));
+            }
+            if (userData.containsKey("phone")) {
+                user.setPhone((String) userData.get("phone"));
+            }
+            if (userData.containsKey("address1")) {
+                user.setAddress1((String) userData.get("address1"));
+            }
+            if (userData.containsKey("address2")) {
+                user.setAddress2((String) userData.get("address2"));
+            }
+            if (userData.containsKey("birthDate")) {
+                user.setBirthDate((String) userData.get("birthDate"));
+            }
+            
+            userRepository.save(user);
+            
+            Map<String, Object> response = new HashMap<>();
+            response.put("message", "Kullanıcı başarıyla güncellendi");
+            response.put("userId", userId);
+            
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            System.out.println("Error in updateUser: " + e.getMessage());
+            e.printStackTrace();
+            Map<String, Object> error = new HashMap<>();
+            error.put("error", "Kullanıcı güncellenemedi: " + e.getMessage());
+            return ResponseEntity.badRequest().body(error);
+        }
+    }
+
+    // Kullanıcı sil
+    @DeleteMapping("/users/{userId}")
+    public ResponseEntity<Map<String, Object>> deleteUser(@PathVariable String userId) {
+        try {
+            System.out.println("=== DEBUG: deleteUser called ===");
+            System.out.println("User ID: " + userId);
+            
+            User user = userRepository.findById(userId).orElse(null);
+            
+            if (user == null) {
+                Map<String, Object> error = new HashMap<>();
+                error.put("error", "Kullanıcı bulunamadı");
+                return ResponseEntity.status(404).body(error);
+            }
+            
+            // Kullanıcının siparişleri var mı kontrol et
+            List<Order> userOrders = orderRepository.findByUserOrderByCreatedAtDesc(user);
+            if (!userOrders.isEmpty()) {
+                Map<String, Object> error = new HashMap<>();
+                error.put("error", "Bu kullanıcının siparişleri bulunmaktadır. Önce siparişleri silin veya kullanıcıyı pasif hale getirin.");
+                error.put("orderCount", userOrders.size());
+                return ResponseEntity.badRequest().body(error);
+            }
+            
+            // Kullanıcının sepetini sil (eğer varsa)
+            try {
+                Cart userCart = cartRepository.findByUser(user).orElse(null);
+                if (userCart != null) {
+                    cartRepository.delete(userCart);
+                    System.out.println("User cart deleted: " + userCart.getId());
+                }
+            } catch (Exception e) {
+                System.out.println("Cart deletion error (continuing): " + e.getMessage());
+            }
+            
+            // Kullanıcının favorileri ve yorumları cascade ile silinecek
+            // Kullanıcıyı sil
+            userRepository.delete(user);
+            
+            Map<String, Object> response = new HashMap<>();
+            response.put("message", "Kullanıcı başarıyla silindi");
+            response.put("userId", userId);
+            
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            System.out.println("Error in deleteUser: " + e.getMessage());
+            e.printStackTrace();
+            Map<String, Object> error = new HashMap<>();
+            error.put("error", "Kullanıcı silinemedi: " + e.getMessage());
+            return ResponseEntity.badRequest().body(error);
+        }
+    }
+
+    // Kullanıcıyı pasifleştir (soft delete)
+    @PutMapping("/users/{userId}/deactivate")
+    public ResponseEntity<Map<String, Object>> deactivateUser(@PathVariable String userId) {
+        try {
+            System.out.println("=== DEBUG: deactivateUser called ===");
+            System.out.println("User ID: " + userId);
+            
+            User user = userRepository.findById(userId).orElse(null);
+            
+            if (user == null) {
+                Map<String, Object> error = new HashMap<>();
+                error.put("error", "Kullanıcı bulunamadı");
+                return ResponseEntity.status(404).body(error);
+            }
+            
+            // Kullanıcıyı pasifleştir (email'e deaktive ekle)
+            String originalEmail = user.getEmail();
+            user.setEmail(originalEmail + "_DEACTIVATED_" + System.currentTimeMillis());
+            userRepository.save(user);
+            
+            Map<String, Object> response = new HashMap<>();
+            response.put("message", "Kullanıcı başarıyla pasifleştirildi");
+            response.put("userId", userId);
+            response.put("originalEmail", originalEmail);
+            
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            System.out.println("Error in deactivateUser: " + e.getMessage());
+            e.printStackTrace();
+            Map<String, Object> error = new HashMap<>();
+            error.put("error", "Kullanıcı pasifleştirilemedi: " + e.getMessage());
+            return ResponseEntity.badRequest().body(error);
+        }
+    }
+
+    // Kullanıcıyı aktifleştir (pasif kullanıcıyı geri getir)
+    @PutMapping("/users/{userId}/activate")
+    public ResponseEntity<Map<String, Object>> activateUser(@PathVariable String userId) {
+        try {
+            System.out.println("=== DEBUG: activateUser called ===");
+            System.out.println("User ID: " + userId);
+            
+            User user = userRepository.findById(userId).orElse(null);
+            
+            if (user == null) {
+                Map<String, Object> error = new HashMap<>();
+                error.put("error", "Kullanıcı bulunamadı");
+                return ResponseEntity.status(404).body(error);
+            }
+            
+            // Email'den _DEACTIVATED_ kısmını kaldır
+            String currentEmail = user.getEmail();
+            if (currentEmail.contains("_DEACTIVATED_")) {
+                String originalEmail = currentEmail.substring(0, currentEmail.indexOf("_DEACTIVATED_"));
+                user.setEmail(originalEmail);
+                userRepository.save(user);
+                
+                System.out.println("User activated successfully: " + user.getId());
+                System.out.println("Original email restored: " + originalEmail);
+            } else {
+                Map<String, Object> error = new HashMap<>();
+                error.put("error", "Bu kullanıcı zaten aktif durumda");
+                return ResponseEntity.badRequest().body(error);
+            }
+            
+            Map<String, Object> response = new HashMap<>();
+            response.put("message", "Kullanıcı başarıyla aktifleştirildi");
+            response.put("userId", userId);
+            response.put("restoredEmail", user.getEmail());
+            
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            System.out.println("Error in activateUser: " + e.getMessage());
+            e.printStackTrace();
+            Map<String, Object> error = new HashMap<>();
+            error.put("error", "Kullanıcı aktifleştirilemedi: " + e.getMessage());
+            return ResponseEntity.badRequest().body(error);
+        }
+    }
+
+    // Kullanıcının siparişlerini sil
+    @DeleteMapping("/users/{userId}/orders")
+    public ResponseEntity<Map<String, Object>> deleteUserOrders(@PathVariable String userId) {
+        try {
+            System.out.println("=== DEBUG: deleteUserOrders called ===");
+            System.out.println("User ID: " + userId);
+            
+            User user = userRepository.findById(userId).orElse(null);
+            
+            if (user == null) {
+                Map<String, Object> error = new HashMap<>();
+                error.put("error", "Kullanıcı bulunamadı");
+                return ResponseEntity.status(404).body(error);
+            }
+            
+            // Kullanıcının siparişlerini getir
+            List<Order> userOrders = orderRepository.findByUserOrderByCreatedAtDesc(user);
+            
+            if (userOrders.isEmpty()) {
+                Map<String, Object> response = new HashMap<>();
+                response.put("message", "Kullanıcının silinecek siparişi bulunmuyor");
+                response.put("deletedCount", 0);
+                return ResponseEntity.ok(response);
+            }
+            
+            // Siparişleri sil
+            int deletedCount = userOrders.size();
+            orderRepository.deleteAll(userOrders);
+            
+            // Kullanıcının sepetini de sil (eğer varsa)
+            try {
+                Cart userCart = cartRepository.findByUser(user).orElse(null);
+                if (userCart != null) {
+                    cartRepository.delete(userCart);
+                    System.out.println("User cart deleted during order deletion: " + userCart.getId());
+                }
+            } catch (Exception e) {
+                System.out.println("Cart deletion error during order deletion (continuing): " + e.getMessage());
+            }
+            
+            Map<String, Object> response = new HashMap<>();
+            response.put("message", "Kullanıcının siparişleri başarıyla silindi");
+            response.put("userId", userId);
+            response.put("deletedCount", deletedCount);
+            
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            System.out.println("Error in deleteUserOrders: " + e.getMessage());
+            e.printStackTrace();
+            Map<String, Object> error = new HashMap<>();
+            error.put("error", "Siparişler silinemedi: " + e.getMessage());
             return ResponseEntity.badRequest().body(error);
         }
     }
@@ -299,13 +589,28 @@ public class AdminController {
 
 
 
-               // Tüm ürünleri getir
+               // Tüm ürünleri getir (satıcı bilgileri ile)
            @GetMapping("/products")
            public ResponseEntity<List<Product>> getAllProducts() {
                try {
-                   List<Product> products = productRepository.findAll();
+                   System.out.println("=== DEBUG: getAllProducts called ===");
+                   
+                   // Store ve Seller bilgileri ile birlikte ürünleri getir
+                   List<Product> products = productRepository.findAllWithStoreAndSeller();
+                   
+                   System.out.println("Total products loaded: " + products.size());
+                   
+                   // Debug için satıcı bilgilerini logla
+                   for (Product product : products) {
+                       System.out.println("Product: " + product.getName() + 
+                                        " | Store: " + product.getStoreName() + 
+                                        " | Seller: " + product.getSellerName());
+                   }
+                   
                    return ResponseEntity.ok(products);
                } catch (Exception e) {
+                   System.out.println("Error in getAllProducts: " + e.getMessage());
+                   e.printStackTrace();
                    return ResponseEntity.badRequest().build();
                }
            }
@@ -330,6 +635,151 @@ public class AdminController {
                } catch (Exception e) {
                    Map<String, Object> error = new HashMap<>();
                    error.put("error", "Ürün durumu güncellenemedi: " + e.getMessage());
+                   return ResponseEntity.badRequest().body(error);
+               }
+           }
+
+           // Admin için ürün güncelleme (satıcı kontrolü olmadan)
+           @PutMapping("/products/{id}")
+           public ResponseEntity<?> updateProduct(@PathVariable String id, @RequestBody Map<String, Object> request) {
+               try {
+                   System.out.println("=== DEBUG: Admin updateProduct called ===");
+                   System.out.println("Product ID: " + id);
+                   System.out.println("Request: " + request);
+                   
+                   Product product = productRepository.findById(id).orElse(null);
+                   if (product == null) {
+                       Map<String, Object> error = new HashMap<>();
+                       error.put("error", "Ürün bulunamadı");
+                       return ResponseEntity.status(404).body(error);
+                   }
+                   
+                   // Ürün bilgilerini güncelle
+                   if (request.containsKey("name")) {
+                       product.setName((String) request.get("name"));
+                   }
+                   if (request.containsKey("description")) {
+                       product.setDescription((String) request.get("description"));
+                   }
+                   if (request.containsKey("price")) {
+                       Object priceObj = request.get("price");
+                       if (priceObj instanceof Number) {
+                           product.setPrice(java.math.BigDecimal.valueOf(((Number) priceObj).doubleValue()));
+                       }
+                   }
+                   if (request.containsKey("stock")) {
+                       Object stockObj = request.get("stock");
+                       if (stockObj instanceof Number) {
+                           product.setStock(((Number) stockObj).intValue());
+                       }
+                   }
+                   if (request.containsKey("imageUrl1")) {
+                       product.setImageUrl1((String) request.get("imageUrl1"));
+                   }
+                   if (request.containsKey("imageUrl2")) {
+                       product.setImageUrl2((String) request.get("imageUrl2"));
+                   }
+                   if (request.containsKey("imageUrl3")) {
+                       product.setImageUrl3((String) request.get("imageUrl3"));
+                   }
+                   if (request.containsKey("imageUrl4")) {
+                       product.setImageUrl4((String) request.get("imageUrl4"));
+                   }
+                   if (request.containsKey("imageUrl5")) {
+                       product.setImageUrl5((String) request.get("imageUrl5"));
+                   }
+                   
+                   // Kategori güncelleme
+                   if (request.containsKey("categoryId")) {
+                       String categoryId = (String) request.get("categoryId");
+                       if (categoryId != null && !categoryId.equals("default-category")) {
+                           try {
+                               Category category = 
+                                   categoryRepository.findById(categoryId).orElse(null);
+                               if (category != null) {
+                                   product.setCategory(category);
+                               }
+                           } catch (Exception e) {
+                               System.out.println("Category update error: " + e.getMessage());
+                           }
+                       }
+                   }
+                   
+                   Product updatedProduct = productRepository.save(product);
+                   
+                   Map<String, Object> response = new HashMap<>();
+                   response.put("message", "Ürün başarıyla güncellendi");
+                   response.put("productId", id);
+                   response.put("product", updatedProduct);
+                   
+                   System.out.println("Product updated successfully: " + response);
+                   return ResponseEntity.ok(response);
+               } catch (Exception e) {
+                   System.out.println("Error in updateProduct: " + e.getMessage());
+                   e.printStackTrace();
+                   Map<String, Object> error = new HashMap<>();
+                   error.put("error", "Ürün güncellenemedi: " + e.getMessage());
+                   return ResponseEntity.badRequest().body(error);
+               }
+           }
+
+           // Admin için ürün silme (satıcı kontrolü olmadan)
+           @DeleteMapping("/products/{id}")
+           public ResponseEntity<?> deleteProduct(@PathVariable String id) {
+               try {
+                   System.out.println("=== DEBUG: Admin deleteProduct called ===");
+                   System.out.println("Product ID: " + id);
+                   System.out.println("Product ID type: " + id.getClass().getSimpleName());
+                   System.out.println("Product ID length: " + id.length());
+                   
+                   // ID formatını kontrol et
+                   if (id == null || id.trim().isEmpty()) {
+                       System.out.println("ERROR: Product ID is null or empty");
+                       Map<String, Object> error = new HashMap<>();
+                       error.put("error", "Ürün ID'si geçersiz");
+                       return ResponseEntity.badRequest().body(error);
+                   }
+                   
+                   Product product = productRepository.findById(id.trim()).orElse(null);
+                   if (product == null) {
+                       System.out.println("ERROR: Product not found with ID: " + id);
+                       Map<String, Object> error = new HashMap<>();
+                       error.put("error", "Ürün bulunamadı");
+                       return ResponseEntity.status(404).body(error);
+                   }
+                   
+                   System.out.println("Found product: " + product.getName() + " (ID: " + product.getId() + ")");
+                   
+                   // Ürünü silmeden önce ilişkili verileri kontrol et
+                   try {
+                       productRepository.delete(product);
+                       System.out.println("Product deleted successfully from database");
+                   } catch (Exception deleteException) {
+                       System.out.println("Database delete error: " + deleteException.getMessage());
+                       deleteException.printStackTrace();
+                       
+                       // Eğer foreign key constraint hatası varsa
+                       if (deleteException.getMessage().contains("foreign key") || 
+                           deleteException.getMessage().contains("constraint")) {
+                           Map<String, Object> error = new HashMap<>();
+                           error.put("error", "Bu ürün başka kayıtlarda kullanıldığı için silinemiyor");
+                           return ResponseEntity.badRequest().body(error);
+                       }
+                       throw deleteException;
+                   }
+                   
+                   Map<String, Object> response = new HashMap<>();
+                   response.put("message", "Ürün başarıyla silindi");
+                   response.put("productId", id);
+                   
+                   System.out.println("Product deleted successfully: " + response);
+                   return ResponseEntity.ok(response);
+               } catch (Exception e) {
+                   System.out.println("Error in deleteProduct: " + e.getMessage());
+                   System.out.println("Error class: " + e.getClass().getSimpleName());
+                   e.printStackTrace();
+                   Map<String, Object> error = new HashMap<>();
+                   error.put("error", "Ürün silinemedi: " + e.getMessage());
                    return ResponseEntity.badRequest().body(error);
                }
            }
@@ -375,12 +825,25 @@ public class AdminController {
                         .filter(product -> "BEKLEMEDE".equals(product.getStatus()))
                         .count();
                     
+                    // Stok istatistikleri
+                    long lowStockProducts = allProducts.stream()
+                        .filter(product -> (product.getStock() != null && product.getStock() < 10))
+                        .count();
+                    
+                    long totalStock = allProducts.stream()
+                        .mapToLong(product -> product.getStock() != null ? product.getStock() : 0)
+                        .sum();
+                    
                     Map<String, Object> stats = new HashMap<>();
                     stats.put("totalProducts", totalProducts);
                     stats.put("activeProducts", activeProducts);
                     stats.put("pendingProducts", pendingProducts);
+                    stats.put("lowStockProducts", lowStockProducts);
+                    stats.put("totalStock", totalStock);
                     
                     System.out.println("Product stats: " + stats);
+                    System.out.println("Low stock products: " + lowStockProducts);
+                    System.out.println("Total stock: " + totalStock);
                     return ResponseEntity.ok(stats);
                 } catch (Exception e) {
                     System.out.println("Error in getProductStats: " + e.getMessage());
@@ -1318,7 +1781,7 @@ public class AdminController {
             List<User> allSellers = userRepository.findByRoleName("SELLER");
             
             // Durum filtresi
-            if (status != null && !status.trim().isEmpty()) {
+            if (status != null && !status.trim().isEmpty() && !status.equals("all")) {
                 allSellers = allSellers.stream()
                     .filter(seller -> seller.getSellerStatus() != null && 
                             seller.getSellerStatus().name().equals(status))
@@ -1327,12 +1790,33 @@ public class AdminController {
             
             // Arama filtresi
             if (search != null && !search.trim().isEmpty()) {
+                String searchLower = search.toLowerCase();
                 allSellers = allSellers.stream()
-                    .filter(seller -> 
-                        (seller.getFirstName() != null && seller.getFirstName().toLowerCase().contains(search.toLowerCase())) ||
-                        (seller.getLastName() != null && seller.getLastName().toLowerCase().contains(search.toLowerCase())) ||
-                        (seller.getEmail() != null && seller.getEmail().toLowerCase().contains(search.toLowerCase()))
-                    )
+                    .filter(seller -> {
+                        boolean matches = false;
+                        
+                        // Ad, soyad, email kontrolü
+                        if ((seller.getFirstName() != null && seller.getFirstName().toLowerCase().contains(searchLower)) ||
+                            (seller.getLastName() != null && seller.getLastName().toLowerCase().contains(searchLower)) ||
+                            (seller.getEmail() != null && seller.getEmail().toLowerCase().contains(searchLower))) {
+                            matches = true;
+                        }
+                        
+                        // Mağaza adı kontrolü
+                        if (!matches) {
+                            try {
+                                Store sellerStore = storeRepository.findBySeller(seller).orElse(null);
+                                if (sellerStore != null && sellerStore.getName() != null && 
+                                    sellerStore.getName().toLowerCase().contains(searchLower)) {
+                                    matches = true;
+                                }
+                            } catch (Exception e) {
+                                // Store bulunamazsa devam et
+                            }
+                        }
+                        
+                        return matches;
+                    })
                     .collect(Collectors.toList());
             }
             

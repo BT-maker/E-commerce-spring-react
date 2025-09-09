@@ -27,7 +27,6 @@ import toast from 'react-hot-toast';
 
 const AdminSellers = () => {
   const [sellers, setSellers] = useState([]);
-  const [filteredSellers, setFilteredSellers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
@@ -52,13 +51,25 @@ const AdminSellers = () => {
   }, []);
 
   useEffect(() => {
-    filterSellers();
-  }, [sellers, searchQuery, statusFilter]);
+    const timeoutId = setTimeout(() => {
+      fetchSellers();
+    }, 300); // 300ms debounce
+
+    return () => clearTimeout(timeoutId);
+  }, [searchQuery, statusFilter]);
 
   const fetchSellers = async () => {
     try {
       setLoading(true);
-      const response = await api.get("/admin/sellers");
+      const params = new URLSearchParams();
+      if (statusFilter !== "all") {
+        params.append("status", statusFilter);
+      }
+      if (searchQuery.trim()) {
+        params.append("search", searchQuery.trim());
+      }
+      
+      const response = await api.get(`/admin/sellers?${params.toString()}`);
       setSellers(response.data.sellers || []);
     } catch (error) {
       console.error("Satıcılar yüklenirken hata:", error);
@@ -77,24 +88,6 @@ const AdminSellers = () => {
     }
   };
 
-  const filterSellers = () => {
-    let filtered = sellers;
-
-    if (searchQuery) {
-      filtered = filtered.filter(seller =>
-        seller.firstName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        seller.lastName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        seller.email?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        seller.storeName?.toLowerCase().includes(searchQuery.toLowerCase())
-      );
-    }
-
-    if (statusFilter !== "all") {
-      filtered = filtered.filter(seller => seller.status === statusFilter);
-    }
-
-    setFilteredSellers(filtered);
-  };
 
   const formatDate = (dateString) => {
     if (!dateString) return 'Tarih Yok';
@@ -347,7 +340,7 @@ const AdminSellers = () => {
                   <option value="ACTIVE">Aktif</option>
                   <option value="PENDING">Beklemede</option>
                   <option value="REJECTED">Reddedildi</option>
-                  <option value="SUSPENDED">Askıya Alındı</option>
+                  <option value="INACTIVE">Askıya Alındı</option>
                 </select>
               </div>
             </div>
@@ -356,7 +349,7 @@ const AdminSellers = () => {
 
         {/* Sellers Table */}
         <div className="bg-white/80 backdrop-blur-lg rounded-xl border border-gray-200/50 shadow-sm mx-6 overflow-hidden">
-          {filteredSellers.length > 0 ? (
+          {sellers.length > 0 ? (
             <>
               <div className="overflow-x-auto">
                 <table className="w-full">
@@ -383,7 +376,7 @@ const AdminSellers = () => {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-200/50">
-                    {filteredSellers.map((seller) => (
+                    {sellers.map((seller) => (
                       <tr key={seller.id} className="hover:bg-gray-50/50 transition-colors duration-200">
                         <td className="px-6 py-4">
                           <div className="flex items-center space-x-3">

@@ -177,6 +177,50 @@ public class Product {
         return storeId;
     }
     
+    /**
+     * Satıcı adını döner
+     */
+    @JsonProperty("sellerName")
+    public String getSellerName() {
+        if (store != null && store.getSeller() != null) {
+            return store.getSeller().getFirstName() + " " + store.getSeller().getLastName();
+        }
+        return null;
+    }
+    
+    /**
+     * Satıcı email'ini döner
+     */
+    @JsonProperty("sellerEmail")
+    public String getSellerEmail() {
+        if (store != null && store.getSeller() != null) {
+            return store.getSeller().getEmail();
+        }
+        return null;
+    }
+    
+    /**
+     * Satıcı ID'sini döner
+     */
+    @JsonProperty("sellerId")
+    public String getSellerId() {
+        if (store != null && store.getSeller() != null) {
+            return store.getSeller().getId();
+        }
+        return null;
+    }
+    
+    /**
+     * Kategori adını döner
+     */
+    @JsonProperty("categoryName")
+    public String getCategoryName() {
+        if (category != null) {
+            return category.getName();
+        }
+        return null;
+    }
+    
 
     
 
