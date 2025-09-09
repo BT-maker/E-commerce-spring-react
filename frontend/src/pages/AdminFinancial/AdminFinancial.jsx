@@ -4,7 +4,6 @@ import {
   TrendingUp, 
   TrendingDown, 
   PieChart, 
-  BarChart3, 
   Calendar,
   Download,
   Filter,
@@ -13,7 +12,6 @@ import {
   CreditCard,
   Wallet,
   Banknote,
-  Calculator,
   AlertTriangle,
   CheckCircle,
   Clock,
@@ -568,53 +566,6 @@ const AdminFinancial = () => {
           </div>
         </div>
 
-        {/* Quick Actions */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 px-6">
-          <div className="bg-white/80 backdrop-blur-lg rounded-xl border border-gray-200/50 shadow-sm p-6 hover:shadow-md transition-all duration-200">
-            <div className="flex items-center space-x-4 mb-4">
-              <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                <Calculator className="w-6 h-6 text-blue-600" />
-              </div>
-              <div>
-                <h3 className="text-lg font-semibold text-gray-900">Vergi Hesaplayıcı</h3>
-                <p className="text-sm text-gray-600">KDV ve diğer vergi hesaplamaları</p>
-              </div>
-            </div>
-            <button className="w-full bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white py-2 px-4 rounded-lg font-medium transition-all duration-200">
-              Hesapla
-            </button>
-          </div>
-
-          <div className="bg-white/80 backdrop-blur-lg rounded-xl border border-gray-200/50 shadow-sm p-6 hover:shadow-md transition-all duration-200">
-            <div className="flex items-center space-x-4 mb-4">
-              <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
-                <BarChart3 className="w-6 h-6 text-green-600" />
-              </div>
-              <div>
-                <h3 className="text-lg font-semibold text-gray-900">Finansal Rapor</h3>
-                <p className="text-sm text-gray-600">Detaylı finansal analiz raporu</p>
-              </div>
-            </div>
-            <button className="w-full bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white py-2 px-4 rounded-lg font-medium transition-all duration-200">
-              Oluştur
-            </button>
-          </div>
-
-          <div className="bg-white/80 backdrop-blur-lg rounded-xl border border-gray-200/50 shadow-sm p-6 hover:shadow-md transition-all duration-200">
-            <div className="flex items-center space-x-4 mb-4">
-              <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
-                <Wallet className="w-6 h-6 text-purple-600" />
-              </div>
-              <div>
-                <h3 className="text-lg font-semibold text-gray-900">Bütçe Planlama</h3>
-                <p className="text-sm text-gray-600">Gelecek dönem bütçe planlaması</p>
-              </div>
-            </div>
-            <button className="w-full bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 text-white py-2 px-4 rounded-lg font-medium transition-all duration-200">
-              Planla
-            </button>
-          </div>
-        </div>
       </div>
     </div>
   );

@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import com.bahattintok.e_commerce.model.Order;
@@ -26,6 +27,12 @@ public interface OrderRepository extends JpaRepository<Order, String> {
      * Duruma göre siparişleri getirir.
      */
     List<Order> findByStatus(String status);
+    
+    /**
+     * Tüm siparişleri User bilgileri ile birlikte getirir (Admin için).
+     */
+    @Query("SELECT o FROM Order o LEFT JOIN FETCH o.user LEFT JOIN FETCH o.items i LEFT JOIN FETCH i.product")
+    List<Order> findAllWithUserAndItems();
     
     /**
      * Bu repository şu işlevleri sağlar:

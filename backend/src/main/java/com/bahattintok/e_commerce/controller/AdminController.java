@@ -854,13 +854,30 @@ public class AdminController {
                 }
             }
 
-               // Tüm siparişleri getir
+               // Tüm siparişleri getir (müşteri bilgileri ile)
            @GetMapping("/orders")
            public ResponseEntity<List<Order>> getAllOrders() {
                try {
-                   List<Order> orders = orderRepository.findAll();
+                   System.out.println("=== DEBUG: getAllOrders called ===");
+                   
+                   // User bilgileri ile birlikte siparişleri getir
+                   List<Order> orders = orderRepository.findAllWithUserAndItems();
+                   
+                   System.out.println("Total orders found: " + orders.size());
+                   
+                   // Debug için sipariş bilgilerini logla
+                   for (Order order : orders) {
+                       System.out.println("Order: " + order.getId() + 
+                                        " | Customer: " + order.getCustomerName() + 
+                                        " | Email: " + order.getCustomerEmail() +
+                                        " | Amount: " + order.getTotalAmount() +
+                                        " | Status: " + order.getStatus());
+                   }
+                   
                    return ResponseEntity.ok(orders);
                } catch (Exception e) {
+                   System.out.println("Error in getAllOrders: " + e.getMessage());
+                   e.printStackTrace();
                    return ResponseEntity.badRequest().build();
                }
            }
@@ -927,13 +944,19 @@ public class AdminController {
                         .filter(order -> "PENDING".equals(order.getStatus()))
                         .count();
                     long completedOrders = allOrders.stream()
-                        .filter(order -> "COMPLETED".equals(order.getStatus()))
+                        .filter(order -> "DELIVERED".equals(order.getStatus()))
                         .count();
                     
-                    // Toplam gelir hesaplama
+                    // Debug: Tüm sipariş durumlarını logla
+                    System.out.println("All order statuses:");
+                    allOrders.forEach(order -> {
+                        System.out.println("- Order ID: " + order.getId() + ", Status: '" + order.getStatus() + "'");
+                    });
+                    
+                    // Toplam gelir hesaplama (teslim edilen siparişler)
                     double totalRevenue = allOrders.stream()
-                        .filter(order -> "COMPLETED".equals(order.getStatus()))
-                        .mapToDouble(order -> order.getTotalPrice().doubleValue())
+                        .filter(order -> "DELIVERED".equals(order.getStatus()))
+                        .mapToDouble(order -> order.getTotalPrice() != null ? order.getTotalPrice().doubleValue() : 0.0)
                         .sum();
                     
                     Map<String, Object> stats = new HashMap<>();
@@ -941,6 +964,12 @@ public class AdminController {
                     stats.put("pendingOrders", pendingOrders);
                     stats.put("completedOrders", completedOrders);
                     stats.put("totalRevenue", totalRevenue);
+                    
+                    System.out.println("Order stats calculated:");
+                    System.out.println("- Total Orders: " + totalOrders);
+                    System.out.println("- Pending Orders: " + pendingOrders);
+                    System.out.println("- Completed Orders: " + completedOrders);
+                    System.out.println("- Total Revenue: " + totalRevenue);
                     
                     System.out.println("Order stats: " + stats);
                     return ResponseEntity.ok(stats);

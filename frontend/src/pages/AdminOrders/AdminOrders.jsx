@@ -12,6 +12,9 @@ const AdminOrders = () => {
     const [statusFilter, setStatusFilter] = useState("all");
     const [selectedOrder, setSelectedOrder] = useState(null);
     const [showModal, setShowModal] = useState(false);
+    const [showStatusModal, setShowStatusModal] = useState(false);
+    const [orderToUpdate, setOrderToUpdate] = useState(null);
+    const [newStatus, setNewStatus] = useState('');
     const [stats, setStats] = useState({
         totalOrders: 0,
         pendingOrders: 0,
@@ -57,13 +60,26 @@ const AdminOrders = () => {
 
     const fetchOrderStats = async () => {
         try {
+            console.log("Fetching order stats...");
             const response = await fetch('http://localhost:8082/api/admin/orders/stats', {
                 credentials: 'include'
             });
 
             if (response.ok) {
                 const data = await response.json();
+                console.log("Order stats received:", data);
+                
+                // Debug: Mevcut siparişlerin durumlarını logla
+                console.log("Current orders and their statuses:");
+                orders.forEach(order => {
+                    console.log(`- Order ID: ${order.id}, Status: '${order.status}'`);
+                });
+                
                 setStats(data);
+            } else {
+                console.error("Order stats response not ok:", response.status);
+                const errorText = await response.text();
+                console.error("Order stats error response:", errorText);
             }
         } catch (error) {
             console.error("Order stats fetch error:", error);
@@ -172,6 +188,53 @@ const AdminOrders = () => {
     const closeModal = () => {
         setShowModal(false);
         setSelectedOrder(null);
+    };
+
+    const openStatusModal = (orderId) => {
+        const order = orders.find(o => o.id === orderId);
+        if (!order) {
+            toast.error('Sipariş bulunamadı');
+            return;
+        }
+        
+        setOrderToUpdate(order);
+        setNewStatus(order.status);
+        setShowStatusModal(true);
+    };
+
+    const closeStatusModal = () => {
+        setShowStatusModal(false);
+        setOrderToUpdate(null);
+        setNewStatus('');
+    };
+
+    const handleStatusUpdate = async () => {
+        if (!orderToUpdate || !newStatus || newStatus === orderToUpdate.status) {
+            return;
+        }
+
+        try {
+            const response = await fetch(`http://localhost:8082/api/admin/orders/${orderToUpdate.id}/status?status=${newStatus}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                credentials: 'include'
+            });
+
+            if (response.ok) {
+                toast.success('Sipariş durumu başarıyla güncellendi!');
+                fetchOrders(); // Sipariş listesini yenile
+                fetchOrderStats(); // İstatistikleri yenile
+                closeStatusModal();
+            } else {
+                const errorData = await response.json();
+                toast.error(`Durum güncellenemedi: ${errorData.message || 'Bilinmeyen hata'}`);
+            }
+        } catch (error) {
+            console.error('Status update error:', error);
+            toast.error('Durum güncellenirken bir hata oluştu!');
+        }
     };
 
     // StatCard component
@@ -399,6 +462,7 @@ const AdminOrders = () => {
                                                             <Eye className="w-4 h-4" />
                                                         </button>
                                                         <button
+                                                            onClick={() => openStatusModal(order.id)}
                                                             className="p-2 text-orange-600 hover:bg-orange-100 rounded-lg transition-colors duration-200"
                                                             title="Durum Güncelle"
                                                         >
@@ -508,8 +572,108 @@ const AdminOrders = () => {
                             >
                                 Kapat
                             </button>
-                            <button className="px-6 py-2 bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white rounded-lg transition-all duration-200">
+                            <button 
+                                onClick={() => openStatusModal(selectedOrder.id)}
+                                className="px-6 py-2 bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white rounded-lg transition-all duration-200"
+                            >
                                 Durum Güncelle
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Status Update Modal */}
+            {showStatusModal && orderToUpdate && (
+                <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+                    <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full">
+                        <div className="p-6 border-b border-gray-200">
+                            <div className="flex items-center justify-between">
+                                <h2 className="text-xl font-bold text-gray-900">Sipariş Durumu Güncelle</h2>
+                                <button
+                                    onClick={closeStatusModal}
+                                    className="p-2 hover:bg-gray-100 rounded-lg transition-colors duration-200"
+                                >
+                                    <XCircle className="w-6 h-6 text-gray-500" />
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div className="p-6 space-y-6">
+                            {/* Order Info */}
+                            <div className="bg-gray-50 p-4 rounded-lg">
+                                <div className="flex items-center space-x-3">
+                                    <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center">
+                                        <span className="text-white font-semibold text-sm">
+                                            {(orderToUpdate.customerName || 'M').charAt(0).toUpperCase()}
+                                        </span>
+                                    </div>
+                                    <div>
+                                        <p className="text-sm font-semibold text-gray-900">
+                                            Sipariş #{orderToUpdate.id}
+                                        </p>
+                                        <p className="text-xs text-gray-500">
+                                            {orderToUpdate.customerName || 'Müşteri Yok'}
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Current Status */}
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">Mevcut Durum</label>
+                                <div className="flex items-center space-x-2">
+                                    <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${getStatusBadge(orderToUpdate.status)}`}>
+                                        {getStatusIcon(orderToUpdate.status)}
+                                        <span className="ml-1">{getStatusText(orderToUpdate.status)}</span>
+                                    </span>
+                                </div>
+                            </div>
+
+                            {/* New Status Selection */}
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">Yeni Durum</label>
+                                <select
+                                    value={newStatus}
+                                    onChange={(e) => setNewStatus(e.target.value)}
+                                    className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                                >
+                                    <option value="PENDING">Beklemede</option>
+                                    <option value="CONFIRMED">Onaylandı</option>
+                                    <option value="SHIPPED">Kargoya Verildi</option>
+                                    <option value="DELIVERED">Teslim Edildi</option>
+                                    <option value="CANCELLED">İptal Edildi</option>
+                                    <option value="REFUNDED">İade Edildi</option>
+                                </select>
+                            </div>
+
+                            {/* Status Preview */}
+                            {newStatus && newStatus !== orderToUpdate.status && (
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-2">Önizleme</label>
+                                    <div className="flex items-center space-x-2">
+                                        <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${getStatusBadge(newStatus)}`}>
+                                            {getStatusIcon(newStatus)}
+                                            <span className="ml-1">{getStatusText(newStatus)}</span>
+                                        </span>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+
+                        <div className="p-6 border-t border-gray-200 flex justify-end space-x-3">
+                            <button
+                                onClick={closeStatusModal}
+                                className="px-6 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors duration-200"
+                            >
+                                İptal
+                            </button>
+                            <button
+                                onClick={handleStatusUpdate}
+                                disabled={!newStatus || newStatus === orderToUpdate.status}
+                                className="px-6 py-2 bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 disabled:from-gray-400 disabled:to-gray-500 disabled:cursor-not-allowed text-white rounded-lg transition-all duration-200"
+                            >
+                                Güncelle
                             </button>
                         </div>
                     </div>

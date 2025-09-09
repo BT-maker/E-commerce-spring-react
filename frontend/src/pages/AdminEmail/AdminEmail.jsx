@@ -417,18 +417,20 @@ const AdminEmail = () => {
                     </div>
                   )}
 
-                  {/* Content Field */}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">İçerik</label>
-                    <textarea
-                      name="content"
-                      value={formData.content}
-                      onChange={handleInputChange}
-                      rows={6}
-                      className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                      placeholder="Email içeriği..."
-                    />
-                  </div>
+                  {/* Content Field - Only for Test Email */}
+                  {emailType === 'test' && (
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">İçerik</label>
+                      <textarea
+                        name="content"
+                        value={formData.content}
+                        onChange={handleInputChange}
+                        rows={6}
+                        className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                        placeholder="Email içeriği..."
+                      />
+                    </div>
+                  )}
 
                   {/* Send Button */}
                   <div className="flex justify-end">

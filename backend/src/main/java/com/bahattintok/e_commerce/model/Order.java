@@ -145,6 +145,50 @@ public class Order {
     }
     
     /**
+     * Müşteri adını döner
+     */
+    public String getCustomerName() {
+        if (user != null) {
+            return user.getFirstName() + " " + user.getLastName();
+        }
+        return null;
+    }
+    
+    /**
+     * Müşteri email'ini döner
+     */
+    public String getCustomerEmail() {
+        if (user != null) {
+            return user.getEmail();
+        }
+        return null;
+    }
+    
+    /**
+     * Sipariş tarihini döner (orderDate olarak)
+     */
+    public LocalDateTime getOrderDate() {
+        return createdAt;
+    }
+    
+    /**
+     * Toplam tutarı döner (totalAmount olarak)
+     */
+    public BigDecimal getTotalAmount() {
+        return totalPrice;
+    }
+    
+    /**
+     * Ürün sayısını döner
+     */
+    public Integer getItemCount() {
+        if (items != null) {
+            return items.stream().mapToInt(OrderItem::getQuantity).sum();
+        }
+        return 0;
+    }
+    
+    /**
      * Bu entity şu işlevleri sağlar:
      * 
      * 1. Sipariş Yönetimi: Kullanıcı siparişlerinin saklanması
