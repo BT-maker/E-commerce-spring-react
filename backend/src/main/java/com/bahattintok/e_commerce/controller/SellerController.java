@@ -645,9 +645,33 @@ public class SellerController {
         } catch (Exception e) {
             System.err.println("Error in getSellerStats: " + e.getMessage());
             e.printStackTrace();
-            Map<String, Object> error = new HashMap<>();
-            error.put("error", "Failed to get seller statistics: " + e.getMessage());
-            return ResponseEntity.badRequest().body(error);
+            
+            // Veri yoksa varsayılan değerlerle stats döndür
+            Map<String, Object> stats = new HashMap<>();
+            stats.put("totalProducts", 0);
+            stats.put("totalSales", 0);
+            stats.put("totalCustomers", 0);
+            stats.put("totalRevenue", 0.0);
+            stats.put("totalOrders", 0);
+            stats.put("averageRating", 0.0);
+            stats.put("averageOrderValue", 0.0);
+            
+            // Varsayılan chart data
+            stats.put("salesData", new ArrayList<>());
+            stats.put("revenueData", new ArrayList<>());
+            stats.put("categoryData", new ArrayList<>());
+            
+            // Varsayılan top performers
+            stats.put("topProduct", new HashMap<>());
+            stats.put("topCategory", new HashMap<>());
+            
+            // Hata bilgisi ekle
+            stats.put("error", "İstatistik verileri alınamadı, varsayılan değerler gösteriliyor");
+            stats.put("timestamp", java.time.LocalDateTime.now().toString());
+            
+            System.out.println("Seller Stats - Varsayılan değerlerle döndürülüyor");
+            
+            return ResponseEntity.ok(stats);
         }
     }
 
@@ -874,7 +898,9 @@ public class SellerController {
             List<Order> allOrders = orderRepository.findAll();
             List<Order> sellerOrders = allOrders.stream()
                 .filter(order -> order.getItems().stream()
-                    .anyMatch(item -> item.getProduct().getStore().getId().equals(sellerStore.getId())))
+                    .anyMatch(item -> item.getProduct() != null && 
+                                     item.getProduct().getStore() != null && 
+                                     item.getProduct().getStore().getId().equals(sellerStore.getId())))
                 .collect(java.util.stream.Collectors.toList());
             
             List<Order> recentOrders = sellerOrders.stream()
@@ -889,7 +915,9 @@ public class SellerController {
             );
             List<Order> todayOrders = allTodayOrders.stream()
                 .filter(order -> order.getItems().stream()
-                    .anyMatch(item -> item.getProduct().getStore().getId().equals(sellerStore.getId())))
+                    .anyMatch(item -> item.getProduct() != null && 
+                                     item.getProduct().getStore() != null && 
+                                     item.getProduct().getStore().getId().equals(sellerStore.getId())))
                 .collect(java.util.stream.Collectors.toList());
             
             // Get this week's sales for this seller's store
@@ -899,13 +927,17 @@ public class SellerController {
             );
             List<Order> weekOrders = allWeekOrders.stream()
                 .filter(order -> order.getItems().stream()
-                    .anyMatch(item -> item.getProduct().getStore().getId().equals(sellerStore.getId())))
+                    .anyMatch(item -> item.getProduct() != null && 
+                                     item.getProduct().getStore() != null && 
+                                     item.getProduct().getStore().getId().equals(sellerStore.getId())))
                 .collect(java.util.stream.Collectors.toList());
             
             // Calculate today's revenue for this seller's products only
             double todayRevenue = todayOrders.stream()
                 .mapToDouble(order -> order.getItems().stream()
-                    .filter(item -> item.getProduct().getStore().getId().equals(sellerStore.getId()))
+                    .filter(item -> item.getProduct() != null && 
+                                   item.getProduct().getStore() != null && 
+                                   item.getProduct().getStore().getId().equals(sellerStore.getId()))
                     .mapToDouble(item -> item.getPrice().doubleValue() * item.getQuantity())
                     .sum())
                 .sum();
@@ -913,7 +945,9 @@ public class SellerController {
             // Calculate this week's revenue for this seller's products only
             double weekRevenue = weekOrders.stream()
                 .mapToDouble(order -> order.getItems().stream()
-                    .filter(item -> item.getProduct().getStore().getId().equals(sellerStore.getId()))
+                    .filter(item -> item.getProduct() != null && 
+                                   item.getProduct().getStore() != null && 
+                                   item.getProduct().getStore().getId().equals(sellerStore.getId()))
                     .mapToDouble(item -> item.getPrice().doubleValue() * item.getQuantity())
                     .sum())
                 .sum();
@@ -946,7 +980,9 @@ public class SellerController {
                 .map(order -> {
                     // Sadece seller'ın ürünlerini filtrele
                     List<OrderItem> sellerItems = order.getItems().stream()
-                        .filter(item -> item.getProduct().getStore().getId().equals(sellerStore.getId()))
+                        .filter(item -> item.getProduct() != null && 
+                                       item.getProduct().getStore() != null && 
+                                       item.getProduct().getStore().getId().equals(sellerStore.getId()))
                         .collect(java.util.stream.Collectors.toList());
                     
                     // Seller'ın ürünlerinin toplam tutarını hesapla
@@ -1012,18 +1048,42 @@ public class SellerController {
             System.err.println("Error in getWelcomeDashboard: " + e.getMessage());
             e.printStackTrace();
             
-            // Daha detaylı hata mesajı
-            String errorMessage = "Failed to get welcome dashboard data: " + e.getMessage();
-            if (e.getCause() != null) {
-                errorMessage += " (Cause: " + e.getCause().getMessage() + ")";
-            }
+            // Veri yoksa varsayılan değerlerle dashboard döndür
+            Map<String, Object> dashboardData = new HashMap<>();
             
-            Map<String, Object> error = new HashMap<>();
-            error.put("error", errorMessage);
-            error.put("timestamp", java.time.LocalDateTime.now().toString());
-            error.put("details", e.getClass().getSimpleName());
+            // Varsayılan istatistikler
+            dashboardData.put("totalProducts", 0);
+            dashboardData.put("totalOrders", 0);
+            dashboardData.put("totalRevenue", 0.0);
+            dashboardData.put("todayOrders", 0);
+            dashboardData.put("todayRevenue", 0.0);
+            dashboardData.put("weekOrders", 0);
+            dashboardData.put("weekRevenue", 0.0);
+            dashboardData.put("lowStockCount", 0);
+            dashboardData.put("averageRating", 0.0);
+            dashboardData.put("totalReviews", 0);
             
-            return ResponseEntity.status(500).body(error);
+            // Varsayılan listeler
+            dashboardData.put("lowStockProducts", new ArrayList<>());
+            dashboardData.put("recentOrders", new ArrayList<>());
+            dashboardData.put("recentReviews", new ArrayList<>());
+            
+            // Quick actions
+            List<Map<String, Object>> quickActions = Arrays.asList(
+                Map.of("title", "Yeni Ürün Ekle", "icon", "add", "link", "/seller-panel/products", "color", "blue"),
+                Map.of("title", "Siparişleri Görüntüle", "icon", "orders", "link", "/seller-panel/orders", "color", "green"),
+                Map.of("title", "Stok Yönetimi", "icon", "inventory", "link", "/seller-panel/inventory", "color", "orange"),
+                Map.of("title", "Müşteri Yorumları", "icon", "reviews", "link", "/seller-panel/reviews", "color", "purple")
+            );
+            dashboardData.put("quickActions", quickActions);
+            
+            // Hata bilgisi ekle
+            dashboardData.put("error", "Dashboard verileri alınamadı, varsayılan değerler gösteriliyor");
+            dashboardData.put("timestamp", java.time.LocalDateTime.now().toString());
+            
+            System.out.println("Welcome Dashboard - Varsayılan değerlerle döndürülüyor");
+            
+            return ResponseEntity.ok(dashboardData);
         }
     }
 

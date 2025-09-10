@@ -2003,10 +2003,10 @@ public class AdminController {
     }
 
     // Satıcı onaylama
-    @PostMapping("/sellers/{sellerId}/approve")
+    @PutMapping("/sellers/{sellerId}/approve")
     public ResponseEntity<Map<String, Object>> approveSeller(
             @PathVariable String sellerId,
-            @RequestBody Map<String, Object> request) {
+            @RequestBody(required = false) Map<String, Object> request) {
         try {
             System.out.println("=== DEBUG: approveSeller called ===");
             System.out.println("Seller ID: " + sellerId);
@@ -2041,7 +2041,7 @@ public class AdminController {
     }
 
     // Satıcı reddetme
-    @PostMapping("/sellers/{sellerId}/reject")
+    @PutMapping("/sellers/{sellerId}/reject")
     public ResponseEntity<Map<String, Object>> rejectSeller(
             @PathVariable String sellerId,
             @RequestBody Map<String, Object> request) {

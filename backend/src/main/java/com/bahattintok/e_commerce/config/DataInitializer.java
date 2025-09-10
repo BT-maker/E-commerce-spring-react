@@ -192,6 +192,20 @@ public class DataInitializer implements CommandLineRunner {
         kitap.setPriority(1); // En düşük öncelik
         categoryRepository.save(kitap);
 
+        Category anneCocuk = new Category();
+        anneCocuk.setName("Anne & Çocuk");
+        anneCocuk.setDescription("Anne ve çocuk ürünleri");
+        anneCocuk.setImageUrl("https://via.placeholder.com/300x200?text=Anne+Çocuk");
+        anneCocuk.setPriority(6); // Yüksek öncelik
+        categoryRepository.save(anneCocuk);
+
+        Category kozmetik = new Category();
+        kozmetik.setName("Kozmetik");
+        kozmetik.setDescription("Kozmetik ve kişisel bakım ürünleri");
+        kozmetik.setImageUrl("https://via.placeholder.com/300x200?text=Kozmetik");
+        kozmetik.setPriority(7); // En yüksek öncelik
+        categoryRepository.save(kozmetik);
+
         // Test kullanıcısı ekle (şifre: password)
         User testUser = new User();
         testUser.setFirstName("Test");
@@ -533,7 +547,7 @@ public class DataInitializer implements CommandLineRunner {
         product.setImageUrl4("https://picsum.photos/300/300?random=" + (name.hashCode() + 4));
         product.setImageUrl5("https://picsum.photos/300/300?random=" + (name.hashCode() + 5));
         
-        product.setStatus("ACTIVE");
+        product.setStatus("AKTİF");
         return product;
     }
 

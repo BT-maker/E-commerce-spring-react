@@ -56,13 +56,25 @@ public class AuthServiceImpl implements AuthService {
         
         // Kullanıcı tipine göre rol belirleme
         RoleEntity role;
+        
+        // DEBUG: UserType değerini kontrol et
+        System.out.println("=== DEBUG: USER TYPE ===");
+        System.out.println("UserType: '" + request.getUserType() + "'");
+        System.out.println("UserType length: " + (request.getUserType() != null ? request.getUserType().length() : "null"));
+        System.out.println("UserType equals 'SELLER': " + "SELLER".equals(request.getUserType()));
+        System.out.println("=== DEBUG END ===");
+        
         try {
-            if ("seller".equals(request.getUserType())) {
+            if ("SELLER".equals(request.getUserType())) {
+                System.out.println("SELLER role atanıyor...");
                 role = roleRepository.findByName("SELLER")
                         .orElseThrow(() -> new RuntimeException("SELLER role not found"));
+                System.out.println("SELLER role bulundu: " + role.getName() + " (ID: " + role.getId() + ")");
             } else {
+                System.out.println("USER role atanıyor...");
                 role = roleRepository.findByName("USER")
                         .orElseThrow(() -> new RuntimeException("USER role not found"));
+                System.out.println("USER role bulundu: " + role.getName() + " (ID: " + role.getId() + ")");
             }
         } catch (Exception e) {
             System.err.println("Rol bulunamadı: " + e.getMessage());
@@ -98,7 +110,7 @@ public class AuthServiceImpl implements AuthService {
         user.setRole(role);
         
         // Eğer seller ise onay durumunu PENDING yap
-        if ("seller".equals(request.getUserType())) {
+        if ("SELLER".equals(request.getUserType())) {
             user.setSellerStatus(com.bahattintok.e_commerce.model.enums.SellerStatus.PENDING);
             user.setSellerApplicationDate(java.time.LocalDateTime.now());
         }
@@ -106,7 +118,11 @@ public class AuthServiceImpl implements AuthService {
         User savedUser = userRepository.save(user);
         
         // Eğer seller ise mağaza oluştur
-        if ("seller".equals(request.getUserType())) {
+        if ("SELLER".equals(request.getUserType())) {
+            System.out.println("=== DEBUG: STORE CREATION ===");
+            System.out.println("Store Name: " + request.getStoreName());
+            System.out.println("Seller ID: " + savedUser.getId());
+            
             if (request.getStoreName() == null || request.getStoreName().trim().isEmpty()) {
                 throw new RuntimeException("Store name is required for sellers");
             }
@@ -119,7 +135,9 @@ public class AuthServiceImpl implements AuthService {
             Store store = new Store();
             store.setName(request.getStoreName());
             store.setSeller(savedUser);
-            storeRepository.save(store);
+            Store savedStore = storeRepository.save(store);
+            System.out.println("Store created successfully: " + savedStore.getId());
+            System.out.println("=== DEBUG: STORE CREATION END ===");
         }
         
         UserDetails userDetails = customUserDetailsService.loadUserByUsername(savedUser.getEmail());
