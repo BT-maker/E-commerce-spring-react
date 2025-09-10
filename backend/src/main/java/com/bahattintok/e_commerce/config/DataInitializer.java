@@ -1,6 +1,8 @@
 package com.bahattintok.e_commerce.config;
 
 import java.math.BigDecimal;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
@@ -97,6 +99,27 @@ public class DataInitializer implements CommandLineRunner {
 
     @Autowired(required = false)
     private ElasticsearchService elasticsearchService;
+    
+    /**
+     * SHA-256 hashleme fonksiyonu
+     */
+    private String hashPassword(String password) {
+        try {
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            byte[] hash = digest.digest(password.getBytes());
+            StringBuilder hexString = new StringBuilder();
+            for (byte b : hash) {
+                String hex = Integer.toHexString(0xff & b);
+                if (hex.length() == 1) {
+                    hexString.append('0');
+                }
+                hexString.append(hex);
+            }
+            return hexString.toString();
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException("SHA-256 algorithm not found", e);
+        }
+    }
 
     @Override
     public void run(String... args) throws Exception {
@@ -108,21 +131,30 @@ public class DataInitializer implements CommandLineRunner {
 
         log.info("Test verileri ekleniyor...");
 
-        // Rolleri ekle
-        RoleEntity userRole = new RoleEntity();
-        userRole.setName("USER");
-        userRole.setSeller(false);
-        roleRepository.save(userRole);
+        // Rolleri ekle (eğer yoksa)
+        RoleEntity userRole = roleRepository.findByName("USER")
+            .orElseGet(() -> {
+                RoleEntity role = new RoleEntity();
+                role.setName("USER");
+                role.setSeller(false);
+                return roleRepository.save(role);
+            });
 
-        RoleEntity adminRole = new RoleEntity();
-        adminRole.setName("ADMIN");
-        adminRole.setSeller(false);
-        roleRepository.save(adminRole);
+        RoleEntity adminRole = roleRepository.findByName("ADMIN")
+            .orElseGet(() -> {
+                RoleEntity role = new RoleEntity();
+                role.setName("ADMIN");
+                role.setSeller(false);
+                return roleRepository.save(role);
+            });
 
-        RoleEntity sellerRole = new RoleEntity();
-        sellerRole.setName("SELLER");
-        sellerRole.setSeller(true);
-        roleRepository.save(sellerRole);
+        RoleEntity sellerRole = roleRepository.findByName("SELLER")
+            .orElseGet(() -> {
+                RoleEntity role = new RoleEntity();
+                role.setName("SELLER");
+                role.setSeller(true);
+                return roleRepository.save(role);
+            });
 
         // Kategorileri ekle
         Category elektronik = new Category();
@@ -168,8 +200,10 @@ public class DataInitializer implements CommandLineRunner {
         testUser.setPhone("5551234567");
         testUser.setAddress1("Test Mahallesi, Test Sokak No:1, İstanbul");
         
-        // "password" şifresini direkt BCrypt ile hash'le
-        String encodedPassword = new org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder().encode("password");
+        // "password" şifresini SHA-256 ile hash'le, sonra BCrypt ile hash'le (yeni sistem)
+        String plainPassword = "password";
+        String sha256Hash = hashPassword(plainPassword);
+        String encodedPassword = new org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder().encode(sha256Hash);
         testUser.setPassword(encodedPassword);
         
         testUser.setRole(userRole);
@@ -184,8 +218,9 @@ public class DataInitializer implements CommandLineRunner {
         testSeller.setPhone("5559876543");
         testSeller.setAddress1("Satıcı Mahallesi, Satıcı Sokak No:5, Ankara");
         
-        // "password" şifresini direkt BCrypt ile hash'le
-        String encodedSellerPassword = new org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder().encode("password");
+        // "password" şifresini SHA-256 ile hash'le, sonra BCrypt ile hash'le (yeni sistem)
+        String sellerSha256Hash = hashPassword(plainPassword);
+        String encodedSellerPassword = new org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder().encode(sellerSha256Hash);
         testSeller.setPassword(encodedSellerPassword);
         
         testSeller.setRole(sellerRole);
@@ -201,8 +236,9 @@ public class DataInitializer implements CommandLineRunner {
         testAdmin.setPhone("5551112233");
         testAdmin.setAddress1("Admin Mahallesi, Admin Sokak No:10, İzmir");
         
-        // "password" şifresini direkt BCrypt ile hash'le
-        String encodedAdminPassword = new org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder().encode("password");
+        // "password" şifresini SHA-256 ile hash'le, sonra BCrypt ile hash'le (yeni sistem)
+        String adminSha256Hash = hashPassword(plainPassword);
+        String encodedAdminPassword = new org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder().encode(adminSha256Hash);
         testAdmin.setPassword(encodedAdminPassword);
         
         testAdmin.setRole(adminRole);

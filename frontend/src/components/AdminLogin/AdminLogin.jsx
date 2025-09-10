@@ -2,6 +2,7 @@ import React, { useState, useContext, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../../context/AuthContext";
 import { Shield, Eye, EyeOff, AlertCircle } from "lucide-react";
+import { hashPassword } from '../../utils/passwordUtils';
 
 import toast from 'react-hot-toast';
 import PageTitle from '../PageTitle/PageTitle';
@@ -41,10 +42,13 @@ const AdminLogin = () => {
 
     setLoading(true);
     try {
-      // Backend plain password bekliyor, hash'leme yapmıyoruz
+      // Şifreyi SHA-256 ile hash'le
+      const hashedPassword = await hashPassword(form.password);
+      console.log('Admin şifre hash\'lendi, uzunluk:', hashedPassword.length);
+      
       const requestBody = {
         email: form.email,
-        password: form.password
+        password: hashedPassword // Hash'lenmiş şifreyi gönder
       };
 
       const res = await fetch("http://localhost:8082/api/auth/admin/signin", {

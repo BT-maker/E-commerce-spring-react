@@ -21,7 +21,6 @@ import com.bahattintok.e_commerce.repository.UserRepository;
 import com.bahattintok.e_commerce.security.CustomUserDetailsService;
 import com.bahattintok.e_commerce.security.JwtUtil;
 import com.bahattintok.e_commerce.service.AuthService;
-import com.bahattintok.e_commerce.util.PasswordUtil;
 
 import lombok.RequiredArgsConstructor;
 
@@ -91,9 +90,9 @@ public class AuthServiceImpl implements AuthService {
         user.setAddress1(request.getAddress1());
         user.setAddress2(request.getAddress2());
         
-        // Frontend'den gelen hash'lenmiş şifreyi BCrypt ile tekrar hash'le
+        // Frontend'den gelen SHA-256 hash'lenmiş şifreyi BCrypt ile tekrar hash'le
         String hashedPassword = request.getPassword(); // Frontend'den gelen SHA-256 hash
-        String encodedPassword = PasswordUtil.encodeHashedPassword(hashedPassword);
+        String encodedPassword = passwordEncoder.encode(hashedPassword);
         user.setPassword(encodedPassword);
         
         user.setRole(role);
@@ -143,13 +142,14 @@ public class AuthServiceImpl implements AuthService {
      */
     @Override
     public AuthResponse signIn(SignInRequest request) {
-        // Frontend'den gelen plain text şifreyi al
-        String plainPassword = request.getPassword();
+        // Frontend'den gelen SHA-256 hash'lenmiş şifreyi al
+        String hashedPassword = request.getPassword();
         
         // DEBUG: Password'ü logla
         System.out.println("=== DEBUG: SIGNIN ===");
         System.out.println("Email: " + request.getEmail());
-        System.out.println("Frontend'den gelen plain text şifre: " + plainPassword);
+        System.out.println("Frontend'den gelen SHA-256 hash: " + hashedPassword.substring(0, Math.min(10, hashedPassword.length())) + "...");
+        System.out.println("Hash uzunluğu: " + hashedPassword.length());
         
         // Kullanıcıyı email ile bul
         User user = userRepository.findByEmail(request.getEmail())
@@ -158,8 +158,8 @@ public class AuthServiceImpl implements AuthService {
         System.out.println("Veritabanındaki BCrypt hash: " + user.getPassword());
         System.out.println("User role: " + (user.getRole() != null ? user.getRole().getName() : "null"));
         
-        // Frontend'den gelen plain text şifreyi veritabanındaki BCrypt hash ile karşılaştır
-        boolean passwordMatches = passwordEncoder.matches(plainPassword, user.getPassword());
+        // Frontend'den gelen SHA-256 hash'ini veritabanındaki BCrypt hash ile karşılaştır
+        boolean passwordMatches = passwordEncoder.matches(hashedPassword, user.getPassword());
         System.out.println("Şifre eşleşiyor mu: " + passwordMatches);
         
         if (!passwordMatches) {
@@ -188,13 +188,14 @@ public class AuthServiceImpl implements AuthService {
      */
     @Override
     public AuthResponse adminSignIn(SignInRequest request) {
-        // Frontend'den gelen plain password'ü kullan
-        String plainPassword = request.getPassword();
+        // Frontend'den gelen SHA-256 hash'lenmiş şifreyi al
+        String hashedPassword = request.getPassword();
         
         // DEBUG: Password'ü logla
         System.out.println("=== DEBUG: ADMIN SIGNIN ===");
         System.out.println("Email: " + request.getEmail());
-        System.out.println("Frontend'den gelen password: " + plainPassword);
+        System.out.println("Frontend'den gelen SHA-256 hash: " + hashedPassword.substring(0, Math.min(10, hashedPassword.length())) + "...");
+        System.out.println("Hash uzunluğu: " + hashedPassword.length());
         
         // Kullanıcıyı email ile bul
         User user = userRepository.findByEmail(request.getEmail())
@@ -209,8 +210,8 @@ public class AuthServiceImpl implements AuthService {
             throw new RuntimeException("Access denied. Admin privileges required.");
         }
         
-        // Frontend'den gelen plain text şifreyi veritabanındaki BCrypt hash ile karşılaştır
-        boolean passwordMatches = passwordEncoder.matches(plainPassword, user.getPassword());
+        // Frontend'den gelen SHA-256 hash'ini veritabanındaki BCrypt hash ile karşılaştır
+        boolean passwordMatches = passwordEncoder.matches(hashedPassword, user.getPassword());
         System.out.println("Şifre eşleşiyor mu: " + passwordMatches);
         
         if (!passwordMatches) {
@@ -236,13 +237,14 @@ public class AuthServiceImpl implements AuthService {
      */
     @Override
     public AuthResponse sellerSignIn(SignInRequest request) {
-        // Frontend'den gelen plain password'ü kullan
-        String plainPassword = request.getPassword();
+        // Frontend'den gelen SHA-256 hash'lenmiş şifreyi al
+        String hashedPassword = request.getPassword();
         
         // DEBUG: Password'ü logla
         System.out.println("=== DEBUG: SELLER SIGNIN ===");
         System.out.println("Email: " + request.getEmail());
-        System.out.println("Frontend'den gelen password: " + plainPassword);
+        System.out.println("Frontend'den gelen SHA-256 hash: " + hashedPassword.substring(0, Math.min(10, hashedPassword.length())) + "...");
+        System.out.println("Hash uzunluğu: " + hashedPassword.length());
         
         // Kullanıcıyı email ile bul
         User user = userRepository.findByEmail(request.getEmail())
@@ -265,8 +267,8 @@ public class AuthServiceImpl implements AuthService {
             throw new RuntimeException("Your seller account is pending approval or has been rejected. Please contact admin.");
         }
         
-        // Frontend'den gelen plain text şifreyi veritabanındaki BCrypt hash ile karşılaştır
-        boolean passwordMatches = passwordEncoder.matches(plainPassword, user.getPassword());
+        // Frontend'den gelen SHA-256 hash'ini veritabanındaki BCrypt hash ile karşılaştır
+        boolean passwordMatches = passwordEncoder.matches(hashedPassword, user.getPassword());
         System.out.println("Şifre eşleşiyor mu: " + passwordMatches);
         
         if (!passwordMatches) {

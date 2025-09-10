@@ -346,8 +346,9 @@ public class AuthController {
                 return ResponseEntity.badRequest().body(errorResponse);
             }
 
-            // Şifreyi güncelle - Frontend'den gelen SHA-256 hash'ini BCrypt'e çevir
-            String hashedPassword = passwordEncoder.encode(newPassword);
+            // Şifreyi güncelle - Frontend'den gelen SHA-256 hash'ini BCrypt ile tekrar hash'le
+            System.out.println("Frontend'den gelen SHA-256 hash uzunluğu: " + newPassword.length());
+            String hashedPassword = passwordEncoder.encode(newPassword); // SHA-256 hash'ini BCrypt ile hash'le
             user.setPassword(hashedPassword);
             userRepository.save(user);
 

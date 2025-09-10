@@ -3,6 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { FaStore, FaEye, FaEyeSlash, FaLock, FaEnvelope, FaChartLine, FaRocket, FaMoneyBillWave } from 'react-icons/fa';
 import api from '../../services/api';
+import { hashPassword } from '../../utils/passwordUtils';
 
 const SellerLogin = () => {
     const [form, setForm] = useState({
@@ -26,15 +27,7 @@ const SellerLogin = () => {
         setShowPassword(!showPassword);
     };
 
-    // SHA-256 hash fonksiyonu
-    const hashPassword = async (password) => {
-        const encoder = new TextEncoder();
-        const data = encoder.encode(password);
-        const hashBuffer = await crypto.subtle.digest('SHA-256', data);
-        const hashArray = Array.from(new Uint8Array(hashBuffer));
-        const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-        return hashHex;
-    };
+    // SHA-256 hash fonksiyonu artık passwordUtils'den import ediliyor
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -44,9 +37,13 @@ const SellerLogin = () => {
         try {
             console.log('Seller login denemesi:', form.email);
             
+            // Şifreyi SHA-256 ile hash'le
+            const hashedPassword = await hashPassword(form.password);
+            console.log('Şifre hash\'lendi, uzunluk:', hashedPassword.length);
+            
             const response = await api.post('/auth/seller/signin', {
                 email: form.email,
-                password: form.password
+                password: hashedPassword // Hash'lenmiş şifreyi gönder
             });
 
             console.log('Login response data:', response.data);

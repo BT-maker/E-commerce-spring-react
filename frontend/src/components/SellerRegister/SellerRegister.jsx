@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { FaStore, FaEye, FaEyeSlash, FaLock, FaEnvelope, FaUser, FaBuilding, FaRocket, FaChartLine, FaShieldAlt } from 'react-icons/fa';
+import { hashPassword } from '../../utils/passwordUtils';
 
 const SellerRegister = () => {
     const [form, setForm] = useState({
@@ -32,15 +33,7 @@ const SellerRegister = () => {
         }
     };
 
-    // SHA-256 hash fonksiyonu
-    const hashPassword = async (password) => {
-        const encoder = new TextEncoder();
-        const data = encoder.encode(password);
-        const hashBuffer = await crypto.subtle.digest('SHA-256', data);
-        const hashArray = Array.from(new Uint8Array(hashBuffer));
-        const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-        return hashHex;
-    };
+    // SHA-256 hash fonksiyonu artık passwordUtils'den import ediliyor
 
     const handleSubmit = async (e) => {
         e.preventDefault();

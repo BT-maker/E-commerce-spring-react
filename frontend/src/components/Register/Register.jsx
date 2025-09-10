@@ -5,16 +5,7 @@ import { User, Mail, Lock, Eye, EyeOff, Loader2, ShoppingBag, ArrowRight, UserPl
 import toast from 'react-hot-toast';
 import PageTitle from '../PageTitle/PageTitle';
 import MetaTags from '../MetaTags/MetaTags';
-
-// SHA-256 hash fonksiyonu
-const hashPassword = async (password) => {
-  const encoder = new TextEncoder();
-  const data = encoder.encode(password);
-  const hashBuffer = await crypto.subtle.digest('SHA-256', data);
-  const hashArray = Array.from(new Uint8Array(hashBuffer));
-  const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-  return hashHex;
-};
+import { hashPassword, validatePasswordStrength, getPasswordStrengthText, getPasswordStrengthColor } from '../../utils/passwordUtils';
 
 const Register = () => {
   const [form, setForm] = useState({
@@ -29,12 +20,19 @@ const Register = () => {
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showPassword2, setShowPassword2] = useState(false);
+  const [passwordStrength, setPasswordStrength] = useState(null);
   const navigate = useNavigate();
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
     setError("");
     setSuccess("");
+    
+    // Şifre güçlülük kontrolü
+    if (e.target.name === 'password') {
+      const strength = validatePasswordStrength(e.target.value);
+      setPasswordStrength(strength);
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -50,9 +48,9 @@ const Register = () => {
 
     setLoading(true);
     try {
-      // Şifreyi hash'le
+      // Şifreyi SHA-256 ile hash'le
       const hashedPassword = await hashPassword(form.password);
-      console.log('Şifre hash\'lendi:', hashedPassword.substring(0, 10) + '...');
+      console.log('Şifre hash\'lendi, uzunluk:', hashedPassword.length);
       
       const requestBody = {
         firstName: form.firstName,
@@ -214,6 +212,47 @@ const Register = () => {
                   )}
                 </button>
               </div>
+              
+              {/* Şifre Güçlülük Göstergesi */}
+              {form.password && passwordStrength && (
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between text-xs">
+                    <span className="text-gray-600">Şifre Güçlülüğü:</span>
+                    <span className={`font-medium ${getPasswordStrengthColor(passwordStrength.score)}`}>
+                      {getPasswordStrengthText(passwordStrength.score)}
+                    </span>
+                  </div>
+                  <div className="w-full bg-gray-200 rounded-full h-2">
+                    <div 
+                      className={`h-2 rounded-full transition-all duration-300 ${
+                        passwordStrength.score < 2 ? 'bg-red-500' :
+                        passwordStrength.score < 3 ? 'bg-orange-400' :
+                        passwordStrength.score < 4 ? 'bg-orange-500' :
+                        passwordStrength.score < 5 ? 'bg-orange-600' : 'bg-green-500'
+                      }`}
+                      style={{ width: `${(passwordStrength.score / 5) * 100}%` }}
+                    ></div>
+                  </div>
+                  <div className="grid grid-cols-2 gap-1 text-xs text-gray-600">
+                    <div className={`flex items-center ${passwordStrength.length ? 'text-green-600' : 'text-red-600'}`}>
+                      <div className={`w-2 h-2 rounded-full mr-2 ${passwordStrength.length ? 'bg-green-500' : 'bg-red-500'}`}></div>
+                      En az 6 karakter
+                    </div>
+                    <div className={`flex items-center ${passwordStrength.hasUpperCase ? 'text-green-600' : 'text-red-600'}`}>
+                      <div className={`w-2 h-2 rounded-full mr-2 ${passwordStrength.hasUpperCase ? 'bg-green-500' : 'bg-red-500'}`}></div>
+                      Büyük harf
+                    </div>
+                    <div className={`flex items-center ${passwordStrength.hasLowerCase ? 'text-green-600' : 'text-red-600'}`}>
+                      <div className={`w-2 h-2 rounded-full mr-2 ${passwordStrength.hasLowerCase ? 'bg-green-500' : 'bg-red-500'}`}></div>
+                      Küçük harf
+                    </div>
+                    <div className={`flex items-center ${passwordStrength.hasNumbers ? 'text-green-600' : 'text-red-600'}`}>
+                      <div className={`w-2 h-2 rounded-full mr-2 ${passwordStrength.hasNumbers ? 'bg-green-500' : 'bg-red-500'}`}></div>
+                      Rakam
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Şifre Tekrar */}
