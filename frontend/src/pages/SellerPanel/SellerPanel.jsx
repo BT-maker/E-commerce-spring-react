@@ -6,10 +6,26 @@ const SellerPanel = () => {
   const [dashboardData, setDashboardData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  
+  // Sayfalama state'leri
+  const [lowStockPage, setLowStockPage] = useState(0);
+  const [reviewsPage, setReviewsPage] = useState(0);
+  const itemsPerPage = 6; // Her sayfada 6 item göster
 
   useEffect(() => {
     fetchDashboardData();
   }, []);
+
+  // Sayfalama fonksiyonları
+  const getPaginatedItems = (items, page) => {
+    const startIndex = page * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+    return items.slice(startIndex, endIndex);
+  };
+
+  const getTotalPages = (items) => {
+    return Math.ceil(items.length / itemsPerPage);
+  };
 
   const fetchDashboardData = async () => {
     try {
@@ -222,10 +238,17 @@ const SellerPanel = () => {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Low Stock Alerts */}
         <div className="bg-white rounded-xl shadow-lg p-6">
-          <h2 className="text-xl font-bold text-gray-900 mb-4">Düşük Stok Uyarıları</h2>
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-xl font-bold text-gray-900">Düşük Stok Uyarıları</h2>
+            {dashboardData.lowStockProducts && dashboardData.lowStockProducts.length > itemsPerPage && (
+              <span className="text-sm text-gray-500">
+                {lowStockPage + 1} / {getTotalPages(dashboardData.lowStockProducts)} sayfa
+              </span>
+            )}
+          </div>
           <div className="space-y-4">
             {dashboardData.lowStockProducts && dashboardData.lowStockProducts.length > 0 ? (
-              dashboardData.lowStockProducts.map((product) => (
+              getPaginatedItems(dashboardData.lowStockProducts, lowStockPage).map((product) => (
                 <div key={product.id} className="flex items-center space-x-4 p-4 bg-yellow-50 rounded-lg border border-yellow-200">
                   <img 
                     src={product.imageUrl1 || product.imageUrl || '/img/default-product.png'} 
@@ -245,19 +268,59 @@ const SellerPanel = () => {
               ))
             ) : (
               <div className="text-center py-8">
-                <FaBoxes className="text-gray-400 text-4xl mx-auto mb-4" />
+                <FaExclamationTriangle className="text-gray-400 text-4xl mx-auto mb-4" />
                 <p className="text-gray-500">Düşük stok uyarısı yok</p>
               </div>
             )}
           </div>
+          
+          {/* Düşük Stok Sayfalama */}
+          {dashboardData.lowStockProducts && dashboardData.lowStockProducts.length > itemsPerPage && (
+            <div className="flex justify-center mt-4 space-x-2">
+              <button
+                onClick={() => setLowStockPage(Math.max(0, lowStockPage - 1))}
+                disabled={lowStockPage === 0}
+                className="px-3 py-1 text-sm bg-gray-100 text-gray-600 rounded hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Önceki
+              </button>
+              {Array.from({ length: getTotalPages(dashboardData.lowStockProducts) }, (_, i) => (
+                <button
+                  key={i}
+                  onClick={() => setLowStockPage(i)}
+                  className={`px-3 py-1 text-sm rounded ${
+                    lowStockPage === i 
+                      ? 'bg-yellow-500 text-white' 
+                      : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                  }`}
+                >
+                  {i + 1}
+                </button>
+              ))}
+              <button
+                onClick={() => setLowStockPage(Math.min(getTotalPages(dashboardData.lowStockProducts) - 1, lowStockPage + 1))}
+                disabled={lowStockPage === getTotalPages(dashboardData.lowStockProducts) - 1}
+                className="px-3 py-1 text-sm bg-gray-100 text-gray-600 rounded hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Sonraki
+              </button>
+            </div>
+          )}
         </div>
 
         {/* Recent Reviews */}
         <div className="bg-white rounded-xl shadow-lg p-6">
-          <h2 className="text-xl font-bold text-gray-900 mb-4">Son Müşteri Yorumları</h2>
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-xl font-bold text-gray-900">Son Müşteri Yorumları</h2>
+            {dashboardData.recentReviews && dashboardData.recentReviews.length > itemsPerPage && (
+              <span className="text-sm text-gray-500">
+                {reviewsPage + 1} / {getTotalPages(dashboardData.recentReviews)} sayfa
+              </span>
+            )}
+          </div>
           <div className="space-y-4">
             {dashboardData.recentReviews && dashboardData.recentReviews.length > 0 ? (
-              dashboardData.recentReviews.map((review) => (
+              getPaginatedItems(dashboardData.recentReviews, reviewsPage).map((review) => (
                 <div key={review.id} className="p-4 bg-gray-50 rounded-lg border border-gray-200">
                   <div className="flex items-center justify-between mb-2">
                     <h4 className="font-semibold text-gray-900">{review.productName || review.product?.name || 'Ürün Adı'}</h4>
@@ -281,6 +344,39 @@ const SellerPanel = () => {
               </div>
             )}
           </div>
+          
+          {/* Yorumlar Sayfalama */}
+          {dashboardData.recentReviews && dashboardData.recentReviews.length > itemsPerPage && (
+            <div className="flex justify-center mt-4 space-x-2">
+              <button
+                onClick={() => setReviewsPage(Math.max(0, reviewsPage - 1))}
+                disabled={reviewsPage === 0}
+                className="px-3 py-1 text-sm bg-gray-100 text-gray-600 rounded hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Önceki
+              </button>
+              {Array.from({ length: getTotalPages(dashboardData.recentReviews) }, (_, i) => (
+                <button
+                  key={i}
+                  onClick={() => setReviewsPage(i)}
+                  className={`px-3 py-1 text-sm rounded ${
+                    reviewsPage === i 
+                      ? 'bg-blue-500 text-white' 
+                      : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                  }`}
+                >
+                  {i + 1}
+                </button>
+              ))}
+              <button
+                onClick={() => setReviewsPage(Math.min(getTotalPages(dashboardData.recentReviews) - 1, reviewsPage + 1))}
+                disabled={reviewsPage === getTotalPages(dashboardData.recentReviews) - 1}
+                className="px-3 py-1 text-sm bg-gray-100 text-gray-600 rounded hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Sonraki
+              </button>
+            </div>
+          )}
         </div>
       </div>
 
