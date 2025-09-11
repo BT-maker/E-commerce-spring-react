@@ -92,8 +92,25 @@ const SellerOrders = () => {
       const data = await response.json();
       console.log('Tüm sipariş verileri:', data);
       
-      setAllOrders(data.orders || []);
-      setFilteredOrders(data.orders || []);
+      const orders = data.orders || [];
+      console.log('Orders count:', orders.length);
+      
+      // Sipariş durumlarını logla
+      const pendingCount = orders.filter(o => o.status === 'PENDING').length;
+      const shippedCount = orders.filter(o => o.status === 'SHIPPED').length;
+      const deliveredCount = orders.filter(o => o.status === 'DELIVERED').length;
+      const processingCount = orders.filter(o => o.status === 'PROCESSING').length;
+      
+      console.log('Order status counts:', {
+        pending: pendingCount,
+        processing: processingCount,
+        shipped: shippedCount,
+        delivered: deliveredCount,
+        total: orders.length
+      });
+      
+      setAllOrders(orders);
+      setFilteredOrders(orders);
       setTotalOrders(data.totalElements || 0);
     } catch (err) {
       console.error('Sipariş veri hatası:', err);
@@ -312,7 +329,7 @@ const SellerOrders = () => {
             <div>
               <p className="text-sm font-medium text-yellow-600">Bekleyen</p>
               <p className="text-2xl font-bold text-yellow-900">
-                {filteredOrders.filter(o => o.status === 'PENDING').length}
+                {allOrders.filter(o => o.status === 'PENDING').length}
               </p>
             </div>
             <div className="p-3 bg-yellow-500 rounded-lg">
@@ -326,7 +343,7 @@ const SellerOrders = () => {
             <div>
               <p className="text-sm font-medium text-purple-600">Kargoda</p>
               <p className="text-2xl font-bold text-purple-900">
-                {filteredOrders.filter(o => o.status === 'SHIPPED').length}
+                {allOrders.filter(o => o.status === 'SHIPPED').length}
               </p>
             </div>
             <div className="p-3 bg-purple-500 rounded-lg">
@@ -340,7 +357,7 @@ const SellerOrders = () => {
             <div>
               <p className="text-sm font-medium text-green-600">Teslim Edildi</p>
               <p className="text-2xl font-bold text-green-900">
-                {filteredOrders.filter(o => o.status === 'DELIVERED').length}
+                {allOrders.filter(o => o.status === 'DELIVERED').length}
               </p>
             </div>
             <div className="p-3 bg-green-500 rounded-lg">
