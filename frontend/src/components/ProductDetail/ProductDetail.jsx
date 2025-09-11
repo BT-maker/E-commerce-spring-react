@@ -224,23 +224,29 @@ const ProductDetail = () => {
     })
       .then(res => {
         console.log('User review API yanıtı:', res.status);
-        if (res.ok) return res.json();
-        if (res.status === 404) {
-          console.log('Kullanıcının bu ürün için review\'ı yok');
-          return null;
+        if (res.ok) {
+          return res.json();
         }
-        throw new Error(`HTTP ${res.status}`);
+        // 404 veya diğer hatalar için null döndür
+        console.log('Kullanıcının bu ürün için review\'ı yok veya hata oluştu');
+        return null;
       })
       .then(data => {
         console.log('User review verisi:', data);
         if (data) {
           setUserReview(data);
           setReviewForm({ rating: data.rating, comment: data.comment || "" });
+        } else {
+          // Kullanıcının review'ı yok, formu sıfırla
+          setUserReview(null);
+          setReviewForm({ rating: 5, comment: "" });
         }
       })
       .catch((error) => {
-        console.error('Kullanıcı review\'ı alınamadı:', error.message);
+        console.log('Kullanıcı review\'ı alınamadı (normal durum):', error.message);
         // Bu normal bir durum, kullanıcının review'ı yok
+        setUserReview(null);
+        setReviewForm({ rating: 5, comment: "" });
       });
   }, [product, isLoggedIn]);
 

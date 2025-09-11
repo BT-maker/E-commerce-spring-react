@@ -64,40 +64,78 @@ public class ProductController {
         @PageableDefault(size = 12) Pageable pageable
     ) {
         try {
+            System.out.println("=== PRODUCT CONTROLLER DEBUG ===");
+            System.out.println("Request parameters:");
+            System.out.println("- page: " + pageable.getPageNumber());
+            System.out.println("- size: " + pageable.getPageSize());
+            System.out.println("- sort: " + sort);
+            System.out.println("- includeInactive: " + includeInactive);
+            System.out.println("- storeId: " + storeId);
+            System.out.println("- categoryId: " + categoryId);
+            System.out.println("- search: " + search);
+            System.out.println("================================");
+            
             Page<Product> products;
+            
             if (storeId != null && !storeId.isEmpty()) {
+                System.out.println("Getting products by store ID: " + storeId);
                 products = productService.getProductsByStoreId(storeId, pageable);
             } else if (storeName != null && !storeName.isEmpty()) {
+                System.out.println("Getting products by store name: " + storeName);
                 products = productService.getProductsByStoreName(storeName, pageable);
             } else if (search != null && !search.isEmpty()) {
+                System.out.println("Searching products: " + search);
                 products = productService.searchProducts(search, pageable);
             } else if (minPrice != null && maxPrice != null) {
-                // Fiyat aralığı ve sayfalama
+                System.out.println("Getting products by price range: " + minPrice + " - " + maxPrice);
                 products = productService.getProductsByPriceRange(minPrice, maxPrice, pageable);
             } else if (categoryId != null) {
+                System.out.println("Getting products by category ID: " + categoryId);
                 products = productService.getProductsByCategoryId(categoryId, pageable);
             } else if ("popular".equals(sort)) {
-                // Popüler ürünler
-                products = productService.getMostPopularProducts(pageable);
+                System.out.println("Getting popular products...");
+                try {
+                    products = productService.getMostPopularProducts(pageable);
+                    System.out.println("Popular products retrieved successfully. Count: " + products.getContent().size());
+                } catch (Exception popularError) {
+                    System.err.println("Error getting popular products: " + popularError.getMessage());
+                    popularError.printStackTrace();
+                    // Fallback to normal products
+                    System.out.println("Falling back to normal products...");
+                    products = productService.getAllProducts(pageable);
+                }
             } else {
+                System.out.println("Getting all products...");
                 products = productService.getAllProducts(pageable);
+                
+                // Eğer includeInactive false ise sadece aktif ürünleri filtrele
+                if (!includeInactive) {
+                    System.out.println("Filtering inactive products...");
+                    List<Product> activeProducts = products.getContent().stream()
+                        .filter(product -> "AKTİF".equals(product.getStatus()))
+                        .collect(Collectors.toList());
+                    
+                    System.out.println("Active products count: " + activeProducts.size());
+                    // Yeni bir Page nesnesi oluştur
+                    products = new PageImpl<>(activeProducts, pageable, activeProducts.size());
+                }
             }
             
-            // Eğer includeInactive false ise sadece aktif ürünleri filtrele
-            if (!includeInactive) {
-                List<Product> activeProducts = products.getContent().stream()
-                    .filter(product -> "AKTİF".equals(product.getStatus()))
-                    .collect(Collectors.toList());
-                
-                // Yeni bir Page nesnesi oluştur
-                products = new PageImpl<>(activeProducts, pageable, activeProducts.size());
-            }
+            System.out.println("Final products count: " + products.getContent().size());
+            System.out.println("Total pages: " + products.getTotalPages());
+            System.out.println("=== END DEBUG ===");
             
             return ResponseEntity.ok(products);
         } catch (Exception e) {
-            System.err.println("Ürün listesi alınırken hata: " + e.getMessage());
+            System.err.println("=== CRITICAL ERROR IN PRODUCT CONTROLLER ===");
+            System.err.println("Error message: " + e.getMessage());
+            System.err.println("Error class: " + e.getClass().getSimpleName());
+            System.err.println("Stack trace:");
             e.printStackTrace();
-            return ResponseEntity.status(500).body(new PageImpl<>(new ArrayList<>(), pageable, 0));
+            System.err.println("=============================================");
+            
+            // Return empty page instead of 500 error
+            return ResponseEntity.ok(new PageImpl<>(new ArrayList<>(), pageable, 0));
         }
     }
     

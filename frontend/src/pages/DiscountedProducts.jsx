@@ -50,9 +50,22 @@ const DiscountedProducts = () => {
       });
   }, [page]);
 
-  const handleAddToCart = (product) => {
-    addToCart(product);
-    toast.success(`${product.name} sepete eklendi!`);
+  const handleAddToCart = async (productId) => {
+    try {
+      // ProductId'den product objesini bul
+      const product = products.find(p => p.id === productId);
+      if (!product) {
+        console.error('Ürün bulunamadı:', productId);
+        toast.error('Ürün bulunamadı!');
+        return;
+      }
+      
+      await addToCart(productId, 1);
+      toast.success(`${product.name} sepete eklendi!`);
+    } catch (error) {
+      console.error('Sepete ekleme hatası:', error);
+      toast.error('Ürün sepete eklenemedi!');
+    }
   };
 
   const handlePageChange = (newPage) => {
@@ -147,7 +160,7 @@ const DiscountedProducts = () => {
                 <ProductCard
                   key={product.id}
                   product={product}
-                  onAddToCart={() => handleAddToCart(product)}
+                  onAddToCart={handleAddToCart}
                 />
               ))}
             </div>

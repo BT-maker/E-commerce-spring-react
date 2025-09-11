@@ -29,11 +29,31 @@ const TrendingProducts = () => {
       try {
         // Önce popular sort'u dene
         const popularUrl = `http://localhost:8082/api/products?page=${page}&size=${PAGE_SIZE}&sort=popular`;
-        let response = await fetch(popularUrl);
+        let response;
         
-        if (!response.ok) {
-          // Eğer popular sort çalışmazsa, normal ürünleri getir
-          console.warn('Popular sort çalışmıyor, normal ürünler getiriliyor...');
+        try {
+          console.log('Trying popular sort URL:', popularUrl);
+          response = await fetch(popularUrl);
+          console.log('Popular sort response status:', response.status);
+          
+          if (!response.ok) {
+            throw new Error(`Popular sort failed: ${response.status}`);
+          }
+          
+          const popularData = await response.json();
+          console.log('Popular sort data received:', popularData);
+          
+          if (popularData.content && popularData.content.length > 0) {
+            setProducts(popularData.content);
+            setTotalPages(popularData.totalPages);
+            setLoading(false);
+            return; // Başarılı, fonksiyondan çık
+          } else {
+            throw new Error('Popular sort returned empty data');
+          }
+        } catch (popularError) {
+          console.warn('Popular sort çalışmıyor, normal ürünler getiriliyor...', popularError.message);
+          // Popular sort başarısız olursa normal ürünleri getir
           response = await fetch(`http://localhost:8082/api/products?page=${page}&size=${PAGE_SIZE}`);
         }
         
@@ -61,9 +81,17 @@ const TrendingProducts = () => {
     fetchTrendingProducts();
   }, [page]);
 
-  const handleAddToCart = async (product) => {
+  const handleAddToCart = async (productId) => {
     try {
-      await addToCart(product, 1);
+      // ProductId'den product objesini bul
+      const product = products.find(p => p.id === productId);
+      if (!product) {
+        console.error('Ürün bulunamadı:', productId);
+        toast.error('Ürün bulunamadı!');
+        return;
+      }
+      
+      await addToCart(productId, 1);
       toast.success(`${product.name} sepete eklendi!`);
     } catch (error) {
       console.error('Sepete ekleme hatası:', error);

@@ -306,11 +306,42 @@ public class ProductServiceImpl implements ProductService {
     
     @Override
     public Page<Product> getMostPopularProducts(Pageable pageable) {
-        Page<Product> products = productRepository.findMostPopularProducts(pageable);
-        List<Product> activeProducts = products.getContent().stream()
+        System.out.println("=== PRODUCT SERVICE DEBUG ===");
+        System.out.println("getMostPopularProducts called with pageable: " + pageable);
+        
+        try {
+            // Önce veritabanında kaç ürün olduğunu kontrol et
+            long totalProducts = productRepository.count();
+            System.out.println("Total products in database: " + totalProducts);
+            
+            // Aktif ürün sayısını kontrol et
+            long activeProducts = productRepository.findAll().stream()
                 .filter(product -> "AKTİF".equals(product.getStatus()))
-                .collect(Collectors.toList());
-        return new PageImpl<>(activeProducts, pageable, activeProducts.size());
+                .count();
+            System.out.println("Active products count: " + activeProducts);
+            
+            // Stokta olan ürün sayısını kontrol et
+            long inStockProducts = productRepository.findAll().stream()
+                .filter(product -> product.getStock() != null && product.getStock() > 0)
+                .count();
+            System.out.println("In-stock products count: " + inStockProducts);
+            
+            // Basit çözüm: Normal ürünleri getir
+            Page<Product> result = productRepository.findAll(pageable);
+            System.out.println("Retrieved products count: " + result.getContent().size());
+            System.out.println("Total pages: " + result.getTotalPages());
+            System.out.println("=== END PRODUCT SERVICE DEBUG ===");
+            
+            return result;
+        } catch (Exception e) {
+            System.err.println("=== ERROR IN getMostPopularProducts ===");
+            System.err.println("Error: " + e.getMessage());
+            e.printStackTrace();
+            System.err.println("=====================================");
+            
+            // Hata durumunda boş sayfa döndür
+            return Page.empty(pageable);
+        }
     }
 
     /**

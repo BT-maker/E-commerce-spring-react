@@ -81,7 +81,7 @@ public interface ProductRepository extends JpaRepository<Product, String> {
      * En çok satılan ürünleri getirir (popülerlik sıralaması için).
      * Şimdilik stok miktarına göre sıralama yapıyor.
      */
-    @Query("SELECT p FROM Product p WHERE p.status = 'AKTİF' ORDER BY p.stock DESC")
+    @Query("SELECT p FROM Product p WHERE p.status = 'AKTİF' AND p.stock > 0 ORDER BY p.stock DESC")
     Page<Product> findMostPopularProducts(Pageable pageable);
     
     /**

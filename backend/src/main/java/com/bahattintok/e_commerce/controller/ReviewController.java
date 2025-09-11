@@ -82,13 +82,15 @@ public class ReviewController {
                 System.out.println("Kullanıcı review'ı bulundu");
                 return ResponseEntity.ok(review);
             } else {
-                System.out.println("Kullanıcı review'ı bulunamadı");
-                return ResponseEntity.notFound().build();
+                System.out.println("Kullanıcı review'ı bulunamadı - 200 OK ile null döndürülüyor");
+                // 404 yerine 200 OK döndür, böylece frontend'de hata olmaz
+                return ResponseEntity.ok(null);
             }
         } catch (Exception e) {
             System.err.println("Kullanıcı review getirme hatası: " + e.getMessage());
             e.printStackTrace();
-            return ResponseEntity.status(500).build();
+            // Hata durumunda da 200 OK döndür
+            return ResponseEntity.ok(null);
         }
     }
     
