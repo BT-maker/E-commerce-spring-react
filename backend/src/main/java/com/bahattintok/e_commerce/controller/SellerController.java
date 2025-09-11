@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
@@ -558,13 +559,17 @@ public class SellerController {
     public ResponseEntity<Map<String, Object>> getSellerStats(
             @RequestParam(defaultValue = "week") String period) {
         try {
+            System.out.println("=== SELLER STATS DEBUG ===");
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
             String email = authentication.getName();
+            System.out.println("User email: " + email);
             
             User currentUser = userRepository.findByEmail(email)
                     .orElseThrow(() -> new RuntimeException("User not found: " + email));
+            System.out.println("User found: " + currentUser.getEmail());
             
             if (!currentUser.getRole().getName().equals("SELLER") && !currentUser.getRole().isSeller()) {
+                System.out.println("Access denied: User is not a seller");
                 Map<String, Object> error = new HashMap<>();
                 error.put("error", "Access denied. User is not a seller.");
                 return ResponseEntity.status(403).body(error);
@@ -572,13 +577,16 @@ public class SellerController {
             
             Store sellerStore = storeRepository.findBySeller(currentUser)
                     .orElseThrow(() -> new RuntimeException("Store not found for seller: " + email));
+            System.out.println("Store found: " + sellerStore.getName());
             
             // Get seller's products
             List<Product> sellerProducts = productRepository.findByStore(sellerStore, org.springframework.data.domain.Pageable.unpaged()).getContent();
             int totalProducts = sellerProducts.size();
+            System.out.println("Seller products count: " + totalProducts);
             
             // Get all orders and filter by seller's products
             List<Order> allOrders = orderRepository.findAll();
+            System.out.println("Total orders in database: " + allOrders.size());
             List<Order> sellerOrders = new ArrayList<>();
             Set<String> uniqueCustomers = new HashSet<>();
             double totalRevenue = 0.0;
@@ -589,7 +597,9 @@ public class SellerController {
                 double orderRevenue = 0.0;
                 
                 for (OrderItem item : order.getItems()) {
-                    if (item.getProduct().getStore() != null && 
+                    // Null kontrolü ekle
+                    if (item.getProduct() != null && 
+                        item.getProduct().getStore() != null && 
                         item.getProduct().getStore().getId().equals(sellerStore.getId())) {
                         hasSellerProduct = true;
                         orderRevenue += item.getPrice().doubleValue() * item.getQuantity();
@@ -620,7 +630,9 @@ public class SellerController {
             
             // Get top product and category
             Map<String, Object> topProduct = getTopProduct(sellerProducts, sellerOrders);
+            System.out.println("Category data being passed to getTopCategory: " + categoryData.size() + " items");
             Map<String, Object> topCategory = getTopCategory(categoryData);
+            System.out.println("Top category result: " + topCategory);
             
             Map<String, Object> stats = new HashMap<>();
             stats.put("totalProducts", totalProducts);
@@ -640,11 +652,15 @@ public class SellerController {
             stats.put("topProduct", topProduct);
             stats.put("topCategory", topCategory);
             
+            System.out.println("Stats calculated successfully");
+            System.out.println("=== END SELLER STATS DEBUG ===");
             return ResponseEntity.ok(stats);
             
         } catch (Exception e) {
+            System.err.println("=== ERROR IN SELLER STATS ===");
             System.err.println("Error in getSellerStats: " + e.getMessage());
             e.printStackTrace();
+            System.err.println("=================================");
             
             // Veri yoksa varsayılan değerlerle stats döndür
             Map<String, Object> stats = new HashMap<>();
@@ -746,26 +762,37 @@ public class SellerController {
     private List<Map<String, Object>> generateRealCategoryData(List<Product> products, List<Order> orders) {
         List<Map<String, Object>> data = new ArrayList<>();
         
+        System.out.println("=== CATEGORY DATA DEBUG ===");
+        System.out.println("Orders count for category analysis: " + orders.size());
+        
         // Count sales by category from orders
         Map<String, Integer> categorySales = new HashMap<>();
         
         for (Order order : orders) {
             for (OrderItem item : order.getItems()) {
-                Product product = item.getProduct();
-                if (product.getCategory() != null) {
+                // Null kontrolü ekle
+                if (item.getProduct() != null && item.getProduct().getCategory() != null) {
+                    Product product = item.getProduct();
                     String categoryName = product.getCategory().getName();
                     categorySales.put(categoryName, categorySales.getOrDefault(categoryName, 0) + item.getQuantity());
+                    System.out.println("Category: " + categoryName + ", Sales: " + item.getQuantity());
                 }
             }
         }
         
+        System.out.println("Category sales map: " + categorySales);
+        
         // Convert to list format
         for (Map.Entry<String, Integer> entry : categorySales.entrySet()) {
             Map<String, Object> categoryData = new HashMap<>();
-            categoryData.put("categoryName", entry.getKey());
+            categoryData.put("name", entry.getKey()); // Frontend 'name' field'ını bekliyor
+            categoryData.put("categoryName", entry.getKey()); // Eski field için backward compatibility
             categoryData.put("salesCount", entry.getValue());
             data.add(categoryData);
         }
+        
+        System.out.println("Final category data: " + data);
+        System.out.println("=== END CATEGORY DATA DEBUG ===");
         
         return data;
     }
@@ -807,8 +834,11 @@ public class SellerController {
         
         for (Order order : orders) {
             for (OrderItem item : order.getItems()) {
-                String productId = item.getProduct().getId();
-                productSales.put(productId, productSales.getOrDefault(productId, 0) + item.getQuantity());
+                // Null kontrolü ekle
+                if (item.getProduct() != null) {
+                    String productId = item.getProduct().getId();
+                    productSales.put(productId, productSales.getOrDefault(productId, 0) + item.getQuantity());
+                }
             }
         }
         
@@ -838,16 +868,26 @@ public class SellerController {
     }
 
     private Map<String, Object> getTopCategory(List<Map<String, Object>> categoryData) {
+        System.out.println("=== GET TOP CATEGORY DEBUG ===");
+        System.out.println("Category data received: " + categoryData);
+        
         if (categoryData.isEmpty()) {
+            System.out.println("Category data is empty, returning default");
             Map<String, Object> empty = new HashMap<>();
             empty.put("name", "Veri yok");
+            empty.put("categoryName", "Veri yok"); // Backward compatibility
             empty.put("salesCount", 0);
             return empty;
         }
         
-        return categoryData.stream()
+        Map<String, Object> topCategory = categoryData.stream()
             .max((a, b) -> Integer.compare((Integer) a.get("salesCount"), (Integer) b.get("salesCount")))
             .orElse(categoryData.get(0));
+            
+        System.out.println("Top category found: " + topCategory);
+        System.out.println("=== END GET TOP CATEGORY DEBUG ===");
+        
+        return topCategory;
     }
 
     @GetMapping("/recent-orders")
@@ -956,7 +996,7 @@ public class SellerController {
             List<Product> lowStockProducts = productRepository.findByStoreAndStockLessThan(sellerStore, 10);
             
             // Get recent reviews (last 3)
-            List<Review> recentReviews = reviewRepository.findTop3ByProductStoreOrderByCreatedAtDesc(sellerStore);
+            List<Review> recentReviews = reviewRepository.findTop3ByProductStoreOrderByCreatedAtDesc(sellerStore, Pageable.ofSize(3));
             
             // Prepare dashboard data
             Map<String, Object> dashboardData = new HashMap<>();
@@ -1121,7 +1161,8 @@ public class SellerController {
             for (Order order : allOrders) {
                 boolean hasSellerProduct = false;
                 for (OrderItem item : order.getItems()) {
-                    if (sellerProductIds.contains(item.getProduct().getId())) {
+                    // Null kontrolü ekle
+                    if (item.getProduct() != null && sellerProductIds.contains(item.getProduct().getId())) {
                         hasSellerProduct = true;
                         break;
                     }
@@ -1253,7 +1294,8 @@ public class SellerController {
             
             boolean hasSellerProduct = false;
             for (OrderItem item : order.getItems()) {
-                if (sellerProductIds.contains(item.getProduct().getId())) {
+                // Null kontrolü ekle
+                if (item.getProduct() != null && sellerProductIds.contains(item.getProduct().getId())) {
                     hasSellerProduct = true;
                     break;
                 }
@@ -2092,8 +2134,9 @@ public class SellerController {
                 // Order items
                 List<Map<String, Object>> itemMaps = new ArrayList<>();
                 for (OrderItem item : order.getOrderItems()) {
-                    // Sadece bu seller'ın ürünlerini dahil et
-                    if (item.getProduct().getStore().getId().equals(sellerStore.getId())) {
+                    // Sadece bu seller'ın ürünlerini dahil et - null kontrolü ekle
+                    if (item.getProduct() != null && item.getProduct().getStore() != null && 
+                        item.getProduct().getStore().getId().equals(sellerStore.getId())) {
                         Map<String, Object> itemMap = new HashMap<>();
                         itemMap.put("id", item.getId());
                         itemMap.put("quantity", item.getQuantity());

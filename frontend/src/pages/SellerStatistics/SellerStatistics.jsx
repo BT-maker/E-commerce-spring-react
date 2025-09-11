@@ -56,6 +56,7 @@ const SellerStatistics = () => {
       setLoading(true);
       setError(null);
       
+      console.log('İstatistik verileri getiriliyor...', selectedPeriod);
       const response = await fetch(`http://localhost:8082/api/seller/stats?period=${selectedPeriod}`, {
         method: 'GET',
         headers: {
@@ -64,16 +65,44 @@ const SellerStatistics = () => {
         credentials: 'include'
       });
 
+      console.log('Stats API response status:', response.status);
+      
       if (!response.ok) {
+        const errorText = await response.text();
+        console.error('API Error Response:', errorText);
         throw new Error(`HTTP error! status: ${response.status}`);
       }
 
       const data = await response.json();
-      console.log('İstatistik verileri:', data);
+      console.log('İstatistik verileri alındı:', data);
+      console.log('Top category data:', data.topCategory);
+      console.log('Category data:', data.categoryData);
+      
+      if (data.error) {
+        console.warn('API returned error:', data.error);
+        setError(`Uyarı: ${data.error}`);
+      }
+      
       setStatsData(data);
     } catch (err) {
       console.error('İstatistik veri hatası:', err);
-      setError('İstatistik verileri yüklenirken bir hata oluştu.');
+      setError('İstatistik verileri yüklenirken bir hata oluştu. Lütfen sayfayı yenileyin.');
+      
+      // Fallback data
+      setStatsData({
+        totalProducts: 0,
+        totalSales: 0,
+        totalCustomers: 0,
+        totalRevenue: 0,
+        totalOrders: 0,
+        averageRating: 0,
+        averageOrderValue: 0,
+        salesData: [],
+        revenueData: [],
+        categoryData: [],
+        topProduct: {},
+        topCategory: {}
+      });
     } finally {
       setLoading(false);
     }
@@ -591,7 +620,9 @@ const SellerStatistics = () => {
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-sm font-medium text-indigo-600">En Popüler Kategori</p>
-                    <p className="text-lg font-bold text-indigo-900">{statsData.topCategory.name}</p>
+                    <p className="text-lg font-bold text-indigo-900">
+                      {statsData.topCategory.name || statsData.topCategory.categoryName || 'Kategori Adı'}
+                    </p>
                     <p className="text-xs text-indigo-500 mt-1">
                       {formatNumber(statsData.topCategory.salesCount || 0)} satış
                     </p>

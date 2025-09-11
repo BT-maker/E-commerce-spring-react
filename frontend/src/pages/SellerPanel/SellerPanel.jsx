@@ -260,7 +260,7 @@ const SellerPanel = () => {
               dashboardData.recentReviews.map((review) => (
                 <div key={review.id} className="p-4 bg-gray-50 rounded-lg border border-gray-200">
                   <div className="flex items-center justify-between mb-2">
-                    <h4 className="font-semibold text-gray-900">{review.product?.name || 'Ürün Adı'}</h4>
+                    <h4 className="font-semibold text-gray-900">{review.productName || review.product?.name || 'Ürün Adı'}</h4>
                     <div className="flex items-center space-x-1">
                       {renderStars(review.rating)}
                     </div>
@@ -269,7 +269,7 @@ const SellerPanel = () => {
                     "{review.comment || 'Yorum bulunamadı'}"
                   </div>
                   <div className="flex items-center justify-between text-sm text-gray-500">
-                    <span>{review.user?.username || 'Anonim'}</span>
+                    <span>{review.userName || review.user?.username || 'Anonim'}</span>
                     <span>{formatDate(review.createdAt)}</span>
                   </div>
                 </div>

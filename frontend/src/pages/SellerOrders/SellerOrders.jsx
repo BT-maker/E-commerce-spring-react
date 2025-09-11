@@ -31,11 +31,23 @@ const SellerOrders = () => {
   const [totalPages, setTotalPages] = useState(0);
   const [totalOrders, setTotalOrders] = useState(0);
   const [pageSize] = useState(10);
+  const [expandedOrders, setExpandedOrders] = useState(new Set());
 
   // Component mount olduğunda tüm verileri çek
   useEffect(() => {
     fetchAllOrders();
   }, []);
+
+  // Sipariş detaylarını aç/kapat
+  const toggleOrderDetails = (orderId) => {
+    const newExpanded = new Set(expandedOrders);
+    if (newExpanded.has(orderId)) {
+      newExpanded.delete(orderId);
+    } else {
+      newExpanded.add(orderId);
+    }
+    setExpandedOrders(newExpanded);
+  };
 
   // Filtreleme değişikliklerinde anlık filtreleme
   useEffect(() => {
@@ -437,122 +449,150 @@ const SellerOrders = () => {
             <p className="text-gray-600">Mağazanızda henüz sipariş bulunmuyor.</p>
           </div>
         ) : (
-          <div className="space-y-6 p-6">
-            {filteredOrders.map((order) => (
-              <div key={order.id} className="border border-gray-200 rounded-xl p-6 hover:shadow-lg transition-shadow">
-                <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between mb-6">
-                  <div className="flex-1">
-                    <h3 className="text-lg font-semibold text-gray-900 mb-2">Sipariş #{order.id.slice(-8)}</h3>
-                    <div className="flex flex-wrap items-center gap-4 text-sm text-gray-600">
-                      <span className="flex items-center space-x-1">
-                        <FaCalendarAlt className="text-gray-400" />
-                        <span>{formatDate(order.createdAt)}</span>
-                      </span>
-                      <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium border ${getStatusColor(order.status)}`}>
-                        <span className="mr-1">{getStatusIcon(order.status)}</span>
-                        {getStatusText(order.status)}
-                      </span>
-                    </div>
-                  </div>
-                  <div className="mt-4 lg:mt-0 lg:ml-4">
-                    <div className="text-2xl font-bold text-orange-600">{formatCurrency(order.totalPrice)}</div>
-                  </div>
-                </div>
-
-                {/* Customer Info */}
-                <div className="bg-gray-50 rounded-lg p-4 mb-6">
-                  <h4 className="font-semibold text-gray-900 mb-3">Müşteri Bilgileri</h4>
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div className="flex items-center space-x-2">
-                      <FaUser className="text-gray-400" />
-                      <span className="text-gray-700">{order.user?.username || 'Anonim'}</span>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <FaEnvelope className="text-gray-400" />
-                      <span className="text-gray-700">{order.user?.email || 'Email yok'}</span>
-                    </div>
-                    {order.user?.phone && (
-                      <div className="flex items-center space-x-2">
-                        <FaPhone className="text-gray-400" />
-                        <span className="text-gray-700">{order.user.phone}</span>
+          <div className="space-y-4 p-6">
+            {filteredOrders.map((order) => {
+              const isExpanded = expandedOrders.has(order.id);
+              const totalItems = order.items?.reduce((sum, item) => sum + item.quantity, 0) || 0;
+              
+              return (
+                <div key={order.id} className="border border-gray-200 rounded-xl hover:shadow-lg transition-shadow">
+                  {/* Kompakt Sipariş Başlığı */}
+                  <div className="p-4">
+                    <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-3 mb-2">
+                          <h3 className="text-lg font-semibold text-gray-900">Sipariş #{order.id.slice(-8)}</h3>
+                          <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium border ${getStatusColor(order.status)}`}>
+                            <span className="mr-1">{getStatusIcon(order.status)}</span>
+                            {getStatusText(order.status)}
+                          </span>
+                        </div>
+                        <div className="flex flex-wrap items-center gap-4 text-sm text-gray-600">
+                          <span className="flex items-center space-x-1">
+                            <FaCalendarAlt className="text-gray-400" />
+                            <span>{formatDate(order.createdAt)}</span>
+                          </span>
+                          <span className="flex items-center space-x-1">
+                            <FaBox className="text-gray-400" />
+                            <span>{totalItems} ürün</span>
+                          </span>
+                          <span className="flex items-center space-x-1">
+                            <FaUser className="text-gray-400" />
+                            <span>{order.user?.username || 'Anonim'}</span>
+                          </span>
+                        </div>
                       </div>
-                    )}
+                      <div className="mt-4 lg:mt-0 lg:ml-4 flex items-center gap-4">
+                        <div className="text-right">
+                          <div className="text-2xl font-bold text-orange-600">{formatCurrency(order.totalPrice)}</div>
+                        </div>
+                        <button
+                          onClick={() => toggleOrderDetails(order.id)}
+                          className="flex items-center gap-2 px-4 py-2 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition-colors"
+                        >
+                          <FaEye className="text-sm" />
+                          <span className="text-sm font-medium">
+                            {isExpanded ? 'Detayları Gizle' : 'Detayları Göster'}
+                          </span>
+                        </button>
+                      </div>
+                    </div>
                   </div>
-                </div>
 
-                {/* Order Items */}
-                <div className="mb-6">
-                  <h4 className="font-semibold text-gray-900 mb-4">Sipariş Ürünleri</h4>
-                  <div className="space-y-4">
-                    {order.items?.map((item) => (
-                      <div key={item.id} className="flex items-center space-x-4 p-4 bg-gray-50 rounded-lg">
-                        <img 
-                          src={item.product?.imageUrl1 || item.product?.imageUrl || '/img/default-product.png'} 
-                          alt={item.product?.name}
-                          className="w-16 h-16 rounded-lg object-cover"
-                          onError={(e) => {
-                            e.target.src = '/img/default-product.png';
-                          }}
-                        />
-                        <div className="flex-1">
-                          <h5 className="font-semibold text-gray-900 mb-1">{item.product?.name || 'Ürün Adı'}</h5>
-                          <p className="text-sm text-gray-600 mb-1">{item.product?.category?.name || 'Kategori yok'}</p>
-                          {item.product?.stock !== undefined && (
-                            <div className="text-xs">
-                              {item.product.stock <= 0 ? (
-                                <span className="text-red-600 font-medium">Stokta yok</span>
-                              ) : item.product.stock <= 5 ? (
-                                <span className="text-red-600 font-medium">Kritik stok: {item.product.stock} adet</span>
-                              ) : item.product.stock <= 10 ? (
-                                <span className="text-yellow-600 font-medium">Düşük stok: {item.product.stock} adet</span>
-                              ) : null}
+                  {/* Genişletilmiş Detaylar */}
+                  {isExpanded && (
+                    <div className="border-t border-gray-200 p-4 bg-gray-50">
+                      {/* Müşteri Bilgileri */}
+                      <div className="bg-white rounded-lg p-4 mb-4">
+                        <h4 className="font-semibold text-gray-900 mb-3">Müşteri Bilgileri</h4>
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                          <div className="flex items-center space-x-2">
+                            <FaUser className="text-gray-400" />
+                            <span className="text-gray-700">{order.user?.username || 'Anonim'}</span>
+                          </div>
+                          <div className="flex items-center space-x-2">
+                            <FaEnvelope className="text-gray-400" />
+                            <span className="text-gray-700">{order.user?.email || 'Email yok'}</span>
+                          </div>
+                          {order.user?.phone && (
+                            <div className="flex items-center space-x-2">
+                              <FaPhone className="text-gray-400" />
+                              <span className="text-gray-700">{order.user.phone}</span>
                             </div>
                           )}
                         </div>
-                        <div className="text-center">
-                          <div className="text-sm text-gray-600">Adet</div>
-                          <div className="font-semibold text-gray-900">{item.quantity}</div>
-                        </div>
-                        <div className="text-center">
-                          <div className="text-sm text-gray-600">Fiyat</div>
-                          <div className="font-semibold text-gray-900">{formatCurrency(item.price)}</div>
+                      </div>
+
+                      {/* Sipariş Ürünleri */}
+                      <div className="bg-white rounded-lg p-4">
+                        <h4 className="font-semibold text-gray-900 mb-4">Sipariş Ürünleri</h4>
+                        <div className="space-y-3">
+                          {order.items?.map((item) => (
+                            <div key={item.id} className="flex items-center space-x-4 p-3 bg-gray-50 rounded-lg">
+                              <img 
+                                src={item.product?.imageUrl1 || item.product?.imageUrl || '/img/default-product.png'} 
+                                alt={item.product?.name}
+                                className="w-12 h-12 rounded-lg object-cover"
+                                onError={(e) => {
+                                  e.target.src = '/img/default-product.png';
+                                }}
+                              />
+                              <div className="flex-1">
+                                <h5 className="font-semibold text-gray-900 text-sm">{item.product?.name || 'Ürün Adı'}</h5>
+                                <p className="text-xs text-gray-600">{item.product?.category?.name || 'Kategori yok'}</p>
+                                {item.product?.stock !== undefined && (
+                                  <div className="text-xs mt-1">
+                                    {item.product.stock <= 0 ? (
+                                      <span className="text-red-600 font-medium">Stokta yok</span>
+                                    ) : item.product.stock <= 5 ? (
+                                      <span className="text-red-600 font-medium">Kritik stok: {item.product.stock} adet</span>
+                                    ) : item.product.stock <= 10 ? (
+                                      <span className="text-yellow-600 font-medium">Düşük stok: {item.product.stock} adet</span>
+                                    ) : null}
+                                  </div>
+                                )}
+                              </div>
+                              <div className="text-center">
+                                <div className="text-xs text-gray-600">Adet</div>
+                                <div className="font-semibold text-gray-900">{item.quantity}</div>
+                              </div>
+                              <div className="text-center">
+                                <div className="text-xs text-gray-600">Fiyat</div>
+                                <div className="font-semibold text-gray-900">{formatCurrency(item.price)}</div>
+                              </div>
+                            </div>
+                          ))}
                         </div>
                       </div>
-                    ))}
-                  </div>
-                </div>
+                    </div>
+                  )}
 
-                {/* Order Actions */}
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pt-4 border-t border-gray-200">
-                  <select
-                    value={order.status}
-                    onChange={(e) => handleStatusChange(order.id, e.target.value)}
-                    className={`px-4 py-2 rounded-lg border font-medium transition-colors ${getStatusColor(order.status)}`}
-                  >
-                    <option value="PENDING">Beklemede</option>
-                    <option value="PROCESSING">İşleniyor</option>
-                    <option value="SHIPPED">Kargoda</option>
-                    <option value="DELIVERED">Teslim Edildi</option>
-                    <option value="CANCELLED">İptal Edildi</option>
-                  </select>
-                  
-                  <div className="flex items-center space-x-2">
-                    <button 
-                      className="text-blue-600 hover:text-blue-700 p-2 rounded-lg hover:bg-blue-50 transition-colors"
-                      title="Detayları Görüntüle"
+                  {/* Order Actions - Kompakt */}
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 p-4 border-t border-gray-200">
+                    <select
+                      value={order.status}
+                      onChange={(e) => handleStatusChange(order.id, e.target.value)}
+                      className={`px-3 py-2 rounded-lg border text-sm font-medium transition-colors ${getStatusColor(order.status)}`}
                     >
-                      <FaEye size={16} />
-                    </button>
-                    <button 
-                      className="text-green-600 hover:text-green-700 p-2 rounded-lg hover:bg-green-50 transition-colors"
-                      title="Düzenle"
-                    >
-                      <FaEdit size={16} />
-                    </button>
+                      <option value="PENDING">Beklemede</option>
+                      <option value="PROCESSING">İşleniyor</option>
+                      <option value="SHIPPED">Kargoda</option>
+                      <option value="DELIVERED">Teslim Edildi</option>
+                      <option value="CANCELLED">İptal Edildi</option>
+                    </select>
+                    
+                    <div className="flex items-center space-x-2">
+                      <button 
+                        className="text-green-600 hover:text-green-700 p-2 rounded-lg hover:bg-green-50 transition-colors"
+                        title="Düzenle"
+                      >
+                        <FaEdit size={14} />
+                      </button>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
       </div>

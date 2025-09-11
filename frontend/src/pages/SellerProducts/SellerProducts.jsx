@@ -150,26 +150,45 @@ const SellerProducts = () => {
   const filterProducts = () => {
     let filtered = [...allProducts];
 
+    console.log('=== FILTER DEBUG ===');
+    console.log('Selected category:', selectedCategory);
+    console.log('All products count:', allProducts.length);
+    console.log('Sample product category:', allProducts[0]?.category);
+
     // Arama filtresi
     if (searchTerm) {
       filtered = filtered.filter(product =>
         product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         product.description?.toLowerCase().includes(searchTerm.toLowerCase())
       );
+      console.log('After search filter:', filtered.length);
     }
 
     // Kategori filtresi
     if (selectedCategory) {
-      filtered = filtered.filter(product => product.category?.id === parseInt(selectedCategory));
+      console.log('Filtering by category:', selectedCategory);
+      filtered = filtered.filter(product => {
+        const productCategoryId = product.category?.id;
+        // Kategori ID'leri string olarak karşılaştır
+        const match = productCategoryId === selectedCategory;
+        console.log(`Product ${product.name}: categoryId=${productCategoryId}, selected=${selectedCategory}, match=${match}`);
+        return match;
+      });
+      console.log('After category filter:', filtered.length);
     }
 
     // Fiyat filtresi
     if (minPrice) {
       filtered = filtered.filter(product => product.price >= parseFloat(minPrice));
+      console.log('After min price filter:', filtered.length);
     }
     if (maxPrice) {
       filtered = filtered.filter(product => product.price <= parseFloat(maxPrice));
+      console.log('After max price filter:', filtered.length);
     }
+
+    console.log('Final filtered count:', filtered.length);
+    console.log('=== END FILTER DEBUG ===');
 
     setFilteredProducts(filtered);
     setTotalProducts(filtered.length);
