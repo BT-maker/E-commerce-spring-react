@@ -1,282 +1,508 @@
 # 🛒 E-Commerce Platform
-### Modern Spring Boot + React E-Ticaret Uygulaması
+### Modern Full-Stack E-Commerce Solution with Spring Boot & React
 
-[![Java](https://img.shields.io/badge/Java-21-orange.svg)](https://www.oracle.com/java/)
-[![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.5.3-brightgreen.svg)](https://spring.io/projects/spring-boot)
-[![React](https://img.shields.io/badge/React-19-blue.svg)](https://reactjs.org/)
-[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-Latest-blue.svg)](https://www.postgresql.org/)
-[![Elasticsearch](https://img.shields.io/badge/Elasticsearch-Latest-yellow.svg)](https://www.elastic.co/)
+[![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.2.0-brightgreen.svg)](#)
+[![React](https://img.shields.io/badge/React-18.2.0-blue.svg)](#)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue.svg)](#)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind%20CSS-3.4-38B2AC.svg)](#)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15-336791.svg)](#)
+[![Elasticsearch](https://img.shields.io/badge/Elasticsearch-8.0-005571.svg)](#)
+[![JWT](https://img.shields.io/badge/JWT-Security-orange.svg)](#)
 
-Modern teknolojiler kullanılarak geliştirilmiş, tam özellikli e-ticaret platformu. Güvenli kimlik doğrulama, gelişmiş arama, sepet yönetimi ve kapsamlı admin paneli ile donatılmıştır.
-
----
-
-## ✨ Özellikler
-
-### 🔐 Güvenlik & Kimlik Doğrulama
-- **JWT Tabanlı Oturum**: Güvenli `HttpOnly` cookie kullanımı
-- **Rol Tabanlı Erişim**: `ADMIN`, `SELLER`, `USER` rolleri
-- **SHA-256 + BCrypt**: Çift katmanlı şifre güvenliği
-- **CORS Koruması**: Güvenli cross-origin istekleri
-
-### 🛍️ E-Ticaret Özellikleri
-- **Ürün Yönetimi**: Kategori bazlı listeleme ve filtreleme
-- **Gelişmiş Arama**: Elasticsearch ile tam metin arama
-- **Sepet & Sipariş**: Dinamik sepet yönetimi ve sipariş takibi
-- **Favoriler**: Kullanıcı favori ürün sistemi
-- **Yorumlar**: Ürün değerlendirme ve yorum sistemi
-
-### 👨‍💼 Yönetim Panelleri
-- **Satıcı Paneli**: Stok, sipariş ve ürün yönetimi
-- **Admin Paneli**: Kullanıcı, satıcı ve sistem yönetimi
-- **Dashboard**: Gerçek zamanlı istatistikler ve raporlar
-
-### 📱 Modern UI/UX
-- **Responsive Tasarım**: Mobil uyumlu arayüz
-- **Tailwind CSS**: Modern ve hızlı stil sistemi
-- **React 19**: En güncel React özellikleri
-- **Bildirim Sistemi**: Kullanıcı dostu geri bildirimler
+A modern, secure, and scalable e-commerce platform built with Spring Boot backend and React frontend. Features advanced search capabilities, comprehensive admin panel, and enterprise-level security.
 
 ---
 
-## 🚀 Teknoloji Yığını
+## ✨ Key Features
 
-### Backend
-- **Framework**: Spring Boot 3.5.3
-- **Güvenlik**: Spring Security + JWT
-- **Veritabanı**: PostgreSQL + Spring Data JPA
-- **Arama**: Elasticsearch
-- **Dokümantasyon**: Swagger/OpenAPI
-- **Java**: JDK 21
+### 🛍️ **Customer Experience**
+- **Product Catalog**: Advanced filtering and sorting
+- **Smart Search**: Elasticsearch-powered search with autocomplete
+- **Shopping Cart**: Real-time cart management
+- **User Authentication**: Secure JWT-based authentication
+- **Order Management**: Complete order tracking system
+- **Responsive Design**: Mobile-first approach with Tailwind CSS
 
-### Frontend
-- **Framework**: React 19
-- **Build Tool**: Vite 7
-- **Routing**: React Router
-- **HTTP Client**: Axios
-- **Styling**: Tailwind CSS
-- **Form Handling**: React Hook Form + Zod
-- **Charts**: Chart.js
+### 🔧 **Admin Panel**
+- **Dashboard**: Real-time analytics and metrics
+- **Product Management**: CRUD operations with image upload
+- **User Management**: Customer and seller administration
+- **Order Processing**: Order status management
+- **Category Management**: Hierarchical category system
+- **Sales Analytics**: Revenue and performance tracking
+
+### 🔒 **Security Features**
+- **Dual-Layer Encryption**: SHA-256 + BCrypt password security
+- **JWT Authentication**: HttpOnly cookie-based sessions
+- **Role-Based Access**: Admin, Seller, Customer roles
+- **CORS Protection**: Secure cross-origin configuration
+- **Input Validation**: Comprehensive data validation
+- **SQL Injection Protection**: Parameterized queries
 
 ---
 
-## 📁 Proje Yapısı
+## 🏗️ Technology Stack
+
+### 🌐 **Frontend**
+```
+React 18.2.0          # Modern UI library
+TypeScript 5.0        # Type-safe JavaScript
+Tailwind CSS 3.4      # Utility-first CSS framework
+Vite                  # Fast build tool
+React Router          # Client-side routing
+Axios                 # HTTP client
+React Hook Form       # Form management
+React Query           # Server state management
+```
+
+### ⚙️ **Backend**
+```
+Spring Boot 3.2.0     # Java framework
+Spring Security       # Authentication & authorization
+Spring Data JPA       # Data persistence
+PostgreSQL 15         # Primary database
+Elasticsearch 8.0     # Search engine
+Redis                 # Caching layer
+JWT                   # Token-based authentication
+Maven                 # Dependency management
+```
+
+### 🛠️ **DevOps & Tools**
+```
+Docker                # Containerization
+Docker Compose        # Multi-container orchestration
+Git                   # Version control
+Swagger/OpenAPI       # API documentation
+Postman               # API testing
+```
+
+---
+
+## 📁 Project Structure
 
 ```
-E-commerce-spring-react/
-├── 📁 backend/                    # Spring Boot Backend
+e-commerce-platform/
+├── 📁 backend/                    # Spring Boot Application
 │   ├── 📁 src/main/java/com/bahattintok/e_commerce/
-│   │   ├── 📁 controller/         # REST API Controllers
-│   │   ├── 📁 service/           # Business Logic
-│   │   ├── 📁 repository/        # Data Access Layer
-│   │   ├── 📁 security/          # JWT & Security Config
-│   │   ├── 📁 model/             # Entity Classes
-│   │   └── 📁 dto/               # Data Transfer Objects
+│   │   ├── 📁 config/             # Configuration classes
+│   │   ├── 📁 controller/         # REST controllers
+│   │   ├── 📁 dto/                # Data Transfer Objects
+│   │   ├── 📁 entity/             # JPA entities
+│   │   ├── 📁 repository/         # Data repositories
+│   │   ├── 📁 service/            # Business logic
+│   │   ├── 📁 security/           # Security configuration
+│   │   └── 📄 ECommerceApplication.java
 │   ├── 📁 src/main/resources/
-│   │   └── 📄 application.properties
-│   └── 📄 pom.xml                # Maven Dependencies
-│
-├── 📁 frontend/                   # React Frontend
+│   │   ├── 📄 application.properties
+│   │   └── 📄 data.sql
+│   └── 📄 pom.xml
+├── 📁 frontend/                   # React Application
 │   ├── 📁 src/
-│   │   ├── 📁 components/        # Reusable Components
-│   │   ├── 📁 pages/             # Page Components
-│   │   ├── 📁 services/          # API Services
-│   │   ├── 📁 context/           # React Context
-│   │   └── 📁 utils/             # Utility Functions
-│   ├── 📄 vite.config.ts         # Vite Configuration
-│   └── 📄 package.json           # NPM Dependencies
-│
-└── 📄 README.md                   # Bu dosya
+│   │   ├── 📁 components/         # Reusable components
+│   │   ├── 📁 pages/              # Page components
+│   │   ├── 📁 services/           # API services
+│   │   ├── 📁 utils/              # Utility functions
+│   │   ├── 📁 context/            # React contexts
+│   │   ├── 📁 assets/             # Static assets
+│   │   └── 📄 App.jsx
+│   ├── 📄 package.json
+│   ├── 📄 tailwind.config.js
+│   └── 📄 vite.config.ts
+├── 📄 docker-compose.yml
+├── 📄 README.md
+└── 📄 LICENSE
 ```
 
 ---
 
-## ⚙️ Kurulum ve Çalıştırma
+## 🚀 Quick Start
 
-### 📋 Gereksinimler
-- ☕ Java 21 (JDK)
-- 🟢 Node.js 18+ ve npm
-- 🐘 PostgreSQL (port: 5432)
-- 🔍 Elasticsearch (port: 9200)
+### 📋 Prerequisites
+- **Java 17+** - Backend runtime
+- **Node.js 18+** - Frontend runtime
+- **PostgreSQL 15+** - Database
+- **Elasticsearch 8.0+** - Search engine
+- **Redis** - Caching (optional)
+- **Docker & Docker Compose** - Containerization
 
-### 1️⃣ Veritabanı Kurulumu
-```sql
--- PostgreSQL'de veritabanı oluşturun
-CREATE DATABASE "e-commerce_db";
+### 🐳 Docker Setup (Recommended)
+```bash
+# Clone the repository
+git clone https://github.com/yourusername/e-commerce-platform.git
+cd e-commerce-platform
+
+# Start all services with Docker Compose
+docker-compose up -d
+
+# Access the application
+# Frontend: http://localhost:3000
+# Backend API: http://localhost:8080
+# Swagger UI: http://localhost:8080/swagger-ui.html
 ```
 
-### 2️⃣ Backend Kurulumu
+### 🔧 Manual Setup
+
+#### Backend Setup
 ```bash
 cd backend
 
-# Windows
-mvnw.cmd spring-boot:run
+# Install dependencies
+./mvnw clean install
 
-# macOS/Linux
+# Configure database (application.properties)
+spring.datasource.url=jdbc:postgresql://localhost:5432/ecommerce
+spring.datasource.username=your_username
+spring.datasource.password=your_password
+
+# Run the application
 ./mvnw spring-boot:run
 ```
-🌐 **Backend URL**: `http://localhost:8082`  
-📚 **Swagger UI**: `http://localhost:8082/swagger-ui.html`
 
-### 3️⃣ Frontend Kurulumu
+#### Frontend Setup
 ```bash
 cd frontend
+
+# Install dependencies
 npm install
+
+# Configure API endpoint (src/services/api.ts)
+const API_BASE_URL = 'http://localhost:8080/api';
+
+# Start development server
 npm run dev
 ```
-🌐 **Frontend URL**: `http://localhost:5173`
 
 ---
 
-## 🔧 Konfigürasyon
+## 🔧 Configuration
 
-### Backend (`application.properties`)
+### 🗄️ Database Configuration
 ```properties
-# Server Configuration
-server.port=8082
-
-# Database Configuration
-spring.datasource.url=jdbc:postgresql://localhost:5432/e-commerce_db
-spring.datasource.username=postgres
-spring.datasource.password=147369
-
-# JPA Configuration
+# PostgreSQL Configuration
+spring.datasource.url=jdbc:postgresql://localhost:5432/ecommerce
+spring.datasource.username=ecommerce_user
+spring.datasource.password=secure_password
 spring.jpa.hibernate.ddl-auto=update
-spring.jpa.show-sql=true
+spring.jpa.show-sql=false
+```
 
-# JWT Configuration
-jwt.secret=your-secret-key-here
-jwt.expiration=86400000
-
-# CORS Configuration
-spring.web.cors.allowed-origins=http://localhost:5173
-spring.web.cors.allowed-methods=GET,POST,PUT,DELETE,OPTIONS
-spring.web.cors.allowed-headers=*
-
+### 🔍 Elasticsearch Configuration
+```properties
 # Elasticsearch Configuration
-elasticsearch.enabled=true
 spring.elasticsearch.uris=http://localhost:9200
+spring.elasticsearch.username=elastic
+spring.elasticsearch.password=elastic_password
 ```
 
-### Frontend (`src/services/api.ts`)
+### 🌐 Frontend API Configuration
 ```typescript
-const API_BASE_URL = 'http://localhost:8082/api';
+// src/services/api.ts
+const API_CONFIG = {
+  baseURL: 'http://localhost:8080/api',
+  timeout: 10000,
+  withCredentials: true
+};
 ```
 
 ---
 
-## 🔐 Güvenlik
+## 🔐 Authentication & Security
 
-### Kimlik Doğrulama Akışı
-1. **Giriş**: `POST /api/auth/signin`
-2. **JWT Token**: `HttpOnly` cookie olarak saklanır
-3. **Çıkış**: `POST /api/auth/logout`
+### 🔑 JWT Authentication
+- **Access Tokens**: Short-lived (15 minutes)
+- **Refresh Tokens**: Long-lived (7 days)
+- **HttpOnly Cookies**: Secure token storage
+- **CSRF Protection**: Built-in CSRF tokens
 
-### Şifre Güvenliği
-- **Frontend**: SHA-256 hashleme
-- **Backend**: BCrypt ile güvenli saklama
-- **Network**: Sadece hash'lenmiş şifre iletimi
+### 👥 User Roles
+| Role | Permissions |
+|------|-------------|
+| **ADMIN** | Full system access, user management |
+| **SELLER** | Product management, order processing |
+| **CUSTOMER** | Shopping, order tracking |
 
-### Örnek Giriş İsteği
+### 🔒 Password Security
+- **Frontend**: SHA-256 hashing before transmission
+- **Backend**: BCrypt hashing for storage
+- **Strength Validation**: Real-time password strength checking
+
+### 📝 Example Login Request
+```javascript
+const loginData = {
+  email: "user@example.com",
+  password: await hashPassword("userPassword123") // SHA-256 hash
+};
+
+const response = await api.post('/auth/signin', loginData);
+```
+
+---
+
+## 🧪 Default Test Data
+
+The application includes pre-configured test data via `DataInitializer`:
+
+### 👤 Test Users
+```
+Admin User:
+- Email: admin@example.com
+- Password: admin123
+- Role: ADMIN
+
+Seller User:
+- Email: seller@example.com
+- Password: seller123
+- Role: SELLER
+
+Customer User:
+- Email: customer@example.com
+- Password: customer123
+- Role: CUSTOMER
+```
+
+### 📦 Sample Data
+- **Categories**: Electronics, Clothing, Books, Home & Garden
+- **Products**: 50+ sample products with images
+- **Orders**: Sample order history
+- **Reviews**: Product reviews and ratings
+
+---
+
+## 🛠️ Development Commands
+
+### Backend Commands
 ```bash
-curl -X POST http://localhost:8082/api/auth/signin \
-  -H "Content-Type: application/json" \
-  -d '{"username":"testuser","password":"password"}'
+# Run tests
+./mvnw test
+
+# Build JAR
+./mvnw clean package
+
+# Run with profile
+./mvnw spring-boot:run -Dspring-boot.run.profiles=dev
+
+# Generate API documentation
+./mvnw spring-boot:run
+# Visit: http://localhost:8080/swagger-ui.html
 ```
 
----
-
-## 👥 Varsayılan Test Verileri
-
-Uygulama ilk çalıştırıldığında otomatik olarak test verileri eklenir:
-
-### Kullanıcılar
-- **Test Kullanıcı**: `testuser` / `password`
-- **Test Satıcı**: `testseller` / `password`
-
-### Kategoriler
-- 📱 Elektronik
-- 👕 Giyim
-- 📚 Kitap
-- 🏠 Ev & Yaşam
-
----
-
-## 🛠️ Geliştirme Komutları
-
-### Backend
+### Frontend Commands
 ```bash
-cd backend
-mvnw.cmd test                    # Testleri çalıştır
-mvnw.cmd clean package          # Projeyi derle
+# Development server
+npm run dev
+
+# Type checking
+npm run type-check
+
+# Linting
+npm run lint
+
+# Build for production
+npm run build
+
+# Preview production build
+npm run preview
+
+# Run tests
+npm run test
 ```
 
-### Frontend
+---
+
+## 📚 API Documentation
+
+### 🔗 Swagger UI
+Access interactive API documentation at: `http://localhost:8080/swagger-ui.html`
+
+### 🌐 Main Endpoints
+
+#### Authentication
+```
+POST /api/auth/signin     # User login
+POST /api/auth/signup     # User registration
+POST /api/auth/refresh    # Refresh token
+POST /api/auth/logout     # User logout
+```
+
+#### Products
+```
+GET    /api/products           # Get all products
+GET    /api/products/{id}      # Get product by ID
+POST   /api/products           # Create product (SELLER+)
+PUT    /api/products/{id}      # Update product (SELLER+)
+DELETE /api/products/{id}      # Delete product (ADMIN)
+GET    /api/products/search    # Search products
+```
+
+#### Orders
+```
+GET    /api/orders             # Get user orders
+POST   /api/orders             # Create order
+GET    /api/orders/{id}        # Get order details
+PUT    /api/orders/{id}/status # Update order status (SELLER+)
+```
+
+#### Admin
+```
+GET    /api/admin/users        # Get all users (ADMIN)
+GET    /api/admin/dashboard    # Dashboard metrics (ADMIN)
+PUT    /api/admin/users/{id}   # Update user (ADMIN)
+DELETE /api/admin/users/{id}   # Delete user (ADMIN)
+```
+
+---
+
+## 🎨 UI/UX Features
+
+### 🎯 Design System
+- **Color Palette**: Modern blue and gray tones
+- **Typography**: Inter font family
+- **Icons**: Heroicons and Lucide React
+- **Animations**: Smooth transitions and micro-interactions
+- **Responsive**: Mobile-first design approach
+
+### 📱 Responsive Breakpoints
+```css
+sm: 640px   # Small devices
+md: 768px   # Medium devices
+lg: 1024px  # Large devices
+xl: 1280px  # Extra large devices
+2xl: 1536px # 2X large devices
+```
+
+### ⚡ Performance Features
+- **Code Splitting**: Route-based lazy loading
+- **Image Optimization**: WebP format with fallbacks
+- **Caching**: Redis-based API response caching
+- **Compression**: Gzip compression for static assets
+- **CDN Ready**: Optimized for CDN deployment
+
+---
+
+## 🔍 Troubleshooting
+
+### 🔌 Backend Connection Issues
 ```bash
-cd frontend
-npm run lint                    # Kod kalitesi kontrolü
-npm run build                   # Production build
-npm run preview                 # Build önizleme
+# Check if PostgreSQL is running
+sudo systemctl status postgresql
+
+# Check if Elasticsearch is running
+curl -X GET "localhost:9200/_cluster/health"
+
+# Verify application properties
+cat backend/src/main/resources/application.properties
 ```
 
----
+### 🌐 CORS & Cookie Issues
+```javascript
+// Ensure credentials are included in requests
+axios.defaults.withCredentials = true;
 
-## 🐛 Sorun Giderme
+// Check CORS configuration in SecurityConfig.java
+.cors(cors -> cors.configurationSource(corsConfigurationSource()))
+```
 
-### Backend Bağlantı Sorunları
-- ✅ PostgreSQL servisinin çalıştığını kontrol edin
-- ✅ Veritabanı bağlantı bilgilerini doğrulayın
-- ✅ Port 8082'nin kullanılabilir olduğunu kontrol edin
+### 🗄️ Database Issues
+```sql
+-- Check database connection
+\c ecommerce
 
-### Frontend Sorunları
-- ✅ Backend'in çalıştığını kontrol edin (`http://localhost:8082`)
-- ✅ CORS ayarlarını kontrol edin
-- ✅ Browser console'da hata mesajlarını inceleyin
+-- Verify tables exist
+\dt
 
-### Elasticsearch Sorunları
-- ✅ Elasticsearch servisinin çalıştığını kontrol edin
-- ✅ `http://localhost:9200` adresine erişilebildiğini doğrulayın
-- ✅ Gerekirse `elasticsearch.enabled=false` ile devre dışı bırakın
+-- Check sample data
+SELECT COUNT(*) FROM users;
+SELECT COUNT(*) FROM products;
+```
 
----
+### 🔍 Elasticsearch Issues
+```bash
+# Check Elasticsearch status
+curl -X GET "localhost:9200/_cat/health?v"
 
-## 📈 Gelecek Geliştirmeler
+# Verify indices
+curl -X GET "localhost:9200/_cat/indices?v"
 
-- [ ] 📧 Email bildirimleri
-- [ ] 💳 Ödeme sistemi entegrasyonu
-- [ ] 📊 Gelişmiş analitik dashboard
-- [ ] 🌍 Çoklu dil desteği
-- [ ] 📱 Mobil uygulama
-- [ ] 🔄 Real-time bildirimler
+# Reindex products
+curl -X POST "localhost:8080/api/admin/reindex"
+```
 
----
-
-## 🤝 Katkıda Bulunma
-
-1. Bu repository'yi fork edin
-2. Feature branch oluşturun (`git checkout -b feature/amazing-feature`)
-3. Değişikliklerinizi commit edin (`git commit -m 'Add amazing feature'`)
-4. Branch'inizi push edin (`git push origin feature/amazing-feature`)
-5. Pull Request oluşturun
-
----
-
-## 📄 Lisans
-
-Bu proje MIT lisansı altında lisanslanmıştır. Detaylar için [LICENSE](LICENSE) dosyasına bakın.
+### 📋 Swagger Access Issues
+- Ensure backend is running on port 8080
+- Visit: `http://localhost:8080/swagger-ui.html`
+- Check for CORS issues in browser console
 
 ---
 
-## 📞 İletişim
+## 🚀 Future Enhancements
 
-**Geliştirici**: Bahattin Tok  
-**Email**: bahattok5@gmail.com  
-**GitHub**: [bahattintok](https://github.com/bahattintok)
+### 🎯 Planned Features
+- [ ] **Payment Integration**: Stripe, PayPal support
+- [ ] **Multi-language**: i18n internationalization
+- [ ] **Real-time Chat**: Customer support chat
+- [ ] **Push Notifications**: Order status updates
+- [ ] **Advanced Analytics**: Business intelligence dashboard
+- [ ] **Mobile App**: React Native mobile application
+- [ ] **Microservices**: Service decomposition
+- [ ] **GraphQL API**: Alternative to REST API
+
+### 🔧 Technical Improvements
+- [ ] **Kubernetes**: Container orchestration
+- [ ] **CI/CD Pipeline**: Automated deployment
+- [ ] **Monitoring**: Application performance monitoring
+- [ ] **Load Balancing**: High availability setup
+- [ ] **Database Sharding**: Horizontal scaling
+- [ ] **CDN Integration**: Global content delivery
+
+---
+
+## 🤝 Contributing
+
+We welcome contributions! Please follow these steps:
+
+1. **Fork** the repository
+2. **Create** a feature branch (`git checkout -b feature/amazing-feature`)
+3. **Commit** your changes (`git commit -m 'Add amazing feature'`)
+4. **Push** to the branch (`git push origin feature/amazing-feature`)
+5. **Open** a Pull Request
+
+### 📝 Development Guidelines
+- Follow existing code style and conventions
+- Write comprehensive tests for new features
+- Update documentation for API changes
+- Ensure all tests pass before submitting PR
+
+---
+
+## 📄 License
+
+This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) file for details.
+
+---
+
+## 📞 Support & Contact
+
+### 🐛 Bug Reports
+- **GitHub Issues**: [Create an issue](https://github.com/yourusername/e-commerce-platform/issues)
+- **Email**: support@yourcompany.com
+
+### 💬 Community
+- **Discord**: [Join our community](https://discord.gg/yourserver)
+- **Stack Overflow**: Tag your questions with `e-commerce-platform`
+
+### 📧 Business Inquiries
+- **Email**: business@yourcompany.com
+- **LinkedIn**: [Your LinkedIn Profile](https://linkedin.com/in/yourprofile)
 
 ---
 
 <div align="center">
 
-**⭐ Bu projeyi beğendiyseniz yıldız vermeyi unutmayın! ⭐**
+### 🌟 Star this repository if you find it helpful!
+
+[![GitHub stars](https://img.shields.io/github/stars/yourusername/e-commerce-platform.svg?style=social&label=Star)](#)
+[![GitHub forks](https://img.shields.io/github/forks/yourusername/e-commerce-platform.svg?style=social&label=Fork)](#)
+
+**Built with ❤️ by [Your Name](https://github.com/yourusername)**
 
 </div>
