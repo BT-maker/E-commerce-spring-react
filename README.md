@@ -476,23 +476,14 @@ We welcome contributions! Please follow these steps:
 
 ## 📄 License
 
-This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the **GNU GENERAL PUBLIC LICENSE** - see the [LICENSE](LICENSE) file for details.
 
 ---
 
 ## 📞 Support & Contact
 
-### 🐛 Bug Reports
-- **GitHub Issues**: [Create an issue](https://github.com/yourusername/e-commerce-platform/issues)
-- **Email**: support@yourcompany.com
-
-### 💬 Community
-- **Discord**: [Join our community](https://discord.gg/yourserver)
-- **Stack Overflow**: Tag your questions with `e-commerce-platform`
-
 ### 📧 Business Inquiries
-- **Email**: business@yourcompany.com
-- **LinkedIn**: [Your LinkedIn Profile](https://linkedin.com/in/yourprofile)
+- **LinkedIn**: [Bahattin Tok](www.linkedin.com/in/bahattin-tok-08aa2b242)
 
 ---
 
@@ -503,6 +494,6 @@ This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) 
 [![GitHub stars](https://img.shields.io/github/stars/yourusername/e-commerce-platform.svg?style=social&label=Star)](#)
 [![GitHub forks](https://img.shields.io/github/forks/yourusername/e-commerce-platform.svg?style=social&label=Fork)](#)
 
-**Built with ❤️ by [Your Name](https://github.com/yourusername)**
+**Built with ❤️ by [BT-maker](https://github.com/BT-maker)**
 
 </div>
