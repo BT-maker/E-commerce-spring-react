@@ -258,8 +258,10 @@ const CheckoutPage = () => {
       }
       
       addNotification({
-        type: 'warning',
-        message: 'Kredi kartı ödeme sistemimiz henüz aktif değil, lütfen başka bir ödeme yöntemi seçin.'
+        id: Date.now(),
+        type: 'info',
+        title: 'Bilgilendirme',
+        message: 'Kredi kartı işlemimiz şuan aktif değil çok yakında hizmetinizde'
       });
       return;
     }
@@ -268,19 +270,23 @@ const CheckoutPage = () => {
     setError('');
 
     try {
-      const orderItems = cartItems.map(item => ({
-        productId: item.product.id,
-        quantity: item.quantity,
-        price: item.product.isDiscountActive ? item.product.discountedPrice : item.product.price
-      }));
+      const orderItems = cartItems.map(item => {
+        const price = item.product.isDiscountActive ? item.product.discountedPrice : item.product.price;
+        return {
+            productId: item.product.id,
+            quantity: item.quantity,
+            price: price.toString()
+        };
+      });
 
       const checkoutData = {
         items: orderItems,
-        total: total,
+        total: total.toString(),
         deliveryAddress: `${addressForm.address1}, ${addressForm.address2 || ''}`,
         deliveryMethod: selectedDelivery,
         paymentMethod: selectedPayment,
         notes: notes,
+        creditCard: null
       };
 
       const response = await api.post('/checkout/complete', checkoutData);

@@ -135,8 +135,9 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<Order> getUserOrders(User user) {
-        return orderRepository.findByUserOrderByCreatedAtDesc(user);
+        return orderRepository.findByUserWithItemsAndProducts(user);
     }
     
     /**

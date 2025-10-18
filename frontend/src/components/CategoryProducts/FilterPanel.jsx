@@ -83,6 +83,7 @@ const FilterPanel = memo(({
                 placeholder="Min"
                 value={minPrice}
                 onChange={onMinPriceChange}
+                min="0"
                 className="w-full border border-gray-200 px-2 py-1.5 text-sm rounded-md focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
               />
               <input
@@ -90,6 +91,7 @@ const FilterPanel = memo(({
                 placeholder="Max"
                 value={maxPrice}
                 onChange={onMaxPriceChange}
+                min="0"
                 className="w-full border border-gray-200 px-2 py-1.5 text-sm rounded-md focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
               />
             </div>
