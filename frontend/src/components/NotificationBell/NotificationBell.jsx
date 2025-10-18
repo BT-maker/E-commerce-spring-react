@@ -90,9 +90,9 @@ const NotificationBell = () => {
       </button>
 
       {isOpen && (
-        <div className="absolute right-0 mt-2 w-96 bg-white dark:bg-gray-800 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 z-50 animate-slideDown">
+        <div className="absolute right-0 mt-2 w-96 bg-white rounded-lg shadow-xl border border-gray-200 z-50 animate-slideDown">
           {/* Header */}
-          <div className="p-4 border-b border-gray-200 dark:border-gray-700">
+          <div className="p-4 border-b border-gray-200">
             <div className="flex items-center justify-between mb-3">
               <h3 className="text-lg font-semibold text-text-primary">Bildirimler</h3>
               {unreadCount > 0 && (
@@ -121,12 +121,12 @@ const NotificationBell = () => {
                   className={`px-1.5 py-0.5 rounded-full text-xs font-medium whitespace-nowrap transition-all ${
                     activeFilter === filter.key
                       ? 'bg-[#ff6000] text-white'
-                      : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
+                      : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                   }`}
                 >
                   {filter.label}
                   {filter.count > 0 && (
-                    <span className="ml-1 bg-white dark:bg-gray-800 text-[#ff6000] rounded-full px-1 text-xs">
+                    <span className="ml-1 bg-white text-[#ff6000] rounded-full px-1 text-xs">
                       {filter.count}
                     </span>
                   )}
@@ -152,13 +152,13 @@ const NotificationBell = () => {
                   <div
                     key={notification.id}
                     onClick={() => handleNotificationClick(notification)}
-                                      className={`p-4 border-b border-gray-100 dark:border-gray-700 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 transition-all duration-200 ${
-                    !notification.read ? 'bg-[rgba(255,96,0,0.05)] dark:bg-[rgba(255,96,0,0.1)]' : ''
+                                      className={`p-4 border-b border-gray-100 cursor-pointer hover:bg-gray-50 transition-all duration-200 ${
+                    !notification.read ? 'bg-[rgba(255,96,0,0.05)]' : ''
                   }`}
                   >
                     <div className="flex items-start gap-3">
                       {/* İkon */}
-                      <div className={`p-2 rounded-full ${bgColor} dark:bg-gray-700 flex-shrink-0`}>
+                      <div className={`p-2 rounded-full ${bgColor} flex-shrink-0`}>
                         <Icon size={16} className={color} />
                       </div>
 
@@ -190,7 +190,7 @@ const NotificationBell = () => {
 
           {/* Footer */}
           {notifications.length > 0 && (
-            <div className="p-4 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800">
+            <div className="p-4 border-t border-gray-200 bg-gray-50">
               <div className="flex items-center justify-between">
                 <span className="text-xs text-text-secondary">
                   {unreadCount} okunmamış bildirim
