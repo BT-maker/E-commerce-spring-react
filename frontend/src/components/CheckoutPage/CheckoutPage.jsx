@@ -2,6 +2,7 @@ import React, { useState, useEffect, useContext } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { CartContext } from '../../context/CartContext';
 import { AuthContext } from '../../context/AuthContext';
+import { NotificationContext } from '../../context/NotificationContext';
 import api from '../../services/api';
 
 import PageTitle from '../PageTitle/PageTitle';
@@ -26,6 +27,7 @@ import {
 const CheckoutPage = () => {
   const { cartItems, clearCart } = useContext(CartContext);
   const { user } = useContext(AuthContext);
+  const { addNotification } = useContext(NotificationContext);
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -243,19 +245,23 @@ const CheckoutPage = () => {
       return;
     }
 
-    // Adres formu açıksa ve henüz kaydedilmemişse
     if (showAddressForm && (!addressForm.address1 || !addressForm.phone)) {
       setError('Lütfen tüm zorunlu adres alanlarını doldurun');
       return;
     }
 
-    // Kredi kartı seçiliyse validasyon yap
     if (selectedPayment === 'CREDIT_CARD') {
       const cardError = validateCreditCard();
       if (cardError) {
         setError(cardError);
         return;
       }
+      
+      addNotification({
+        type: 'warning',
+        message: 'Kredi kartı ödeme sistemimiz henüz aktif değil, lütfen başka bir ödeme yöntemi seçin.'
+      });
+      return;
     }
 
     setLoading(true);
@@ -275,14 +281,6 @@ const CheckoutPage = () => {
         deliveryMethod: selectedDelivery,
         paymentMethod: selectedPayment,
         notes: notes,
-        ...(selectedPayment === 'CREDIT_CARD' && {
-          creditCard: {
-            cardNumber: creditCardForm.cardNumber.replace(/\s/g, ''),
-            cardHolder: creditCardForm.cardHolder,
-            expiryMonth: creditCardForm.expiryMonth,
-            cvv: creditCardForm.cvv
-          }
-        })
       };
 
       const response = await api.post('/checkout/complete', checkoutData);
@@ -569,17 +567,8 @@ const CheckoutPage = () => {
 
             {/* Kredi Kartı Bilgileri */}
             {selectedPayment === 'CREDIT_CARD' && (
-              <div className="bg-white/80 backdrop-blur-lg rounded-xl border border-gray-200/50 shadow-sm p-6 relative">
-                {/* Yakında Overlay */}
-                <div className="absolute inset-0 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center z-10">
-                  <div className="text-center">
-                    <div className="w-16 h-16 bg-gradient-to-r from-orange-500 to-red-500 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
-                      <Clock className="w-8 h-8 text-white" />
-                    </div>
-                    <h4 className="text-2xl font-bold text-gray-900 mb-2">Yakında</h4>
-                    <p className="text-gray-600">Kredi kartı ödemesi yakında aktif olacak</p>
-                  </div>
-                </div>
+              <div className="bg-white/80  rounded-xl border border-gray-200/50 shadow-sm p-6 relative">
+                
 
                 <div className="flex items-center space-x-3 mb-6">
                   <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
@@ -588,7 +577,7 @@ const CheckoutPage = () => {
                   <h3 className="text-xl font-semibold text-gray-900">Kredi Kartı Bilgileri</h3>
                 </div>
                 
-                <div className="space-y-4 opacity-70">
+                <div className="space-y-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">Kart Numarası *</label>
                     <div className="relative">
@@ -604,7 +593,7 @@ const CheckoutPage = () => {
                         placeholder="1234 5678 9012 3456"
                         maxLength="19"
                         className="w-full pl-12 pr-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-200"
-                        disabled
+                        
                       />
                     </div>
                   </div>
@@ -618,7 +607,7 @@ const CheckoutPage = () => {
                       placeholder="AD SOYAD"
                       maxLength="50"
                       className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-200"
-                      disabled
+                      
                     />
                   </div>
 
@@ -632,7 +621,7 @@ const CheckoutPage = () => {
                         placeholder="AA/YY"
                         maxLength="5"
                         className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-200"
-                        disabled
+                        
                       />
                     </div>
 
@@ -646,13 +635,13 @@ const CheckoutPage = () => {
                           placeholder="123"
                           maxLength="4"
                           className="w-full px-4 py-3 pr-12 border border-gray-200 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-200"
-                          disabled
+                          
                         />
                         <button
                           type="button"
                           className="absolute inset-y-0 right-0 pr-3 flex items-center"
                           onClick={() => setShowCvv(!showCvv)}
-                          disabled
+                          
                         >
                           {showCvv ? <EyeOff size={16} className="text-gray-400" /> : <Eye size={16} className="text-gray-400" />}
                         </button>
