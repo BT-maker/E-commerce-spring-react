@@ -105,11 +105,17 @@ public class OrderController {
                     
                     // Product bilgilerini de ekle
                     Map<String, Object> productResponse = new HashMap<>();
-                    productResponse.put("id", item.getProduct().getId());
-                    productResponse.put("name", item.getProduct().getName());
-                    productResponse.put("imageUrl1", item.getProduct().getImageUrl1());
-                    productResponse.put("imageUrl", item.getProduct().getImageUrl());
-                    productResponse.put("price", item.getProduct().getPrice());
+                    if (item.getProduct() != null) {
+                        productResponse.put("id", item.getProduct().getId());
+                        productResponse.put("name", item.getProduct().getName());
+                        productResponse.put("imageUrl1", item.getProduct().getImageUrl1());
+                        productResponse.put("imageUrl", item.getProduct().getImageUrl());
+                        productResponse.put("price", item.getProduct().getPrice());
+                    } else {
+                        // Handle the case where the product is null, e.g., log a warning
+                        // or skip this item. For now, we'll just create an empty product map.
+                        System.err.println("Warning: Product is null for OrderItem with ID: " + item.getId());
+                    }
                     
                     itemResponse.put("product", productResponse);
                     itemResponses.add(itemResponse);

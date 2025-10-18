@@ -2,6 +2,7 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 import api from '../services/api';
 import webSocketService from '../services/webSocketService';
 import { useAuth } from './AuthContext';
+import toast from 'react-hot-toast'; // Import react-hot-toast
 
 export const NotificationContext = createContext();
 
@@ -56,62 +57,56 @@ export const NotificationProvider = ({ children }) => {
     }
   };
 
-  // Yeni bildirim ekle (local state için)
+  // Yeni bildirim ekle ve toast göster
   const addNotification = (notification) => {
-    setNotifications(prev => [notification, ...prev]);
-    if (!notification.read) {
+    const newNotification = {
+        id: notification.id || Date.now(),
+        title: notification.title || 'Bildirim',
+        message: notification.message,
+        type: notification.type || 'info',
+        read: false,
+        createdAt: new Date().toISOString(),
+    };
+
+    // Show toast notification
+    switch (newNotification.type) {
+        case 'success':
+            toast.success(newNotification.message);
+            break;
+        case 'error':
+            toast.error(newNotification.message);
+            break;
+        case 'warning':
+            toast(newNotification.message, { icon: '⚠️' });
+            break;
+        case 'info':
+        default:
+            toast(newNotification.message, { icon: 'ℹ️' });
+            break;
+    }
+
+    setNotifications(prev => [newNotification, ...prev]);
+    if (!newNotification.read) {
       setUnreadCount(prev => prev + 1);
     }
   };
 
   useEffect(() => {
-    // Sadece kullanıcı giriş yapmışsa bildirimleri yükle
     const token = localStorage.getItem('token') || sessionStorage.getItem('token');
     if (token) {
       fetchNotifications();
-    } else {
-      console.log('Token bulunamadı, bildirimler yüklenmedi');
     }
   }, []);
 
-  // WebSocket bildirimleri için useEffect
   useEffect(() => {
     if (user) {
-      // Kullanıcı bildirimlerini dinle
       webSocketService.subscribe('/user/queue/notifications', (notification) => {
-        console.log('Yeni bildirim:', notification);
-        
-        // Bildirimi listeye ekle
-        const newNotification = {
-          id: notification.id || Date.now().toString(),
-          title: notification.title || 'Yeni Bildirim',
-          message: notification.message || 'Bildirim mesajı',
-          type: notification.type || 'SYSTEM',
-          read: false,
-          createdAt: notification.createdAt || new Date().toISOString(),
-          ...notification
-        };
-        
-        addNotification(newNotification);
+        addNotification(notification);
       });
 
-      // Admin ise admin bildirimlerini de dinle
       if (user.role === 'ADMIN') {
         webSocketService.subscribe('/topic/admin-notifications', (notification) => {
-          console.log('Yeni admin bildirimi:', notification);
-          
-          // Bildirimi listeye ekle
-          const newNotification = {
-            id: notification.id || Date.now().toString(),
-            title: notification.title || 'Yeni Admin Bildirimi',
-            message: notification.message || 'Admin bildirimi',
-            type: 'SELLER_REGISTRATION',
-            read: false,
-            createdAt: notification.createdAt || new Date().toISOString(),
-            ...notification
-          };
-          
-          addNotification(newNotification);
+          addNotification(notification);
         });
       }
 
@@ -145,4 +140,4 @@ export const useNotifications = () => {
     throw new Error('useNotifications must be used within a NotificationProvider');
   }
   return context;
-}; 
+};
