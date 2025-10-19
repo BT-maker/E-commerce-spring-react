@@ -46,10 +46,10 @@ const Banner = () => {
       navigate("/discounted-products");
     } else if (buttonText === "Koleksiyonu İncele") {
       // Koleksiyon sayfasına git
-      navigate("/products");
+      navigate("/category/adc80789-2e5e-46a5-aaae-ddcf725b8fa6");
     } else if (buttonText === "Fırsatları Kaçırma") {
       // Fırsatlar sayfasına git
-      navigate("/products");
+      navigate("/trending");
     }
   };
 
