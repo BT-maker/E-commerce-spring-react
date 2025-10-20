@@ -51,9 +51,9 @@ const SellerOrders = () => {
 
   // Filtreleme değişikliklerinde anlık filtreleme
   useEffect(() => {
-    if (allOrders.length > 0) {
+    // if (allOrders.length > 0) { // Fetch sonrası ilk filtreleme için fetchAllOrders içinde yapılıyor
       filterOrders();
-    }
+    // }
   }, [searchTerm, selectedStatus, customerName, allOrders]);
 
   // Sayfa dışına tıklandığında önerileri kapat
@@ -92,26 +92,18 @@ const SellerOrders = () => {
       const data = await response.json();
       console.log('Tüm sipariş verileri:', data);
       
-      const orders = data.orders || [];
-      console.log('Orders count:', orders.length);
-      
-      // Sipariş durumlarını logla
-      const pendingCount = orders.filter(o => o.status === 'PENDING').length;
-      const shippedCount = orders.filter(o => o.status === 'SHIPPED').length;
-      const deliveredCount = orders.filter(o => o.status === 'DELIVERED').length;
-      const processingCount = orders.filter(o => o.status === 'PROCESSING').length;
-      
-      console.log('Order status counts:', {
-        pending: pendingCount,
-        processing: processingCount,
-        shipped: shippedCount,
-        delivered: deliveredCount,
-        total: orders.length
+      const orders = (data.orders || []).map(order => {
+        if (order.status && order.status.toUpperCase() === 'BEKLIYOR') {
+          return { ...order, status: 'PENDING' };
+        }
+        return order;
       });
       
       setAllOrders(orders);
       setFilteredOrders(orders);
-      setTotalOrders(data.totalElements || 0);
+      setTotalOrders(orders.length); // Use the length of the fetched and normalized orders
+      setTotalPages(Math.ceil(orders.length / pageSize));
+
     } catch (err) {
       console.error('Sipariş veri hatası:', err);
       setError('Sipariş verileri yüklenirken bir hata oluştu.');
@@ -172,7 +164,8 @@ const SellerOrders = () => {
     }
 
     setFilteredOrders(filtered);
-    setTotalOrders(filtered.length);
+    setTotalPages(Math.ceil(filtered.length / pageSize));
+    setCurrentPage(0); // Reset to first page after filtering
   };
 
   const formatDate = (dateString) => {
@@ -250,8 +243,6 @@ const SellerOrders = () => {
     setSearchTerm('');
     setSelectedStatus('all');
     setCustomerName('');
-    setFilteredOrders(allOrders);
-    setTotalOrders(allOrders.length);
   };
 
   const handlePageChange = (newPage) => {
@@ -269,6 +260,8 @@ const SellerOrders = () => {
       setCurrentPage(currentPage + 1);
     }
   };
+  
+  const paginatedOrders = filteredOrders.slice(currentPage * pageSize, (currentPage + 1) * pageSize);
 
   if (loading) {
     return (
@@ -327,7 +320,7 @@ const SellerOrders = () => {
         <div className="bg-gradient-to-r from-yellow-50 to-yellow-100 rounded-xl p-6 border border-yellow-200">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-yellow-600">Bekleyen</p>
+              <p className="text-sm font-medium text-yellow-600">Beklemede</p>
               <p className="text-2xl font-bold text-yellow-900">
                 {allOrders.filter(o => o.status === 'PENDING').length}
               </p>
@@ -376,38 +369,9 @@ const SellerOrders = () => {
               type="text"
               placeholder="Sipariş ID veya ürün adı ara..."
               value={searchTerm}
-              onChange={(e) => {
-                setSearchTerm(e.target.value);
-                setShowSuggestions(e.target.value.length > 0);
-              }}
+              onChange={(e) => setSearchTerm(e.target.value)}
               className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-colors"
             />
-            {/* Öneriler */}
-            {showSuggestions && searchTerm && (
-              <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg">
-                {allOrders
-                  .filter(order =>
-                    order.id?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                    order.items?.some(item => 
-                      item.product?.name?.toLowerCase().includes(searchTerm.toLowerCase())
-                    )
-                  )
-                  .slice(0, 5)
-                  .map(order => (
-                    <div
-                      key={order.id}
-                      className="px-4 py-2 hover:bg-gray-100 cursor-pointer flex items-center space-x-2"
-                      onClick={() => {
-                        setSearchTerm(order.id);
-                        setShowSuggestions(false);
-                      }}
-                    >
-                      <FaSearch className="text-gray-400 text-sm" />
-                      <span className="text-gray-700">Sipariş #{order.id.slice(-8)}</span>
-                    </div>
-                  ))}
-              </div>
-            )}
           </div>
 
           <div>
@@ -415,9 +379,7 @@ const SellerOrders = () => {
               type="text"
               placeholder="Müşteri adı"
               value={customerName}
-              onChange={(e) => {
-                setCustomerName(e.target.value);
-              }}
+              onChange={(e) => setCustomerName(e.target.value)}
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-colors"
             />
           </div>
@@ -425,9 +387,7 @@ const SellerOrders = () => {
           <div>
             <select
               value={selectedStatus}
-              onChange={(e) => {
-                setSelectedStatus(e.target.value);
-              }}
+              onChange={(e) => setSelectedStatus(e.target.value)}
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-colors"
             >
               <option value="all">Tüm Durumlar</option>
@@ -459,15 +419,15 @@ const SellerOrders = () => {
 
       {/* Orders Table */}
       <div className="bg-white rounded-xl shadow-lg overflow-hidden">
-        {filteredOrders.length === 0 ? (
+        {paginatedOrders.length === 0 ? (
           <div className="text-center py-12">
             <div className="text-6xl mb-4">📦</div>
-            <h3 className="text-xl font-semibold text-gray-900 mb-2">Henüz Sipariş Yok</h3>
-            <p className="text-gray-600">Mağazanızda henüz sipariş bulunmuyor.</p>
+            <h3 className="text-xl font-semibold text-gray-900 mb-2">Sipariş Bulunamadı</h3>
+            <p className="text-gray-600">Arama kriterlerinize uygun sipariş bulunmuyor.</p>
           </div>
         ) : (
           <div className="space-y-4 p-6">
-            {filteredOrders.map((order) => {
+            {paginatedOrders.map((order) => {
               const isExpanded = expandedOrders.has(order.id);
               const totalItems = order.items?.reduce((sum, item) => sum + item.quantity, 0) || 0;
               
@@ -619,7 +579,7 @@ const SellerOrders = () => {
         <div className="bg-white rounded-xl shadow-lg p-6 mt-8">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div className="text-sm text-gray-600">
-              <span>Toplam {totalOrders} sipariş, {totalPages} sayfa</span>
+              <span>Toplam {filteredOrders.length} sonuç, {totalPages} sayfa</span>
               <span className="mx-2">•</span>
               <span>Sayfa {currentPage + 1} / {totalPages}</span>
             </div>
@@ -661,4 +621,4 @@ const SellerOrders = () => {
   );
 };
 
-export default SellerOrders; 
+export default SellerOrders;

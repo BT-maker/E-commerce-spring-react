@@ -301,7 +301,7 @@ public class CheckoutServiceImpl implements CheckoutService {
             Order order = new Order();
             order.setUser(user);
             order.setTotalPrice(checkoutRequest.getTotal());
-            order.setStatus("BEKLİYOR");
+            order.setStatus("PENDING");
             order.setCreatedAt(LocalDateTime.now());
             
             // Sipariş öğelerini oluştur
