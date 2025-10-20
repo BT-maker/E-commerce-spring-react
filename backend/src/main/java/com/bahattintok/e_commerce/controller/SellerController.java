@@ -1032,7 +1032,7 @@ public class SellerController {
                     
                     Map<String, Object> orderData = new HashMap<>();
                     orderData.put("id", order.getId());
-                    orderData.put("customerName", order.getUser().getUsername());
+                    orderData.put("customerName", order.getUser() != null ? order.getUser().getUsername() : "Unknown User");
                     orderData.put("totalAmount", sellerTotal);
                     orderData.put("status", order.getStatus());
                     orderData.put("createdAt", order.getCreatedAt());
@@ -1061,10 +1061,10 @@ public class SellerController {
                 .map(review -> {
                     Map<String, Object> reviewData = new HashMap<>();
                     reviewData.put("id", review.getId());
-                    reviewData.put("productName", review.getProduct().getName());
+                    reviewData.put("productName", review.getProduct() != null ? review.getProduct().getName() : "Unknown Product");
                     reviewData.put("rating", review.getRating());
                     reviewData.put("comment", review.getComment());
-                    reviewData.put("userName", review.getUser().getUsername());
+                    reviewData.put("userName", review.getUser() != null ? review.getUser().getUsername() : "Unknown User");
                     reviewData.put("createdAt", review.getCreatedAt());
                     return reviewData;
                 })
