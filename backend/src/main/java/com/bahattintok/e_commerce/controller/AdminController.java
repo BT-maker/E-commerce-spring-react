@@ -33,6 +33,7 @@ import com.bahattintok.e_commerce.repository.CartRepository;
 import com.bahattintok.e_commerce.repository.CategoryRepository;
 import com.bahattintok.e_commerce.repository.CategoryRequestRepository;
 import com.bahattintok.e_commerce.repository.OrderRepository;
+import com.bahattintok.e_commerce.repository.OrderItemRepository;
 import com.bahattintok.e_commerce.repository.ProductRepository;
 import com.bahattintok.e_commerce.repository.StoreRepository;
 import com.bahattintok.e_commerce.repository.UserRepository;
@@ -57,6 +58,9 @@ public class AdminController {
     private OrderRepository orderRepository;
 
     @Autowired
+    private OrderItemRepository orderItemRepository;
+
+    @Autowired
     private ProductRepository productRepository;
 
     @Autowired
@@ -67,6 +71,8 @@ public class AdminController {
 
     @Autowired
     private CategoryRepository categoryRepository;
+
+
 
     @Autowired
     private ApplicationEventPublisher eventPublisher;
@@ -1220,22 +1226,26 @@ public class AdminController {
                 try {
                     System.out.println("=== DEBUG: getCategoryData called ===");
                     
-                    // Örnek kategori verileri
+                    List<Product> allProducts = productRepository.findAll();
+                    
+                    Map<String, Long> categoryCounts = allProducts.stream()
+                        .filter(p -> p.getCategory() != null && p.getCategory().getName() != null)
+                        .collect(Collectors.groupingBy(p -> p.getCategory().getName(), Collectors.counting()));
+
+                    // Sayıma göre sırala
+                    List<Map.Entry<String, Long>> sortedCategories = new ArrayList<>(categoryCounts.entrySet());
+                    sortedCategories.sort((e1, e2) -> e2.getValue().compareTo(e1.getValue()));
+                    
+                    List<String> labels = new ArrayList<>();
+                    List<Long> data = new ArrayList<>();
+                    for (Map.Entry<String, Long> entry : sortedCategories) {
+                        labels.add(entry.getKey());
+                        data.add(entry.getValue());
+                    }
+                    
                     Map<String, Object> categoryData = new HashMap<>();
-                    categoryData.put("labels", new String[]{"Elektronik", "Giyim", "Ev & Yaşam", "Spor", "Kitap"});
-                    categoryData.put("datasets", new Object[]{
-                        Map.of(
-                            "label", "Satış Oranı",
-                            "data", new int[]{35, 25, 20, 15, 5},
-                            "backgroundColor", new String[]{
-                                "rgba(255, 99, 132, 0.8)",
-                                "rgba(54, 162, 235, 0.8)",
-                                "rgba(255, 206, 86, 0.8)",
-                                "rgba(75, 192, 192, 0.8)",
-                                "rgba(153, 102, 255, 0.8)"
-                            }
-                        )
-                    });
+                    categoryData.put("labels", labels);
+                    categoryData.put("data", data);
                     
                     System.out.println("Category data: " + categoryData);
                     return ResponseEntity.ok(categoryData);
