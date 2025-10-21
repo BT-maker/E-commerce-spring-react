@@ -1,4 +1,4 @@
-import React, { createContext, useState, useEffect } from "react";
+import React, { createContext, useState, useEffect, useMemo, useCallback } from "react";
 import api from "../services/api";
 import webSocketService from "../services/webSocketService";
 
@@ -9,35 +9,6 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  const checkAuth = async () => {
-    console.log('=== CHECK AUTH BAŞLADI ===');
-    setLoading(true);
-
-    try {
-      console.log('API isteği gönderiliyor...');
-      const response = await api.get('/auth/me', { withCredentials: true });
-      console.log('API response:', response.data);
-      
-      if (response.data) {
-        console.log('Kullanıcı bulundu, login yapılıyor...');
-        setIsLoggedIn(true);
-        setUser(response.data);
-      } else {
-        console.log('Kullanıcı bulunamadı');
-        setIsLoggedIn(false);
-        setUser(null);
-      }
-    } catch (error) {
-      console.log('Auth check hatası:', error.response?.status, error.response?.data);
-      setIsLoggedIn(false);
-      setUser(null);
-    } finally {
-      console.log('Loading false yapılıyor');
-      setLoading(false);
-    }
-  };
-
-  // Cookie'den token alma fonksiyonu
   const getCookie = (name) => {
     const value = `; ${document.cookie}`;
     const parts = value.split(`; ${name}=`);
@@ -45,66 +16,70 @@ export const AuthProvider = ({ children }) => {
     return null;
   };
 
-  useEffect(() => {
-    console.log('=== AUTH CONTEXT USEEFFECT ===');
-    console.log('Cookie kontrolü:', document.cookie.includes('jwt_token='));
-    console.log('Tüm cookie\'ler:', document.cookie);
-    
-    // Sadece sayfa ilk yüklendiğinde kontrol et, sürekli kontrol etme
-    const token = document.cookie.includes('jwt_token=');
-    if (token) {
-      console.log('Token bulundu, checkAuth çağrılıyor...');
-      checkAuth();
-    } else {
-      console.log('Token bulunamadı, loading false yapılıyor');
+  const checkAuth = useCallback(async () => {
+    setLoading(true);
+    try {
+      const response = await api.get('/auth/me', { withCredentials: true });
+      if (response.data) {
+        setIsLoggedIn(true);
+        setUser(response.data);
+      } else {
+        setIsLoggedIn(false);
+        setUser(null);
+      }
+    } catch (error) {
+      setIsLoggedIn(false);
+      setUser(null);
+    } finally {
       setLoading(false);
     }
   }, []);
 
-  const login = async (userData = null) => {
-    console.log('=== LOGIN FONKSİYONU ===');
-    console.log('userData:', userData);
-    
+  useEffect(() => {
+    const token = document.cookie.includes('jwt_token=');
+    if (token) {
+      checkAuth();
+    } else {
+      setLoading(false);
+    }
+  }, [checkAuth]);
+
+  const login = useCallback(async (userData = null) => {
     if (userData) {
-      // Backend'den gelen AuthResponse'u user objesine dönüştür
       const user = {
         firstName: userData.firstName,
         lastName: userData.lastName,
         role: userData.role,
         email: userData.email || null
       };
-      console.log('Oluşturulan user objesi:', user);
       setIsLoggedIn(true);
       setUser(user);
       setLoading(false);
       
-      // WebSocket bağlantısını başlat
       const token = getCookie('jwt_token');
       if (token) {
         webSocketService.connect(token);
       }
     } else {
-      console.log('userData yok, checkAuth çağrılıyor...');
       await checkAuth();
     }
-  };
+  }, [checkAuth]);
 
-  const logout = async () => {
+  const logout = useCallback(async () => {
     try {
       await api.post('/auth/logout', {}, { withCredentials: true });
     } catch (error) {
-      console.log('Logout hatası:', error);
+      console.error('Logout hatası:', error);
     }
     
-    // WebSocket bağlantısını kes
     webSocketService.disconnect();
     
     setIsLoggedIn(false);
     setUser(null);
     setLoading(false);
-  };
+  }, []);
 
-  const updateProfile = async (profileData) => {
+  const updateProfile = useCallback(async (profileData) => {
     try {
       const response = await api.put('/auth/me', profileData, { withCredentials: true });
       
@@ -114,13 +89,22 @@ export const AuthProvider = ({ children }) => {
       
       return { success: true, message: response.data?.message || "Profil başarıyla güncellendi" };
     } catch (error) {
-      console.log('Profil güncelleme hatası:', error);
+      console.error('Profil güncelleme hatası:', error);
       return { success: false, message: error.response?.data || "Sunucu hatası" };
     }
-  };
+  }, []);
+
+  const authContextValue = useMemo(() => ({
+    isLoggedIn,
+    user,
+    login,
+    logout,
+    loading,
+    updateProfile
+  }), [isLoggedIn, user, loading, login, logout, updateProfile]);
 
   return (
-    <AuthContext.Provider value={{ isLoggedIn, user, login, logout, loading, updateProfile }}>
+    <AuthContext.Provider value={authContextValue}>
       {children}
     </AuthContext.Provider>
   );

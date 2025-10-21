@@ -49,8 +49,7 @@ const Header = () => {
   const { isLoggedIn, user, logout, loading } = useContext(AuthContext);
   const { getFavoriteCount } = useFavorites();
   
-  // Debug için user bilgilerini logla
-  console.log('Header - User:', user, 'Role:', user?.role, 'isLoggedIn:', isLoggedIn);
+
   const navigate = useNavigate();
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
