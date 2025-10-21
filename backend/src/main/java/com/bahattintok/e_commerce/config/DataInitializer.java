@@ -273,24 +273,6 @@ public class DataInitializer implements CommandLineRunner {
         testStore.setCreatedAt(LocalDateTime.now().minusDays(45));
         storeRepository.save(testStore);
 
-        // Ürünleri ekle
-        List<Product> products = Arrays.asList(
-            createProduct("iPhone 15", "Apple iPhone 15 128GB, A16 Bionic çip", new BigDecimal("29999.99"), 50, elektronik.getId(), testStore.getId()),
-            createProduct("Samsung Galaxy S24", "Samsung Galaxy S24 256GB, Snapdragon 8 Gen 3", new BigDecimal("24999.99"), 30, elektronik.getId(), testStore.getId()),
-            createProduct("MacBook Air M2", "Apple MacBook Air M2 13.6 inç, 8GB RAM, 256GB SSD", new BigDecimal("39999.99"), 20, elektronik.getId(), testStore.getId()),
-            createProduct("Nike Air Max", "Nike Air Max 270, Erkek spor ayakkabı", new BigDecimal("1299.99"), 100, giyim.getId(), testStore.getId()),
-            createProduct("Adidas T-Shirt", "Adidas Erkek pamuklu t-shirt", new BigDecimal("299.99"), 200, giyim.getId(), testStore.getId()),
-            createProduct("Harry Potter Set", "Harry Potter 7 Kitap Seti", new BigDecimal("899.99"), 25, kitap.getId(), testStore.getId()),
-            createProduct("Lord of the Rings", "Yüzüklerin Efendisi 3 Kitap Seti", new BigDecimal("699.99"), 15, kitap.getId(), testStore.getId()),
-            createProduct("Philips Airfryer", "Philips Airfryer XXL, 6.2L", new BigDecimal("2499.99"), 40, ev.getId(), testStore.getId()),
-            createProduct("IKEA Masa", "IKEA Çalışma Masası, Beyaz", new BigDecimal("899.99"), 60, ev.getId(), testStore.getId()),
-            createProduct("Sony WH-1000XM5", "Sony WH-1000XM5 Kablosuz Kulaklık", new BigDecimal("8999.99"), 35, elektronik.getId(), testStore.getId()),
-            createProduct("Nike Spor Ayakkabı", "Nike Air Jordan 1, Erkek basketbol ayakkabısı", new BigDecimal("2499.99"), 45, spor.getId(), testStore.getId()),
-            createProduct("Adidas Spor Çanta", "Adidas Spor Çantası, 30L", new BigDecimal("399.99"), 80, spor.getId(), testStore.getId())
-        );
-
-        productRepository.saveAll(products);
-
         // Elasticsearch'e ürünleri indexle
         if (elasticsearchService != null) {
             try {
@@ -302,105 +284,10 @@ public class DataInitializer implements CommandLineRunner {
             }
         }
 
-        // Test siparişleri ekle
-        Order testOrder1 = new Order();
-        testOrder1.setUser(testUser);
-        testOrder1.setStatus("COMPLETED");
-        testOrder1.setTotalPrice(new BigDecimal("29999.99"));
-        testOrder1.setCreatedAt(LocalDateTime.now().minusDays(2));
-        orderRepository.save(testOrder1);
-
-        Order testOrder2 = new Order();
-        testOrder2.setUser(testUser);
-        testOrder2.setStatus("PENDING");
-        testOrder2.setTotalPrice(new BigDecimal("24999.99"));
-        testOrder2.setCreatedAt(LocalDateTime.now().minusDays(1));
-        orderRepository.save(testOrder2);
-
-        Order testOrder3 = new Order();
-        testOrder3.setUser(testUser);
-        testOrder3.setStatus("COMPLETED");
-        testOrder3.setTotalPrice(new BigDecimal("39999.99"));
-        testOrder3.setCreatedAt(LocalDateTime.now());
-        orderRepository.save(testOrder3);
-
-        // Test sipariş ürünleri ekle
-        OrderItem orderItem1 = new OrderItem();
-        orderItem1.setOrder(testOrder1);
-        orderItem1.setProduct(products.get(0)); // iPhone 15
-        orderItem1.setQuantity(1);
-        orderItem1.setPrice(new BigDecimal("29999.99"));
-        orderItemRepository.save(orderItem1);
-
-        OrderItem orderItem2 = new OrderItem();
-        orderItem2.setOrder(testOrder2);
-        orderItem2.setProduct(products.get(1)); // Samsung Galaxy S24
-        orderItem2.setQuantity(1);
-        orderItem2.setPrice(new BigDecimal("24999.99"));
-        orderItemRepository.save(orderItem2);
-
-        OrderItem orderItem3 = new OrderItem();
-        orderItem3.setOrder(testOrder3);
-        orderItem3.setProduct(products.get(2)); // MacBook Air M2
-        orderItem3.setQuantity(1);
-        orderItem3.setPrice(new BigDecimal("39999.99"));
-        orderItemRepository.save(orderItem3);
-
-        // Test yorumları ekle
-        Review review1 = new Review();
-        review1.setUser(testUser);
-        review1.setProduct(products.get(0)); // iPhone 15
-        review1.setRating(5);
-        review1.setComment("Harika bir telefon! Çok memnunum.");
-        review1.setCreatedAt(LocalDateTime.now().minusDays(1));
-        reviewRepository.save(review1);
-
-        Review review2 = new Review();
-        review2.setUser(testUser);
-        review2.setProduct(products.get(1)); // Samsung Galaxy S24
-        review2.setRating(4);
-        review2.setComment("Güzel telefon ama biraz pahalı.");
-        review2.setCreatedAt(LocalDateTime.now().minusDays(2));
-        reviewRepository.save(review2);
-
-        Review review3 = new Review();
-        review3.setUser(testUser);
-        review3.setProduct(products.get(2)); // MacBook Air M2
-        review3.setRating(5);
-        review3.setComment("Mükemmel performans! Tavsiye ederim.");
-        review3.setCreatedAt(LocalDateTime.now().minusDays(3));
-        reviewRepository.save(review3);
-
         // Test sepetleri ekle
         Cart userCart = new Cart();
         userCart.setUser(testUser);
         cartRepository.save(userCart);
-
-        // Test sepet ürünleri ekle
-        CartItem cartItem1 = new CartItem();
-        cartItem1.setCart(userCart);
-        cartItem1.setProduct(products.get(3)); // Nike Air Max
-        cartItem1.setQuantity(2);
-        cartItemRepository.save(cartItem1);
-
-        CartItem cartItem2 = new CartItem();
-        cartItem2.setCart(userCart);
-        cartItem2.setProduct(products.get(4)); // Adidas T-Shirt
-        cartItem2.setQuantity(3);
-        cartItemRepository.save(cartItem2);
-
-        // Test favoriler ekle
-        Favorite favorite1 = new Favorite();
-        favorite1.setUser(testUser);
-        favorite1.setProduct(products.get(0)); // iPhone 15
-        favorite1.setCreatedAt(LocalDateTime.now().minusDays(5));
-        favoriteRepository.save(favorite1);
-
-        Favorite favorite2 = new Favorite();
-        favorite2.setUser(testUser);
-        favorite2.setProduct(products.get(2)); // MacBook Air M2
-        favorite2.setCreatedAt(LocalDateTime.now().minusDays(3));
-        favoriteRepository.save(favorite2);
 
         // Test kampanyalar ekle
         Campaign campaign1 = new Campaign();
@@ -418,33 +305,7 @@ public class DataInitializer implements CommandLineRunner {
         campaign1.setUpdatedAt(LocalDateTime.now().minusDays(10));
         campaignRepository.save(campaign1);
 
-        Campaign campaign2 = new Campaign();
-        campaign2.setName("iPhone 15 Özel Fiyat");
-        campaign2.setDescription("iPhone 15'te 1000 TL indirim");
-        campaign2.setCampaignType("product");
-        campaign2.setTargetId(products.get(0).getId());
-        campaign2.setDiscountType("fixed");
-        campaign2.setDiscountValue(new BigDecimal("1000"));
-        campaign2.setStartDate(LocalDateTime.now().minusDays(5));
-        campaign2.setEndDate(LocalDateTime.now().plusDays(15));
-        campaign2.setActive(true);
-        campaign2.setStore(testStore);
-        campaign2.setCreatedAt(LocalDateTime.now().minusDays(5));
-        campaign2.setUpdatedAt(LocalDateTime.now().minusDays(5));
-        campaignRepository.save(campaign2);
-
         // Test bildirimleri ekle
-        Notification notification1 = new Notification();
-        notification1.setTitle("Sipariş Durumu Güncellendi");
-        notification1.setMessage("Siparişiniz #" + testOrder1.getId() + " tamamlandı.");
-        notification1.setType("ORDER_STATUS");
-        notification1.setRead(false);
-        notification1.setUser(testUser);
-        notification1.setRelatedEntityId(Long.valueOf(testOrder1.getId()));
-        notification1.setRelatedEntityType("ORDER");
-        notification1.setCreatedAt(LocalDateTime.now().minusHours(2));
-        notificationRepository.save(notification1);
-
         Notification notification2 = new Notification();
         notification2.setTitle("Yeni Kampanya");
         notification2.setMessage("Elektronik ürünlerde %15 indirim başladı!");
