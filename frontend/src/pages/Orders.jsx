@@ -17,6 +17,15 @@ const Orders = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [expandedOrders, setExpandedOrders] = useState(new Set());
 
+  const statusTranslations = {
+    PENDING: "Bekliyor",
+    PROCESSING: "Hazırlanıyor",
+    SHIPPED: "Kargoda",
+    DELIVERED: "Teslim Edildi",
+    COMPLETED: "Tamamlandı",
+    CANCELLED: "İptal Edildi",
+  };
+
   useEffect(() => {
     const fetchOrders = async () => {
       setLoading(true);
@@ -77,20 +86,22 @@ const Orders = () => {
   };
 
   const getStatusBadge = (status) => {
+    const translatedStatus = statusTranslations[status] || status;
     const statusConfig = {
-      'BEKLİYOR': { color: 'bg-yellow-100 text-yellow-800 border-yellow-200', icon: '⏳' },
-      'HAZIRLANIYOR': { color: 'bg-blue-100 text-blue-800 border-blue-200', icon: '🔧' },
-      'KARGODA': { color: 'bg-purple-100 text-purple-800 border-purple-200', icon: '📦' },
-      'TESLİM EDİLDİ': { color: 'bg-green-100 text-green-800 border-green-200', icon: '✅' },
-      'İPTAL EDİLDİ': { color: 'bg-red-100 text-red-800 border-red-200', icon: '❌' }
+      'Bekliyor': { color: 'bg-yellow-100 text-yellow-800 border-yellow-200', icon: '⏳' },
+      'Hazırlanıyor': { color: 'bg-blue-100 text-blue-800 border-blue-200', icon: '🔧' },
+      'Kargoda': { color: 'bg-purple-100 text-purple-800 border-purple-200', icon: '📦' },
+      'Teslim Edildi': { color: 'bg-green-100 text-green-800 border-green-200', icon: '✅' },
+      'Tamamlandı': { color: 'bg-green-100 text-green-800 border-green-200', icon: '✅' },
+      'İptal Edildi': { color: 'bg-red-100 text-red-800 border-red-200', icon: '❌' }
     };
 
-    const config = statusConfig[status] || statusConfig['BEKLİYOR'];
+    const config = statusConfig[translatedStatus] || statusConfig['Bekliyor'];
     
     return (
       <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium border ${config.color}`}>
         <span className="mr-1">{config.icon}</span>
-        {status}
+        {translatedStatus}
       </span>
     );
   };
@@ -182,11 +193,9 @@ const Orders = () => {
               className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             >
               <option value="ALL">Tüm Durumlar</option>
-              <option value="BEKLİYOR">Bekliyor</option>
-              <option value="HAZIRLANIYOR">Hazırlanıyor</option>
-              <option value="KARGODA">Kargoda</option>
-              <option value="TESLİM EDİLDİ">Teslim Edildi</option>
-              <option value="İPTAL EDİLDİ">İptal Edildi</option>
+              {Object.keys(statusTranslations).map(status => (
+                <option key={status} value={status}>{statusTranslations[status]}</option>
+              ))}
             </select>
           </div>
         </div>
@@ -322,7 +331,7 @@ const Orders = () => {
                           <div className="space-y-2">
                             <div className="flex justify-between">
                               <span className="text-gray-600">📊 Durum:</span>
-                              <span className="font-medium">{order.status}</span>
+                              <span className="font-medium">{statusTranslations[order.status] || order.status}</span>
                             </div>
                             <div className="flex justify-between">
                               <span className="text-gray-600">📦 Toplam Ürün:</span>
