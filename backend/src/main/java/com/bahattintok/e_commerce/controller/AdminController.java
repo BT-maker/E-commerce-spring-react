@@ -32,8 +32,8 @@ import com.bahattintok.e_commerce.model.enums.SellerStatus;
 import com.bahattintok.e_commerce.repository.CartRepository;
 import com.bahattintok.e_commerce.repository.CategoryRepository;
 import com.bahattintok.e_commerce.repository.CategoryRequestRepository;
-import com.bahattintok.e_commerce.repository.OrderRepository;
 import com.bahattintok.e_commerce.repository.OrderItemRepository;
+import com.bahattintok.e_commerce.repository.OrderRepository;
 import com.bahattintok.e_commerce.repository.ProductRepository;
 import com.bahattintok.e_commerce.repository.StoreRepository;
 import com.bahattintok.e_commerce.repository.UserRepository;
@@ -457,46 +457,7 @@ public class AdminController {
     public ResponseEntity<Map<String, Object>> getDashboardStats() {
         System.out.println("Dashboard stats endpoint çağrıldı");
         try {
-            Map<String, Object> stats = new HashMap<>();
-            
-            // Temel istatistikler
-            List<User> allUsers = userRepository.findAll();
-            long totalUsers = allUsers.stream()
-                .filter(user -> user.getRole() != null && "USER".equals(user.getRole().getName()))
-                .count();
-            long totalSellers = allUsers.stream()
-                .filter(user -> user.getRole() != null && "SELLER".equals(user.getRole().getName()))
-                .count();
-            long totalProducts = productRepository.count();
-            long totalOrders = orderRepository.count();
-            
-            // Toplam gelir hesaplama
-            List<Order> allOrders = orderRepository.findAll();
-            double totalRevenue = allOrders.stream()
-                .filter(order -> "COMPLETED".equals(order.getStatus()))
-                .mapToDouble(order -> order.getTotalPrice().doubleValue())
-                .sum();
-            
-            // Aylık büyüme hesaplama (basit hesaplama)
-            long currentMonthOrders = allOrders.stream()
-                .filter(order -> order.getCreatedAt() != null && 
-                               order.getCreatedAt().getMonth() == java.time.LocalDateTime.now().getMonth())
-                .count();
-            long lastMonthOrders = allOrders.stream()
-                .filter(order -> order.getCreatedAt() != null && 
-                               order.getCreatedAt().getMonth() == java.time.LocalDateTime.now().minusMonths(1).getMonth())
-                .count();
-            
-            double monthlyGrowth = lastMonthOrders > 0 ? 
-                ((double)(currentMonthOrders - lastMonthOrders) / lastMonthOrders) * 100 : 0.0;
-            
-            stats.put("totalUsers", totalUsers);
-            stats.put("totalSellers", totalSellers);
-            stats.put("totalProducts", totalProducts);
-            stats.put("totalOrders", totalOrders);
-            stats.put("totalRevenue", totalRevenue);
-            stats.put("monthlyGrowth", Math.round(monthlyGrowth * 10.0) / 10.0); // 1 ondalık basamak
-            
+            Map<String, Object> stats = adminService.getDashboardStats();
             System.out.println("Stats response: " + stats);
             return ResponseEntity.ok(stats);
         } catch (Exception e) {
@@ -558,37 +519,24 @@ public class AdminController {
     @GetMapping("/dashboard/quick-stats")
     public ResponseEntity<Map<String, Object>> getQuickStats() {
         try {
-            Map<String, Object> quickStats = new HashMap<>();
-            
-            // Bu hafta sipariş sayısı
-            java.time.LocalDateTime weekStart = java.time.LocalDateTime.now().minusWeeks(1);
-            long weeklyOrders = orderRepository.findAll().stream()
-                .filter(order -> order.getCreatedAt() != null && 
-                               order.getCreatedAt().isAfter(weekStart))
-                .count();
-            
-            // Bu ay gelir
-            java.time.LocalDateTime monthStart = java.time.LocalDateTime.now().minusMonths(1);
-            double monthlyRevenue = orderRepository.findAll().stream()
-                .filter(order -> order.getCreatedAt() != null && 
-                               order.getCreatedAt().isAfter(monthStart) &&
-                               "COMPLETED".equals(order.getStatus()))
-                .mapToDouble(order -> order.getTotalPrice().doubleValue())
-                .sum();
-            
-            // Yeni kullanıcı sayısı (son 30 gün) - User entity'sinde createdAt yok, tüm USER rolündeki kullanıcıları say
-            long newUsers = userRepository.findAll().stream()
-                .filter(user -> "USER".equals(user.getRole().getName()))
-                .count();
-            
-            quickStats.put("weeklyOrders", weeklyOrders);
-            quickStats.put("monthlyRevenue", monthlyRevenue);
-            quickStats.put("newUsers", newUsers);
-            
+            Map<String, Object> quickStats = adminService.getQuickStats();
             return ResponseEntity.ok(quickStats);
         } catch (Exception e) {
             Map<String, Object> error = new HashMap<>();
             error.put("error", "Hızlı istatistikler alınamadı: " + e.getMessage());
+            return ResponseEntity.badRequest().body(error);
+        }
+    }
+
+    // Satış grafiği verileri
+    @GetMapping("/dashboard/sales-chart")
+    public ResponseEntity<Map<String, Object>> getSalesChartData() {
+        try {
+            Map<String, Object> chartData = adminService.getSalesChartData();
+            return ResponseEntity.ok(chartData);
+        } catch (Exception e) {
+            Map<String, Object> error = new HashMap<>();
+            error.put("error", "Satış grafiği verileri alınamadı: " + e.getMessage());
             return ResponseEntity.badRequest().body(error);
         }
     }

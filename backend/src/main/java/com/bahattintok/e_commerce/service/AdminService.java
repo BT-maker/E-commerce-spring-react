@@ -46,30 +46,106 @@ public class AdminService {
         return results;
     }
 
-               public Map<String, Object> getDashboardStats() {
-               Map<String, Object> stats = new HashMap<>();
-               
-               // Temel istatistikler
-               long totalUsers = userRepository.count();
-               long totalProducts = productRepository.count();
-               long totalOrders = orderRepository.count();
-               long totalStores = storeRepository.count();
-               
-               // Gerçek gelir hesaplama
-               double totalRevenue = orderRepository.findAll().stream()
-                   .mapToDouble(order -> order.getTotalPrice().doubleValue())
-                   .sum();
-               
-               stats.put("totalUsers", totalUsers);
-               stats.put("totalSellers", 0); // Geçici
-               stats.put("totalProducts", totalProducts);
-               stats.put("totalOrders", totalOrders);
-               stats.put("totalRevenue", totalRevenue);
-               stats.put("totalStores", totalStores);
-               stats.put("monthlyGrowth", 15.5); // Örnek değer
-               
-               return stats;
-           }
+    public Map<String, Object> getDashboardStats() {
+        Map<String, Object> stats = new HashMap<>();
+
+        long totalUsers = userRepository.count();
+        long totalProducts = productRepository.count();
+        long totalOrders = orderRepository.count();
+        long totalStores = storeRepository.count();
+
+        double totalRevenue = orderRepository.findByStatus("DELIVERED").stream()
+                .mapToDouble(order -> order.getTotalPrice() != null ? order.getTotalPrice().doubleValue() : 0.0)
+                .sum();
+
+        // Satıcı sayısını hesapla
+        long totalSellers = userRepository.findAll().stream()
+                .filter(user -> user.getRole() != null && "SELLER".equals(user.getRole().getName()))
+                .count();
+        
+        stats.put("totalUsers", totalUsers);
+        stats.put("totalSellers", totalSellers);
+        stats.put("totalProducts", totalProducts);
+        stats.put("totalOrders", totalOrders);
+        stats.put("totalRevenue", totalRevenue);
+        stats.put("totalStores", totalStores);
+        stats.put("monthlyGrowth", 15.5); // Örnek bir değer, daha sonra hesaplanabilir
+
+        return stats;
+    }
+
+    public Map<String, Object> getQuickStats() {
+        Map<String, Object> quickStats = new HashMap<>();
+
+        java.time.LocalDateTime now = java.time.LocalDateTime.now();
+        java.time.LocalDateTime startOfMonth = now.withDayOfMonth(1).toLocalDate().atStartOfDay();
+        java.time.LocalDateTime startOfToday = now.toLocalDate().atStartOfDay();
+        java.time.LocalDateTime startOfWeek = now.minusDays(7).toLocalDate().atStartOfDay();
+
+        List<Order> monthlyOrders = orderRepository.findByCreatedAtBetween(startOfMonth, now);
+        double thisMonthRevenue = monthlyOrders.stream()
+                .filter(order -> "DELIVERED".equals(order.getStatus()))
+                .mapToDouble(order -> order.getTotalPrice() != null ? order.getTotalPrice().doubleValue() : 0.0)
+                .sum();
+
+        List<Order> todayOrders = orderRepository.findByCreatedAtBetween(startOfToday, now);
+        double todayRevenue = todayOrders.stream()
+                .filter(order -> "DELIVERED".equals(order.getStatus()))
+                .mapToDouble(order -> order.getTotalPrice() != null ? order.getTotalPrice().doubleValue() : 0.0)
+                .sum();
+
+        long totalPendingOrders = orderRepository.findByStatus("PENDING").size();
+        
+        // Haftalık sipariş sayısı
+        List<Order> weeklyOrders = orderRepository.findByCreatedAtBetween(startOfWeek, now);
+        long weeklyOrdersCount = weeklyOrders.size();
+        
+        List<User> allUsers = userRepository.findAll();
+        long newCustomersThisMonth = allUsers.stream()
+                .filter(user -> user.getRegistrationDate() != null && user.getRegistrationDate().isAfter(startOfMonth))
+                .count();
+        
+        // Toplam kullanıcı sayısı (USER rolündeki kullanıcılar)
+        long totalUsers = allUsers.stream()
+                .filter(user -> user.getRole() != null && "USER".equals(user.getRole().getName()))
+                .count();
+
+        quickStats.put("thisMonthRevenue", thisMonthRevenue);
+        quickStats.put("todayRevenue", todayRevenue);
+        quickStats.put("totalPendingOrders", totalPendingOrders);
+        quickStats.put("newCustomersThisMonth", newCustomersThisMonth);
+        
+        // Frontend için ek alanlar
+        quickStats.put("weeklyOrders", weeklyOrdersCount);
+        quickStats.put("monthlyRevenue", thisMonthRevenue);
+        quickStats.put("newUsers", totalUsers); // Toplam kullanıcı sayısını göster
+
+        return quickStats;
+    }
+
+    public Map<String, Object> getSalesChartData() {
+        Map<String, Object> chartData = new HashMap<>();
+        java.time.LocalDateTime now = java.time.LocalDateTime.now();
+        
+        // Son 12 ayın verisini topla
+        Map<String, Double> monthlySales = new java.util.LinkedHashMap<>();
+        for (int i = 11; i >= 0; i--) {
+            java.time.LocalDateTime monthStart = now.minusMonths(i).withDayOfMonth(1).toLocalDate().atStartOfDay();
+            java.time.LocalDateTime monthEnd = monthStart.plusMonths(1).minusNanos(1);
+            
+            List<Order> monthOrders = orderRepository.findByCreatedAtBetween(monthStart, monthEnd);
+            double total = monthOrders.stream()
+                                          .filter(order -> "DELIVERED".equals(order.getStatus()))
+                                          .mapToDouble(o -> o.getTotalPrice() != null ? o.getTotalPrice().doubleValue() : 0.0)
+                                          .sum();
+            
+            String monthName = monthStart.getMonth().name().substring(0, 3) + " " + monthStart.getYear();
+            monthlySales.put(monthName, total);
+        }
+        
+        chartData.put("monthlySales", monthlySales);
+        return chartData;
+    }
 
            public Map<String, Object> getFinancialReports() {
                Map<String, Object> reports = new HashMap<>();
@@ -80,8 +156,8 @@ public class AdminService {
                    .sum();
                
                // Tamamlanan siparişlerden gelir
-               double completedRevenue = orderRepository.findByStatus("COMPLETED").stream()
-                   .mapToDouble(order -> order.getTotalPrice().doubleValue())
+               double completedRevenue = orderRepository.findByStatus("DELIVERED").stream()
+                   .mapToDouble(order -> order.getTotalPrice() != null ? order.getTotalPrice().doubleValue() : 0.0)
                    .sum();
                
                // Bekleyen siparişlerden gelir
@@ -93,7 +169,7 @@ public class AdminService {
                reports.put("completedRevenue", completedRevenue);
                reports.put("pendingRevenue", pendingRevenue);
                reports.put("totalOrders", orderRepository.count());
-               reports.put("completedOrders", orderRepository.findByStatus("COMPLETED").size());
+               reports.put("completedOrders", orderRepository.findByStatus("DELIVERED").size());
                reports.put("pendingOrders", orderRepository.findByStatus("PENDING").size());
                
                return reports;
@@ -116,7 +192,8 @@ public class AdminService {
                );
                
                double monthlyRevenue = monthlyOrders.stream()
-                   .mapToDouble(order -> order.getTotalPrice().doubleValue())
+                   .filter(order -> "DELIVERED".equals(order.getStatus()))
+                   .mapToDouble(order -> order.getTotalPrice() != null ? order.getTotalPrice().doubleValue() : 0.0)
                    .sum();
                
                report.put("monthlyRevenue", monthlyRevenue);

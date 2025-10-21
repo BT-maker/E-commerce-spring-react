@@ -45,6 +45,10 @@ const AdminDashboard = () => {
     hasPrevious: false
   });
   const [quickStats, setQuickStats] = useState({
+    thisMonthRevenue: 0,
+    todayRevenue: 0,
+    totalPendingOrders: 0,
+    newCustomersThisMonth: 0,
     weeklyOrders: 0,
     monthlyRevenue: 0,
     newUsers: 0
@@ -214,7 +218,7 @@ const AdminDashboard = () => {
       <div className="flex items-center justify-between">
         <div className="flex-1">
           <p className="text-sm font-medium text-gray-600 mb-1">{title}</p>
-          <p className="text-3xl font-bold text-gray-900 mb-2">{value.toLocaleString()}</p>
+          <p className="text-3xl font-bold text-gray-900 mb-2">{(value || 0).toLocaleString()}</p>
           {change && (
             <div className="flex items-center space-x-1">
               {changeType === 'positive' ? (
@@ -468,7 +472,7 @@ const AdminDashboard = () => {
                   </div>
                   <div>
                     <p className="text-sm text-gray-600">Bu Hafta Sipariş</p>
-                    <p className="text-xl font-bold text-gray-900">{quickStats.weeklyOrders.toLocaleString()}</p>
+                    <p className="text-xl font-bold text-gray-900">{(quickStats.weeklyOrders || 0).toLocaleString()}</p>
                   </div>
                 </div>
               </div>
@@ -480,7 +484,7 @@ const AdminDashboard = () => {
                   </div>
                   <div>
                     <p className="text-sm text-gray-600">Bu Ay Gelir</p>
-                    <p className="text-xl font-bold text-gray-900">₺{quickStats.monthlyRevenue.toLocaleString()}</p>
+                    <p className="text-xl font-bold text-gray-900">₺{(quickStats.monthlyRevenue || quickStats.thisMonthRevenue || 0).toLocaleString()}</p>
                   </div>
                 </div>
               </div>
@@ -491,8 +495,8 @@ const AdminDashboard = () => {
                     <Users className="w-5 h-5 text-white" />
                   </div>
                   <div>
-                    <p className="text-sm text-gray-600">Yeni Kullanıcı</p>
-                    <p className="text-xl font-bold text-gray-900">{quickStats.newUsers.toLocaleString()}</p>
+                    <p className="text-sm text-gray-600">Kullanıcı Sayısı</p>
+                    <p className="text-xl font-bold text-gray-900">{(quickStats.newUsers || quickStats.newCustomersThisMonth || 0).toLocaleString()}</p>
                   </div>
                 </div>
               </div>
