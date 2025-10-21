@@ -1102,45 +1102,56 @@ public class AdminController {
                     System.out.println("=== DEBUG: getSalesData called with range: " + range + " ===");
                     
                     List<Order> allOrders = orderRepository.findAll();
-                    
-                    // Gerçek satış verileri
                     Map<String, Object> salesData = new HashMap<>();
                     
                     if ("week".equals(range)) {
-                        // Haftalık veriler - gerçek sipariş sayıları
                         String[] labels = {"Pzt", "Sal", "Çar", "Per", "Cum", "Cmt", "Paz"};
-                        int[] data = new int[7];
-                        
-                        // Basit dağılım - gerçek uygulamada tarih bazlı olmalı
-                        int totalOrders = allOrders.size();
-                        for (int i = 0; i < 7; i++) {
-                            data[i] = (int) (totalOrders * (0.1 + Math.random() * 0.2)); // %10-30 arası rastgele
+                        long[] data = new long[7];
+                        java.time.LocalDate today = java.time.LocalDate.now();
+                        java.time.LocalDate weekStart = today.minusDays(today.getDayOfWeek().getValue() - 1);
+
+                        for (Order order : allOrders) {
+                            if (order.getCreatedAt() != null) {
+                                java.time.LocalDate orderDate = order.getCreatedAt().toLocalDate();
+                                if (!orderDate.isBefore(weekStart) && !orderDate.isAfter(today)) {
+                                    int dayOfWeek = orderDate.getDayOfWeek().getValue() - 1; // 0=Pzt, 6=Paz
+                                    data[dayOfWeek]++;
+                                }
+                            }
                         }
-                        
                         salesData.put("labels", labels);
                         salesData.put("data", data);
                     } else if ("month".equals(range)) {
-                        // Aylık veriler - gerçek sipariş sayıları
                         String[] labels = {"1. Hafta", "2. Hafta", "3. Hafta", "4. Hafta"};
-                        int[] data = new int[4];
-                        
-                        int totalOrders = allOrders.size();
-                        for (int i = 0; i < 4; i++) {
-                            data[i] = (int) (totalOrders * (0.2 + Math.random() * 0.1)); // %20-30 arası rastgele
+                        long[] data = new long[4];
+                        java.time.LocalDate today = java.time.LocalDate.now();
+                        java.time.LocalDate monthStart = today.withDayOfMonth(1);
+
+                        for (Order order : allOrders) {
+                            if (order.getCreatedAt() != null) {
+                                java.time.LocalDate orderDate = order.getCreatedAt().toLocalDate();
+                                if (orderDate.getMonth() == today.getMonth() && orderDate.getYear() == today.getYear()) {
+                                    int dayOfMonth = orderDate.getDayOfMonth();
+                                    if (dayOfMonth <= 7) data[0]++;
+                                    else if (dayOfMonth <= 14) data[1]++;
+                                    else if (dayOfMonth <= 21) data[2]++;
+                                    else data[3]++;
+                                }
+                            }
                         }
-                        
                         salesData.put("labels", labels);
                         salesData.put("data", data);
-                    } else {
-                        // Yıllık veriler - gerçek sipariş sayıları
-                        String[] labels = {"Ocak", "Şubat", "Mart", "Nisan", "Mayıs", "Haziran"};
-                        int[] data = new int[6];
-                        
-                        int totalOrders = allOrders.size();
-                        for (int i = 0; i < 6; i++) {
-                            data[i] = (int) (totalOrders * (0.1 + Math.random() * 0.2)); // %10-30 arası rastgele
+                    } else { // year
+                        String[] labels = {"Ocak", "Şubat", "Mart", "Nisan", "Mayıs", "Haziran", "Temmuz", "Ağustos", "Eylül", "Ekim", "Kasım", "Aralık"};
+                        long[] data = new long[12];
+                        int currentYear = java.time.LocalDate.now().getYear();
+
+                        for (Order order : allOrders) {
+                            if (order.getCreatedAt() != null && order.getCreatedAt().getYear() == currentYear) {
+                                int month = order.getCreatedAt().getMonthValue() - 1; // 0=Ocak, 11=Aralık
+                                data[month]++;
+                            }
                         }
-                        
                         salesData.put("labels", labels);
                         salesData.put("data", data);
                     }
@@ -1163,48 +1174,55 @@ public class AdminController {
                     System.out.println("=== DEBUG: getReportsRevenueData called with range: " + range + " ===");
                     
                     List<Order> allOrders = orderRepository.findAll();
-                    
-                    // Gerçek gelir verileri
                     Map<String, Object> revenueData = new HashMap<>();
                     
-                    // Toplam gelir hesapla
-                    double totalRevenue = allOrders.stream()
-                        .filter(order -> "DELIVERED".equals(order.getStatus()))
-                        .mapToDouble(order -> order.getTotalPrice() != null ? order.getTotalPrice().doubleValue() : 0.0)
-                        .sum();
-                    
                     if ("week".equals(range)) {
-                        // Haftalık veriler - gerçek gelir dağılımı
                         String[] labels = {"Pzt", "Sal", "Çar", "Per", "Cum", "Cmt", "Paz"};
                         double[] data = new double[7];
-                        
-                        // Basit dağılım - gerçek uygulamada tarih bazlı olmalı
-                        for (int i = 0; i < 7; i++) {
-                            data[i] = totalRevenue * (0.1 + Math.random() * 0.2); // %10-30 arası rastgele
+                        java.time.LocalDate today = java.time.LocalDate.now();
+                        java.time.LocalDate weekStart = today.minusDays(today.getDayOfWeek().getValue() - 1);
+
+                        for (Order order : allOrders) {
+                            if (order.getCreatedAt() != null && "DELIVERED".equals(order.getStatus())) {
+                                java.time.LocalDate orderDate = order.getCreatedAt().toLocalDate();
+                                if (!orderDate.isBefore(weekStart) && !orderDate.isAfter(today)) {
+                                    int dayOfWeek = orderDate.getDayOfWeek().getValue() - 1;
+                                    data[dayOfWeek] += order.getTotalPrice().doubleValue();
+                                }
+                            }
                         }
-                        
                         revenueData.put("labels", labels);
                         revenueData.put("data", data);
                     } else if ("month".equals(range)) {
-                        // Aylık veriler - gerçek gelir dağılımı
                         String[] labels = {"1. Hafta", "2. Hafta", "3. Hafta", "4. Hafta"};
                         double[] data = new double[4];
-                        
-                        for (int i = 0; i < 4; i++) {
-                            data[i] = totalRevenue * (0.2 + Math.random() * 0.1); // %20-30 arası rastgele
+                        java.time.LocalDate today = java.time.LocalDate.now();
+
+                        for (Order order : allOrders) {
+                            if (order.getCreatedAt() != null && "DELIVERED".equals(order.getStatus())) {
+                                java.time.LocalDate orderDate = order.getCreatedAt().toLocalDate();
+                                if (orderDate.getMonth() == today.getMonth() && orderDate.getYear() == today.getYear()) {
+                                    int dayOfMonth = orderDate.getDayOfMonth();
+                                    if (dayOfMonth <= 7) data[0] += order.getTotalPrice().doubleValue();
+                                    else if (dayOfMonth <= 14) data[1] += order.getTotalPrice().doubleValue();
+                                    else if (dayOfMonth <= 21) data[2] += order.getTotalPrice().doubleValue();
+                                    else data[3] += order.getTotalPrice().doubleValue();
+                                }
+                            }
                         }
-                        
                         revenueData.put("labels", labels);
                         revenueData.put("data", data);
-                    } else {
-                        // Yıllık veriler - gerçek gelir dağılımı
-                        String[] labels = {"Ocak", "Şubat", "Mart", "Nisan", "Mayıs", "Haziran"};
-                        double[] data = new double[6];
-                        
-                        for (int i = 0; i < 6; i++) {
-                            data[i] = totalRevenue * (0.1 + Math.random() * 0.2); // %10-30 arası rastgele
+                    } else { // year
+                        String[] labels = {"Ocak", "Şubat", "Mart", "Nisan", "Mayıs", "Haziran", "Temmuz", "Ağustos", "Eylül", "Ekim", "Kasım", "Aralık"};
+                        double[] data = new double[12];
+                        int currentYear = java.time.LocalDate.now().getYear();
+
+                        for (Order order : allOrders) {
+                            if (order.getCreatedAt() != null && order.getCreatedAt().getYear() == currentYear && "DELIVERED".equals(order.getStatus())) {
+                                int month = order.getCreatedAt().getMonthValue() - 1;
+                                data[month] += order.getTotalPrice().doubleValue();
+                            }
                         }
-                        
                         revenueData.put("labels", labels);
                         revenueData.put("data", data);
                     }

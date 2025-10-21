@@ -520,7 +520,7 @@ const AdminReports = () => {
                 >
                   <option value="week">Son Hafta</option>
                   <option value="month">Son Ay</option>
-                  <option value="quarter">Son Çeyrek</option>
+
                   <option value="year">Son Yıl</option>
                 </select>
               </div>
