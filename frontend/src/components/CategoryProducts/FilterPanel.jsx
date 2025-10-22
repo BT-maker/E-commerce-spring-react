@@ -130,7 +130,6 @@ const FilterPanel = memo(({
               <option value="">Varsayılan</option>
               <option value="price,asc">Fiyat: Artan</option>
               <option value="price,desc">Fiyat: Azalan</option>
-              <option value="popular">Popüler</option>
             </select>
           </div>
 
