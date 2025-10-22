@@ -10,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.bahattintok.e_commerce.dto.AuthResponse;
 import com.bahattintok.e_commerce.dto.SignInRequest;
 import com.bahattintok.e_commerce.dto.SignUpRequest;
+import com.bahattintok.e_commerce.dto.UpdateProfileRequest;
 import com.bahattintok.e_commerce.event.SellerRegistrationEvent;
 import com.bahattintok.e_commerce.event.UserRegisteredEvent;
 import com.bahattintok.e_commerce.model.RoleEntity;
@@ -305,6 +306,31 @@ public class AuthServiceImpl implements AuthService {
         System.out.println("=== DEBUG END ===");
         
         return new AuthResponse(token, user.getFirstName(), user.getLastName(), user.getRole().getName(), user.getEmail());
+    }
+
+    @Override
+    @Transactional
+    public User updateProfile(String email, UpdateProfileRequest request) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        if (request.getFirstName() != null) {
+            user.setFirstName(request.getFirstName());
+        }
+        if (request.getLastName() != null) {
+            user.setLastName(request.getLastName());
+        }
+        if (request.getPhone() != null) {
+            user.setPhone(request.getPhone());
+        }
+        if (request.getAddress1() != null) {
+            user.setAddress1(request.getAddress1());
+        }
+        if (request.getAddress2() != null) {
+            user.setAddress2(request.getAddress2());
+        }
+
+        return userRepository.save(user);
     }
     
     /**

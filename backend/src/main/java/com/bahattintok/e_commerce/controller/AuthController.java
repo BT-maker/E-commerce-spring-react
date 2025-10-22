@@ -11,6 +11,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -19,6 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.bahattintok.e_commerce.dto.AuthResponse;
 import com.bahattintok.e_commerce.dto.SignInRequest;
 import com.bahattintok.e_commerce.dto.SignUpRequest;
+import com.bahattintok.e_commerce.dto.UpdateProfileRequest;
 import com.bahattintok.e_commerce.model.User;
 import com.bahattintok.e_commerce.repository.UserRepository;
 import com.bahattintok.e_commerce.service.AuthService;
@@ -179,6 +181,28 @@ public class AuthController {
         } catch (Exception e) {
             System.err.println("getCurrentUser hatası: " + e.getMessage());
             return ResponseEntity.status(500).build();
+        }
+    }
+
+    @PutMapping("/me")
+    public ResponseEntity<Map<String, Object>> updateProfile(@RequestBody UpdateProfileRequest request, Authentication authentication) {
+        try {
+            if (authentication == null || !authentication.isAuthenticated()) {
+                return ResponseEntity.status(401).build();
+            }
+
+            String email = authentication.getName();
+            User updatedUser = authService.updateProfile(email, request);
+
+            Map<String, Object> response = new HashMap<>();
+            response.put("message", "Profile updated successfully");
+            response.put("user", updatedUser);
+
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            Map<String, Object> errorResponse = new HashMap<>();
+            errorResponse.put("message", "Profile update failed: " + e.getMessage());
+            return ResponseEntity.badRequest().body(errorResponse);
         }
     }
 

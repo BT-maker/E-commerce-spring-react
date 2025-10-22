@@ -3,6 +3,8 @@ package com.bahattintok.e_commerce.service;
 import com.bahattintok.e_commerce.dto.AuthResponse;
 import com.bahattintok.e_commerce.dto.SignInRequest;
 import com.bahattintok.e_commerce.dto.SignUpRequest;
+import com.bahattintok.e_commerce.dto.UpdateProfileRequest;
+import com.bahattintok.e_commerce.model.User;
 
 /**
  * Kimlik doğrulama (giriş/kayıt) işlemlerini yöneten servis arayüzü.
@@ -26,6 +28,8 @@ public interface AuthService {
      * Seller girişi (signin) işlemi.
      */
     AuthResponse sellerSignIn(SignInRequest request);
+
+    User updateProfile(String email, UpdateProfileRequest request);
     
     /**
      * Bu interface şu işlevleri sağlar:
