@@ -329,6 +329,9 @@ public class AuthServiceImpl implements AuthService {
         if (request.getAddress2() != null) {
             user.setAddress2(request.getAddress2());
         }
+        if (request.getBirthDate() != null) {
+            user.setBirthDate(request.getBirthDate());
+        }
 
         return userRepository.save(user);
     }

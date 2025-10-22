@@ -17,4 +17,6 @@ public class UpdateProfileRequest {
     private String address1;
 
     private String address2;
+
+    private String birthDate;
 }
