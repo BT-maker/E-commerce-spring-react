@@ -35,12 +35,45 @@ public class FavoriteController {
     @Operation(summary = "Kullanıcının favorilerini getir", description = "Giriş yapmış kullanıcının favorilerini listeler")
     public ResponseEntity<List<Map<String, Object>>> getUserFavorites() {
         try {
-            // Geçici olarak authentication kontrolü kaldırıldı
-            // TODO: Gerçek kullanıcı kimlik doğrulaması eklenecek
-            System.out.println("=== FAVORİLER GETİRİLİYOR ===");
-            System.out.println("Geçici olarak boş favori listesi döndürülüyor");
-            
-            return ResponseEntity.ok(new ArrayList<>());
+            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+            String email = auth.getName();
+
+            if (email == null || email.equals("anonymousUser")) {
+                // Kullanıcı giriş yapmamışsa boş liste döndür
+                return ResponseEntity.ok(new ArrayList<>());
+            }
+
+            List<Favorite> favorites = favoriteService.getUserFavorites(email);
+            List<Map<String, Object>> favoriteMaps = new ArrayList<>();
+
+            for (Favorite favorite : favorites) {
+                Product product = favorite.getProduct();
+                if (product != null) { // Only add favorite if product exists
+                    Map<String, Object> favoriteMap = new HashMap<>();
+                    favoriteMap.put("id", favorite.getId());
+                    favoriteMap.put("createdAt", favorite.getCreatedAt());
+
+                    Map<String, Object> productMap = new HashMap<>();
+                    productMap.put("id", product.getId());
+                    productMap.put("name", product.getName());
+                    productMap.put("price", product.getPrice());
+                    productMap.put("description", product.getDescription());
+                    productMap.put("stock", product.getStock());
+                    productMap.put("imageUrl1", product.getImageUrl1());
+                    productMap.put("imageUrl", product.getImageUrl());
+
+                    if (product.getCategory() != null) {
+                        Map<String, Object> categoryMap = new HashMap<>();
+                        categoryMap.put("id", product.getCategory().getId());
+                        categoryMap.put("name", product.getCategory().getName());
+                        productMap.put("category", categoryMap);
+                    }
+                    favoriteMap.put("product", productMap);
+                    favoriteMaps.add(favoriteMap);
+                }
+            }
+
+            return ResponseEntity.ok(favoriteMaps);
         } catch (Exception e) {
             System.err.println("Favoriler getirilirken hata: " + e.getMessage());
             e.printStackTrace();

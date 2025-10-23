@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { useAuth } from './AuthContext';
 import api from '../services/api';
 import toast from 'react-hot-toast';
@@ -17,49 +17,34 @@ export const useFavorites = () => {
 
 export const FavoritesProvider = ({ children }) => {
   const [favorites, setFavorites] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [favoritesLoaded, setFavoritesLoaded] = useState(false); // Favoriler yüklendi mi?
-  const { user, isLoggedIn } = useAuth();
+  const [loading, setLoading] = useState(true); // Start with loading true
+  const { isLoggedIn, loading: authLoading } = useAuth();
 
-  // Favorileri getir
-  const fetchFavorites = async () => {
-    console.log('fetchFavorites çağrıldı - isLoggedIn:', isLoggedIn);
-    
-    if (!isLoggedIn) {
-      console.log('Kullanıcı giriş yapmamış, favoriler boş');
+  const fetchFavorites = useCallback(async () => {
+    if (window.BACKEND_OFFLINE || !isLoggedIn) {
       setFavorites([]);
-      setFavoritesLoaded(true);
+      setLoading(false);
       return;
     }
-
-    // Eğer favoriler zaten yüklendiyse tekrar yükleme
-    if (favoritesLoaded) return;
-
-    // Backend offline ise favorileri yükleme
-    if (window.BACKEND_OFFLINE) {
-      console.log('Backend offline, favoriler yüklenmedi');
-      setFavorites([]);
-      setFavoritesLoaded(true);
-      return;
-    }
-
     setLoading(true);
     try {
-      console.log('Favoriler yükleniyor...');
       const response = await api.get('/favorites', { withCredentials: true });
-      console.log('Favoriler yüklendi:', response.data);
       setFavorites(response.data);
-      setFavoritesLoaded(true);
     } catch (error) {
       console.error('Favoriler yüklenirken hata:', error);
       setFavorites([]);
-      setFavoritesLoaded(true);
     } finally {
       setLoading(false);
     }
-  };
+  }, [isLoggedIn]); // Depends on isLoggedIn
 
-  // Favorilere ekle
+  useEffect(() => {
+    // We wait for the authentication to be resolved
+    if (!authLoading) {
+      fetchFavorites();
+    }
+  }, [isLoggedIn, authLoading, fetchFavorites]);
+
   const addToFavorites = async (productId) => {
     if (!isLoggedIn) {
       toast.error('Favorilere eklemek için giriş yapmalısınız!');
@@ -67,25 +52,18 @@ export const FavoritesProvider = ({ children }) => {
     }
 
     try {
-      console.log('Favorilere ekleme denemesi - ProductId:', productId);
       const response = await api.post(`/favorites/${productId}`, {}, { withCredentials: true });
-      console.log('Favorilere ekleme response:', response.data);
       
-      if (response.data) {
-        // Backend'den dönen veriyi frontend formatına dönüştür
+      if (response.data && response.data.product) {
         const newFavorite = {
           id: response.data.id,
           createdAt: response.data.createdAt,
           product: response.data.product
         };
-        
-        console.log('Yeni favori objesi:', newFavorite);
         setFavorites(prev => [newFavorite, ...prev]);
         toast.success('Ürün favorilere eklendi!');
       } else {
-        // Eğer response.data yoksa, favorileri yeniden yükle
-        console.log('Response.data yok, favorileri yeniden yüklüyor...');
-        setFavoritesLoaded(false); // Favorileri yeniden yüklemek için flag'i sıfırla
+        // Fallback to refetch all favorites if response is not as expected
         await fetchFavorites();
         toast.success('Ürün favorilere eklendi!');
       }
@@ -99,12 +77,9 @@ export const FavoritesProvider = ({ children }) => {
     }
   };
 
-  // Favorilerden çıkar
   const removeFromFavorites = async (productId) => {
     try {
-      console.log('Favorilerden çıkarma denemesi - ProductId:', productId);
       await api.delete(`/favorites/${productId}`, { withCredentials: true });
-      console.log('Favorilerden çıkarma başarılı!');
       setFavorites(prev => prev.filter(fav => fav.product && fav.product.id !== productId));
       toast.success('Ürün favorilerden çıkarıldı!');
     } catch (error) {
@@ -117,32 +92,13 @@ export const FavoritesProvider = ({ children }) => {
     }
   };
 
-  // Favori kontrolü
   const isFavorite = (productId) => {
     return favorites.some(fav => fav.product && fav.product.id === productId);
   };
 
-  // Favori sayısı
   const getFavoriteCount = () => {
     return favorites.length;
   };
-
-  // Kullanıcı değiştiğinde favorileri yeniden yükle
-  useEffect(() => {
-    console.log('FavoritesContext useEffect - isLoggedIn:', isLoggedIn, 'user:', user);
-    
-    // Kullanıcı çıkış yaptıysa favorileri temizle
-    if (!isLoggedIn) {
-      setFavorites([]);
-      setFavoritesLoaded(false);
-      return;
-    }
-    
-    // Kullanıcı giriş yaptıysa ve favoriler yüklenmemişse yükle
-    if (isLoggedIn && !favoritesLoaded) {
-      fetchFavorites();
-    }
-  }, [isLoggedIn]); // Sadece isLoggedIn değiştiğinde çalışsın
 
   const value = {
     favorites,
@@ -151,7 +107,7 @@ export const FavoritesProvider = ({ children }) => {
     removeFromFavorites,
     isFavorite,
     getFavoriteCount,
-    fetchFavorites
+    fetchFavorites // Keep it for pull-to-refresh or manual refresh scenarios
   };
 
   return (
@@ -174,4 +130,4 @@ export const FavoritesProvider = ({ children }) => {
  * 8. Authentication Kontrolü: Giriş yapmış kullanıcılar için favori sistemi
  * 
  * Bu context sayesinde favori işlemleri tüm uygulamada tutarlı şekilde çalışır!
- */ 
+ */

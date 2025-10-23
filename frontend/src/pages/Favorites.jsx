@@ -98,7 +98,7 @@ const Favorites = () => {
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-5">
-          {favorites.map((favorite) => {
+          {favorites.filter(fav => fav.product).map((favorite) => {
             console.log('Favori render ediliyor:', favorite);
             console.log('Favori product:', favorite.product);
             return (
